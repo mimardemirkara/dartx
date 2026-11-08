@@ -1580,5 +1580,20 @@ havaGetir(); // hava durumu (Demir 08.11 geri istedi)
 // Geliştirirken (localhost) önbellek kapalı; yayında açık
 const isDev = ['localhost', '127.0.0.1'].includes(location.hostname);
 if ('serviceWorker' in navigator && location.protocol !== 'file:' && !isDev) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  // Otomatik güncelleme (Demir 09.11: "tablette neden güncellenmedi"): sw.js tarayıcı önbelleğine takılmadan kontrol edilir,
+  // uygulama her öne gelişinde yeni sürüm aranır; yeni sürüm devreye girince ekran bir kez kendiliğinden yenilenir.
+  const ilkKontrol = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    const bak = () => reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') bak(); });
+    setInterval(bak, 30 * 60 * 1000);
+  }).catch(() => {});
+  let yenilendi = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!ilkKontrol || yenilendi) return; // ilk kurulumda değil, yalnız sürüm değişince
+    // maç sırasında açık pencere varsa (seçim, leg sonu) kullanıcıyı bölmemek için bir sonraki boş anda yenile
+    yenilendi = true;
+    const yenile = () => { if (S.modal) return setTimeout(yenile, 3000); location.reload(); };
+    yenile();
+  });
 }

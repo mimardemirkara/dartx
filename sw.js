@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-0.7.0';
+const VERSION = 'dartx-0.7.1';
 const FILES = [
   'ses/atc/tr-00.mp3',
   'ses/atc/tr-01.mp3',
@@ -194,7 +194,8 @@ const FILES = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache:'reload' — GitHub'ın 10 dakikalık tarayıcı önbelleğini atla, yeni sürümün dosyaları gerçekten yeni insin
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
