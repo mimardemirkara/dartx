@@ -819,6 +819,7 @@ function acikRenk(hex) {
   const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => (c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4));
   return .2126 * r + .7152 * g + .0722 * b > .32;
 }
+const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -1193,10 +1194,10 @@ function modal() {
     const kutu = (act, ic, yazi, alt, cls) => `<button class="btn menu-kutu ${cls}" data-act="${act}"><span class="mk-ic">${ic}</span><b>${yazi}</b>${alt ? `<small>${alt}</small>` : ''}</button>`;
     body = `<h2>${t('Menü')}</h2>
       <div class="menu-izgara">
-        ${kutu('close', KURAL_IKON.oynat, t('Oyuna dön'), '', 'mk-altin')}
+        ${kutu('close', KURAL_IKON.oynat, t('Oyuna Dön'), '', 'mk-altin')}
         ${kutu('rulesplay', IC.kitap, t('Kurallar'), '', 'mk-mavi')}
-        ${kutu('home', IC.ev, t('Ana sayfa'), t('maç kayıtlı kalır'), 'mk-celik')}
-        ${kutu('abort', KURAL_IKON.bust, t('Maçı iptal et'), '', 'mk-kirmizi')}
+        ${kutu('home', DURAKLAT_IC, t('Maça Ara Ver'), t('Maç Kayıtlı Kalır'), 'mk-celik')}
+        ${kutu('abort', KURAL_IKON.bust, t('Maçı İptal Et'), '', 'mk-kirmizi')}
       </div>`;
   } else if (md.type === 'hedefsec') {
     // Cezalı Kriket: double / triple / house nereye yazılsın
