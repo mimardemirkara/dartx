@@ -123,7 +123,7 @@ function make(id) {
     if (d.m === 3 && faydali(m, g, 'T')) liste.push({ v: 'T', l: tr('Triple · 1 işaret') });
     const td = m.turnDarts || [];
     const onceki = td[td.length - 1] === d ? td.slice(0, -1) : td; // ok henüz eklenmemiş ya da eklenmiş olabilir
-    if (onceki.length === 2 && onceki.every(x => x.n === d.n) && faydali(m, g, 'H')) liste.push({ v: 'H', l: tr('H · 1 işaret') });
+    if (onceki.length === 2 && onceki.every(x => x.n === d.n) && faydali(m, g, 'H')) liste.push({ v: 'H', l: tr('House · 1 işaret') });
     return liste;
   }
   // Bir hedefe 'adet' işaret yaz; kapalıysa (rakip açıkken) puanı kendine yaz

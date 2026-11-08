@@ -739,7 +739,7 @@ function viewPlay() {
   return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''}">
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
-      <h1>${esc(gt(g, 'name'))}<small>${t('Tur {0}', m.round)}${legTxt}</small></h1>
+      <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur">${t('Tur {0}', m.round)}${legTxt}</small></h1>
       <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Son Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>

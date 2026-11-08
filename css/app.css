@@ -1878,3 +1878,25 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 .keypad .k.mod { min-height: 58px; font-size: 17px; }
 .keypad .k.mod svg { width: 22px; height: 22px; }
 @media (min-width: 700px) { .keypad .k.mod { min-height: 72px; font-size: 19px; } .keypad .k.mod svg { width: 26px; height: 26px; } }
+
+/* Oyun başlığı (Demir 09.11): oyunun simgesi yanında, yazı büyük; Tur / Leg okunur */
+.play-top h1 { font-size: 20px; gap: 3px; }
+.play-top h1 .pt-ad { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.play-top h1 .pt-ic { width: 28px; height: 28px; flex: none; }
+.play-top h1 .pt-ic svg { width: 100%; height: 100%; }
+.play-top h1 .pt-tur { font-size: 14px; font-weight: 700; color: var(--brand); letter-spacing: .02em; }
+@media (min-width: 700px) {
+  .play-top h1 { font-size: 26px; } .play-top h1 .pt-ic { width: 36px; height: 36px; }
+  .play-top h1 .pt-tur { font-size: 17px; }
+}
+
+/* Double / Triple seçilince sayı tuşları da o rengin camına döner (Demir 09.11) */
+:root .keypad.mod2 .nums .k.num, :root .keypad.mod3 .nums .k.num { border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .38), rgb(var(--ton) / .16)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .9), rgb(var(--ton) / .3) 35%, rgb(var(--ton) / .12) 65%, rgb(var(--ton) / .65)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .2), 0 8px 22px -12px rgb(var(--ton) / .6); color: #fff !important; }
+:root .keypad.mod2 .nums .k.num { --ton: 61 139 253; }
+:root .keypad.mod3 .nums .k.num { --ton: 168 98 242; }
+
+/* House kutucuğu turkuaz (sayının altınından ayrışsın) */
+.hs-izgara .hs-H { --ton: 32 196 178; }
