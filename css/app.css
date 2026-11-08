@@ -2389,3 +2389,22 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 :root[data-tema="acik"] .play-top .geri-al:disabled { opacity: .65; }
 /* Duvar kâğıdı: dikey tablette geniş resim aşırı büyüyüp bulanıklaşıyordu — dikeyde uzun resim */
 @media (min-width: 720px) and (orientation: portrait) { body::before { background-image: var(--duvar); } }
+/* Sırası gelenin başlığı: oyuncunun renginde daha canlı, daha opak cam + parlak kenar ve ışık (Demir 09.11) */
+:root .ctable th.active, :root .board .side.active { border: 1px solid transparent !important;
+  background: var(--sivi-isik) padding-box,
+    linear-gradient(160deg, color-mix(in srgb, var(--pc) 72%, transparent), color-mix(in srgb, var(--pc) 42%, transparent)) padding-box,
+    linear-gradient(135deg, #fff, color-mix(in srgb, var(--pc) 85%, transparent) 40%, color-mix(in srgb, var(--pc) 45%, transparent)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 0 22px -4px color-mix(in srgb, var(--pc) 70%, transparent) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.4); backdrop-filter: blur(10px) saturate(1.4); }
+:root .ctable th.active :is(.cn, .cp), :root .board .side.active :is(.side-name, .side-big) { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .45); }
+/* Açık tema (Demir 09.11): renkli tuşlarda yazı ve simge koyu gri; zemin biraz açık, okunur */
+:root[data-tema="acik"] .keypad :is(.k.mod[data-m="2"], .k.mod[data-m="3"], .k.mod.house-tus, .k.bull-dis, .k.bull, .k.miss, .k.next, .k3-d, .k3-t),
+:root[data-tema="acik"] .keypad :is(.k.mod[data-m="2"], .k.mod[data-m="3"], .k.mod.house-tus, .k.bull-dis, .k.bull, .k.miss, .k.next) :is(svg, small, span, b) {
+  color: #26221e !important; text-shadow: 0 1px 0 rgb(255 255 255 / .35) !important; }
+:root[data-tema="acik"] .keypad :is(.k.mod[data-m="2"], .k.mod[data-m="3"], .k.mod.house-tus, .k.bull-dis, .k.bull, .k.miss, .k.next, .k3-d, .k3-t) {
+  background: var(--sivi-isik) padding-box, linear-gradient(160deg, rgb(var(--ton) / .72), rgb(var(--ton) / .52)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton)) 45%, rgb(var(--ton) / .6)) border-box !important; }
+:root[data-tema="acik"] .keypad .k.next { --ton: 214 51 132; }
+/* Açık tema seçim penceresi: simge ve rozetler okunur */
+:root[data-tema="acik"] .hs-izgara .hedef-sec .hs-ic { background: rgb(255 255 255 / .55) !important; color: rgb(var(--ton)); filter: brightness(.6) saturate(1.5); }
+:root[data-tema="acik"] .hs-izgara .hedef-sec { background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .45), rgb(var(--ton) / .25)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton) / .6)) border-box !important; }
+:root[data-tema="acik"] .hedef-sec .hs-etki.e-kapat, :root[data-tema="acik"] .hedef-sec .hs-etki.e-bos { background: rgb(40 32 24 / .75); color: #fff; }

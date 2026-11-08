@@ -25,6 +25,19 @@ if (!db.gocTurk) {
   try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* yer yoksa sessiz geç */ }
 }
 
+// Demir 09.11: iki oyuncunun rengi asla aynı olmasın — çakışan (sonradan eklenen) oyuncuya boştaki renk verilir
+function renkleriAyir() {
+  const kullanilan = new Set(); let degisti = false;
+  for (const p of db.players) {
+    if (!kullanilan.has(p.color)) { kullanilan.add(p.color); continue; }
+    const yeni = COLORS.find(c => !kullanilan.has(c));
+    if (!yeni) continue; // 12'den fazla oyuncuda tekrar kaçınılmaz
+    p.color = yeni; kullanilan.add(yeni); degisti = true;
+  }
+  return degisti;
+}
+if (renkleriAyir()) { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* sessiz */ } }
+
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
@@ -63,7 +76,12 @@ export function addPlayer(name) {
 }
 export function updatePlayer(id, patch) {
   const p = db.players.find(x => x.id === id);
-  if (p) Object.assign(p, patch);
+  if (p) {
+    // seçilen renk başkasındaysa ikisi yer değiştirir (aynı renk iki kişide olmaz)
+    const diger = patch.color && db.players.find(x => x.id !== id && x.color === patch.color);
+    if (diger) diger.color = p.color;
+    Object.assign(p, patch);
+  }
   save();
 }
 export function removePlayer(id) {
