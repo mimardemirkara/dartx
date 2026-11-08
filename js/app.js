@@ -582,6 +582,7 @@ const TUS_IC = {
   double: LUCIDE('<path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74z"/><path d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845"/>', 16, 2),
   triple: LUCIDE('<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>', 16, 2),
   bull: LUCIDE('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', 16, 2),
+  disBull: LUCIDE('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/>', 16, 2), // lucide "disc"
   iska: LUCIDE('<circle cx="12" cy="12" r="10"/><path d="M4.929 4.929 19.07 19.071"/>', 15, 2),
 };
 const HS_EV = LUCIDE('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>', 16, 2);
@@ -736,7 +737,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1>${esc(gt(g, 'name'))}<small>${t('Tur {0}', m.round)}${legTxt}</small></h1>
-      <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Geri al')}</span></button>
+      <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Son Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
     <section class="turn" style="--pc:${p.color}">
@@ -779,7 +780,7 @@ function keypad(m, g) {
     </div>
     <div class="nums" style="--sutun:${sutun}">${nums.join('')}</div>
     <div class="extra">
-      <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><b>25</b><small>${t('Dış Bull')}</small></button>
+      <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><span class="b-ust">${TUS_IC.disBull}<b>25</b></span><small>${t('Dış Bull')}</small></button>
       <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>BULL</span></span><small>50</small></button>
       <button class="k miss" data-act="dart" data-n="0">${TUS_IC.iska}<span>${t('Iska')}</span></button>
       <button class="k next" data-act="pass">${t('Sonraki ›')}</button>

@@ -1818,3 +1818,32 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 .ilk-sira .ilk-ad { font-size: 26px; font-weight: 600; } .ilk-sira .ilk-ad b { color: var(--pc); font-weight: 800; }
 .ilk-sira .btn { min-width: 180px; }
 @keyframes ilk-nabiz { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+/* Alt sıra tuşları ayrı cam renklerinde (Demir 09.11): Dış Bull yeşil, Bull kırmızı, Iska çelik, Sonraki altın */
+:root { --cam-yesil: 47 179 109; --cam-kirmizi: 233 75 60; --cam-celik: 150 160 178; }
+:root .keypad :is(.k.bull-dis, .k.bull, .k.miss) {
+  border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box,
+    linear-gradient(180deg, rgb(var(--ton) / .30), rgb(var(--ton) / .12)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .95) 0%, rgb(var(--ton) / .35) 35%, rgb(var(--ton) / .15) 65%, rgb(var(--ton) / .7) 100%) border-box;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .22), inset 0 -8px 16px -10px rgb(var(--ton) / .5), 0 8px 22px -12px rgb(var(--ton) / .55);
+  -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik);
+}
+:root .keypad .k.bull-dis { --ton: var(--cam-yesil); color: #b9f5d2; }
+:root .keypad .k.bull { --ton: var(--cam-kirmizi); color: #ffc9c2; }
+:root .keypad .k.miss { --ton: var(--cam-celik); color: #e2e7ef; }
+:root .keypad .k.bull-dis svg { color: #5fe39b; } :root .keypad .k.bull svg { color: #ff8a80; }
+:root[data-tema="acik"] .keypad .k.bull-dis { color: #11643a; } :root[data-tema="acik"] .keypad .k.bull { color: #8f2016; } :root[data-tema="acik"] .keypad .k.miss { color: #3a4352; }
+:root[data-tema="acik"] .keypad .k.bull-dis svg { color: #1c8f53; }
+.k.bull-dis .b-ust { display: inline-flex; align-items: center; gap: 6px; } .k.bull-dis .b-ust b { font-size: 1.05em; }
+.k.bull-dis { flex-direction: column; }
+
+/* "Son Atışı Geri Al": tablette daha büyük */
+@media (min-width: 700px) { .geri-al { height: 50px !important; padding: 0 22px !important; font-size: 17px !important; gap: 8px; } .geri-al svg { width: 20px; height: 20px; } }
+
+/* Yatay tablet: tuş takımı sağ sütunun tamamını kullansın (üstte boşluk kalmasın) */
+@media (orientation: landscape) and (min-width: 700px) {
+  .keypad:not(.numpad) { display: flex; flex-direction: column; align-content: stretch; gap: 8px; }
+  .keypad:not(.numpad) .nums { flex: 1; grid-auto-rows: 1fr; align-content: stretch; }
+  .keypad:not(.numpad) .nums .k { min-height: 0; height: 100%; }
+}
