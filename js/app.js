@@ -672,17 +672,17 @@ function viewSetup() {
       <p>${esc(gt(g, 'short'))}</p>
       <button class="kural-dugme" data-act="rules">${IC.kitap}<span>${t('Kurallar')}</span></button>
     </div>
-    <div class="kur-izgara"><div class="kur-sol">${opts}${legs}${input}</div><div class="kur-sag">
-    <div class="field"><label>${alanIkon('players')}${t('Oyuncular')} <small>(${t('sürükleyerek sırala')})</small></label>
+    <!-- Demir 09.11 (1 · İki eş panel): solda Ayarlar, sağda Oyuncular; Başla iki paneli kaplar -->
+    <div class="kur-izgara"><section class="kur-panel kur-sol"><h2 class="kp-bas">${KURAL_IKON.nisan}<span>${t('Ayarlar')}</span></h2>${opts}${legs}${input}</section><section class="kur-panel kur-sag">
+    <h2 class="kp-bas">${alanIkon('players')}<span>${t('Oyuncular')}</span><small class="kp-sayi">${n}</small><span class="kp-araclar">${n > 1 ? `<button class="kp-ic" data-act="shuffle" aria-label="${t('Sırayı karıştır')}" title="${t('Sırayı karıştır')}">${KARISTIR_IC}</button>` : ''}</span></h2>
       ${n ? `<div class="sira-liste">${sira}</div>` : `<p class="muted sira-bos">${t('Aşağıdan oyuncu seç — oynama sırası buraya gelir')}</p>`}
-      ${all.length ? oyuncuSecici(all, st.pids) : ''}
-      <form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form>
-      ${n > 1 ? `<button class="link" data-act="shuffle">${t('Sırayı karıştır')}</button>` : ''}
-    </div>
-    ${g.teams ? `<div class="field"><label>${alanIkon('teams')}${t('Mod')}</label>${chips('teams', [['0', 'Tekli', TEK_IC], ['1', 'Takım (2 takım)', KURAL_IKON.kisiler]], teamsOn ? '1' : '0', 'teams')}${!teamsOk ? `<small class="muted">${t('Takım için en az 4 oyuncu seç')}</small>` : ''}${teamPrev}</div>` : ''}
+      <div class="ekle-satir">${all.length ? oyuncuSecici(all, st.pids) : ''}<form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form></div>
+    ${g.teams ? `<div class="field ayar-satir mod-satir"><label>${alanIkon('teams')}${t('Mod')}</label>${chips('teams', [['0', 'Tekli', TEK_IC], ['1', 'Takım (2 takım)', KURAL_IKON.kisiler]], teamsOn ? '1' : '0', 'teams')}${!teamsOk ? `<small class="muted">${t('Takım için en az 4 oyuncu seç')}</small>` : ''}${teamPrev}</div>` : ''}
+    </section></div>
+    <div class="kur-alt">
     <button class="btn primary big" data-act="start" ${okCount ? '' : 'disabled'}>${t('Başla')}</button>
     ${!okCount ? `<p class="muted center">${n > sinir ? (g.teams && !teamsOn && g.maxTekli && n <= (g.max || 8) ? t('Tekli en fazla {0} oyuncu — {1} kişi için Takım seç', sinir, n) : t('Bu oyun en fazla {0} oyuncuyla oynanır', sinir)) : g.min > 1 ? t('En az {0} oyuncu seç', g.min) : t('En az 1 oyuncu seç')}</p>` : ''}
-    </div></div>
+    </div>
   </main>`;
 }
 
@@ -825,6 +825,9 @@ const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><re
 // Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
 const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
 const IPUCU_IC = LUCIDE('<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>', 16, 2);
+const KARISTIR_IC = LUCIDE('<path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/>', 18, 2);
+// Sıradaki Oyuncu simgesi (lucide skip-forward)
+const SIRADAKI_IC = LUCIDE('<path d="M21 4v16"/><path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/>', 20, 2.2);
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -860,7 +863,7 @@ function keypad(m, g) {
       <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><span class="b-ust">${TUS_IC.disBull}<span>BULL</span></span><small>25</small></button>
       <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>D-BULL</span></span><small>50</small></button>
       <button class="k miss" data-act="dart" data-n="0">${TUS_IC.iska}<span>${t('Iska')}</span></button>
-      <button class="k next" data-act="pass">${t('Sıradaki Oyuncu ›')}</button>
+      <button class="k next" data-act="pass">${SIRADAKI_IC}<span>${t('Sıradaki Oyuncu')}</span></button>
     </div>
   </section>`;
 }

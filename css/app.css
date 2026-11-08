@@ -2284,3 +2284,68 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 .sayac-b:disabled { opacity: .35; }
 @media (min-width: 700px) { .kurulum .field.ayar-satir { padding: 12px 14px 12px 18px; } .kurulum .field.ayar-satir > label { font-size: 17px; } .kurulum .field.ayar-satir > .chips .chip { min-height: 44px; padding: 0 16px; font-size: 15px; } }
 @media (max-width: 420px) { .kurulum .field.ayar-satir > .chips .chip { padding: 0 9px; font-size: 13px; } .kurulum .field.ayar-satir > label { font-size: 14px; } }
+
+/* Kurulum: 1 · İki eş panel (Demir 09.11) */
+.kurulum .kur-panel { display: grid; gap: 8px; align-content: start; padding: 12px; border-radius: 24px; border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .22), rgb(var(--cam-rgb) / .22)) padding-box, var(--sivi-kenar-isik) border-box; box-shadow: var(--sivi-ic); margin-bottom: 12px; }
+.kurulum .kp-bas { display: flex; align-items: center; gap: 8px; margin: 2px 4px 4px; font-size: 17px; font-weight: 800; }
+.kurulum .kp-bas svg { width: 18px; height: 18px; color: var(--brand); }
+.kurulum .kp-bas .alan-ikon { margin: 0; }
+.kurulum .kp-sayi { min-width: 26px; height: 24px; padding: 0 8px; border-radius: 99px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 800; background: rgb(0 0 0 / .3); color: var(--brand); }
+.kurulum .kp-araclar { margin-left: auto; display: flex; gap: 6px; }
+.kurulum .kp-ic { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; color: var(--fg); border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .42), rgb(var(--cam-rgb) / .42)) padding-box, var(--sivi-kenar-isik) border-box; }
+.kurulum .kur-panel .field.ayar-satir { margin: 0; }
+.kurulum .kur-panel .sira-liste { margin: 0; display: grid; gap: 8px; }
+.kurulum .kur-panel .sira-bos { margin: 4px; text-align: center; }
+.kurulum .ekle-satir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px; border-radius: 18px; border: 1.5px dashed rgb(240 207 134 / .4); }
+.kurulum .ekle-satir > .secici { margin: 0 !important; }
+.kurulum .ekle-satir .addp { flex: 1; min-width: 180px; margin: 0; }
+.kurulum .field.ayar-satir.mod-satir { flex-wrap: wrap; } .kurulum .field.ayar-satir.mod-satir > :is(small, .takimlar, .takim-not) { display: block; flex-basis: 100%; margin: 4px 0 0; text-align: center; } .kurulum .mod-satir > .takimlar { display: grid; }
+.kurulum .kur-alt { display: grid; gap: 6px; margin-top: 4px; }
+.kurulum .kur-alt .btn.big { width: 100%; margin: 0; }
+@media (min-width: 900px) { .kurulum .kur-izgara { gap: 0 16px !important; } .kurulum .kur-sag { position: static !important; } }
+/* Resimli ve resimsiz oyuncunun ismi/puanı aynı hizada (Demir 09.11: "biri yukarda diğeri aşağıda") */
+.ctable th .cn { min-height: calc(2em + 8px); box-sizing: border-box; }
+.board .side .side-name { min-height: calc(2em + 6px); display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+.board.x01 .side .side-name { min-height: calc(1.7em + 6px); }
+/* İki panel eşit boyda */
+@media (min-width: 900px) { .kurulum .kur-izgara { align-items: stretch !important; } }
+/* Set/Leg rozetleri: sağda alt alta yalnız 2 oyuncuda; 3+ oyuncuda ismin altında küçük, yan yana (Demir 09.11) */
+@media (min-width: 700px) {
+  .board.cricket:not(.orta-sayi) .ctable th .legs { position: static; transform: none; flex-direction: row; justify-content: center; margin: 4px 0 0; }
+  .board.cricket:not(.orta-sayi) .ctable th .cn { flex-direction: column; gap: 2px; }
+  .board.cricket:not(.orta-sayi) .ctable th .lg-ch { min-width: 0; padding: 2px 7px; }
+  .board.cricket:not(.orta-sayi) .ctable th .lg-ch b { font-size: 13px; }
+}
+/* Telefonda rozet genişliği taşmasın (ekran yana kayıyordu) */
+@media (max-width: 699px) { .lg-ch { min-width: 0; padding: 2px 6px; } }
+/* Açık tema: Geri Al ve Sıradaki her temada aynı dolu renk + beyaz yazı (tuş renk kuralı) */
+:root[data-tema="acik"] .keypad .k.geri-tus, :root[data-tema="acik"] .keypad .k.next { color: #fff !important; text-shadow: 0 1px 2px rgb(0 0 0 / .35) !important; opacity: 1;
+  background: linear-gradient(160deg, rgb(var(--ton)), rgb(var(--ton) / .82)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton))) border-box !important; }
+:root[data-tema="acik"] .keypad .k.geri-tus:disabled { opacity: .55; }
+:root[data-tema="acik"] .keypad .k3-alt :is(.k3-d, .k3-t) { color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / .3); }
+
+/* Sıradaki Oyuncu: simge + yazı */
+:root .keypad .k.next { display: flex; align-items: center; justify-content: center; gap: 8px; }
+:root .keypad .k.next svg { flex: none; width: 1.2em; height: 1.2em; }
+@media (max-width: 520px) { :root .keypad .k.next { flex-direction: column; gap: 2px; font-size: 13px; } }
+/* Telefonda oyun ekranı yana taşmasın */
+.play { max-width: 100%; overflow-x: clip; }
+.play > *, .keypad > * { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.keypad .nums { grid-template-columns: repeat(var(--sutun, 5), minmax(0, 1fr)) !important; }
+.keypad .extra { grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr); }
+@media (max-width: 520px) { .keypad .mods > .tablo-dugme { flex: 0 0 44px; } .keypad .mods > .giris-dugme { flex-basis: 56px; max-width: 56px; } }
+/* Açık tema menü kutuları: koyu, okunur yazı ve simge */
+:root[data-tema="acik"] .menu-kutu b { color: rgb(var(--ton) / 1) !important; filter: brightness(.45) saturate(1.4); text-shadow: none !important; }
+:root[data-tema="acik"] .menu-kutu .mk-ic { color: rgb(var(--ton)); filter: brightness(.6) saturate(1.5); background: rgb(255 255 255 / .55) !important; }
+:root[data-tema="acik"] .menu-kutu small { color: #4a3d2c; }
+/* Açık tema: sırada olmayan sütunlar fazla silik olmasın */
+:root[data-tema="acik"] .ctable th:not(.active):not(:first-child) :is(.cn, .cp, .side-uye), :root[data-tema="acik"] .board .side:not(.active) :is(.side-name, .side-big, .side-sub) { opacity: .7; }
+/* 3+ oyuncu: resim ismin solunda (üstte değil), rozetler alt satırda — bütün sütunlarda isim ve puan aynı hizada */
+@media (min-width: 700px) {
+  .board.cricket:not(.orta-sayi) .ctable th .cn { flex-direction: row !important; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; min-height: calc(2em + 8px + 30px); }
+  .board.cricket:not(.orta-sayi) .ctable th .cn .legs { flex-basis: 100%; }
+  .board.cricket:not(.orta-sayi) .ctable th .cn .ad-av { width: 1.7em; height: 1.7em; }
+}
+.ctable th { vertical-align: top; }
