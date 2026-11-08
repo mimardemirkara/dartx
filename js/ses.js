@@ -95,6 +95,9 @@ const SES = {
   killer() { nota({ dalga: 'sawtooth', f: 110, sure: 0.18, vol: 0.16 }); nota({ dalga: 'sawtooth', f: 110, sure: 0.18, vol: 0.16, gec: 0.2 }); nota({ dalga: 'square', f: 220, f2: 440, sure: 0.4, vol: 0.08, gec: 0.38 }); },
   // elendi / yarıya indi: aşağı kayan üzgün ton
   dusus() { nota({ dalga: 'triangle', f: 523, f2: 392, sure: 0.2, vol: 0.18 }); nota({ dalga: 'triangle', f: 392, f2: 262, sure: 0.35, vol: 0.16, gec: 0.18 }); },
+  // İlk atış ekranı (Demir 09.11): para fırlatma (madeni çınlama) ve kura tıkı
+  para() { [0, .12, .26, .42, .6, .8].forEach((g, i) => nota({ dalga: 'triangle', f: 2400 - i * 120, f2: 1800 - i * 100, sure: 0.06, vol: 0.12, gec: g })); },
+  kura() { nota({ dalga: 'sine', f: 1046, sure: 0.04, vol: 0.12 }); },
   geri() { nota({ dalga: 'sine', f: 700, f2: 420, sure: 0.12, vol: 0.2 }); },
   hata() { nota({ dalga: 'square', f: 200, sure: 0.12, vol: 0.08 }); },
 };

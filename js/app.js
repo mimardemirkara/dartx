@@ -130,8 +130,17 @@ function bulunmaEki(ad) {
 // Demir 09.11 (ikinci istek): "sayfanın içinde kaybolup gidiyor" → diğer uyarılar gibi ORTADA, buzlu arka planla açılır;
 // oyuncunun renginde kişi simgesi, kart yandan kayarak gelir (a-gec).
 let siraT1;
+// Sıra duyurusu sürerken (Demir 09.11) ekrana dokunmak alttaki tuşa basmasın: dokunuş yalnız duyuruyu kapatır
+let siraKilit = 0;
+function siraKilitAc() { siraKilit = 0; clearTimeout(toastT); document.getElementById('toast')?.classList.remove('show'); document.getElementById('toast-perde')?.classList.remove('show'); }
+addEventListener('click', e => {
+  if (!siraKilit || Date.now() > siraKilit || S.view !== 'play' || S.modal) return;
+  if (!e.target.closest('.keypad, .scores, .turn')) return;
+  e.preventDefault(); e.stopPropagation(); siraKilitAc();
+}, true);
 function siraGoster(m, gecikme) {
   clearTimeout(siraT1);
+  siraKilit = Date.now() + (gecikme || 0) + 1500;
   const pid = E.currentPid(m); const p = player(pid); if (!p || m.done) return;
   const takim = m.sides[m.cur].members.length > 1 ? E.sideName(m, m.cur, player) : '';
   const yazi = (dil() === 'tr' ? `Sıra <b>${esc(p.name)}</b>${bulunmaEki(p.name)}` : `<b>${esc(p.name)}</b>'s turn`) + (takim ? `<small>${esc(takim)}</small>` : '');
@@ -316,8 +325,9 @@ const matchCtx = m => ({
   legInfo: i => {
     const g = GAMES[m.gameId];
     if (!g.legs || ((m.opts.legs || 1) === 1 && (m.opts.sets || 1) === 1)) return '';
-    const sets = (m.opts.sets || 1) > 1 ? `<b>${m.setsWon[i]}</b>S ` : '';
-    return ` <span class="legs">${sets}<b>${m.legsWon[i]}</b>L</span>`;
+    // Demir 09.11: "0S 0L okunmuyor" — açık etiketli sayaç: Set 0 · Leg 0
+    const sets = (m.opts.sets || 1) > 1 ? `<span class="lg-ch"><i>${t('Set')}</i><b>${m.setsWon[i]}</b></span>` : '';
+    return ` <span class="legs">${sets}<span class="lg-ch"><i>${t('Leg')}</i><b>${m.legsWon[i]}</b></span></span>`;
   },
 });
 
@@ -588,6 +598,7 @@ const TUS_IC = {
   disBull: LUCIDE('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/>', 16, 2), // lucide "disc"
   iska: LUCIDE('<circle cx="12" cy="12" r="10"/><path d="M4.929 4.929 19.07 19.071"/>', 15, 2),
 };
+const GIRIS_IC = LUCIDE('<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>', 16, 2); // lucide layout-grid
 const HS_EV = LUCIDE('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>', 16, 2);
 const HS_CARPI = LUCIDE('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', 16, 2);
 const TEK_IC = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
@@ -686,6 +697,18 @@ function takimlar(st) {
 // Takım simgesi: lucide shield (demirkara.com seti) + içinde takım harfi
 const KALKAN = h => `<svg class="kalkan" viewBox="0 0 24 24" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><text x="12" y="15.6" text-anchor="middle" font-size="9.5" font-weight="800" fill="currentColor" fill-opacity="1" stroke="none" font-family="system-ui, sans-serif">${h}</text></svg>`;
 
+// Kura bitti: kazanan ilk atışı yapar
+function kuraBitti(m, i) {
+  if (!S.modal || S.modal.type !== 'baslayan') return;
+  E.baslayanSec(m, i); store.setCurrent(m); vib(15); ses.oyun('kutlama');
+  S.modal = { type: 'ilksira' }; render();
+}
+// İlk atış ekranı simgeleri: dart tahtası (Bull'a At) ve para yüzü
+const BS_TAHTA = `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#1c1a17" stroke="rgb(255 255 255 / .25)"/>${Array.from({ length: 20 }, (_, i) => { const a1 = (i * 18 - 9) * Math.PI / 180, a2 = (i * 18 + 9) * Math.PI / 180; const p = (r, a) => `${(32 + r * Math.sin(a)).toFixed(2)} ${(32 - r * Math.cos(a)).toFixed(2)}`; return `<path d="M ${p(27, a1)} A 27 27 0 0 1 ${p(27, a2)} L 32 32 Z" fill="${i % 2 ? '#e8dcc0' : '#26231f'}"/>`; }).join('')}<circle cx="32" cy="32" r="27" fill="none" stroke="#c0392b" stroke-width="3" opacity=".85"/><circle cx="32" cy="32" r="10" fill="#1e9e57"/><circle cx="32" cy="32" r="4.6" fill="#e74c3c" class="bs-merkez"/></svg>`;
+const BS_ZAR = LUCIDE('<rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/>', 24, 1.8); // lucide dices
+const BS_SEC = LUCIDE('<path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/>', 24, 1.8); // lucide mouse-pointer-click
+const BS_PARA_YUZ = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6" opacity=".55"/><path d="M12 8.5v7M9.8 10.2c.4-1 1.2-1.5 2.2-1.5 1.3 0 2.2.7 2.2 1.7 0 2.1-4.4 1.4-4.4 3.4 0 1 .9 1.7 2.2 1.7 1 0 1.8-.5 2.2-1.5"/></svg>`;
+
 function startMatch() {
   const g = GAMES[S.gameId];
   const st = S.setup;
@@ -733,13 +756,15 @@ function viewPlay() {
   }).join('');
   const turnPts = m.turnDarts.reduce((a, d) => a + dartValue(d), 0);
   const hint = g.hint ? g.hint(m, m.g) : '';
-  const legTxt = g.legs && ((m.opts.legs || 1) > 1 || (m.opts.sets || 1) > 1) ? ` · Leg ${m.legNo}` : '';
+  const cokLeg = g.legs && ((m.opts.legs || 1) > 1 || (m.opts.sets || 1) > 1);
+  const setNo = (m.setsWon || []).reduce((a, b) => a + b, 0) + 1;
+  const legTxt = cokLeg ? `${(m.opts.sets || 1) > 1 ? `<span class="pt-seg"><i>${t('Set')}</i><b>${setNo}</b></span>` : ''}<span class="pt-seg"><i>${t('Leg')}</i><b>${m.legNo}</b></span>` : '';
   const useTotal = g.totalInput && m.opts.input === 'total';
   const tabloYaz = tabloYazAcik(m, g);
   return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''}">
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
-      <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur">${t('Tur {0}', m.round)}${legTxt}</small></h1>
+      <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
       <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Son Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
@@ -747,6 +772,7 @@ function viewPlay() {
       <div class="who">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
       ${useTotal ? `<div class="totalbuf">${S.totalBuf || '0'}</div>` : `<div class="slots">${slots}</div><div class="tp">${turnPts}</div>`}
       ${hint ? `<div class="hint">${esc(hint)}</div>` : ''}
+      ${(() => { const d = g.durum ? g.durum(m, m.g) : null; return d ? `<div class="durum-satir d-${d.tur}">${d.tur === 'onde' ? '▲' : d.tur === 'geride' ? '▼' : '='} ${esc(d.metin)}</div>` : ''; })()}
     </section>
     ${useTotal ? numpad() : keypad(m, g)}
   </div>`;
@@ -766,17 +792,25 @@ function tabloYazAcik(m, g) {
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
-  const num = n => `<button class="k num ${hl.has(n) ? 'hl' : ''}" data-act="dart" data-n="${n}">${n}</button>`;
+  // Hızlı giriş (Demir 09.11: "tuşları 3'e bölsek, 10 single 10 double 10 triple"): kriket oyunlarında her sayı kutucuğu
+  // üstte tekli, altta D (mavi) ve T (mor) — her ok tek dokunuş. Ayarı oyun başına; varsayılan açık.
+  const hizli = g.cat === 'cricket' && (data().settings.kriketGiris || {})[m.gameId] !== 'klasik';
+  const num = n => hizli
+    ? `<div class="k3 ${hl.has(n) ? 'hl' : ''}"><button class="k num k3-s" data-act="dart" data-n="${n}" data-fix="1">${n}</button><div class="k3-alt"><button class="k3-d" data-act="dart" data-n="${n}" data-fix="2" aria-label="D${n}">D</button><button class="k3-t" data-act="dart" data-n="${n}" data-fix="3" aria-label="T${n}">T</button></div></div>`
+    : `<button class="k num ${hl.has(n) ? 'hl' : ''}" data-act="dart" data-n="${n}">${n}</button>`;
   const nums = [];
   // Oyun yalnız belli sayılarla oynanıyorsa (ör. Türk Kriketi 20–10) tuş takımında yalnız onlar; geri kalan oklar "Iska"
   const sadece = g.tuslar ? g.tuslar(m, m.g) : null;
   if (sadece && sadece.length) sadece.forEach(n => nums.push(num(n)));
   else for (let n = 1; n <= 20; n++) nums.push(num(n));
   const sutun = !sadece ? 5 : sadece.length <= 6 ? 3 : sadece.length <= 8 ? 4 : sadece.length <= 12 ? 4 : 5;
-  return `<section class="keypad mod${mod}">
+  return `<section class="keypad mod${mod} ${hizli ? 'hizli' : ''}">
     <div class="mods">
-      <button class="k mod ${mod === 2 ? 'on' : ''}" data-act="mod" data-m="2">${TUS_IC.double}<span>DOUBLE</span></button>
-      <button class="k mod ${mod === 3 ? 'on' : ''}" data-act="mod" data-m="3">${TUS_IC.triple}<span>TRIPLE</span></button>
+      ${hizli ? '' : `<button class="k mod ${mod === 2 ? 'on' : ''}" data-act="mod" data-m="2">${TUS_IC.double}<span>DOUBLE</span></button>
+      <button class="k mod ${mod === 3 ? 'on' : ''}" data-act="mod" data-m="3">${TUS_IC.triple}<span>TRIPLE</span></button>`}
+      ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus" data-act="ozelsatir" data-h="H">${HS_EV}<span>HOUSE</span></button>` : ''}
+      ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus" data-act="ozelsatir" data-h="B3">${HS_EV}<span>3 IN A BED</span></button>` : ''}
+      ${g.cat === 'cricket' ? `<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>` : ''}
       ${g.cat === 'cricket' && g.view ? (tabloYazAcik(m, g)
         ? `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="0" aria-label="${t('Tuşlarla yaz')}" title="${t('Tuşlarla yaz')}">${KLAVYE_IC}</button>`
         : `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="1" aria-label="${t('Tablodan yaz')}" title="${t('Tablodan yaz')}">${TABLO_IC}</button>`) : ''}
@@ -786,7 +820,7 @@ function keypad(m, g) {
       <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><span class="b-ust">${TUS_IC.disBull}<b>25</b></span><small>${t('Dış Bull')}</small></button>
       <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>BULL</span></span><small>50</small></button>
       <button class="k miss" data-act="dart" data-n="0">${TUS_IC.iska}<span>${t('Iska')}</span></button>
-      <button class="k next" data-act="pass">${t('Sonraki ›')}</button>
+      <button class="k next" data-act="pass">${t('Sıradaki Oyuncu ›')}</button>
     </div>
   </section>`;
 }
@@ -1078,7 +1112,10 @@ function legBittiPencere(md) {
     <table class="lb-tablo"><thead><tr><th></th>${setli ? `<th>${t('Set')}</th>` : ''}<th>${t('Leg')}</th></tr></thead><tbody>${satirlar}</tbody></table>
     <p class="lb-sonraki">${t('Sıradaki eli {0} başlatır', `<b style="color:${basla.color}">${esc(basla.name)}</b>`)}</p>
     <button class="btn primary big" data-act="legdevam">${dugme}</button>
-    <button class="btn" data-act="undo">${t('↶ Son oku geri al')}</button>
+    <div class="lb-alt-dugmeler">
+      <button class="btn" data-act="undo">${t('↶ Son oku geri al')}</button>
+      <button class="btn lb-bitir" data-act="oyunubitir">${UYARI_IC.kupa}<span>${t('Oyunu bitir')}</span></button>
+    </div>
   </div></div>`;
 }
 
@@ -1118,11 +1155,15 @@ function modal() {
     const m = data().current;
     // Menü düğmeleri simgeli (lucide: kitap, ev, x-daire, oynat)
     const mi = (ic, yazi) => `<span class="menu-ic">${ic}</span><span>${yazi}</span>`;
+    // Demir 09.11: menü tuşları çizgi değil, kare kutucuk (uygulama simgeleri gibi)
+    const kutu = (act, ic, yazi, alt, cls) => `<button class="btn menu-kutu ${cls}" data-act="${act}"><span class="mk-ic">${ic}</span><b>${yazi}</b>${alt ? `<small>${alt}</small>` : ''}</button>`;
     body = `<h2>${t('Menü')}</h2>
-      <button class="btn menu-btn" data-act="rulesplay">${mi(IC.kitap, t('Kurallar'))}</button>
-      <button class="btn menu-btn" data-act="home">${mi(IC.ev, t('Ana sayfa (maç kayıtlı kalır)'))}</button>
-      <button class="btn danger menu-btn" data-act="abort">${mi(KURAL_IKON.bust, t('Maçı iptal et'))}</button>
-      <button class="btn primary menu-btn" data-act="close">${mi(KURAL_IKON.oynat, t('Oyuna dön'))}</button>`;
+      <div class="menu-izgara">
+        ${kutu('close', KURAL_IKON.oynat, t('Oyuna dön'), '', 'mk-altin')}
+        ${kutu('rulesplay', IC.kitap, t('Kurallar'), '', 'mk-mavi')}
+        ${kutu('home', IC.ev, t('Ana sayfa'), t('maç kayıtlı kalır'), 'mk-celik')}
+        ${kutu('abort', KURAL_IKON.bust, t('Maçı iptal et'), '', 'mk-kirmizi')}
+      </div>`;
   } else if (md.type === 'hedefsec') {
     // Cezalı Kriket: double / triple / house nereye yazılsın
     const etk = md.ok.n === 25 ? (md.ok.m === 2 ? 'D-Bull' : 'Bull') : (md.ok.m === 3 ? 'T' : md.ok.m === 2 ? 'D' : '') + md.ok.n;
@@ -1141,15 +1182,40 @@ function modal() {
       ${adAvatar(p.name, 'ilk-av') || `<span class="ilk-nokta"></span>`}
       <div class="ilk-ust">${t('İlk atış')}</div>
       <div class="ilk-ad">${dil() === 'tr' ? `Sıra <b>${esc(p.name)}</b>${bulunmaEki(p.name)}` : `<b>${esc(p.name)}</b> ${t('throws first')}`}</div>
+      ${(() => { const gg = GAMES[m.gameId]; if (gg.cat !== 'cricket' || m.opts.scoring === 'off' || m.gameId === 'english') return '';
+        return `<p class="ilk-kural">${m.opts.scoring === 'ceza' ? t('Kazanmak için: bütün hedefleri kapat ve en düşük puanda ol. Kapattığın hedefe vurdukça puan, kapatmamış rakiplerine yazılır.') : t('Kazanmak için: bütün hedefleri kapat ve puanda önde ol. Rakibinin kapatmadığı hedefe vurdukça puan senin hanene yazılır; geride kalırsan hepsini kapatsan da oyun bitmez.')}</p>`; })()}
       <button class="btn primary big" data-act="ilkbasla">${t('Başla')}</button>
       <small class="muted">${t('Başlamak için ekrana dokun')}</small></div>`;
   } else if (md.type === 'baslayan') {
+    // İlk atış ekranı (Demir 09.11, DartX tarzı): önce yöntem — Bull'a At / Yazı Tura — sonra kişi ya da kura
     const m = data().current; if (!m) { S.modal = null; return ''; }
     const ad = i => E.sideName(m, i, player), renk = i => player(m.sides[i].members[0]).color;
-    body = `<div class="bs-ust"><span class="bs-ic">${TUS_IC.bull}</span><h2>${t('Kim başlıyor?')}</h2></div>
-      <p class="muted bs-not">${t("Başlama atışı: herkes Bull'a birer ok atar, Bull'a en yakın olan başlar. Sonraki leg'leri sırayla diğerleri açar.")}</p>
-      <div class="bs-liste">${m.sides.map((_, i) => `<button class="btn bs-kisi" style="--pc:${renk(i)}" data-act="baslayan" data-i="${i}">${adAvatar(ad(i)) || '<i class="bs-nokta"></i>'}<span>${esc(ad(i))}</span></button>`).join('')}</div>
-      <button class="btn bs-rastgele" data-act="baslayan" data-i="r">${t('Rastgele seç')}</button>`;
+    const rozet = i => adAvatar(ad(i), 'bs-av') || `<span class="bs-harf" style="--pc:${renk(i)}">${esc(String(ad(i)).trim().charAt(0).toLocaleUpperCase('tr'))}</span>`;
+    const adim = md.adim || 'secim';
+    const takimli = m.sides.some(sd => sd.members.length > 1);
+    if (adim === 'secim') {
+      body = `<h2 class="bs-baslik">${t('İlk kim atacak?')}</h2>
+        <div class="bs-yontem">
+          <button class="btn bs-kart bs-bull" data-act="bsyontem" data-v="bull"><span class="bs-kart-ic">${BS_TAHTA}</span><b>${t("Bull'a At")}</b><small>${t('Herkes bir ok atar, en yakın başlar')}</small></button>
+          <button class="btn bs-kart bs-para" data-act="bsyontem" data-v="kura"><span class="bs-kart-ic"><span class="bs-coin">${BS_PARA_YUZ}</span></span><b>${t('Yazı Tura')}</b><small>${m.sides.length > 2 ? t('Kura çekilir') : t('Para atılır')}</small></button>
+          <button class="btn bs-kart bs-zar" data-act="baslayan" data-i="r"><span class="bs-kart-ic bs-zar-ic">${BS_ZAR}</span><b>${t('Rastgele')}</b><small>${t('DartX karar versin')}</small></button>
+          <button class="btn bs-kart bs-sec" data-act="bsyontem" data-v="sec"><span class="bs-kart-ic bs-sec-ic">${BS_SEC}</span><b>${t('Kimin Başlayacağını Sen Seç')}</b><small>${t('Oyunculardan birine dokun')}</small></button>
+        </div>`;
+    } else if (adim === 'bull' || adim === 'sec') {
+      body = `<h2 class="bs-baslik">${adim === 'sec' ? t('Kim başlasın?') : t("Bull'a en yakın kim?")}</h2>
+        <p class="muted bs-not">${t("Sonraki leg'leri sırayla diğerleri açar.")}</p>
+        <div class="bs-kisiler n${m.sides.length} ${takimli ? 'takimli' : ''}">${m.sides.map((sd, i) => takimli
+          ? `<button class="btn bs-takim" style="--pc:${renk(i)}" data-act="baslayan" data-i="${i}"><b class="bs-takim-ad">${esc(ad(i))}</b><span class="bs-uyeler">${sd.members.map(pid => { const p = player(pid); return `<span class="bs-uye">${adAvatar(p.name, 'bs-av') || `<span class="bs-harf" style="--pc:${p.color}">${esc(p.name.trim().charAt(0).toLocaleUpperCase('tr'))}</span>`}<span>${esc(p.name)}</span></span>`; }).join('')}</span></button>`
+          : `<button class="btn bs-kisi-kutu" style="--pc:${renk(i)}" data-act="baslayan" data-i="${i}">${rozet(i)}<span>${esc(ad(i))}</span></button>`).join('')}</div>
+        <button class="btn bs-geri" data-act="bsyontem" data-v="secim">‹ ${t('Geri')}</button>`;
+    } else { // kura: iki kişide para, daha çokta oyuncular arasında dolaşan ışık
+      const iki = m.sides.length === 2;
+      body = `<h2 class="bs-baslik">${iki ? t('Yazı Tura') : t('Kura çekiliyor')}</h2>
+        ${iki ? `<div class="bs-sahne"><div class="bs-buyuk-para ${md.sonuc != null ? 'don-' + md.sonuc : ''}">
+            <div class="bs-yuz on" style="--pc:${renk(0)}">${rozet(0)}<span>${esc(ad(0))}</span></div>
+            <div class="bs-yuz arka" style="--pc:${renk(1)}">${rozet(1)}<span>${esc(ad(1))}</span></div></div></div>`
+          : `<div class="bs-liste bs-kura">${m.sides.map((_, i) => `<div class="btn bs-kisi" data-kura="${i}" style="--pc:${renk(i)}">${rozet(i)}<span>${esc(ad(i))}</span></div>`).join('')}</div>`}`;
+    }
   } else if (md.type === 'ozelsec') {
     const ad = { D: t('Hangi double?'), T: t('Hangi triple?'), H: t('House: hangi sayıya üç ok?'), B3: t('3 in a bed: hangi sayıya üç ok?') }[md.h];
     const on = md.h === 'D' ? 'D' : md.h === 'T' ? 'T' : '';
@@ -1322,6 +1388,7 @@ app.addEventListener('click', e => {
     }
     case 'start': startMatch(); break;
 
+    case 'kriketgiris': { const s = data().settings, k = s.kriketGiris || {}; k[m.gameId] = k[m.gameId] === 'klasik' ? 'hizli' : 'klasik'; s.kriketGiris = k; S.mod = 1; store.save(); vib(8); ses.tus(); render(); break; }
     case 'tabloyaz': { const s = data().settings; s.tabloYaz = { ...(s.tabloYaz || {}), [m.gameId]: el.dataset.v === '1' }; store.save(); vib(8); ses.tus(); render(); break; }
     case 'mod': S.mod = S.mod === Number(el.dataset.m) ? 1 : Number(el.dataset.m); vib(8); ses.tus(); render(); break;
     case 'dart': {
@@ -1336,6 +1403,29 @@ app.addEventListener('click', e => {
       if (sec) { S.modal = { type: 'hedefsec', ok, sec }; vib(10); ses.tus(); render(); break; }
       S.sonOk = ok;
       afterThrow(E.throwDart(m, ok));
+      break;
+    }
+    case 'bsyontem': {
+      const md = S.modal; if (!md || md.type !== 'baslayan') break;
+      md.adim = el.dataset.v; vib(8); ses.tus();
+      if (md.adim !== 'kura') { render(); break; }
+      // kura: sonuç baştan belli, animasyon onu gösterir
+      const kazanan = Math.floor(Math.random() * m.sides.length);
+      md.sonuc = null; render();
+      if (m.sides.length === 2) {
+        ses.oyun('para');
+        requestAnimationFrame(() => requestAnimationFrame(() => { md.sonuc = kazanan; const p = document.querySelector('.bs-buyuk-para'); if (p) p.classList.add('don-' + kazanan); }));
+        setTimeout(() => kuraBitti(m, kazanan), 2300);
+      } else {
+        let adimNo = 0; const toplam = m.sides.length * 3 + kazanan + 1;
+        const yak = () => {
+          const i = adimNo % m.sides.length;
+          document.querySelectorAll('[data-kura]').forEach(x => x.classList.toggle('isik', Number(x.dataset.kura) === i));
+          ses.oyun('kura'); adimNo++;
+          if (adimNo < toplam) setTimeout(yak, 90 + adimNo * adimNo * 3); else setTimeout(() => kuraBitti(m, kazanan), 700);
+        };
+        setTimeout(yak, 150);
+      }
       break;
     }
     case 'baslayan': {
@@ -1411,6 +1501,13 @@ app.addEventListener('click', e => {
         .then(ok => { if (ok) { store.setCurrent(null); E.clearUndo(); go('home'); } });
       break;
     case 'close': S.modal = null; render(); break;
+    case 'oyunubitir': {
+      if (!m || !S.modal || S.modal.type !== 'legbitti') break;
+      E.erkenBitir(m); S.modal = null;
+      store.finishCurrent(); S.lastMatch = m; ses.oyun('mac');
+      setTimeout(konfeti, 120);
+      go('end'); break;
+    }
     case 'legdevam': S.modal = null; render(); if (data().current) siraGoster(data().current, 150); break;
     case 'ilkbasla': S.modal = null; vib(8); ses.tus(); render(); break;
     case 'bg': if (S.modal && S.modal.type === 'ilksira') { S.modal = null; vib(8); render(); break; }

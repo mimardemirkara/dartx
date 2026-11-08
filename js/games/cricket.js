@@ -284,6 +284,29 @@ function make(id) {
       return tr('Açık: {0}', goster.join(' · '));
     },
 
+    // Puan durumu (Demir 09.11: "komple kapatmış ama oyunun neden bitmediğini anlamamış"): kim önde, fark kaç,
+    // geride olan nereye vurarak öne geçer. Her okta yenilenir.
+    durum(m, g) {
+      if (!puanli(m) || m.sides.length < 2) return null;
+      const me = g.s[m.cur], others = g.s.map((s, i) => ({ s, i })).filter(x => x.i !== m.cur);
+      const ad = i => m.sides[i].name || ('#' + (i + 1));
+      const hepsiKapali = hedefler(g).every(n => me.k[n] >= 3);
+      // puan alınabilecek hedefler: ben kapattım, rakiplerden biri kapatmadı
+      const puanYeri = hedefler(g).filter(n => me.k[n] >= 3 && others.some(o => o.s.k[n] < 3)).map(hedefAd);
+      if (cezali(m)) { // Cut-throat: düşük puan kazanır
+        const en = others.reduce((a, b) => (b.s.pts < a.s.pts ? b : a));
+        const fark = me.pts - en.s.pts;
+        if (fark <= 0) return { tur: 'onde', metin: tr('Öndesin · fark {0}', -fark) };
+        return { tur: 'geride', metin: tr('{0} puan fazlan var · rakiplerinin kapatmadığı hedefleri kapat', fark) };
+      }
+      const en = others.reduce((a, b) => (b.s.pts > a.s.pts ? b : a));
+      const fark = me.pts - en.s.pts;
+      if (fark > 0) return { tur: 'onde', metin: tr('Öndesin · +{0} puan', fark) + (hepsiKapali ? '' : ' · ' + tr('hepsini kapatırsan kazanırsın')) };
+      const yer = puanYeri.length ? ' · ' + tr('puan için vur: {0}', puanYeri.join(', ')) : '';
+      if (fark === 0) return { tur: 'esit', metin: tr('Puan eşit') + yer };
+      return { tur: 'geride', metin: (hepsiKapali ? tr('Hepsini kapattın ama {0} puan gerideysin', -fark) : tr('{0} puan gerideysin', -fark)) + yer };
+    },
+
     highlight(m, g) {
       const me = g.s[m.cur];
       const others = g.s.filter((_, i) => i !== m.cur);

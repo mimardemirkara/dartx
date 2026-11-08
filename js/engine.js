@@ -59,6 +59,16 @@ export function baslayanSec(m, i) {
   m.ilk = i; m.starter = i; m.cur = i;
   startTurn(m);
 }
+/** Oyunu bitir (Demir 09.11): leg bitiminde maç burada kapanır; kazanan en çok set/leg alan, eşitse berabere.
+ *  Yeni leg'e hiç ok atılmadığı için istatistikler bozulmaz. */
+export function erkenBitir(m) {
+  if (m.done) return;
+  const puan = i => (m.setsWon[i] || 0) * 1000 + (m.legsWon[i] || 0);
+  const en = Math.max(...m.sides.map((_, i) => puan(i)));
+  const kim = m.sides.map((_, i) => i).filter(i => puan(i) === en);
+  m.done = true; m.ended = Date.now(); m.winner = kim.length === 1 ? kim[0] : -1; m.erkenBitti = true;
+  m.turnDarts = [];
+}
 export function clearUndo() { undoStack.length = 0; }
 export const canUndo = () => undoStack.length > 0;
 

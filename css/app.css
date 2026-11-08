@@ -1913,3 +1913,153 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 .board.orta-sayi .ctable th.orta-bas { width: 52px; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
 .board.orta-sayi .ctable td.num { text-align: center; width: 52px; }
 @media (min-width: 700px) { .board.orta-sayi .ctable th.orta-bas, .board.orta-sayi .ctable td.num { width: 66px; } }
+
+/* ── İlk atış ekranı (Demir 09.11, DartX tarzı) ── */
+.bs-baslik { text-align: center; font-size: 24px; margin-bottom: 14px; letter-spacing: -.01em; }
+.bs-yontem { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bs-kart { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 210px; padding: 18px 10px; border-radius: 28px; text-align: center; --ton: 227 184 102;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .24), rgb(var(--ton) / .08)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .9), rgb(var(--ton) / .25) 35%, rgb(var(--ton) / .1) 65%, rgb(var(--ton) / .6)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 12px 30px -16px rgb(var(--ton) / .7); color: var(--fg) !important; }
+.bs-kart b { font-size: 22px; } .bs-kart small { font-size: 13px; opacity: .75; font-weight: 600; line-height: 1.35; }
+.bs-bull { --ton: 46 170 98; }
+.bs-kart-ic { display: grid; place-items: center; width: 96px; height: 96px; }
+.bs-kart-ic svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 14px rgb(0 0 0 / .5)); }
+.bs-bull .bs-kart-ic svg { animation: bs-tahta 5s linear infinite; }
+.bs-bull .bs-merkez { animation: bs-nabiz 1.4s ease-in-out infinite; transform-origin: 32px 32px; }
+@keyframes bs-tahta { to { transform: rotate(360deg); } }
+@keyframes bs-nabiz { 50% { transform: scale(1.35); } }
+.bs-coin { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; color: #6e4c12;
+  background: radial-gradient(circle at 35% 30%, #fff1c4, #f0cf86 40%, #c99a45 80%, #9d7429); box-shadow: inset 0 -4px 8px rgb(0 0 0 / .25), 0 8px 18px rgb(0 0 0 / .45);
+  animation: bs-cevir 2.6s ease-in-out infinite; }
+.bs-coin svg { width: 62%; height: 62%; }
+@keyframes bs-cevir { 0%, 55% { transform: rotateY(0) translateY(0); } 70% { transform: rotateY(180deg) translateY(-10px); } 85%, 100% { transform: rotateY(360deg) translateY(0); } }
+.bs-atla { display: block; margin: 16px auto 0; background: none; border: 0; color: var(--mut); font: inherit; font-size: 15px; font-weight: 600; padding: 8px 12px; cursor: pointer; }
+.bs-atla:active { color: var(--brand); }
+.bs-av { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 16%; box-shadow: 0 0 0 2px var(--pc); flex: none; }
+.bs-harf { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--pc); color: #fff; font-weight: 800; font-size: 18px; flex: none; }
+.bs-liste .bs-kisi { min-height: 70px; justify-content: flex-start; padding: 10px 16px; gap: 12px; font-size: 18px; }
+.bs-kura .bs-kisi { transition: transform .12s, box-shadow .12s, filter .12s; filter: saturate(.6) brightness(.8); }
+.bs-kura .bs-kisi.isik { transform: scale(1.06); filter: none; box-shadow: 0 0 0 2px var(--pc), 0 0 30px color-mix(in srgb, var(--pc) 70%, transparent); }
+/* iki kişilik yazı tura: büyük para iki yüzlü döner, kazananın yüzünde durur */
+.bs-sahne { perspective: 900px; display: grid; place-items: center; padding: 18px 0 8px; }
+.bs-buyuk-para { position: relative; width: 190px; height: 190px; transform-style: preserve-3d; transition: transform 2.1s cubic-bezier(.2,.75,.25,1); }
+.bs-buyuk-para.don-0 { transform: rotateY(1800deg); } .bs-buyuk-para.don-1 { transform: rotateY(1980deg); }
+.bs-yuz { position: absolute; inset: 0; border-radius: 50%; display: grid; place-content: center; justify-items: center; gap: 6px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: radial-gradient(circle at 35% 30%, #fff1c4, #f0cf86 40%, #c99a45 80%, #9d7429); box-shadow: inset 0 0 0 6px rgb(255 255 255 / .25), inset 0 -8px 16px rgb(0 0 0 / .25), 0 16px 34px rgb(0 0 0 / .5); color: #4a3209; font-weight: 800; font-size: 18px; }
+.bs-yuz.arka { transform: rotateY(180deg); }
+.bs-yuz .bs-av, .bs-yuz .bs-harf { width: 84px; height: 84px; font-size: 34px; box-shadow: 0 0 0 3px var(--pc), 0 6px 16px rgb(0 0 0 / .35); }
+@media (min-width: 700px) {
+  .bs-kart { min-height: 260px; } .bs-kart-ic { width: 120px; height: 120px; } .bs-coin { width: 104px; height: 104px; } .bs-kart b { font-size: 26px; }
+  .bs-baslik { font-size: 30px; } .bs-buyuk-para { width: 240px; height: 240px; }
+}
+:root[data-tema="acik"] .bs-kart b { color: #2a2219; }
+
+/* Tur / Set / Leg rozetleri okunur olsun (Demir 09.11: "okunmuyor, hoşuma gitmedi") —
+   koyu cam hap, bölmeli: küçük etiket + büyük beyaz sayı */
+.play-top h1 .pt-tur { padding: 0; gap: 0; color: var(--fg); background: rgb(0 0 0 / .35) padding-box, var(--altin-cam-kenar) border-box; overflow: hidden; }
+.pt-seg { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 13px; }
+.pt-seg + .pt-seg { border-left: 1px solid rgb(240 207 134 / .35); }
+.pt-seg i { font-style: normal; font-size: .62em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #e9c77e; }
+.pt-seg b { font-size: 1.05em; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+:root[data-tema="acik"] .play-top h1 .pt-tur { background: rgb(255 255 255 / .6) padding-box, var(--altin-cam-kenar) border-box; }
+:root[data-tema="acik"] .pt-seg b { color: #2a2219; } :root[data-tema="acik"] .pt-seg i { color: #8a5d14; }
+.legs { display: inline-flex; gap: 4px; background: none !important; padding: 0; margin-left: 6px; vertical-align: middle; }
+.lg-ch { display: inline-flex; align-items: baseline; gap: 4px; padding: 2px 8px; border-radius: 99px; background: rgb(0 0 0 / .4); border: 1px solid rgb(240 207 134 / .45); }
+.lg-ch i { font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #e9c77e; }
+.lg-ch b { font-size: 14px; font-weight: 800; color: #fff; }
+@media (min-width: 700px) { .lg-ch i { font-size: 11px; } .lg-ch b { font-size: 16px; } }
+:root[data-tema="acik"] .lg-ch { background: rgb(255 255 255 / .6); } :root[data-tema="acik"] .lg-ch b { color: #2a2219; } :root[data-tema="acik"] .lg-ch i { color: #8a5d14; }
+
+/* Oyun menüsü kare kutucuklar (Demir 09.11) */
+.menu-izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.menu-kutu { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 130px; padding: 14px 8px; border-radius: 26px; text-align: center; --ton: 150 160 178;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .26), rgb(var(--ton) / .09)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .9), rgb(var(--ton) / .25) 35%, rgb(var(--ton) / .1) 65%, rgb(var(--ton) / .6)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 10px 26px -14px rgb(var(--ton) / .6); color: var(--fg) !important; }
+.menu-kutu .mk-ic { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: rgb(var(--ton) / .22); color: rgb(var(--ton)); }
+.menu-kutu .mk-ic svg { width: 28px; height: 28px; }
+.menu-kutu b { font-size: 18px; } .menu-kutu small { font-size: 12.5px; opacity: .7; font-weight: 600; margin-top: -4px; }
+.mk-altin { --ton: 227 184 102; } .mk-mavi { --ton: 61 139 253; } .mk-celik { --ton: 150 160 178; } .mk-kirmizi { --ton: 233 75 60; }
+.mk-kirmizi b { color: #ffb4aa; }
+@media (min-width: 700px) { .menu-kutu { min-height: 170px; } .menu-kutu .mk-ic { width: 70px; height: 70px; } .menu-kutu .mk-ic svg { width: 34px; height: 34px; } .menu-kutu b { font-size: 21px; } }
+/* Leg sonu: geri al + oyunu bitir yan yana */
+.lb-alt-dugmeler { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.lb-bitir { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.lb-bitir svg { width: 18px; height: 18px; color: #e3b866; }
+
+/* House tuşu (Demir 09.11): Double/Triple'ın yanında, turkuaz cam */
+.mods { grid-auto-flow: column; grid-auto-columns: 1fr; grid-template-columns: none; }
+:root .keypad .k.mod.house-tus { --ton: 32 196 178; --yazi: 190 250 240; border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .26), rgb(var(--ton) / .10)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .9), rgb(var(--ton) / .3) 35%, rgb(var(--ton) / .12) 65%, rgb(var(--ton) / .65)) border-box;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .2), 0 8px 22px -12px rgb(var(--ton) / .5); color: rgb(var(--yazi)); }
+:root[data-tema="acik"] .keypad .k.mod.house-tus { --yazi: 10 100 90; }
+.keypad .k.mod.house-tus svg { width: 22px; height: 22px; }
+.mods .tablo-dugme { max-width: 64px; }
+
+/* Hızlı giriş: sayı kutucuğu üçe bölünür — üst tekli (altın), alt sol D (mavi), alt sağ T (mor) */
+.k3 { display: grid; grid-template-rows: 1fr auto; gap: 4px; min-height: 0; }
+.k3 .k3-s { min-height: 0; height: 100%; border-radius: 18px 18px 10px 10px; }
+.k3-alt { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.k3-alt button { font: inherit; font-size: 15px; font-weight: 800; letter-spacing: .04em; min-height: 40px; border-radius: 10px; border: 1px solid transparent; color: #fff; cursor: pointer;
+  background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .55), rgb(var(--ton) / .3)) padding-box, linear-gradient(135deg, rgb(var(--ton)), rgb(var(--ton) / .3) 50%, rgb(var(--ton) / .8)) border-box;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .25); transition: transform .15s, filter .15s; }
+.k3-alt button:active { transform: scale(.94); filter: brightness(1.25); }
+.k3-alt .k3-d { --ton: 61 139 253; border-bottom-left-radius: 18px; }
+.k3-alt .k3-t { --ton: 168 98 242; border-bottom-right-radius: 18px; }
+.keypad.hizli .nums { gap: 8px; }
+.keypad.hizli .nums .k3 { min-height: 92px; }
+@media (min-width: 700px) { .k3-alt button { min-height: 52px; font-size: 18px; } .keypad.hizli .nums .k3 { min-height: 120px; } }
+@media (orientation: landscape) and (min-width: 700px) { .keypad.hizli .nums .k3 { min-height: 0; height: 100%; } .keypad.hizli .nums .k3 .k3-s { min-height: 0; } }
+/* giriş düğmesi küçük */
+.mods .giris-dugme { flex-direction: column; gap: 2px !important; font-size: 11px !important; letter-spacing: .04em; max-width: 84px; }
+.mods .giris-dugme svg { width: 18px !important; height: 18px !important; }
+.k.next { line-height: 1.1; padding: 4px 8px; }
+
+/* Puan durumu satırı (Demir 09.11): önde yeşil, geride turuncu-kırmızı, eşit altın — telefonda da görünür */
+.durum-satir { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 4px; padding: 5px 12px; border-radius: 99px; font-size: 14px; font-weight: 800; line-height: 1.3; }
+.durum-satir.d-onde { color: #b9f5d2; background: rgb(47 179 109 / .22); border: 1px solid rgb(47 179 109 / .6); }
+.durum-satir.d-geride { color: #ffd1c2; background: rgb(240 113 70 / .22); border: 1px solid rgb(240 113 70 / .65); }
+.durum-satir.d-esit { color: #f3d48f; background: rgb(227 184 102 / .18); border: 1px solid rgb(227 184 102 / .55); }
+@media (min-width: 700px) { .durum-satir { font-size: 17px; padding: 6px 14px; } }
+:root[data-tema="acik"] .durum-satir.d-onde { color: #11643a; } :root[data-tema="acik"] .durum-satir.d-geride { color: #8f2c16; } :root[data-tema="acik"] .durum-satir.d-esit { color: #6e4c12; }
+.ilk-kural { font-size: 14.5px; line-height: 1.5; color: var(--mut); max-width: 460px; margin: 2px auto 4px; }
+@media (min-width: 700px) { .ilk-kural { font-size: 16px; } }
+
+/* Rastgele kutucuğu (Demir 09.11): mor cam, zar simgesi */
+.bs-yontem { grid-template-columns: repeat(3, 1fr); }
+.bs-zar { --ton: 168 98 242; }
+.bs-zar-ic { color: #e2ccff; } .bs-zar-ic svg { width: 76%; height: 76%; animation: bs-zar 2.8s ease-in-out infinite; }
+@keyframes bs-zar { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-18deg) scale(1.08); } 80% { transform: rotate(14deg); } 90% { transform: rotate(-6deg); } }
+@media (max-width: 560px) { .bs-yontem { grid-template-columns: 1fr 1fr; } .bs-zar { grid-column: 1 / -1; min-height: 120px; flex-direction: row !important; gap: 14px; } .bs-zar .bs-kart-ic { width: 60px; height: 60px; } }
+.modal:has(.bs-yontem) { max-width: min(760px, 94vw); }
+
+/* Bull'a en yakın kim: kare kutucuklar (Demir 09.11) — 2 kişi yan yana, 3 kişi üçlü, 4 kişi 2×2; takımlar yan yana sütun */
+.bs-kisiler { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 6px 0 4px; }
+.bs-kisiler.n3 { grid-template-columns: repeat(3, 1fr); }
+.bs-kisiler.n5, .bs-kisiler.n6 { grid-template-columns: repeat(3, 1fr); }
+.bs-kisi-kutu, .bs-takim { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 150px; border-radius: 26px; padding: 14px 8px; font-size: 19px; font-weight: 800;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(180deg, color-mix(in srgb, var(--pc) 30%, transparent), color-mix(in srgb, var(--pc) 10%, transparent)) padding-box,
+    linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 25%, transparent) 40%, color-mix(in srgb, var(--pc) 10%, transparent) 65%, color-mix(in srgb, var(--pc) 70%, transparent)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 10px 26px -14px var(--pc); color: var(--fg) !important; }
+.bs-kisi-kutu .bs-av, .bs-kisi-kutu .bs-harf { width: 68px; height: 68px; font-size: 28px; }
+.bs-takim { justify-content: flex-start; gap: 12px; padding-top: 16px; }
+.bs-takim-ad { font-size: 20px; color: var(--pc); filter: brightness(1.4); }
+.bs-uyeler { display: grid; gap: 8px; width: 100%; }
+.bs-uye { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 16px; background: rgb(0 0 0 / .25); font-size: 16px; }
+.bs-uye .bs-av, .bs-uye .bs-harf { width: 36px; height: 36px; font-size: 16px; }
+@media (min-width: 700px) { .bs-kisi-kutu { min-height: 180px; } .bs-kisi-kutu .bs-av, .bs-kisi-kutu .bs-harf { width: 84px; height: 84px; } }
+/* Geri / Atla: gerçek cam tuş */
+.bs-geri { display: flex !important; align-items: center; justify-content: center; width: 100%; margin-top: 14px; min-height: 52px; font-size: 16px; font-weight: 700; }
+.modal:has(.bs-kisiler) { max-width: min(640px, 94vw); }
+
+/* İlk atış: 4 seçenek 2×2 (Demir 09.11) — Bull'a At, Yazı Tura, Rastgele, Sen Seç */
+.bs-yontem { grid-template-columns: 1fr 1fr !important; }
+.bs-yontem .bs-zar { grid-column: auto !important; flex-direction: column !important; min-height: 210px; }
+.bs-yontem .bs-zar .bs-kart-ic { width: 96px; height: 96px; }
+.bs-sec { --ton: 61 139 253; } .bs-sec-ic { color: #c4dcff; } .bs-sec-ic svg { width: 70%; height: 70%; animation: bs-tik 2.2s ease-in-out infinite; }
+@keyframes bs-tik { 0%, 70%, 100% { transform: translate(0, 0); } 80% { transform: translate(-4px, -4px) scale(.92); } 90% { transform: translate(0, 0) scale(1.04); } }
+.bs-kart b { line-height: 1.2; }
+@media (max-width: 560px) { .bs-kart { min-height: 170px !important; } .bs-kart-ic { width: 72px !important; height: 72px !important; } .bs-kart b { font-size: 18px; } }
+@media (min-width: 700px) { .bs-yontem .bs-zar { min-height: 260px; } .bs-yontem .bs-zar .bs-kart-ic { width: 120px; height: 120px; } }
