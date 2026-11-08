@@ -2363,3 +2363,7 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 @media (max-width: 699px) { .board.cricket:not(.orta-sayi) .ctable th .legs { display: none; } }
 :root .keypad :is(.k.bull-dis, .k.bull) .b-ust { font-size: min(26px, 17cqw) !important; }
 :root .keypad :is(.k.bull-dis, .k.bull) small { font-size: min(17px, 12cqw); }
+/* ISKA büyük harfle ve daha büyük (Demir 09.11) */
+:root .keypad .k.miss span { text-transform: uppercase; letter-spacing: .06em; font-weight: 800; }
+:root .keypad .k.miss { font-size: 22px; }
+@media (min-width: 700px) { :root .keypad .k.miss { font-size: 28px; } :root .keypad .k.miss svg { width: 28px; height: 28px; } }
