@@ -2231,3 +2231,21 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 .geri-dugme svg { flex: none; display: block; }
 .geri-dugme span { display: none; font-size: 17px; font-weight: 800; }
 @media (min-width: 700px) { .geri-dugme { width: max-content !important; min-width: max-content; justify-self: start; flex: none; padding: 0 22px 0 14px !important; } .geri-dugme span { display: inline; } }
+
+/* House yalnız elin ilk okundan önce seçilir: elde ok atıldıysa pasif (Demir 09.11) */
+:root .keypad .k.mod.house-tus:disabled { opacity: .35; filter: saturate(.4); box-shadow: none; cursor: default; }
+/* Kurulum başlığında geri düğmesi tablette "Geri" yazısıyla sığsın, cam kalsın */
+@media (min-width: 700px) { .kurulum-ust { grid-template-columns: 130px 1fr 130px; } .kurulum-ust .geri-dugme { justify-self: start; } }
+/* Menü kutusu simgeleri hareketli (ilk atış ekranı gibi) */
+.menu-kutu.mk-altin .mk-ic svg { animation: mk-oynat 2.2s ease-in-out infinite; }
+.menu-kutu.mk-mavi .mk-ic svg { animation: mk-kitap 3s ease-in-out infinite; }
+.menu-kutu.mk-celik .mk-ic svg { animation: mk-durak 1.8s ease-in-out infinite; }
+.menu-kutu.mk-kirmizi .mk-ic svg { animation: mk-iptal 2.6s ease-in-out infinite; }
+@keyframes mk-oynat { 0%, 100% { transform: translateX(0) scale(1); } 50% { transform: translateX(4px) scale(1.12); } }
+@keyframes mk-kitap { 0%, 60%, 100% { transform: rotateY(0); } 75% { transform: rotateY(160deg); } 90% { transform: rotateY(360deg); } }
+@keyframes mk-durak { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.9); } }
+@keyframes mk-iptal { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-14deg); } 82% { transform: rotate(12deg); } 88% { transform: rotate(-8deg); } 94% { transform: rotate(4deg); } }
+/* "Kimin Başlayacağını Sen Seç": belirgin tıklama hareketi + parıltı */
+.bs-sec-ic svg { animation: bs-tik2 1.8s ease-in-out infinite !important; transform-origin: 60% 60%; }
+@keyframes bs-tik2 { 0%, 55%, 100% { transform: translate(0, 0) scale(1); filter: none; } 65% { transform: translate(-9px, -9px) scale(1.08); } 75% { transform: translate(0, 0) scale(.86); filter: drop-shadow(0 0 10px rgb(150 200 255 / .9)); } 85% { transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .menu-kutu .mk-ic svg, .bs-sec-ic svg { animation: none !important; } }
