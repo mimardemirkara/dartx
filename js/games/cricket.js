@@ -305,7 +305,9 @@ function make(id) {
           const better = cezali(m) ? s.pts < b.pts : s.pts > b.pts;
           if (better || (s.pts === b.pts && s.marks > b.marks)) best = i;
         });
-        return { legWinner: best };
+        // Puan ve işaret tam eşitse berabere (fuzz testi 09.11: önceden hep 1. oyuncu kazanıyordu)
+        const b = g.s[best], esit = g.s.filter(s => s.pts === b.pts && s.marks === b.marks).length > 1;
+        return { legWinner: esit ? -1 : best };
       }
     },
 

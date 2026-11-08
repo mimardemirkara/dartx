@@ -116,9 +116,12 @@ export function passTurn(m) {
   if (m.done) return null;
   const max = gameOf(m).dartsPerTurn || 3;
   let res = null;
+  const once = undoStack.length;
   while (!m.done && m.turnDarts.length < max && (!res || res.event === 'dart')) {
     res = throwDart(m, { n: 0, m: 1 });
   }
+  // Tek "geri al" eklenen ıskaların hepsini birden geri alsın (fuzz testi 09.11): yalnız ilk anlık görüntü kalır
+  if (undoStack.length > once + 1) undoStack.splice(once + 1);
   return res;
 }
 
