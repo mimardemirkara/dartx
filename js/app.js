@@ -794,7 +794,8 @@ function keypad(m, g) {
   const mod = S.mod;
   // Hızlı giriş (Demir 09.11: "tuşları 3'e bölsek, 10 single 10 double 10 triple"): kriket oyunlarında her sayı kutucuğu
   // üstte tekli, altta D (mavi) ve T (mor) — her ok tek dokunuş. Ayarı oyun başına; varsayılan açık.
-  const hizli = g.cat === 'cricket' && (data().settings.kriketGiris || {})[m.gameId] !== 'klasik';
+  // Kural (Demir 09.11): ok ok girilen BÜTÜN oyunlarda Hızlı (sayı + D + T) ve Klasik (Double/Triple tuşu) seçilebilir
+  const hizli = (data().settings.kriketGiris || {})[m.gameId] !== 'klasik';
   const num = n => hizli
     ? `<div class="k3 ${hl.has(n) ? 'hl' : ''}"><button class="k num k3-s" data-act="dart" data-n="${n}" data-fix="1">${n}</button><div class="k3-alt"><button class="k3-d" data-act="dart" data-n="${n}" data-fix="2" aria-label="D${n}">D</button><button class="k3-t" data-act="dart" data-n="${n}" data-fix="3" aria-label="T${n}">T</button></div></div>`
     : `<button class="k num ${hl.has(n) ? 'hl' : ''}" data-act="dart" data-n="${n}">${n}</button>`;
@@ -810,7 +811,7 @@ function keypad(m, g) {
       <button class="k mod ${mod === 3 ? 'on' : ''}" data-act="mod" data-m="3">${TUS_IC.triple}<span>TRIPLE</span></button>`}
       ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus" data-act="ozelsatir" data-h="H">${HS_EV}<span>HOUSE</span></button>` : ''}
       ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus" data-act="ozelsatir" data-h="B3">${HS_EV}<span>3 IN A BED</span></button>` : ''}
-      ${g.cat === 'cricket' ? `<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>` : ''}
+      ${`<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>`}
       ${g.cat === 'cricket' && g.view ? (tabloYazAcik(m, g)
         ? `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="0" aria-label="${t('Tuşlarla yaz')}" title="${t('Tuşlarla yaz')}">${KLAVYE_IC}</button>`
         : `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="1" aria-label="${t('Tablodan yaz')}" title="${t('Tablodan yaz')}">${TABLO_IC}</button>`) : ''}
