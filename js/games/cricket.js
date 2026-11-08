@@ -310,6 +310,46 @@ function make(id) {
     },
 
     // Puan alınabilecek hedefler: ben kapattım, rakiplerden biri kapatmadı (hepsi kapalıyken ipucunun yanında renkli)
+    // Oyunun gidişine göre tek cümlelik ipucu (Demir 09.11): önce tehlike, sonra fırsat, sonra yakın kapanış
+    ipucu(m, g) {
+      if (!puanli(m) || m.sides.length < 2) return null;
+      const me = g.s[m.cur], others = g.s.filter((_, i) => i !== m.cur);
+      const H = hedefler(g).filter(n => !(T.gizli && !g.acik.includes(n)));
+      const ad = n => (n === 25 ? 'Bull' : n === 'H' ? 'House' : n === 'D' ? 'Double' : n === 'T' ? 'Triple' : n === 'B3' ? '3 in a bed' : String(n));
+      const deg = n => (typeof n === 'number' ? n : n === 'H' ? 60 : 40); // sıralama için kaba değer
+      const sirala = a => a.slice().sort((x, y) => deg(y) - deg(x));
+      const kalan = n => 3 - Math.min(3, me.k[n]);
+      const cezaDili = T.secimli; // Türk Kriketi: fazla yazılan puan rakibe ceza
+      if (cezali(m)) {
+        // Cut-throat: rakibin kapattığı, benim açık hedefim bana ceza yazdırır
+        const tehlike = sirala(H.filter(n => me.k[n] < 3 && others.some(o => o.k[n] >= 3)));
+        if (tehlike.length) return { tur: 'uyari', metin: tr('Rakip {0} kapattı, sana ceza yazabilir: önce {0} kapat', ad(tehlike[0])) };
+        const firsat = sirala(H.filter(n => me.k[n] >= 3 && others.some(o => o.k[n] < 3)));
+        if (firsat.length) return { tur: 'firsat', metin: tr('{0} sende kapalı: vurdukça kapatmayan rakiplere ceza yazılır', ad(firsat[0])) };
+      } else {
+        const en = Math.max(...others.map(o => o.pts)), fark = en - me.pts;
+        const tehlike = sirala(H.filter(n => me.k[n] < 3 && others.some(o => o.k[n] >= 3)));
+        const firsat = sirala(H.filter(n => me.k[n] >= 3 && others.some(o => o.k[n] < 3)));
+        const hepsi = H.every(n => me.k[n] >= 3);
+        if (hepsi && fark >= 0 && firsat.length) {
+          const n = firsat.find(x => typeof x === 'number' && x !== 25) || firsat[0];
+          const tek = typeof n === 'number' && n !== 25 ? n * 3 : 0;
+          return { tur: 'firsat', metin: tek ? tr('Öne geçmek için {0} puan lazım: T{1} ile {2} yazarsın', fark + 1, n, tek) : tr('Öne geçmek için {0} puan lazım: {1} vur', fark + 1, ad(n)) };
+        }
+        if (tehlike.length && fark >= 0)
+          return { tur: 'uyari', metin: cezaDili ? tr('Rakip {0} kapattı, sana ceza yazabilir: önce {0} kapat', ad(tehlike[0])) : tr('Rakip {0} kapattı, puan toplayabilir: önce {0} kapat', ad(tehlike[0])) };
+        if (firsat.length && fark >= 0)
+          return { tur: 'firsat', metin: cezaDili ? tr('{0} sende kapalı, rakipte açık: vurdukça rakibe ceza yazarsın', ad(firsat[0])) : tr('{0} sende kapalı, rakipte açık: vurdukça puan yazarsın', ad(firsat[0])) };
+        if (tehlike.length) return { tur: 'uyari', metin: tr('Rakip {0} kapattı: önce {0} kapat', ad(tehlike[0])) };
+      }
+      // Kapanmaya yakın hedef
+      const yakin = sirala(H.filter(n => me.k[n] > 0 && me.k[n] < 3)).sort((x, y) => kalan(x) - kalan(y));
+      if (yakin.length) { const n = yakin[0]; return { tur: 'bilgi', metin: kalan(n) === 1 ? tr('{0} kapanmaya 1 işaret kaldı', ad(n)) : tr('{0} kapanmaya {1} işaret kaldı', ad(n), kalan(n)) }; }
+      // Kimsenin açmadığı en büyük sayı
+      const bos = sirala(H.filter(n => typeof n === 'number' && n !== 25 && g.s.every(s2 => s2.k[n] === 0)));
+      if (bos.length) return { tur: 'bilgi', metin: tr('Kimse {0} açmadı: T{0} ile tek okta kapatırsın', bos[0]) };
+      return null;
+    },
     vurHedef(m, g) {
       if (!puanli(m) || cezali(m)) return [];
       const me = g.s[m.cur], others = g.s.filter((_, i) => i !== m.cur);

@@ -2249,3 +2249,21 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 .bs-sec-ic svg { animation: bs-tik2 1.8s ease-in-out infinite !important; transform-origin: 60% 60%; }
 @keyframes bs-tik2 { 0%, 55%, 100% { transform: translate(0, 0) scale(1); filter: none; } 65% { transform: translate(-9px, -9px) scale(1.08); } 75% { transform: translate(0, 0) scale(.86); filter: drop-shadow(0 0 10px rgb(150 200 255 / .9)); } 85% { transform: scale(1.05); } }
 @media (prefers-reduced-motion: reduce) { .menu-kutu .mk-ic svg, .bs-sec-ic svg { animation: none !important; } }
+
+/* İpucu satırı (Demir 09.11): sade, tek satır; renk yalnız ampul simgesinde */
+.turn .ipucu { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 13px; font-weight: 600; line-height: 1.3; color: color-mix(in srgb, var(--fg) 82%, transparent); }
+.turn .ipucu svg { flex: none; width: 16px; height: 16px; color: #f3d48f; }
+.turn .ipucu.i-uyari svg { color: #ff9b7d; } .turn .ipucu.i-firsat svg { color: #7fe3a8; }
+@media (min-width: 700px) { .turn .ipucu { font-size: 15px; } .turn .ipucu svg { width: 18px; height: 18px; } }
+/* Kriket başlığında oyuncu resmi kırpılmasın (üst/alt çerçeve) */
+.ctable th .cn { overflow: visible; padding: 4px 0; line-height: 1.2; }
+.ctable th .cn .ad-av { flex: none; margin: 0; vertical-align: middle; }
+.board .side-name { overflow: visible; padding: 3px 0; }
+.board .side-name .ad-av { vertical-align: middle; }
+/* Set/Leg rozetleri: içleri ortalı; tablette kartın sağında alt alta, isim+resim ve puan kartın ortasında (Demir 09.11) */
+.lg-ch { align-items: center; justify-content: center; min-width: 58px; line-height: 1; padding: 4px 9px; }
+@media (min-width: 700px) {
+  .ctable th:has(.legs), .board .side:has(.legs) { position: relative; }
+  .ctable th .legs, .board .side .legs { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 5px; margin: 0; }
+  .ctable th .cn, .board .side .side-name { justify-content: center; text-align: center; padding-right: 0; }
+}

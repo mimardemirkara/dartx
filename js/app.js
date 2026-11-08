@@ -790,7 +790,8 @@ function viewPlay() {
     <section class="turn" style="--pc:${p.color}">
       <div class="who">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
       ${useTotal ? `<div class="totalbuf">${S.totalBuf || '0'}</div>` : `<div class="slots">${slots}</div><div class="tp">${turnPts}</div>`}
-      ${hint ? `<div class="hint">${esc(hint)}${(() => { const v = g.vurHedef ? g.vurHedef(m, m.g) : []; return v.length ? ` <span class="hint-vur">${t('Vur')}: ${esc(v.join(' · '))}</span>` : ''; })()}</div>` : ''}
+      ${hint ? `<div class="hint">${esc(hint)}</div>` : ''}
+      ${(() => { const ip = g.ipucu ? g.ipucu(m, m.g) : null; return ip ? `<div class="ipucu i-${ip.tur}">${IPUCU_IC}<span>${esc(ip.metin)}</span></div>` : ''; })()}
       ${(() => { const d = g.durum ? g.durum(m, m.g) : null; return d ? `<div class="durum-satir d-${d.tur}">${DURUM_YUZ[d.tur] || ''}<span>${esc(kelimeBuyuk(d.metin)).replace(/([+]?\d+ (Puan|Points|Ceza)|Puan Eşit|\d+ (Puan|Points) Behind)/, '<b class="ds-puan">$1</b>')}</span></div>` : ''; })()}
     </section>
     ${useTotal ? numpad() : keypad(m, g)}
@@ -822,6 +823,7 @@ function acikRenk(hex) {
 const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
 // Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
 const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+const IPUCU_IC = LUCIDE('<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>', 16, 2);
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -1374,7 +1376,7 @@ app.addEventListener('click', e => {
     case 'nsoynat': case 'nsgeri': case 'nsileri': case 'nsadim': case 'nsses': nasilKontrol(el.dataset.act, el); vib(6); break;
     case 'nskural': S.modal = { type: 'rules', id: el.dataset.id }; render(); break;
     case 'home': go('home'); break;
-    case 'resume': E.clearUndo(); go('play'); break;
+    case 'resume': { E.clearUndo(); go('play'); const cm = data().current; if (cm && !cm.done) siraGoster(cm, 350); break; } // Demir 09.11: ara sonrası sıra kimde, söylensin
     case 'pick': {
       const g = GAMES[el.dataset.id];
       if (g.soon) { toast('Bu oyun bir sonraki adımda geliyor'); return; }
