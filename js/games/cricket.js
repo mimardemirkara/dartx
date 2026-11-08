@@ -297,7 +297,8 @@ function make(id) {
         const gizli = T.gizli && !g.acik.includes(n);
         const allClosed = g.s.every(s => s.k[n] >= 3);
         // Dokunulabilir (yalnız açık sayı hedefleri): sayıya ya da sırası gelen oyuncunun hücresine dokununca isabet
-        const dokun = !gizli && typeof n === 'number' ? `data-act="dart" data-n="${n}"` : '';
+        // D / T / H / 3B satırları (Demir 09.11: "Türk Kriketi'nde tablodan D, T, H basmıyor"): dokununca hangi sayı diye sorulur
+        const dokun = gizli ? '' : typeof n === 'number' ? `data-act="dart" data-n="${n}"` : `data-act="ozelsatir" data-h="${n}"`;
         const tik = dokun ? 'tikla' : '';
         return `<tr class="${allClosed ? 'dead' : ''} ${gizli ? 'gizli' : ''}"><td class="num ${tik}" ${dokun}>${gizli ? '?' : etiket(n)}</td>` +
           g.s.map((s, i) => `<td class="${ctx.active(i) ? 'active ' + tik : ''}" ${ctx.active(i) ? dokun : ''}>${markSym(s.k[n], s.tek && s.tek[n])}</td>`).join('') + '</tr>';

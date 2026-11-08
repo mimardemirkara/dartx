@@ -108,3 +108,14 @@ export function dene(hangi) { if (hangi === 'tusSes') tus(); else oyun('isabet',
 
 // iOS / Android: ses motoru ancak bir dokunuşla uyanır — ilk dokunuşta hazırla
 document.addEventListener('pointerdown', () => { if (tusAcik() || oyunAcik()) motor(); }, { once: true, capture: true });
+
+// ---- Ses kilidi (Demir 09.11: "tablette sesler çalışmıyor"): tablet/telefon tarayıcıları sesi yalnız bir dokunuşun
+// içinde açmaya izin verir. İlk dokunuşta ses motoru uyanır, sessiz bir an çalınır; iPhone/iPad'de (iOS 17+) sessiz
+// düğmesine rağmen oyun sesleri duyulsun diye ses oturumu "playback" yapılır.
+function kilidiAc() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* eski sürüm */ }
+  const c = motor(); if (!c) return;
+  try { const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } catch (e) { /* yok say */ }
+  if (c.state === 'running') ['pointerdown', 'touchend', 'keydown'].forEach(o => removeEventListener(o, kilidiAc, true));
+}
+['pointerdown', 'touchend', 'keydown'].forEach(o => addEventListener(o, kilidiAc, true));

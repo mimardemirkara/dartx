@@ -1794,3 +1794,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
   -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik);
 }
 :root[data-tema="acik"] :is(.gold, .btn.primary, .chip.on, .k.next, .ns-dugme.ana, .geri-al, .sira-ekle, .hm-tus.esit, .secici, .ay-seg button.on, .hedefler span.on) { text-shadow: 0 1px 0 rgb(255 255 255 / .5); }
+
+/* Tablodan yaz: D/T/H satırı sayı seçici (Demir 09.11) */
+.ozel-sayilar { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; margin: 6px 0 12px; }
+.ozel-sayilar .btn { min-height: 48px; padding: 8px 4px; font-weight: 700; font-size: 16px; justify-content: center; }

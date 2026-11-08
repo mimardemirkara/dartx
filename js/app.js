@@ -1118,6 +1118,11 @@ function modal() {
         return `<button class="btn ${i === 0 ? 'primary' : ''} hedef-sec" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span></button>`;
       }).join('')}
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
+  } else if (md.type === 'ozelsec') {
+    const ad = { D: t('Hangi double?'), T: t('Hangi triple?'), H: t('House: hangi sayıya üç ok?'), B3: t('3 in a bed: hangi sayıya üç ok?') }[md.h];
+    const on = md.h === 'D' ? 'D' : md.h === 'T' ? 'T' : '';
+    body = `<h2>${ad}</h2><div class="ozel-sayilar">${md.sayilar.map(n => `<button class="btn" data-act="ozelsayi" data-n="${n}">${n === 25 ? 'D-Bull' : on + n}</button>`).join('')}</div>
+      <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
   } else if (md.type === 'codarts') {
     body = `<h2>${t('Kaç okla bitirdin?')}</h2><div class="row three">${[1, 2, 3].map(n => `<button class="btn big" data-act="codarts" data-n="${n}">${n}</button>`).join('')}</div><button class="btn" data-act="close">${t('Vazgeç')}</button>`;
   } else if (md.type === 'pedit') {
@@ -1300,6 +1305,37 @@ app.addEventListener('click', e => {
       S.sonOk = ok;
       afterThrow(E.throwDart(m, ok));
       break;
+    }
+    // Tablodan yaz: D / T / H / 3B satırına dokunuldu → hangi sayıya atıldığı sorulur
+    case 'ozelsatir': {
+      const h = el.dataset.h;
+      const hedefler = (m.g.h || []).filter(x => typeof x === 'number' && x !== 25);
+      const turk = m.gameId === 'turk';
+      // Türk Kriketi'nde yalnız tablodaki sayılar sayılır; diğerlerinde tahtadaki her sayı
+      let sayilar = turk ? hedefler.slice().sort((a, b) => b - a) : Array.from({ length: 20 }, (_, i) => 20 - i);
+      if (h === 'D' && (!turk || (m.g.h || []).includes(25))) sayilar = sayilar.concat([25]);
+      const td = m.turnDarts || [];
+      if ((h === 'H' || h === 'B3') && td.length) { toast(t('House için elin ilk okundan başla'), 'bad'); break; }
+      S.modal = { type: 'ozelsec', h, sayilar }; vib(10); ses.tus(); render(); break;
+    }
+    case 'ozelsayi': {
+      const md = S.modal; if (!md || md.type !== 'ozelsec') break;
+      const n = Number(el.dataset.n), h = md.h, gg = GAMES[m.gameId];
+      S.modal = null;
+      if (h === 'D' || h === 'T') {
+        const ok = { n, m: h === 'D' ? 2 : 3 };
+        if (gg.secenekler && gg.secenekler(m, m.g, ok)) ok.sec = h; // Türk Kriketi: seçimi D/T olarak yap
+        S.sonOk = ok; afterThrow(E.throwDart(m, ok)); break;
+      }
+      // House / 3B: elin üç oku da aynı sayıya; son okta H seçilir
+      let res = null;
+      for (let k = 0; k < 3; k++) {
+        const ok = { n, m: 1 };
+        if (k === 2 && gg.secenekler) { const s = gg.secenekler(m, m.g, ok); if (s && s.some(x => x.v === 'H')) ok.sec = 'H'; }
+        S.sonOk = ok; res = E.throwDart(m, ok);
+        if (k < 2 && res && res.event && res.event !== 'dart') break;
+      }
+      afterThrow(res); break;
     }
     case 'hedefsec': {
       const md = S.modal; if (!md || md.type !== 'hedefsec') break;

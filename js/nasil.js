@@ -31,11 +31,26 @@ function sesSec(dilKod) {
 // ElevenLabs ile üretilmiş ses dosyaları (Ozan Karaca). Dosyası olan adımda o çalar, olmayanda telefonun sesi okur.
 const SES_DOSYALARI = { atc: { tr: [0, 1, 2, 3] }, atcsolo: { tr: [0, 1, 2] }, baseball: { tr: [0, 1, 2, 3, 4] }, bigfinish: { tr: [0, 1, 2] }, bobs27: { tr: [0, 1, 2, 3] }, bull: { tr: [0, 1, 2] }, catch40: { tr: [0, 1, 2] }, co121: { tr: [0, 1, 2] }, countup: { tr: [0, 1, 2, 3] }, crazy: { tr: [0, 1, 2, 3, 4] }, cricket: { tr: [0, 1, 2, 3, 4, 5] }, crpractice: { tr: [0, 1, 2, 3] }, cutthroat: { tr: [0, 1, 2, 3, 4] }, dtdrill: { tr: [0, 1, 2, 3] }, english: { tr: [0, 1, 2, 3, 4] }, fullboard: { tr: [0, 1, 2, 3, 4] }, gotcha: { tr: [0, 1, 2, 3] }, halveit: { tr: [0, 1, 2, 3, 4, 5] }, hidden: { tr: [0, 1, 2, 3] }, jdc: { tr: [0, 1, 2, 3] }, killer: { tr: [0, 1, 2, 3, 4, 5] }, mickey: { tr: [0, 1, 2, 3] }, minnesota: { tr: [0, 1, 2, 3] }, scoring: { tr: [0, 1, 2] }, shanghai: { tr: [0, 1, 2, 3, 4] }, tactics: { tr: [0, 1, 2, 3] }, tarih: { tr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, turk: { tr: [0, 1, 2, 3, 4, 5, 6] }, x01: { tr: [0, 1, 2, 3, 4, 5, 6] } }; // tarihçe: Ozan Karaca, oyunlar: Nino (ElevenLabs)
 let calan = null;
+// Tek oynatıcı (Demir 09.11, tablette ses yoktu): iPad/iPhone ve Android, dokunuş dışında başlatılan YENİ ses öğesini
+// engeller. Aynı öğe ilk dokunuşta bir kez çalınıp durdurulunca sonraki adımlarda (zamanlayıcıdan) da çalabilir.
+const oynatici = typeof Audio !== 'undefined' ? new Audio() : null;
+if (oynatici) { oynatici.preload = 'auto'; oynatici.setAttribute('playsinline', ''); }
+const SESSIZ = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+let oynaticiAcik = false;
+function oynaticiKilit() {
+  if (!oynatici || oynaticiAcik) return;
+  if (calan) { oynaticiAcik = true; return; } // zaten bir anlatım çalıyor
+  oynatici.src = SESSIZ;
+  const s = oynatici.play();
+  if (s && s.then) s.then(() => { oynaticiAcik = true; if (!calan) oynatici.pause(); }).catch(() => {});
+}
+['pointerdown', 'touchend', 'keydown'].forEach(o => addEventListener(o, oynaticiKilit, true));
 function dosyaVar(id, i) { const d = SES_DOSYALARI[id]; return !!(d && d[dil()] && d[dil()].includes(i)); }
 function dosyaCal(id, i, bitince) {
   if (!anlatimAcik()) return false;
   sustur();
-  const a = new Audio(`ses/${id}/${dil()}-${String(i).padStart(2, '0')}.mp3`);
+  const a = oynatici || new Audio();
+  a.src = `ses/${id}/${dil()}-${String(i).padStart(2, '0')}.mp3`;
   let bitti = false; const son = () => { if (!bitti) { bitti = true; bitince(); } };
   a.onended = son; a.onerror = son;
   calan = a;

@@ -91,3 +91,7 @@ export async function logoSesi() {
 
 /** Dokunuş anında çağrılır: tarayıcının ses bağlamını açar */
 export function sesiAc() { getCtx(); }
+
+// İlk dokunuşta açılış ses bağlamı da uyansın (tablet/telefon)
+function acilisKilit() { const c = getCtx(); if (c && c.state === 'running') ['pointerdown', 'touchend'].forEach(o => removeEventListener(o, acilisKilit, true)); }
+['pointerdown', 'touchend'].forEach(o => addEventListener(o, acilisKilit, true));
