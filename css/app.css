@@ -1798,3 +1798,23 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 /* Tablodan yaz: D/T/H satırı sayı seçici (Demir 09.11) */
 .ozel-sayilar { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; margin: 6px 0 12px; }
 .ozel-sayilar .btn { min-height: 48px; padding: 8px 4px; font-weight: 700; font-size: 16px; justify-content: center; }
+
+/* Başlama atışı penceresi (Demir 09.11) */
+.bs-ust { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.bs-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #e3b866; background: rgb(227 184 102 / .14); animation: bs-don 2.4s ease-in-out infinite; }
+@keyframes bs-don { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12) rotate(12deg); } }
+.bs-not { text-align: center; margin: 8px 0 14px; line-height: 1.5; }
+.bs-liste { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.bs-kisi { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; font-size: 17px; font-weight: 700; border-left: 4px solid var(--pc) !important; }
+.bs-kisi .ad-av { width: 34px; height: 34px; vertical-align: middle; margin: 0; }
+.bs-nokta { width: 12px; height: 12px; border-radius: 50%; background: var(--pc); }
+.bs-rastgele { width: 100%; margin-top: 10px; }
+
+/* İlk atış duyurusu (Demir 09.11): dokunulana kadar ekranda kalır */
+.ilk-sira { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 6px 4px 2px; }
+.ilk-sira .ilk-av { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; object-position: center 16%; box-shadow: 0 0 0 3px var(--pc), 0 0 30px color-mix(in srgb, var(--pc) 60%, transparent); animation: ilk-nabiz 1.6s ease-in-out infinite; }
+.ilk-sira .ilk-nokta { width: 72px; height: 72px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 30px var(--pc); animation: ilk-nabiz 1.6s ease-in-out infinite; }
+.ilk-sira .ilk-ust { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); }
+.ilk-sira .ilk-ad { font-size: 26px; font-weight: 600; } .ilk-sira .ilk-ad b { color: var(--pc); font-weight: 800; }
+.ilk-sira .btn { min-width: 180px; }
+@keyframes ilk-nabiz { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }

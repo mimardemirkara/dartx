@@ -347,7 +347,18 @@ function tabloSigdir() {
   }
   tabloOlcu = { anahtar, y };
 }
-addEventListener('resize', () => { if (S.view === 'play') tabloSigdir(); });
+// Tablet çevrilince (Demir 09.11: "dikey/yatay çevirince Türk Kriketi skorboard bozuluyor"): iPad'de ekran boyu
+// çevirme boyunca birkaç adımda değişir; ara ölçüye kilitlenmesin diye ölçü sıfırlanır ve yerleşim oturana dek tekrar ölçülür.
+let cevirT = [];
+function cevrildi() {
+  if (S.view !== 'play') return;
+  cevirT.forEach(clearTimeout);
+  tabloOlcu = null; tabloSigdir();
+  cevirT = [120, 350, 700].map(ms => setTimeout(() => { if (S.view === 'play') { tabloOlcu = null; tabloSigdir(); } }, ms));
+}
+addEventListener('resize', cevrildi);
+addEventListener('orientationchange', cevrildi);
+if (window.visualViewport) visualViewport.addEventListener('resize', cevrildi);
 
 // Açılan pencereler (menü, kurallar, klasör, arama…) kapanırken kapanış efekti oynar, sonra ekran yenilenir
 let kapaniyor = false;
@@ -692,7 +703,8 @@ function startMatch() {
   const m = E.createMatch(g.id, { ...st.opts }, sides);
   store.setCurrent(m);
   S.mod = 1; S.totalBuf = '';
-  go('play');
+  // Başlama atışı (Demir 09.11: "oyun açınca mutlaka sor"): birden çok taraf varsa ilk leg'i kimin açacağı sorulur
+  go('play', sides.length > 1 ? { modal: { type: 'baslayan' } } : {});
 }
 
 // Demir ve Kenan istisnası (Demir 09.11: "Demir ve Kenan yazınca mutlaka bizim resimlerimiz gelsin"):
@@ -1118,6 +1130,22 @@ function modal() {
         return `<button class="btn ${i === 0 ? 'primary' : ''} hedef-sec" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span></button>`;
       }).join('')}
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
+  } else if (md.type === 'ilksira') {
+    const m = data().current; if (!m) { S.modal = null; return ''; }
+    const p = player(E.currentPid(m));
+    body = `<div class="ilk-sira" style="--pc:${p.color}">
+      ${adAvatar(p.name, 'ilk-av') || `<span class="ilk-nokta"></span>`}
+      <div class="ilk-ust">${t('İlk atış')}</div>
+      <div class="ilk-ad">${dil() === 'tr' ? `Sıra <b>${esc(p.name)}</b>${bulunmaEki(p.name)}` : `<b>${esc(p.name)}</b> ${t('throws first')}`}</div>
+      <button class="btn primary big" data-act="ilkbasla">${t('Başla')}</button>
+      <small class="muted">${t('Başlamak için ekrana dokun')}</small></div>`;
+  } else if (md.type === 'baslayan') {
+    const m = data().current; if (!m) { S.modal = null; return ''; }
+    const ad = i => E.sideName(m, i, player), renk = i => player(m.sides[i].members[0]).color;
+    body = `<div class="bs-ust"><span class="bs-ic">${TUS_IC.bull}</span><h2>${t('Kim başlıyor?')}</h2></div>
+      <p class="muted bs-not">${t("Başlama atışı: herkes Bull'a birer ok atar, Bull'a en yakın olan başlar. Sonraki leg'leri sırayla diğerleri açar.")}</p>
+      <div class="bs-liste">${m.sides.map((_, i) => `<button class="btn bs-kisi" style="--pc:${renk(i)}" data-act="baslayan" data-i="${i}">${adAvatar(ad(i)) || '<i class="bs-nokta"></i>'}<span>${esc(ad(i))}</span></button>`).join('')}</div>
+      <button class="btn bs-rastgele" data-act="baslayan" data-i="r">${t('Rastgele seç')}</button>`;
   } else if (md.type === 'ozelsec') {
     const ad = { D: t('Hangi double?'), T: t('Hangi triple?'), H: t('House: hangi sayıya üç ok?'), B3: t('3 in a bed: hangi sayıya üç ok?') }[md.h];
     const on = md.h === 'D' ? 'D' : md.h === 'T' ? 'T' : '';
@@ -1306,6 +1334,13 @@ app.addEventListener('click', e => {
       afterThrow(E.throwDart(m, ok));
       break;
     }
+    case 'baslayan': {
+      const md = S.modal; if (!md || md.type !== 'baslayan') break;
+      const i = el.dataset.i === 'r' ? Math.floor(Math.random() * m.sides.length) : Number(el.dataset.i);
+      E.baslayanSec(m, i); store.setCurrent(m); vib(10); ses.tus();
+      // Demir 09.11: ilk başlayanın duyurusu hemen kaybolmasın; ekrana dokununca oyun başlar
+      S.modal = { type: 'ilksira' }; render(); break;
+    }
     // Tablodan yaz: D / T / H / 3B satırına dokunuldu → hangi sayıya atıldığı sorulur
     case 'ozelsatir': {
       const h = el.dataset.h;
@@ -1373,7 +1408,9 @@ app.addEventListener('click', e => {
       break;
     case 'close': S.modal = null; render(); break;
     case 'legdevam': S.modal = null; render(); if (data().current) siraGoster(data().current, 150); break;
-    case 'bg': if (e.target === el) { S.modal = null; render(); } break;
+    case 'ilkbasla': S.modal = null; vib(8); ses.tus(); render(); break;
+    case 'bg': if (S.modal && S.modal.type === 'ilksira') { S.modal = null; vib(8); render(); break; }
+      if (e.target === el && !(S.modal && S.modal.type === 'baslayan')) { S.modal = null; render(); } break; // başlama atışı boşluğa dokunarak geçilmez
 
     case 'rematch': {
       const lm = S.lastMatch;

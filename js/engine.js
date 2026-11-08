@@ -53,6 +53,12 @@ const clone = o => JSON.parse(JSON.stringify(o));
 
 // Geri al yığını (yalnız bellekte, log dışarıda tutulur)
 const undoStack = [];
+/** Başlama atışı (Demir 09.11): ilk leg'i kim açacak — maç başında, ilk ok atılmadan */
+export function baslayanSec(m, i) {
+  if (m.log.length || m.turnDarts.length) return;
+  m.ilk = i; m.starter = i; m.cur = i;
+  startTurn(m);
+}
 export function clearUndo() { undoStack.length = 0; }
 export const canUndo = () => undoStack.length > 0;
 
@@ -182,7 +188,7 @@ function endLeg(m, winner, logged) {
   }
   // yeni leg: başlayan sırayla değişir
   m.legNo++;
-  m.starter = (m.legNo - 1) % m.sides.length;
+  m.starter = ((m.ilk || 0) + m.legNo - 1) % m.sides.length; // ilk leg'i başlama atışını kazanan açar, sonra sırayla
   m.cur = m.starter;
   m.round = 1;
   m.sides.forEach(s => (s.memberIdx = 0));
