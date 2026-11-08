@@ -2225,3 +2225,9 @@ html:root body .pill.gold.dv-dugme { color: #000 !important; text-shadow: none !
 :root .dv-oyuncu.sirada { box-shadow: inset 0 1px 0 rgb(255 255 255 / .3), 0 0 16px -4px var(--ton-pc) !important; }
 /* Devam et yazısı beyaz (Demir 09.11) */
 html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 3px rgb(0 0 0 / .55) !important; }
+
+/* Geri düğmesi: SVG ok tam ortada; tablette "Geri" yazısıyla hap düğme */
+.geri-dugme { padding: 0 !important; display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; }
+.geri-dugme svg { flex: none; display: block; }
+.geri-dugme span { display: none; font-size: 17px; font-weight: 800; }
+@media (min-width: 700px) { .geri-dugme { width: max-content !important; min-width: max-content; justify-self: start; flex: none; padding: 0 22px 0 14px !important; } .geri-dugme span { display: inline; } }

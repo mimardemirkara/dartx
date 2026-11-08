@@ -461,7 +461,7 @@ function header(title, back) {
   if (!title) return '<header class="top"><button class="logo-dugme" data-act="home" aria-label="DartX"><img class="logo" src="img/logo-dartx.webp" alt="DartX"></button></header>';
   const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), online: ikon('grp-online'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
   return `<header class="kurulum-ust">
-      <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Ana sayfa')}">‹</button>
+      <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1>${simge ? `<span class="app-ico simge">${simge}</span>` : ''}<span class="b-ad">${title}</span></h1>
       <span></span>
     </header>`;
@@ -663,7 +663,7 @@ function viewSetup() {
   // Baş: solda geri, ortada oyunun adı, sağda oyunun simgesi
   return `<main class="page kurulum">
     <header class="kurulum-ust">
-      <button class="geri-dugme" data-act="home" aria-label="${t('Ana sayfa')}">‹</button>
+      <button class="geri-dugme" data-act="home" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1><span class="app-ico simge">${ikon(g.id)}</span><span class="b-ad">${esc(gt(g, 'name'))}</span></h1>
       <span></span>
     </header>
@@ -820,6 +820,8 @@ function acikRenk(hex) {
   return .2126 * r + .7152 * g + .0722 * b > .32;
 }
 const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
+// Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
+const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -1014,7 +1016,7 @@ function viewAbout() {
   const yil = new Date().getFullYear();
   return `<main class="page ayarlar hakkinda">
     <header class="kurulum-ust">
-      <button class="geri-dugme" data-act="home" aria-label="${t('Ana sayfa')}">‹</button>
+      <button class="geri-dugme" data-act="home" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="b-ad">${t('Hakkında')}</span></h1>
       <span></span>
     </header>
@@ -1053,7 +1055,7 @@ function viewOnline() {
   const oz = (ic, ad, ac) => `<div class="ay-satir on-satir">${ikonKutu(ic)}<div class="on-metin"><b>${t(ad)}</b><small>${t(ac)}</small></div></div>`;
   return `<main class="page ayarlar online">
     <header class="kurulum-ust">
-      <button class="geri-dugme" data-act="home" aria-label="${t('Ana sayfa')}">‹</button>
+      <button class="geri-dugme" data-act="home" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1><span class="app-ico simge">${ikon('grp-online')}</span><span class="b-ad">${t('Online')}</span></h1>
       <span></span>
     </header>
