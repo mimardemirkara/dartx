@@ -1,0 +1,1796 @@
+/* DartX — demirkara.com cam teması (Liquid Glass) — mobil + tablet
+   Cam tarifi sitenin Masaustu "sivi" değişkenlerinden: ışık + ton + kenar ışığı + iç gölge + buzlu bulanıklık. */
+:root {
+  color-scheme: dark;
+  --fg: #e9e9ec;
+  --mut: #9a9aa3;
+  --brand: #e3b866;           /* demirkara.com koyu tema vurgusu */
+  --brand-2: #c89c3f;
+  --red: #f0715f;
+  --green: #4fd08a;
+  --blue: #7fb2ff;
+
+  --buzlu: .45;
+  --cam-rgb: 27 26 25;        /* NÖTR sıcak koyu — mavi/mor alt ton yok (demirkara.com pencere tonu) */
+  --sivi-ton: rgb(var(--cam-rgb) / .05);   /* site varsayılanı: Cam Yoğunluğu 0 → neredeyse saydam */
+  --sivi-ton-koyu: rgb(var(--cam-rgb) / .55);
+  --sivi-ton-pencere: rgb(27 26 25 / .86);
+  --dock-ton: rgb(var(--cam-rgb) / .42);
+  --sec-renk: rgba(233,233,236,.62);
+  --yazi-golge: 0 1px 2px rgba(0,0,0,.25);
+  --cizgi: rgba(255,255,255,.08);
+  --gl-main: #f6dc9f; --gl-party: #d9dde6; --gl-practice: #cfe6d6;
+  --hl-yazi: #ffe3a6; --bull-yazi: #ff9a8a; --tehlike-yazi: #ffb3a8;
+  --duvar: url('../img/duvar-koyu.webp');   /* demirkara.com DK Steel koyu, logosuz (sitenin telefon duvar kâğıdı) */
+  --duvar-genis: url('../img/duvar-koyu-genis.webp');   /* tablet: kadife koyu geniş, 2560 px (logosuz, yüksek çözünürlük) */
+  --duvar-isik: linear-gradient(transparent, transparent);
+  --zemin: #0d0c0b;
+  --sivi-isik: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,0) 40%);
+  --sivi-kenar-isik: linear-gradient(135deg, rgba(255,255,255,.42) 0%, rgba(255,255,255,.10) 16%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 66%, rgba(255,255,255,.06) 84%, rgba(255,255,255,.24) 100%);
+  --sivi-ic: inset 1px 1.5px 3px -1px rgba(255,255,255,.16), inset -1px -2px 4px -2px rgba(0,0,0,.22), 0 8px 26px -12px rgba(0,0,0,.40);
+  --bulanik: blur(calc(5px + 22px * var(--buzlu))) saturate(160%) brightness(1.04);
+  --bulanik-pencere: blur(calc(20px + 44px * var(--buzlu))) saturate(105%) brightness(1.02);
+  --altin: linear-gradient(180deg, #f0cf86 0%, #e3b866 45%, #b98a35 100%);
+
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+/* ── AÇIK TEMA: DK Steel açık (bej taş), demirkara.com açık tema değişkenleri ── */
+:root[data-tema="acik"] {
+  color-scheme: light;
+  --fg: #1f2023;
+  --mut: #5e564c;
+  --brand: #9a7428;
+  --red: #c4402f; --green: #1f8a52;
+  --cam-rgb: 250 246 240;
+  --sivi-ton: rgb(255 255 255 / .04);
+  --sivi-ton-pencere: rgb(214 198 178 / .9);   /* kum camı */
+  --sivi-isik: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,0) 40%);
+  --sivi-kenar-isik: linear-gradient(135deg, rgba(255,255,255,.60) 0%, rgba(255,255,255,.14) 16%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 66%, rgba(255,255,255,.08) 84%, rgba(255,255,255,.34) 100%);
+  --sivi-ic: inset 1px 1.5px 3px -1px rgba(255,255,255,.35), inset -1px -2px 5px -2px rgba(60,40,20,.16), 0 8px 24px -12px rgba(60,40,20,.24);
+  --dock-ton: rgb(196 178 156 / .5);
+  --sec-renk: rgba(55,49,42,.72);
+  --yazi-golge: none;
+  --cizgi: rgba(60,45,30,.12);
+  --gl-main: #7a5614; --gl-party: #3a3f4a; --gl-practice: #285c3c;
+  --hl-yazi: #6b4a0e; --bull-yazi: #b3301f; --tehlike-yazi: #9a2418;
+  --duvar: url('../img/duvar-acik.webp');   /* DK Steel açık, logosuz */
+  --duvar-genis: url('../img/duvar-acik-genis.webp');
+  --duvar-isik: linear-gradient(transparent, transparent);
+  --zemin: #b9ad9c;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; color: var(--fg); }
+html { background: var(--zemin); }
+body { background: transparent; }   /* body boyanırsa arkadaki duvar kâğıdını örter */
+body {
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  -webkit-user-select: none; user-select: none;
+  -webkit-text-size-adjust: 100%;
+}
+/* Duvar kâğıdı: demirkara.com DK Steel (logosuz) — koyu / açık temaya göre; sabit, cam onun üstünde buzlanır */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1;
+  background: var(--duvar) center / cover no-repeat, var(--zemin);   /* sitedeki .duvar: center / cover, üstünde katman yok */
+}
+/* Telefon: DK Steel logosuz dikey (sitedeki gibi) · Tablet (720 px +): kadife geniş 2560 px */
+@media (min-width: 720px) { body::before { background-image: var(--duvar-genis); } }
+input { -webkit-user-select: text; user-select: text; }
+/* telefon/tablet gibi: kaydırma çubuğu görünmez */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
+button:disabled { opacity: .35; cursor: default; }
+h1, h2 { margin: 0; }
+.muted, small { color: var(--mut); }
+.center { text-align: center; }
+
+/* ── CAM TARİFİ ── */
+.glass, .side, .k, .chip, .pchip, .btn, .pill, .tile, .turn, .icon-btn, .teams div, .addp input,
+.modal input[name=name], .ctable th, .ctable td:not(.num), .prow, .hrow, .toggle, .toast {
+  border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(var(--sivi-ton), var(--sivi-ton)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic);
+  -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik);
+  text-shadow: var(--yazi-golge);
+}
+/* Altın (sitedeki "Hesapla →" düğmesi gibi) */
+.gold, .btn.primary, .chip.on, .k.next {
+  background: var(--sivi-isik) padding-box, var(--altin) padding-box, linear-gradient(135deg, rgba(255,255,255,.7), rgba(255,255,255,.1) 40%, rgba(120,80,20,.4)) border-box;
+  color: #1d160a !important; text-shadow: 0 1px 0 rgba(255,255,255,.35); font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 8px 22px -10px rgba(227,184,102,.55);
+}
+:is(.k, .btn, .chip, .pchip, .pill, .app, .icon-btn, .tab):active { transform: scale(.96); filter: brightness(1.2); }
+:is(.k, .btn, .chip, .pchip, .pill, .icon-btn) { transition: transform .25s cubic-bezier(.2,.9,.25,1.1), filter .2s; }
+
+/* ── SAYFA ── */
+.page { padding: calc(var(--safe-t) + 6px) 16px calc(110px + var(--safe-b)); max-width: 860px; margin: 0 auto; }
+.top { display: flex; align-items: center; gap: 10px; min-height: 54px; }
+.top h1 { font-size: 22px; font-weight: 700; flex: 1; letter-spacing: -.3px; }
+.top .sp { width: 44px; }
+.logo { font-weight: 800; font-size: 26px; letter-spacing: -.8px; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+.logo b { background: var(--altin); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.icon-btn { width: 44px; height: 44px; border-radius: 99px; font-size: 22px; line-height: 1; display: grid; place-items: center; }
+.sec { font-size: 12.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--sec-renk); margin: 24px 4px 10px; font-weight: 600; }
+.lead { color: var(--mut); margin: 2px 2px 14px; }
+.link { color: var(--brand); padding: 6px 4px; font-size: 15px; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 16px; border-radius: 99px; font-size: 14px; font-weight: 600; }
+
+/* ── ANA EKRAN: bileşen + simge ızgarası (demirkara.com telefon ana ekranı) ── */
+.widget { width: 100%; text-align: left; border-radius: 24px; padding: 16px 18px; display: grid; gap: 3px; margin-top: 4px; position: relative; }
+.widget .w-ust { font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--brand); text-transform: capitalize; }
+.widget b { font-size: 24px; letter-spacing: -.3px; }
+.widget small { font-size: 13.5px; }
+.widget .pill { justify-self: start; margin-top: 10px; }
+.apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 10px; }
+.app { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; }
+.app-ico { position: relative; width: 100%; max-width: 68px; aspect-ratio: 1; border-radius: 23%; display: grid; place-items: center; }
+.app-ico .gl { font-weight: 800; font-size: 21px; letter-spacing: -.5px; }
+.app-ico .gl.sm { font-size: 15px; }
+/* kategori tonu: cama hafif renk */
+.c-main { --sivi-ton: rgb(227 184 102 / .12); }
+.c-main .gl { color: var(--gl-main); }
+.c-party { --sivi-ton: rgb(225 225 230 / .06); }
+.c-party .gl { color: var(--gl-party); }
+.c-practice { --sivi-ton: rgb(120 190 150 / .09); }
+.c-practice .gl { color: var(--gl-practice); }
+.app-ad { font-size: 12px; font-weight: 500; text-align: center; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,.8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app.soon .app-ico { opacity: .55; }
+.app.soon .app-ad { opacity: .6; }
+.rozet { position: absolute; bottom: -5px; left: 50%; translate: -50% 0; font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: .04em; padding: 1px 6px; border-radius: 99px; background: rgba(20,18,24,.85); color: var(--mut); border: 1px solid rgba(255,255,255,.12); white-space: nowrap; }
+
+/* ── FORM ── */
+.field { margin: 18px 0; }
+.field > label { display: block; font-weight: 600; margin: 0 2px 9px; font-size: 15px; }
+.chips, .pchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 0 18px; border-radius: 99px; min-height: 42px; font-weight: 500; }
+.pchip { position: relative; padding: 0 18px; border-radius: 99px; min-height: 44px; display: inline-flex; align-items: center; }
+.pchip.on { --sivi-ton: color-mix(in srgb, var(--pc) 34%, transparent); font-weight: 700; box-shadow: var(--sivi-ic), 0 0 0 2px var(--pc); }
+.pchip .ord { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--pc); color: #fff; font-size: 12px; margin-right: 7px; text-shadow: none; }
+.addp { display: flex; gap: 8px; margin-top: 12px; }
+.addp input, .modal input[name=name] { flex: 1; min-width: 0; font: inherit; color: var(--fg); border-radius: 99px; padding: 11px 18px; font-size: 16px; width: 100%; outline: none; }
+.addp input::placeholder { color: var(--mut); opacity: .7; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 20px; border-radius: 99px; font-weight: 600; }
+.btn.sm { min-height: 44px; }
+.btn.danger { --sivi-ton: rgb(200 60 50 / .28); color: var(--tehlike-yazi); }
+.btn.big { width: 100%; min-height: 58px; font-size: 19px; margin-top: 18px; }
+.row { display: flex; gap: 10px; margin-top: 12px; }
+.row > * { flex: 1; }
+.teams { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.teams div { border-radius: 18px; padding: 10px 14px; font-size: 14px; }
+.teams b { display: block; color: var(--brand); }
+.toggle { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-radius: 20px; margin-bottom: 8px; }
+.toggle input { width: 24px; height: 24px; accent-color: var(--brand); }
+.ver { margin-top: 30px; font-size: 13px; }
+
+/* ── OYUNCULAR / İSTATİSTİK ── */
+.prow { display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 16px; border-radius: 20px; margin-bottom: 8px; }
+.prow b { flex: 1; font-size: 17px; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 10px var(--pc); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.tile { border-radius: 20px; padding: 12px 6px; text-align: center; }
+.tile b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 11.5px; color: var(--mut); }
+.hrow { display: grid; grid-template-columns: 30px 1fr; column-gap: 10px; padding: 10px 14px; border-radius: 18px; margin-bottom: 6px; }
+.hrow span { grid-row: span 2; width: 28px; height: 28px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: rgba(255,255,255,.1); }
+.hrow span.w { background: rgba(79,208,138,.85); color: #062; text-shadow: none; }
+.hrow span.l { background: rgba(240,113,95,.3); color: #ffb3a8; }
+
+/* ── CAM DOCK ── */
+.tabbar { position: fixed; left: 50%; translate: -50% 0; bottom: calc(10px + var(--safe-b)); z-index: 10; display: flex; gap: 4px; padding: 7px; border-radius: 30px; --sivi-ton: var(--dock-ton); }
+.tab { width: 70px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 0 5px; border-radius: 22px; font-size: 10.5px; font-weight: 600; color: var(--mut); }
+.tab .ico svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.tab.on { color: var(--brand); background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.07)); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+
+/* ── OYUN EKRANI ── */
+.play { height: 100vh; height: 100dvh; display: flex; flex-direction: column; padding-top: var(--safe-t); padding-bottom: var(--safe-b); }
+.play-top { padding: 0 10px; flex: none; }
+.play-top h1 { text-align: center; font-size: 17px; display: flex; flex-direction: column; line-height: 1.15; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.play-top h1 small { font-size: 12px; font-weight: 500; }
+.scores { flex: 1 1 auto; overflow: auto; padding: 4px 10px; min-height: 0; }
+
+.scores { display: flex; flex-direction: column; }
+.board { flex: 1 0 auto; }
+.board.x01 { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; align-content: stretch; }
+.board.x01 .side { display: flex; flex-direction: column; justify-content: center; max-height: 340px; }
+.board.x01.n1 .side, .board.x01.n2 .side { max-height: 420px; }
+.board.x01.n1 { grid-template-columns: 1fr; }
+.board.x01.n5, .board.x01.n6, .board.x01.n7, .board.x01.n8 { grid-template-columns: 1fr 1fr 1fr; }
+.side { border-radius: 24px; padding: 10px 14px 12px; position: relative; overflow: hidden; transition: box-shadow .3s; }
+.side::before { content: ''; position: absolute; left: 14px; right: 14px; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--pc); opacity: .9; box-shadow: 0 0 12px var(--pc); }
+.side.active { --sivi-ton: color-mix(in srgb, var(--pc) 12%, transparent); box-shadow: var(--sivi-ic), 0 0 0 1.5px color-mix(in srgb, var(--pc) 75%, transparent), 0 10px 34px -10px color-mix(in srgb, var(--pc) 60%, transparent); }
+.side-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+.side-big { font-size: 58px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; letter-spacing: -1.5px; text-shadow: 0 2px 10px rgba(0,0,0,.45); }
+.n1 .side-big { font-size: 100px; text-align: center; }
+.n5 .side-big, .n6 .side-big, .n7 .side-big, .n8 .side-big { font-size: 36px; }
+.side-sub { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--mut); }
+.side-tag { font-size: 11px; color: var(--brand); margin-top: 2px; }
+.legs { font-weight: 500; font-size: 11.5px; color: var(--mut); background: rgba(255,255,255,.1); border-radius: 99px; padding: 1px 7px; margin-left: 4px; }
+.legs b { color: var(--fg); }
+
+.side.out { opacity: .45; filter: grayscale(.6); }
+.can { color: #ff8a7a; letter-spacing: 3px; font-size: 14px; }
+.can .bos { color: rgba(255,255,255,.18); }
+.hedefler { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; }
+.hedefler span { flex: 1; min-width: 30px; text-align: center; padding: 6px 0; border-radius: 99px; font-weight: 700; font-size: 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); }
+.hedefler span.on { background: var(--altin); color: #1d160a; border-color: transparent; }
+.hedefler span.gecti { opacity: .4; }
+.ctable { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
+.ctable th { font-size: 13px; padding: 5px 2px; border-radius: 16px; position: relative; overflow: hidden; }
+.ctable th::after { content: ''; position: absolute; left: 20%; right: 20%; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--pc); box-shadow: 0 0 10px var(--pc); }
+.ctable th:first-child { width: 44px; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.ctable th:first-child::after { display: none; }
+.ctable th.active { --sivi-ton: color-mix(in srgb, var(--pc) 28%, transparent); }
+.ctable .cn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctable .cp { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ctable td { border-radius: 12px; text-align: center; height: 29px; font-size: 19px; line-height: 1; }
+.ctable td.active { --sivi-ton: rgb(255 255 255 / .1); }
+.ctable td.num { font-weight: 800; color: var(--brand); font-size: 18px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.ctable tr.dead td { opacity: .3; }
+.mk { font-style: normal; font-weight: 800; }
+.mk.m1 { color: var(--mut); }
+.mk.m2 { color: var(--fg); }
+.mk.m3 { color: var(--green); border: 2px solid var(--green); border-radius: 50%; display: inline-grid; place-items: center; width: 24px; height: 24px; font-size: 14px; box-shadow: 0 0 10px rgba(79,208,138,.4); }
+
+.turn { flex: none; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 4px 10px; margin: 6px 10px; padding: 8px 10px 8px 16px; border-radius: 22px; --sivi-ton: color-mix(in srgb, var(--pc) 8%, rgb(var(--cam-rgb) / .12)); }
+.turn .who b { font-size: 17px; display: block; }
+.turn .who b::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 8px var(--pc); margin-right: 7px; vertical-align: 2px; }
+.turn .who small { font-size: 12px; }
+.slots { display: flex; gap: 6px; }
+.slot { width: 50px; height: 38px; border-radius: 99px; background: rgba(0,0,0,.22); box-shadow: inset 0 1px 3px rgba(0,0,0,.35); display: grid; place-items: center; font-weight: 700; font-size: 15px; }
+.slot.f { background: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+.tp { font-size: 26px; font-weight: 800; min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+.totalbuf { grid-column: span 2; text-align: right; font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.hint { grid-column: 1 / -1; font-size: 14px; color: var(--brand); font-weight: 600; }
+
+.keypad { flex: none; padding: 0 8px 8px; display: grid; gap: 6px; }
+.k { min-height: 50px; border-radius: 18px; font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mods { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.k.mod { font-size: 14px; letter-spacing: .14em; border-radius: 99px; min-height: 44px; }
+.k.mod[data-m="2"].on { --sivi-ton: rgb(79 208 138 / .7); color: #04220f; text-shadow: none; box-shadow: var(--sivi-ic), 0 0 20px rgba(79,208,138,.45); }
+.k.mod[data-m="3"].on { --sivi-ton: rgb(240 113 95 / .75); color: #2a0703; text-shadow: none; box-shadow: var(--sivi-ic), 0 0 20px rgba(240,113,95,.45); }
+.nums { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.mod2 .k.num { --sivi-ton: rgb(79 208 138 / .16); }
+.mod3 .k.num { --sivi-ton: rgb(240 113 95 / .16); }
+.k.hl { --sivi-ton: rgb(227 184 102 / .30); color: var(--hl-yazi); }
+.extra { display: grid; grid-template-columns: 1fr 1fr 1fr 1.4fr; gap: 6px; }
+.k.bull { color: var(--bull-yazi); }
+.k.miss { color: var(--mut); font-size: 16px; }
+.k.next { font-size: 16px; border-radius: 99px; }
+.numpad .quick { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; }
+.k.q { min-height: 38px; font-size: 13px; border-radius: 99px; }
+.numpad .np { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.numpad .np .k { min-height: 56px; font-size: 24px; }
+
+/* ── MAÇ SONU ── */
+.end .trophy { font-size: 70px; text-align: center; margin-top: 30px; filter: drop-shadow(0 8px 24px rgba(227,184,102,.45)); }
+.end h1 { font-size: 28px; margin-top: 6px; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+.tablewrap { overflow-x: auto; margin-top: 18px; border-radius: 22px; padding: 6px 4px; }
+.sum { width: 100%; border-collapse: collapse; }
+.sum th, .sum td { padding: 10px 8px; border-bottom: 1px solid var(--cizgi); text-align: center; font-variant-numeric: tabular-nums; }
+.sum tr:last-child :is(th, td) { border-bottom: 0; }
+.sum tbody th { text-align: left; font-weight: 500; color: var(--mut); font-size: 14px; }
+.sum td { font-weight: 700; font-size: 17px; }
+
+/* ── PENCERE (modal) + BİLDİRİM ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.28); -webkit-backdrop-filter: blur(16px) saturate(120%); backdrop-filter: blur(16px) saturate(120%); display: flex; align-items: flex-end; justify-content: center; z-index: 30; animation: belir .2s ease-out; }
+.modal { width: 100%; max-width: 520px; border-radius: 30px 30px 0 0; padding: 22px 18px calc(22px + var(--safe-b)); display: grid; gap: 10px; max-height: 85vh; overflow: auto;
+  border: 1px solid rgba(255,255,255,.12); border-bottom: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,0) 40%), var(--sivi-ton-pencere);
+  -webkit-backdrop-filter: var(--bulanik-pencere); backdrop-filter: var(--bulanik-pencere);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 34px 90px -22px rgba(0,0,0,.72);
+  animation: ac .35s cubic-bezier(.2,1.2,.3,1); }
+.modal h2 { font-size: 20px; }
+.modal form { display: grid; gap: 12px; }
+.modal .btn { --sivi-ton: rgb(255 255 255 / .1); }
+.rules { line-height: 1.55; color: var(--fg); margin: 0; -webkit-user-select: text; user-select: text; }
+.row.three { display: grid; grid-template-columns: repeat(3, 1fr); }
+.colors { display: flex; flex-wrap: wrap; gap: 10px; }
+.colors input { display: none; }
+.colors span { display: block; width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; }
+.colors input:checked + span { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,.4); }
+.toast { position: fixed; left: 50%; top: calc(var(--safe-t) + 70px); transform: translate(-50%, -20px); padding: 12px 24px; border-radius: 99px; font-weight: 700; font-size: 18px; opacity: 0; pointer-events: none; transition: .25s cubic-bezier(.2,1.2,.3,1); z-index: 40; --sivi-ton: rgb(var(--cam-rgb) / .7); }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.bad { --sivi-ton: rgb(220 70 55 / .85); color: #fff; }
+.toast.good { --sivi-ton: rgb(50 170 105 / .85); color: #fff; }
+@keyframes belir { from { opacity: 0; } }
+@keyframes ac { from { opacity: 0; transform: translateY(30px) scale(.97); } }
+
+/* ── TABLET ── */
+@media (min-width: 700px) {
+  .page { padding-left: 28px; padding-right: 28px; }
+  .apps { grid-template-columns: repeat(6, 1fr); gap: 24px 14px; }
+  .app-ico { max-width: 84px; }
+  .app-ico .gl { font-size: 26px; }
+  .app-ad { font-size: 13px; }
+  .widget { max-width: 460px; }
+  .k { min-height: 64px; font-size: 24px; }
+  .side-big { font-size: 72px; }
+  .n1 .side-big { font-size: 130px; }
+  .modal { border-radius: 30px; margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,.12); }
+  .modal-bg { align-items: center; }
+  .tab { width: 84px; font-size: 11.5px; }
+}
+@media (min-width: 1000px) { .apps { grid-template-columns: repeat(8, 1fr); } .page { max-width: 1100px; } }
+/* tablet / geniş telefon yatay: skor solda, tuşlar sağda */
+@media (orientation: landscape) and (min-width: 700px) {
+  .play { display: grid; grid-template-columns: 1fr minmax(380px, 44%); grid-template-rows: auto 1fr auto; }
+  .play-top { grid-column: 1 / -1; }
+  .scores { grid-column: 1; grid-row: 2; }
+  .turn { grid-column: 1; grid-row: 3; }
+  .keypad { grid-column: 2; grid-row: 2 / 4; align-content: end; padding-top: 6px; }
+  .k { min-height: 70px; }
+}
+@media (orientation: landscape) and (min-width: 700px) and (min-height: 700px) {
+  .k { min-height: 92px; font-size: 28px; border-radius: 24px; }
+  .k.mod { font-size: 17px; min-height: 60px; }
+  .board.x01.n2 .side-big, .board.x01.n3 .side-big, .board.x01.n4 .side-big { font-size: 110px; }
+  .board.x01.n1 .side-big { font-size: 180px; }
+  .side { border-radius: 30px; }
+  .board.x01[class] .side { max-height: none; }
+  .board.x01:is(.n1, .n2) .side { align-items: center; text-align: center; }
+  .side-name { font-size: 20px; }
+  .side-sub { font-size: 15px; }
+  .turn .who b { font-size: 22px; }
+  .hint { font-size: 18px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .ctable td { height: 52px; font-size: 28px; border-radius: 16px; }
+  .ctable .cn { font-size: 16px; }
+  .ctable .cp { font-size: 30px; }
+  .ctable td.num { font-size: 24px; }
+  .ctable th:first-child { width: 60px; }
+  .mk.m3 { width: 38px; height: 38px; font-size: 21px; }
+  .slot { width: 70px; height: 48px; font-size: 19px; }
+}
+@media (min-height: 900px) and (max-width: 699px) { .ctable td { height: 40px; font-size: 22px; } .mk.m3 { width: 30px; height: 30px; font-size: 17px; } }
+/* kısa ekran (telefon yatay) */
+@media (max-height: 520px) {
+  .k { min-height: 40px; font-size: 18px; }
+  .side-big { font-size: 40px; }
+  .n1 .side-big { font-size: 56px; }
+}
+/* Saydamlığı azalt (erişilebilirlik) */
+@media (prefers-reduced-transparency: reduce) { :root { --sivi-ton: rgb(var(--cam-rgb) / .9); } }
+
+/* Açık temada koyu gölgeler kalkar; yazılar duvar kâğıdı üstünde okunur */
+:root[data-tema="acik"] :is(.logo, .side-big, .play-top h1, .end h1, .ctable td.num, .app-ad) { text-shadow: none; }
+:root[data-tema="acik"] .app-ad { font-weight: 600; }
+:root[data-tema="acik"] .slot { background: rgba(60,45,30,.10); box-shadow: inset 0 1px 3px rgba(60,45,30,.18); }
+:root[data-tema="acik"] .slot.f { background: rgba(255,255,255,.55); }
+:root[data-tema="acik"] .modal { border-color: rgba(120,95,65,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 34px 90px -26px rgba(70,50,30,.45); }
+:root[data-tema="acik"] .modal .btn { --sivi-ton: rgb(255 255 255 / .35); }
+:root[data-tema="acik"] .modal-bg { background: rgba(60,45,30,.18); }
+:root[data-tema="acik"] .legs { background: rgba(60,45,30,.1); }
+:root[data-tema="acik"] .hedefler span { background: rgba(255,255,255,.35); border-color: rgba(120,95,65,.18); }
+:root[data-tema="acik"] .toast { --sivi-ton: rgb(250 246 240 / .85); }
+:root[data-tema="acik"] .tab.on { background: rgba(255,255,255,.55); box-shadow: inset 0 1px 0 #fff; }
+:root[data-tema="acik"] .side.active { --sivi-ton: color-mix(in srgb, var(--pc) 12%, transparent); }
+:root[data-tema="acik"] .turn { --sivi-ton: color-mix(in srgb, var(--pc) 8%, rgb(255 255 255 / .08)); }
+:root[data-tema="acik"] .rozet { background: rgba(250,246,240,.9); color: var(--mut); border-color: rgba(120,95,65,.2); }
+:root[data-tema="acik"] .widget .w-ust { color: var(--brand); }
+:root[data-tema="acik"] .mk.m3 { box-shadow: none; }
+
+/* ═══ ÜST ÇUBUK — demirkara.com menü çubuğu (Masaustu .menu-cubugu) ═══
+   Cam ::before katmanında: ton %12 (Cam Yoğunluğu 0) + bulanıklık 8 + 40 × buzluluk, doygunluk %180. */
+:root { --ust: 44px; --sivi-ton-cubuk: rgb(var(--cam-rgb) / .12); --bulanik-cubuk: blur(calc(8px + 40px * var(--buzlu))) saturate(180%); }
+.menu-cubugu { position: fixed; top: var(--safe-t); left: 0; right: 0; height: var(--ust); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px 0 2px; font-size: 13px; isolation: isolate; color: var(--fg); }
+.menu-cubugu::before { content: ""; position: absolute; inset: calc(-1 * var(--safe-t)) 0 0; z-index: -1; pointer-events: none; background: var(--sivi-ton-cubuk); -webkit-backdrop-filter: var(--bulanik-cubuk); backdrop-filter: var(--bulanik-cubuk); }
+:root[data-tema="acik"] .menu-cubugu::before { border-bottom: 1px solid rgba(60,40,20,.08); }
+.mc-sol, .mc-sag { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.mc-menuler { display: flex; gap: 2px; overflow: hidden; }
+.mc-uygulama { font-weight: 700; padding: 0 8px; white-space: nowrap; font-size: 14px; }
+.mc-menuler .mc-dugme { border-radius: 6px; font-weight: 500; }
+.mc-dugme { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 7px; font-size: 13px; white-space: nowrap; color: var(--fg); }
+.mc-dugme:active, .mc-dugme.on { background: color-mix(in srgb, var(--fg) 10%, transparent); }
+.mc-dugme.dk { padding: 0 6px; color: var(--brand); }
+.mc-saat { font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; padding: 0 8px; }
+.mc-durum-saat, .mc-durum-tarih, .mc-durum-hava, .mc-evim { display: none; }
+/* Telefon: ⌂ saat tarih hava … tema */
+@media (max-width: 719px) {
+  .mc-dugme.dk, .mc-uygulama, .mc-menuler, .mc-saat, .mc-hava { display: none !important; }
+  .mc-durum-saat { display: inline; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .mc-durum-tarih, .mc-durum-hava { display: inline; margin-left: 7px; font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--fg) 78%, transparent); }
+  .mc-evim { display: grid; place-items: center; flex: none; width: 36px; height: 44px; color: var(--fg); }
+  .mc-sol { flex: none; }
+  .mc-sag { gap: 0; }
+  .mc-sag .mc-dugme { height: 44px; min-width: 36px; justify-content: center; padding: 0 5px; font-size: 15px; }
+}
+@media (min-width: 720px) { :root { --ust: 32px; } }
+/* İçerik çubuğun altından başlar */
+.page { padding-top: calc(var(--safe-t) + var(--ust) + 6px); }
+.play { padding-top: calc(var(--safe-t) + var(--ust)); }
+.toast { top: calc(var(--safe-t) + var(--ust) + 60px); }
+
+/* ═══ LOGOLAR (Demir'in metalik DartX ve bakır X logoları) ═══ */
+img.logo { display: block; height: 44px; width: auto; filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); }
+.home .top { min-height: 64px; }
+.home img.logo { height: 52px; }
+:root[data-tema="acik"] img.logo { filter: drop-shadow(0 2px 4px rgba(60,40,20,.35)); }
+.mc-dugme.dk img { height: 18px; width: auto; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
+@media (min-width: 700px) { .home img.logo { height: 64px; } }
+
+/* ═══ OYUN SİMGELERİ — demirkara.com .simge karosu: kendi resmi + üstte cam yansıması + kenar ışığı ═══ */
+.app-ico.simge { position: relative; display: block; width: 100%; max-width: 64px; aspect-ratio: 1; border-radius: 23%; overflow: hidden; isolation: isolate;
+  border: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 0 8px 18px -8px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.18); transition: transform .25s cubic-bezier(.3,1.5,.5,1); }
+.app-ico.simge svg { display: block; width: 100%; height: 100%; }
+.app-ico.simge::before { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(140% 70% at 50% -10%, rgba(255,255,255,.32), rgba(255,255,255,.04) 56%, transparent 58%); }
+.app-ico.simge::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 4; pointer-events: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.3), inset 0 -1px 1px rgba(0,0,0,.18); }
+.app:active .app-ico.simge { transform: scale(.94); }
+.apps { gap: 20px 8px; }
+@media (min-width: 700px) { .app-ico.simge { max-width: 76px; } }
+
+/* Üst çubuk: tarih ve hava okunur (soluk gri yerine tam yazı rengi) */
+@media (max-width: 719px) {
+  .mc-durum-tarih, .mc-durum-hava { color: var(--fg) !important; opacity: .9; font-weight: 600; font-size: 13px; }
+}
+:root[data-tema="koyu"] .menu-cubugu { text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+/* Dil: yuvarlak bayrak + cam liste (demirkara.com DilSecici) */
+.mc-kutu { position: relative; display: flex; align-items: center; }
+.mc-dil { padding: 0 6px; }
+.mc-dil img { width: 18px; height: 18px; border-radius: 99px; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); object-fit: cover; display: block; }
+@media (max-width: 719px) { .mc-dil img { width: 21px; height: 21px; } }
+.dil-paneli { position: absolute; right: 0; top: calc(100% + 6px); min-width: 150px; padding: 5px; border-radius: 14px; z-index: 50; display: grid; gap: 2px;
+  background: var(--sivi-ton-pencere); -webkit-backdrop-filter: var(--bulanik-pencere); backdrop-filter: var(--bulanik-pencere);
+  border: 1px solid rgba(255,255,255,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 18px 44px -16px rgba(0,0,0,.55); animation: belir .15s ease-out; }
+:root[data-tema="acik"] .dil-paneli { border-color: rgba(120,95,65,.22); }
+.dil-paneli button { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; font-size: 14px; color: var(--fg); text-align: left; }
+.dil-paneli button[data-secili="true"] { background: color-mix(in srgb, var(--fg) 10%, transparent); font-weight: 600; }
+.dil-paneli img { width: 20px; height: 20px; border-radius: 99px; object-fit: cover; }
+.dil-paneli .tik { margin-left: auto; color: var(--brand); }
+
+/* ═══ ARAMA — demirkara.com Spotlight: buzlu perde (.spot-perde) + üstte cam "Ara" kutusu ═══ */
+.spot-perde { position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,.32); -webkit-backdrop-filter: blur(16px) saturate(120%); backdrop-filter: blur(16px) saturate(120%);
+  display: flex; justify-content: center; align-items: flex-start; padding: calc(var(--safe-t) + var(--ust) + 14px) 14px 20px; animation: belir .2s ease-out; }
+:root[data-tema="acik"] .spot-perde { background: rgba(60,45,30,.16); }
+.spot-kutu { width: 100%; max-width: 560px; display: grid; gap: 10px; max-height: 100%; }
+.spot-giris { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 18px; border-radius: 99px; color: var(--fg);
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(var(--sivi-ton-koyu), var(--sivi-ton-koyu)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+:root[data-tema="acik"] .spot-giris { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .55), rgb(255 255 255 / .55)) padding-box, var(--sivi-kenar-isik) border-box; }
+.spot-giris input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: var(--fg); font: inherit; font-size: 17px; }
+.spot-giris input::placeholder { color: var(--mut); }
+.spot-sonuc { overflow: auto; border-radius: 22px; padding: 6px; display: grid; gap: 2px;
+  background: var(--sivi-ton-pencere); -webkit-backdrop-filter: var(--bulanik-pencere); backdrop-filter: var(--bulanik-pencere);
+  border: 1px solid rgba(255,255,255,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 24px 60px -24px rgba(0,0,0,.6); }
+.spot-satir { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 14px; text-align: left; color: var(--fg); }
+.spot-satir:active { background: color-mix(in srgb, var(--fg) 10%, transparent); }
+.spot-satir .app-ico.simge { width: 40px; max-width: 40px; flex: none; border-radius: 10px; }
+.spot-satir b { display: block; font-size: 15px; }
+.spot-satir small { display: block; font-size: 12.5px; color: var(--mut); line-height: 1.3; }
+
+/* ═══ Telefonda Dock yok (Demir 08.11) — gezinme: ana ekrandaki simgeler + üst çubuktaki ⌂ ═══ */
+.yalniz-tel { margin-top: 18px; }
+@media (max-width: 719px) {
+  .tabbar { display: none !important; }
+  .page { padding-bottom: calc(28px + var(--safe-b)); }
+}
+@media (min-width: 720px) { .yalniz-tel { display: none !important; } }
+
+/* Dock hiç yok (Demir 08.11): içerik alta kadar iner */
+.page { padding-bottom: calc(28px + var(--safe-b)); }
+
+/* ═══ SADE ANA EKRAN (Demir 08.11): ortada "Ara" + 3 oyun klasörü + 3 menü simgesi ═══ */
+.yalniz-tel { display: none !important; }
+/* sitedeki telefon ana ekranının "Ara" hapı */
+.ara-hap { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 520px; height: 44px; margin: 6px auto 18px; border-radius: 99px;
+  font-size: 17px; color: var(--fg); border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .38), rgb(var(--cam-rgb) / .38)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); text-shadow: var(--yazi-golge); }
+:root[data-tema="acik"] .ara-hap { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .3), rgb(255 255 255 / .3)) padding-box, var(--sivi-kenar-isik) border-box; }
+.ara-hap svg { opacity: .85; }
+.ara-hap:active { transform: scale(.98); }
+.home .widget { margin-bottom: 18px; }
+.apps.ana { gap: 22px 8px; }
+@media (min-width: 720px) { .apps.ana { grid-template-columns: repeat(6, minmax(0, 96px)); justify-content: center; gap: 26px 34px; } .home .top { justify-content: center; } .home .top h1, .home .top .sp { display: none; } .home .widget { margin-inline: auto; } }
+/* iPhone klasörü: cam karo içinde 3×3 minik simge */
+.app-ico.klasor { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); align-content: start; gap: 7%; padding: 14%; width: 100%; max-width: 64px; aspect-ratio: 1; border-radius: 23%;
+  border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .35), rgb(var(--cam-rgb) / .35)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+:root[data-tema="acik"] .app-ico.klasor { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .32), rgb(255 255 255 / .32)) padding-box, var(--sivi-kenar-isik) border-box; }
+.app-ico.klasor .mini { display: block; aspect-ratio: 1; border-radius: 24%; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.app-ico.klasor .mini svg { display: block; width: 100%; height: 100%; }
+@media (min-width: 700px) { .app-ico.klasor { max-width: 76px; } }
+/* açık klasör paneli */
+.klasor-perde { align-items: center; }
+.klasor-pano { width: min(92vw, 560px); padding: 22px 18px 26px; border-radius: 34px; animation: ac .3s cubic-bezier(.2,1.2,.3,1);
+  border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .45), rgb(var(--cam-rgb) / .45)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic), 0 30px 80px -30px rgba(0,0,0,.7); -webkit-backdrop-filter: var(--bulanik-pencere); backdrop-filter: var(--bulanik-pencere); }
+:root[data-tema="acik"] .klasor-pano { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .38), rgb(255 255 255 / .38)) padding-box, var(--sivi-kenar-isik) border-box; }
+.klasor-pano h2 { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 18px; text-shadow: var(--yazi-golge); }
+.klasor-pano .apps { gap: 18px 6px; }
+@media (min-width: 720px) { .klasor-pano { width: min(80vw, 720px); } .klasor-pano .apps { grid-template-columns: repeat(5, 1fr); } }
+
+/* Perde buzlanması ayrı katmanda: perdenin kendisinde backdrop-filter olunca içindeki panel arkayı buzlayamıyordu */
+.spot-perde { -webkit-backdrop-filter: none; backdrop-filter: none; background: none; }
+.spot-perde::before { content: ""; position: fixed; inset: 0; z-index: -1; background: rgba(0,0,0,.32); -webkit-backdrop-filter: blur(18px) saturate(120%); backdrop-filter: blur(18px) saturate(120%); }
+:root[data-tema="acik"] .spot-perde::before { background: rgba(60,45,30,.16); }
+.klasor-pano { background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .6), rgb(var(--cam-rgb) / .6)) padding-box, var(--sivi-kenar-isik) border-box; }
+:root[data-tema="acik"] .klasor-pano { background: var(--sivi-isik) padding-box, linear-gradient(rgb(250 246 240 / .62), rgb(250 246 240 / .62)) padding-box, var(--sivi-kenar-isik) border-box; }
+
+/* Ana ekran logosu: her cihazda ortada, biraz küçük (Demir 08.11) */
+.home .top { justify-content: center; min-height: 56px; }
+.home .top h1, .home .top .sp { display: none; }
+.home img.logo { height: 42px; }
+@media (min-width: 700px) { .home img.logo { height: 52px; } }
+
+/* Üst çubuğun ortasında minik DartX logosu (Demir 08.11) */
+.mc-logo { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 1; padding: 0; display: block; line-height: 0; }
+.mc-logo img { height: 18px; width: auto; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
+:root[data-tema="acik"] .mc-logo img { filter: drop-shadow(0 1px 1px rgba(60,40,20,.3)); }
+@media (min-width: 720px) { .mc-logo img { height: 17px; } }
+
+/* Tablette de sol başta ⌂ ana sayfa (Demir 08.11: X anlaşılmıyordu); bakır X kalkar */
+@media (min-width: 720px) {
+  .mc-dugme.dk { display: none !important; }
+  .mc-evim { display: grid; place-items: center; flex: none; width: 32px; height: 32px; color: var(--fg); }
+}
+
+/* Logoya basınca ana sayfa */
+.logo-dugme { padding: 0; line-height: 0; display: block; }
+.logo-dugme:active { transform: scale(.96); }
+
+/* Arama: yazılana kadar sonuç kutusu görünmez */
+.spot-sonuc:empty { display: none; }
+
+/* Klasör başlığı: grubun simgesi + ad + oyun sayısı, altında ince çizgi */
+.klasor-baslik { display: flex; align-items: center; gap: 12px; padding: 0 6px 14px; margin-bottom: 16px; border-bottom: 1px solid var(--cizgi); }
+.klasor-baslik .app-ico.simge { width: 44px; max-width: 44px; flex: none; border-radius: 11px; }
+.klasor-baslik h2 { margin: 0; text-align: left; font-size: 20px; font-weight: 700; line-height: 1.15; }
+.klasor-baslik small { display: block; font-size: 13px; color: var(--mut); margin-top: 2px; }
+.klasor-pano > h2 { display: none; }
+
+/* ═══ Alt sayfa başlığı: sade, büyük başlık (iOS gibi) ═══ */
+.top.baslik { min-height: 52px; padding: 4px 4px 0; }
+.top.baslik h1 { font-size: 30px; font-weight: 800; letter-spacing: -.5px; text-shadow: var(--yazi-golge); }
+.top.baslik .sp { display: none; }
+
+/* ═══ AYARLAR — iPhone Ayarlar gibi gruplu cam liste ═══ */
+.ayarlar { max-width: 640px; }
+.ay-grup-ad { font-size: 12.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--sec-renk); margin: 22px 18px 8px; }
+.ay-grup { border-radius: 20px; overflow: hidden; border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .42), rgb(var(--cam-rgb) / .42)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+:root[data-tema="acik"] .ay-grup { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .42), rgb(255 255 255 / .42)) padding-box, var(--sivi-kenar-isik) border-box; }
+.ay-satir { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 8px 14px; text-align: left; color: var(--fg); font-size: 16px; }
+.ay-satir + .ay-satir::before { content: ""; position: absolute; top: 0; left: 56px; right: 0; height: 1px; background: var(--cizgi); }
+.ay-satir.tikla { cursor: pointer; }
+.ay-satir.tikla:active { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.ay-ikon { flex: none; width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ik) 80%, #fff), var(--ik)); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 1px 2px rgba(0,0,0,.3); }
+.ay-ad { flex: 1; min-width: 0; font-weight: 500; }
+.ay-ok { color: var(--mut); display: grid; }
+.ay-deger { color: var(--mut); font-size: 14.5px; white-space: nowrap; }
+.ay-satir.tehlike .ay-ad { color: #ff6b6b; }
+:root[data-tema="acik"] .ay-satir.tehlike .ay-ad { color: #c0262d; }
+.ay-not { font-size: 13px; color: var(--mut); margin: 8px 18px 0; line-height: 1.45; }
+.ay-surum { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px; font-size: 13px; color: var(--mut); }
+.ay-surum img { height: 16px; }
+/* bölmeli seçici (iOS segmented control) */
+.ay-seg { display: flex; flex: none; padding: 3px; border-radius: 11px; background: color-mix(in srgb, var(--fg) 10%, transparent); }
+.ay-seg button { padding: 6px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: var(--fg); white-space: nowrap; }
+.ay-seg button.on { background: var(--altin); color: #1d160a; box-shadow: 0 1px 3px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.5); }
+@media (max-width: 400px) { .ay-seg button { padding: 6px 9px; font-size: 13px; } .ay-satir { gap: 10px; } }
+/* iOS açma-kapama */
+.ay-anahtar { flex: none; position: relative; width: 51px; height: 31px; }
+.ay-anahtar input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; z-index: 1; }
+.ay-anahtar span { position: absolute; inset: 0; border-radius: 99px; background: color-mix(in srgb, var(--fg) 18%, transparent); transition: background .25s; }
+.ay-anahtar span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.25); transition: transform .25s cubic-bezier(.3,1.3,.5,1); }
+.ay-anahtar input:checked + span { background: #34c759; }
+.ay-anahtar input:checked + span::after { transform: translateX(20px); }
+
+/* ═══ HAKKINDA ═══ */
+.app-ico.simge.resimli img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hk-kapak { display: grid; justify-items: center; gap: 10px; margin: 6px 0 20px; text-align: center; }
+.hk-x { width: 96px; height: 96px; border-radius: 23%; box-shadow: 0 14px 34px -12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.4); }
+.hk-logo { height: 40px; width: auto; filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); margin-top: 6px; }
+.hk-imza { margin: 0; font-size: 14px; color: var(--brand); font-weight: 600; letter-spacing: .02em; }
+.hk-metin { padding: 16px 18px; }
+.hk-metin p { margin: 0 0 10px; font-size: 15.5px; line-height: 1.55; color: var(--fg); }
+.hk-metin p:last-child { margin-bottom: 0; }
+.hk-ad { text-align: right; font-style: italic; color: var(--brand) !important; font-weight: 600; }
+.hk-telif p { font-size: 13.5px; color: var(--mut); }
+.hk-telif b { color: var(--fg); }
+.hakkinda .ay-satir .ay-ad { color: var(--mut); font-weight: 500; }
+.hakkinda .ay-satir .ay-deger { color: var(--fg); font-weight: 600; }
+
+/* ═══ SEÇİMLER CAM ALTIN — demirkara.com "renkli cam" tarifi (.cam-tur-sahne[data-tur="renkli"]): DK altını %45→%30 + ışıklı beyaz kenar ═══ */
+.chip.on, .ay-seg button.on {
+  border: 1px solid transparent;
+  background: linear-gradient(color-mix(in srgb, var(--brand) 45%, transparent), color-mix(in srgb, var(--brand) 30%, transparent)) padding-box,
+              linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,.15) 40%, rgba(255,255,255,.05) 60%, rgba(255,255,255,.5)) border-box;
+  color: #fff6dc !important; text-shadow: 0 1px 2px rgba(0,0,0,.35); font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 18px -8px color-mix(in srgb, var(--brand) 70%, transparent);
+  -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik);
+}
+:root[data-tema="acik"] .chip.on, :root[data-tema="acik"] .ay-seg button.on { color: #3a2706 !important; text-shadow: 0 1px 0 rgba(255,255,255,.45); }
+
+/* ═══ Kurulum üstü: oyun kartı (simge + okunur açıklama + cam Kurallar düğmesi) ═══ */
+.oyun-kart { display: flex; align-items: center; gap: 14px; padding: 12px 12px 12px 12px; margin: 4px 0 8px; border-radius: 22px; border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .42), rgb(var(--cam-rgb) / .42)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+:root[data-tema="acik"] .oyun-kart { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .42), rgb(255 255 255 / .42)) padding-box, var(--sivi-kenar-isik) border-box; }
+.oyun-kart .app-ico.simge { width: 52px; max-width: 52px; flex: none; border-radius: 13px; }
+.oyun-kart p { flex: 1; margin: 0; font-size: 15px; line-height: 1.4; color: var(--fg); font-weight: 500; }
+.kural-dugme { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 99px; font-size: 14px; font-weight: 700;
+  border: 1px solid transparent; color: #fff6dc; text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  background: linear-gradient(color-mix(in srgb, var(--brand) 45%, transparent), color-mix(in srgb, var(--brand) 30%, transparent)) padding-box,
+              linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,.15) 40%, rgba(255,255,255,.05) 60%, rgba(255,255,255,.5)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+:root[data-tema="acik"] .kural-dugme { color: #3a2706; text-shadow: none; }
+.kural-dugme:active { transform: scale(.96); }
+@media (max-width: 400px) { .kural-dugme span { display: none; } .kural-dugme { width: 40px; padding: 0; justify-content: center; } }
+/* kurulumdaki alan başlıkları ve küçük yazılar okunur */
+.field > label { color: var(--fg); }
+.field > label small { color: color-mix(in srgb, var(--fg) 70%, transparent); }
+.muted { color: color-mix(in srgb, var(--fg) 72%, transparent); }
+
+/* Kurallar paneli */
+.kural-pano { max-height: calc(100vh - 120px); display: flex; flex-direction: column; }
+.kural-metin { overflow: auto; padding: 0 6px; }
+.kural-metin p { margin: 0 0 12px; font-size: 16px; line-height: 1.6; color: var(--fg); }
+.kural-metin b { color: var(--brand); }
+:root[data-tema="acik"] .kural-metin b { color: #7a5410; }
+.kural-pano .btn.big { margin-top: 8px; flex: none; }
+
+/* Kurulum başı: solda geri, ortada ad, sağda simge (Demir 08.11) */
+.kurulum-ust { display: grid; grid-template-columns: 60px 1fr 60px; align-items: center; gap: 8px; min-height: 72px; margin-top: 4px; }
+.kurulum-ust h1 { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: -.4px; margin: 0; text-shadow: var(--yazi-golge); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.geri-dugme { width: 50px; height: 50px; border-radius: 99px; display: grid; place-items: center; font-size: 30px; line-height: 1; padding-bottom: 3px; color: var(--fg);
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .42), rgb(var(--cam-rgb) / .42)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+:root[data-tema="acik"] .geri-dugme { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .42), rgb(255 255 255 / .42)) padding-box, var(--sivi-kenar-isik) border-box; }
+.geri-dugme:active { transform: scale(.94); }
+.kurulum-ust .app-ico.simge { width: 60px; max-width: 60px; justify-self: end; border-radius: 15px; }
+.oyun-kart { padding: 12px 12px 12px 18px; }
+@media (min-width: 700px) { .kurulum-ust { grid-template-columns: 72px 1fr 72px; } .kurulum-ust .app-ico.simge { width: 70px; max-width: 70px; border-radius: 17px; } .kurulum-ust h1 { font-size: 30px; } }
+
+/* Hakkında: imza (koyu temada beyaz, açık temada siyah — sitedeki kurucu kartı gibi), okunur etiketler, ortalı başlık */
+.hk-imza { display: flex; justify-content: flex-end; margin-top: 6px; }
+.hk-imza img { height: 46px; width: auto; opacity: .95; }
+.hk-imza .imza-siyah { display: none; }
+:root[data-tema="acik"] .hk-imza .imza-beyaz { display: none; }
+:root[data-tema="acik"] .hk-imza .imza-siyah { display: block; }
+.hakkinda .ay-satir .ay-ad { color: var(--fg); opacity: .8; font-weight: 500; }
+.hakkinda .ay-grup-ad { color: var(--fg); opacity: .75; }
+.hakkinda .top.baslik { justify-content: center; }
+.hakkinda .top.baslik h1 { text-align: center; }
+.hk-telif p { color: color-mix(in srgb, var(--fg) 82%, transparent); }
+
+/* Sayfa başlıkları daha ince ve küçük (Demir 08.11: "kalın ve çirkin") */
+.top.baslik h1 { font-size: 24px; font-weight: 600; letter-spacing: 0; }
+.hakkinda .top.baslik { justify-content: flex-start; gap: 10px; }
+.hakkinda .top.baslik h1 { text-align: left; flex: none; }
+.baslik-ikon { width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 4px 10px -4px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.3); }
+.hk-kapak { margin: 4px 0 18px; }
+.hk-logo { height: 38px; margin-top: 0; }
+
+/* Hakkında: büyük logo, belirgin grup başlıkları */
+.hakkinda .hk-logo { height: 60px; }
+@media (min-width: 700px) { .hakkinda .hk-logo { height: 72px; } }
+.hakkinda .hk-kapak { margin: 2px 0 20px; }
+.hakkinda .ay-grup-ad { opacity: 1; color: var(--fg); }
+.hakkinda .ay-satir .ay-ad { opacity: 1; }
+
+/* Paragraf kuralları (Demir 08.11): iki yana yaslı, ilk satır girintili, dile göre heceleme */
+.hk-metin p { text-align: justify; text-justify: inter-word; text-indent: 1.6em; -webkit-hyphens: auto; hyphens: auto; hyphenate-limit-chars: 6 3 3; margin-bottom: 8px; }
+.hk-telif p:first-child { text-indent: 0; }
+
+/* Hakkında: portre (demirkara.com kurucu portresi, siyah-beyaz) */
+.hk-profil { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--cizgi); }
+.hk-profil img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent), 0 8px 20px -8px rgba(0,0,0,.7); }
+.hk-profil b { display: block; font-size: 19px; font-weight: 700; }
+.hk-profil small { display: block; font-size: 13.5px; color: var(--brand); margin-top: 2px; font-weight: 600; }
+@media (min-width: 700px) { .hk-profil img { width: 84px; height: 84px; } }
+
+/* ═══ TELİF KORUMASI — demirkara.com GorselKoruma.tsx: uyarı kartı, mühür, tam metin penceresi ═══ */
+img, svg, video { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
+html { -webkit-touch-callout: none; }
+@media print { body { visibility: hidden !important; } }
+html.ekran-koru body { filter: blur(28px) !important; transition: none !important; }
+.telif-ort { position: fixed; inset: 0; z-index: 2147483600; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.28); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); animation: belir .2s ease; color: var(--fg); }
+.telif-kart { position: relative; width: min(440px, 100%); padding: 22px 26px 24px; border-radius: 28px; text-align: center; background: var(--sivi-ton-pencere); -webkit-backdrop-filter: blur(44px) saturate(150%); backdrop-filter: blur(44px) saturate(150%); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); animation: ac .25s cubic-bezier(.2,.8,.2,1); }
+.telif-muhur { display: block; width: 124px; height: auto; margin: 0 auto 10px; filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); pointer-events: none; }
+.telif-kart h2 { margin: 0 0 8px; font-size: 22px; font-weight: 700; color: var(--brand); }
+.telif-kart p { margin: 0; font-size: 14.5px; font-weight: 500; line-height: 1.5; color: var(--fg); }
+.telif-kart small { display: block; margin-top: 8px; font-size: 12.5px; color: var(--mut); }
+.telif-dugmeler { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.telif-dugmeler .pill { gap: 7px; height: 40px; padding: 0 18px; font-size: 14px; }
+.telif-kapat { display: grid; place-items: center; width: 14px; height: 14px; padding: 0; border-radius: 50%; color: rgba(0,0,0,.7); background: #ff5f57; }
+.telif-kapat svg { width: 9px; height: 9px; stroke-width: 3; }
+:root[data-tema="acik"] .telif-kapat { color: #fff; }
+.telif-kapat-kart { position: absolute; top: 16px; left: 18px; }
+.telif-yasa { position: relative; width: min(760px, 100%); max-height: min(84svh, 860px); display: flex; flex-direction: column; border-radius: 22px; background: var(--sivi-ton-pencere); -webkit-backdrop-filter: blur(44px) saturate(150%); backdrop-filter: blur(44px) saturate(150%); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); animation: ac .25s ease; overflow: hidden; }
+.telif-yasa-bas { position: relative; flex: none; display: flex; align-items: center; padding: 12px 14px; border-bottom: 1px solid color-mix(in srgb, var(--fg) 12%, transparent); }
+.telif-yasa-ad { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13.5px; white-space: nowrap; pointer-events: none; color: var(--brand); }
+.telif-yasa-ic { min-height: 0; overflow-y: auto; padding: 20px clamp(16px, 4vw, 34px) 28px; display: flex; flex-direction: column; gap: 10px; }
+.tl-bas { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.tl-bas h2 { margin: 0; font-size: 26px; font-weight: 300; }
+.tl-bas small { font-size: 12px; color: var(--mut); }
+.tl-bas img { width: 96px; height: auto; flex: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,.35)); }
+.telif-yasa-ic h3 { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; font-size: 15px; font-weight: 600; color: var(--brand); }
+.telif-yasa-ic p { margin: 0; font-size: 13.5px; line-height: 1.55; color: color-mix(in srgb, var(--fg) 88%, transparent); text-align: justify; hyphens: auto; }
+.tl-madde { display: flex; align-items: flex-start; gap: 8px; } .tl-madde > span { flex: none; margin-top: 2px; color: var(--brand); }
+.tl-tanim { display: grid; grid-template-columns: 150px 1fr; gap: 10px; } .tl-tanim b { font-size: 13px; font-weight: 600; color: var(--fg); }
+@media (max-width: 520px) { .tl-tanim { grid-template-columns: 1fr; gap: 2px; } }
+.hk-telif-dugme { margin-top: 12px; }
+
+/* ═══ Kart içi başlık (dışarıda asılı başlık yok) + sade simgeler (Demir 08.11) ═══ */
+.ay-grup-ad { display: none; }
+.ayarlar > .ay-grup, .ayarlar > section.ay-grup { margin-top: 16px; }
+.kart-bas { display: flex; align-items: center; gap: 8px; padding: 12px 16px 10px; font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); border-bottom: 1px solid var(--cizgi); }
+.kart-bas svg { width: 15px; height: 15px; opacity: .9; }
+:root[data-tema="acik"] .kart-bas { color: #7a5410; }
+/* sade simge: renkli kutu yerine cam kare, altın çizgi */
+.ay-ikon { background: color-mix(in srgb, var(--fg) 8%, transparent) !important; color: var(--brand) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent) !important; }
+:root[data-tema="acik"] .ay-ikon { color: #7a5410 !important; background: rgba(255,255,255,.4) !important; }
+.ay-satir.tehlike .ay-ikon { color: #ff6b6b !important; }
+.ay-satir + .ay-satir::before { left: 58px; }
+.kart-bas + .ay-satir::before { display: none; }
+.ay-grup .ay-not { margin: 0; padding: 4px 16px 14px 58px; }
+/* imza biraz küçük */
+.hk-imza img { height: 34px; }
+/* telif kartı basılabilir */
+.hk-telif.tikla { cursor: pointer; padding-bottom: 6px; }
+.hk-telif.tikla:active { background: color-mix(in srgb, var(--fg) 6%, transparent); }
+.hk-telif + .ay-satir::before { display: block; }
+
+/* ═══ Kurallar: simgeli maddeler ═══ */
+.kural-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.kural-liste li { display: flex; align-items: flex-start; gap: 12px; }
+.kural-ikon { flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; color: var(--brand);
+  background: color-mix(in srgb, var(--fg) 8%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent); }
+:root[data-tema="acik"] .kural-ikon { color: #7a5410; background: rgba(255,255,255,.45); }
+.kural-liste b { display: block; font-size: 15px; font-weight: 700; color: var(--brand); margin: 1px 0 2px; }
+:root[data-tema="acik"] .kural-liste b { color: #7a5410; }
+.kural-liste p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--fg); }
+.kural-liste p b { display: inline; font-size: inherit; margin: 0; }
+.kural-liste li > div { padding-top: 7px; min-width: 0; }
+.kural-liste li > div:has(> b) { padding-top: 0; }
+
+/* Ayarlar seçicileri: bayrak ve tema simgeleri (üst çubuktakilerin aynısı) */
+.ay-seg button { display: inline-flex; align-items: center; gap: 6px; }
+.ay-seg svg { width: 14px; height: 14px; flex: none; }
+.seg-bayrak { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); }
+@media (max-width: 400px) { .ay-seg button { gap: 4px; padding: 6px 8px; } }
+
+/* Alt sayfa başı (Oyuncular, İstatistik, Ayarlar, Hakkında): kurulum ekranıyla aynı */
+.kurulum-ust h1 { font-weight: 700; font-size: 24px; letter-spacing: 0; }
+.kurulum-ust .app-ico.resimli { overflow: hidden; }
+
+/* Oyuncu ekleme kutusu okunur */
+.addp input, .modal input[name=name] { background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .5), rgb(var(--cam-rgb) / .5)) padding-box, var(--sivi-kenar-isik) border-box !important; color: var(--fg); }
+:root[data-tema="acik"] .addp input { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .55), rgb(255 255 255 / .55)) padding-box, var(--sivi-kenar-isik) border-box !important; }
+.addp input::placeholder { color: color-mix(in srgb, var(--fg) 62%, transparent); opacity: 1; }
+.addp .btn { background: linear-gradient(color-mix(in srgb, var(--brand) 45%, transparent), color-mix(in srgb, var(--brand) 30%, transparent)) padding-box, linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,.15) 40%, rgba(255,255,255,.05) 60%, rgba(255,255,255,.5)) border-box; color: #fff6dc; }
+:root[data-tema="acik"] .addp .btn { color: #3a2706; }
+.page > p.muted.center { color: var(--fg); opacity: .8; font-size: 15px; margin: 18px 0 6px; }
+
+/* ═══ DartX Online · Yakında ═══ */
+.app-ico.simge.yakinda { overflow: visible; }
+.app-ico.simge.yakinda > svg { border-radius: 23%; }
+.rozet-yakinda { position: absolute; z-index: 5; top: -6px; right: -10px; font-style: normal; font-size: 9.5px; font-weight: 800; letter-spacing: .04em; padding: 3px 7px; border-radius: 99px;
+  color: #1d160a; background: var(--altin); box-shadow: 0 2px 6px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.5); white-space: nowrap; }
+.on-kapak { text-align: center; padding: 6px 12px 18px; }
+.on-rozet { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; color: #1d160a; background: var(--altin); box-shadow: 0 6px 18px -8px rgba(227,184,102,.7); }
+.on-kapak h2 { margin: 12px 0 6px; font-size: 30px; font-weight: 800; letter-spacing: -.5px; text-shadow: var(--yazi-golge); }
+.on-kapak p { margin: 0 auto; max-width: 460px; font-size: 15.5px; line-height: 1.55; color: color-mix(in srgb, var(--fg) 88%, transparent); }
+.on-satir { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
+.on-metin { min-width: 0; }
+.on-metin b { display: block; font-size: 16px; font-weight: 600; }
+.on-metin small { display: block; font-size: 13.5px; line-height: 1.4; color: color-mix(in srgb, var(--fg) 75%, transparent); margin-top: 2px; }
+.online .hk-metin p { text-align: left; text-indent: 0; }
+
+/* Cricket tablosu dokunulabilir: sırası gelen oyuncunun sütunu belirgin */
+.ctable td.tikla { cursor: pointer; transition: transform .15s, filter .15s; }
+.ctable td.tikla:active { transform: scale(.96); filter: brightness(1.3); }
+.ctable td.active.tikla { box-shadow: var(--sivi-ic), inset 0 0 0 1.5px color-mix(in srgb, var(--brand) 45%, transparent); }
+.ctable td.num.tikla:active { color: #fff; }
+
+/* Online kapağı: DartX logosu + altında ONLINE */
+.on-kapak { display: grid; justify-items: center; gap: 4px; }
+.on-logo { height: 64px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+.on-yazi { font-size: 22px; font-weight: 800; letter-spacing: .5em; margin: 2px 0 10px -.5em; padding-left: .5em;
+  background: var(--altin); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.on-kapak .on-rozet { margin-bottom: 12px; }
+@media (min-width: 700px) { .on-logo { height: 78px; } .on-yazi { font-size: 26px; } }
+
+/* Uygulama içi onay penceresi (tarayıcı kutusu yerine) */
+.onay-kart { padding-top: 26px; }
+.onay-kart h2 { color: var(--fg); }
+.onay-kart p { color: color-mix(in srgb, var(--fg) 85%, transparent); }
+.telif-dugmeler .pill { min-width: 120px; }
+.pill.tehlike { border: 1px solid transparent; color: #fff;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 50%) padding-box, linear-gradient(#d8463c, #a92a22) padding-box, linear-gradient(135deg, rgba(255,255,255,.7), rgba(255,255,255,.1) 40%, rgba(0,0,0,.2)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px -10px rgba(216,70,60,.6); font-weight: 700; }
+
+/* ═══ Oyuncu hapları (Demir 08.11): cam hap + renkli rozet; seçilince rozette sıra no, kenar oyuncunun renginde ═══ */
+.pchip { gap: 9px; padding: 0 16px 0 6px; min-height: 44px; font-weight: 500;
+  border: 1px solid transparent !important;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .4), rgb(var(--cam-rgb) / .4)) padding-box, var(--sivi-kenar-isik) border-box !important;
+  box-shadow: var(--sivi-ic) !important; }
+:root[data-tema="acik"] .pchip { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .45), rgb(255 255 255 / .45)) padding-box, var(--sivi-kenar-isik) border-box !important; }
+.pc-av { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 13.5px; font-weight: 800; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pc) 70%, #fff), var(--pc)); opacity: .55; box-shadow: inset 0 1px 0 rgba(255,255,255,.35); transition: opacity .2s, transform .2s; }
+.pc-ad { max-width: 9.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pchip.on { font-weight: 700; box-shadow: var(--sivi-ic), 0 0 0 1.5px color-mix(in srgb, var(--pc) 80%, transparent), 0 6px 18px -8px var(--pc) !important; }
+.pchip.on .pc-av { opacity: 1; transform: scale(1.05); }
+.pchip .ord { display: none; }
+
+/* ═══ Kurulum: ortalı düzen + başlık simgeleri (Demir 08.11) ═══ */
+.kurulum .field { text-align: center; }
+.kurulum .field > label { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; }
+.alan-ikon { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; color: var(--brand);
+  background: color-mix(in srgb, var(--fg) 8%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent); }
+.alan-ikon svg { width: 15px; height: 15px; }
+:root[data-tema="acik"] .alan-ikon { color: #7a5410; background: rgba(255,255,255,.45); }
+.kurulum .chips { justify-content: center; }
+.kurulum .addp { max-width: 520px; margin-inline: auto; }
+.kurulum .link { display: block; margin: 6px auto 0; }
+.kurulum .teams { max-width: 520px; margin-inline: auto; text-align: left; }
+.kurulum .field > small { display: block; margin-top: 6px; }
+/* Oyuncu hapları: eşit genişlikte ızgara — isim ne olursa olsun aynı boy (telefonda 2, tablette 4 sütun) */
+.pchips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 700px) { .pchips { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.pchips .pchip { width: 100%; min-width: 0; justify-content: flex-start; }
+.pchips .pc-ad { flex: 1; min-width: 0; max-width: none; text-align: left; }
+.kurulum .pchips { max-width: 720px; margin-inline: auto; }
+
+/* Oyuncu satırında çöp kutusu (onaylı silme) */
+.prow-sil { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; border: 0; cursor: pointer;
+  color: #ff6b5e; background: color-mix(in srgb, #ff453a 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, #ff453a 28%, transparent); }
+.prow-sil:active { transform: scale(.94); background: color-mix(in srgb, #ff453a 22%, transparent); }
+[data-tema="acik"] .prow-sil { color: #d70015; }
+
+/* ═══ Oynama sırası: alt alta, sürükle-bırak (Demir 08.11) ═══ */
+.sira-liste { display: flex; flex-direction: column; gap: 8px; max-width: 520px; margin: 0 auto; }
+.sira-satir { width: 100%; padding: 0 6px 0 4px !important; min-height: 52px; gap: 8px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; position: relative; }
+.sira-satir .pc-ad { flex: 1; min-width: 0; max-width: none; text-align: left; font-size: 16px; }
+.sira-tut { flex: none; display: grid; place-items: center; width: 30px; height: 40px; color: color-mix(in srgb, var(--fg) 72%, transparent); opacity: .8; }
+.sira-cik { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 0; cursor: pointer; color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.sira-cik:active { transform: scale(.92); }
+.sira-satir.surukleniyor { z-index: 5; cursor: grabbing; transition: none; box-shadow: var(--sivi-ic), 0 0 0 2px var(--pc), 0 18px 40px -12px rgba(0,0,0,.6) !important; }
+.sira-not { margin: 14px 0 8px; font-size: 13px; color: color-mix(in srgb, var(--fg) 72%, transparent); }
+.sira-bos { margin: 4px 0 10px; font-size: 14px; }
+
+/* Oyun ekranı: Geri al (son oku siler) — altın cam hap; atış yokken soluk ama okunur */
+.geri-al { justify-self: end; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px 0 11px; border-radius: 99px; border: 1px solid transparent; cursor: pointer;
+  font: inherit; font-size: 14px; font-weight: 700; color: #1c1408;
+  background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45) padding-box, linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.1)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 6px 16px -8px rgba(227,184,102,.8); }
+.geri-al:active { transform: scale(.95); }
+.geri-al:disabled { cursor: default; color: color-mix(in srgb, var(--fg) 78%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); opacity: 1;
+  background: rgb(var(--cam-rgb) / .55) padding-box, linear-gradient(rgba(255,255,255,.18), rgba(255,255,255,.04)) border-box; }
+
+.geri-al:disabled svg { opacity: .7; }
+
+/* El (pointer / grab) imleci hiçbir yerde çıkmasın (Demir 08.11) — yazı alanlarında yazı imleci kalır */
+*, *::before, *::after { cursor: default !important; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea { cursor: text !important; }
+
+/* Seçilmemiş oyuncular: sıra listesiyle aynı alt alta satırlar, sağda + */
+.sira-satir.bekleyen { touch-action: auto; font: inherit; color: var(--fg); text-align: left; }
+.sira-satir.bekleyen .pc-av { opacity: .55; transform: none; }
+.sira-satir.bekleyen .pc-ad { font-weight: 500; }
+.sira-ekle { color: #1c1408; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); box-shadow: inset 0 1px 0 rgba(255,255,255,.45); }
+
+/* Geri al: altın değil, normal cam tuş (Demir 08.11) — atış yokken yalnız yazısı sönük */
+.geri-al, .geri-al:disabled { color: var(--fg); text-shadow: var(--yazi-golge);
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .4), rgb(var(--cam-rgb) / .4)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); }
+:root[data-tema="acik"] .geri-al, :root[data-tema="acik"] .geri-al:disabled { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .45), rgb(255 255 255 / .45)) padding-box, var(--sivi-kenar-isik) border-box; }
+.geri-al:disabled { color: color-mix(in srgb, var(--fg) 55%, transparent); }
+
+/* Oyun içi menü: simgeli düğmeler */
+.menu-btn { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.menu-ic { display: inline-grid; place-items: center; width: 22px; height: 22px; flex: none; }
+.menu-ic svg { width: 19px; height: 19px; }
+
+/* Kapanış efekti: açılışın tersi — perde söner, pencere aşağı kayarak kaybolur (Demir 08.11) */
+.kapan { animation: kaybol .23s ease-in forwards !important; pointer-events: none !important; }
+.kapan > * { animation: kapan .23s cubic-bezier(.4, 0, 1, 1) forwards !important; }
+.modal-bg.kapan > .modal { animation-name: kapan-alt !important; }
+@keyframes kaybol { to { opacity: 0; } }
+@keyframes kapan { to { opacity: 0; transform: translateY(30px) scale(.97); } }
+@keyframes kapan-alt { to { opacity: .4; transform: translateY(100%); } }
+@media (min-width: 700px) { .modal-bg.kapan > .modal { animation-name: kapan !important; } }
+
+/* ═══ Takımlar (Demir 08.11): kalkan simgesi, A altın · B gümüş; oyuncunun kalkanına dokununca takımı değişir ═══ */
+.sira-liste { position: relative; }
+.sira-liste.siralaniyor .sira-satir:not(.surukleniyor) { transition: none; }
+.kalkan { width: 26px; height: 26px; display: block; }
+.t-a { --tk: #e3b866; }
+.t-b { --tk: #b9c6d3; }
+.takim-rozet { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; border: 0; color: var(--tk);
+  background: color-mix(in srgb, var(--tk) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tk) 40%, transparent); }
+.takim-rozet:active { transform: scale(.92); }
+.takimlar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 520px; margin: 12px auto 4px; }
+.takim-kart { display: grid; justify-items: center; gap: 4px; padding: 12px 10px; border-radius: 20px; text-align: center; color: var(--fg);
+  background: var(--sivi-isik) padding-box, linear-gradient(color-mix(in srgb, var(--tk) 14%, rgb(var(--cam-rgb) / .4)), color-mix(in srgb, var(--tk) 14%, rgb(var(--cam-rgb) / .4))) padding-box, var(--sivi-kenar-isik) border-box;
+  border: 1px solid transparent; box-shadow: var(--sivi-ic), inset 0 0 0 1px color-mix(in srgb, var(--tk) 30%, transparent); }
+.takim-kart .kalkan { width: 34px; height: 34px; color: var(--tk); }
+.takim-kart b { font-size: 15px; color: var(--tk); }
+.takim-kart span { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.takim-kart i { opacity: .6; font-weight: 500; }
+.takim-not { display: block; margin-top: 6px; }
+/* oyun ekranında takım üyeleri */
+.side-uye { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 8px; margin-top: 2px; font-size: 12px; font-weight: 600; line-height: 1.3; opacity: .85; }
+.side-uye span.atan { opacity: 1; color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+.ctable th .side-uye { font-size: 11px; }
+
+/* Seçenek çipinde simge (Tekli / Takım) */
+.chip-ic { display: inline-flex; align-items: center; gap: 7px; }
+.chip-ic svg { width: 17px; height: 17px; flex: none; }
+
+/* Oyuncu satırı: İstatistik / Düzenle simge düğmeleri (çöp kutusuyla aynı boy, altın) */
+.prow-ic { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; border: 0; color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 28%, transparent); }
+.prow-ic:active { transform: scale(.94); }
+[data-tema="acik"] .prow-ic { color: #7a5410; }
+
+/* ═══ Açılış (demirkara.com Giris.tsx gibi): kadife zemin, yıldız küresi tuvali, netleşen logo ═══ */
+.acilis { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; touch-action: none; }
+.acilis-zemin { position: absolute; inset: 0; background: #0a0a0c url(../img/duvar-koyu.webp) center / cover no-repeat; transition: opacity 1.3s; }
+@media (min-width: 720px) { .acilis-zemin { background-image: url(../img/duvar-koyu-genis.webp); } }
+.acilis-tuval { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.acilis-logo { position: absolute; left: 50%; top: 50%; width: auto; max-width: none; transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
+  transition: opacity 1.4s ease; filter: drop-shadow(6px 10px 9px rgba(0,0,0,.75)) drop-shadow(2px 3px 2px rgba(0,0,0,.6)); }
+.acilis.logo .acilis-logo { opacity: 1; }
+.acilis.cikis .acilis-logo { opacity: 0; transform: translate(-50%, -50%) scale(.08); transition: opacity .9s ease-in, transform 1.3s cubic-bezier(.55,.02,.78,.2); }
+.acilis.cikis .acilis-zemin { opacity: 0; }
+.acilis.gecirgen { pointer-events: none; } /* kapanıştan 0,8 sn sonra — dokunuş alttakine geçmesin */
+.acilis-ipucu { position: absolute; left: 0; right: 0; bottom: calc(32px + env(safe-area-inset-bottom)); text-align: center; font-size: 10px; letter-spacing: .4em; text-transform: uppercase;
+  color: rgba(243,241,236,.6); opacity: 0; transition: opacity .7s; pointer-events: none; }
+.acilis.logo .acilis-ipucu { opacity: 1; }
+.acilis.cikis .acilis-ipucu { opacity: 0; }
+
+/* ═══ Yedek penceresi: yuvarlak ilerleme halkası + yüzde (Demir 08.11) ═══ */
+.yedek-kart { display: grid; justify-items: center; gap: 12px; }
+.yedek-kart h2 { margin: 0; font-size: 19px; }
+.yedek-halka { position: relative; width: 132px; height: 132px; margin: 4px 0; }
+/* Demir 09.11: yalnız halkanın kendi svg'si döner (ortadaki ✓ simgesi dönmesin); parıltı kutudan taşabilsin, kenarı kare kesilmesin */
+.yedek-halka > svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.yh-iz { fill: none; stroke: color-mix(in srgb, var(--fg) 12%, transparent); stroke-width: 8; }
+.yh-dolu { fill: none; stroke: var(--brand); stroke-width: 8; stroke-linecap: round; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--brand) 55%, transparent)); }
+.yh-ic { position: absolute; inset: 0; display: grid; place-items: center; }
+.yh-yuzde { font-size: 28px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.yh-ikon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; color: #1c1408; animation: ac .35s cubic-bezier(.2,1.2,.3,1);
+  background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 8px 22px -8px rgba(227,184,102,.8); }
+.yedek-halka.hata .yh-dolu { stroke: #ff5f57; filter: none; }
+.yedek-halka.hata .yh-ikon { color: #fff; background: linear-gradient(180deg, #ff7b72, #d93a30); box-shadow: none; }
+.yedek-not { margin: 0; text-align: center; font-size: 14px; line-height: 1.45; color: color-mix(in srgb, var(--fg) 80%, transparent); word-break: break-all; }
+.yedek-not b { color: var(--fg); }
+.yedek-dugmeler { width: 100%; }
+
+/* ═══ Devam eden maç kartı (Demir 08.11): oyun simgesi + oyuncular + kısa skor ═══ */
+.devam-kart { display: grid !important; grid-template-columns: auto 1fr; grid-template-areas: "ikon govde" "dugme dugme"; gap: 10px 14px; align-items: center; text-align: left; }
+.dv-ikon { grid-area: ikon; width: 58px; height: 58px; border-radius: 15px; overflow: hidden; flex: none; }
+.dv-ikon svg { width: 100%; height: 100%; display: block; }
+.dv-govde { grid-area: govde; display: grid; gap: 3px; min-width: 0; }
+.dv-oyun { font-size: 20px; line-height: 1.15; }
+.dv-skorlar { display: grid; gap: 6px; margin-top: 8px; }
+.dv-oyuncu { display: flex; align-items: center; gap: 9px; min-height: 40px; padding: 4px 12px 4px 4px; border-radius: 14px; font-size: 14px;
+  background: color-mix(in srgb, var(--fg) 6%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent); }
+.dv-oyuncu .pc-av { width: 30px; height: 30px; font-size: 13px; opacity: 1; }
+.dv-oyuncu.sirada { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pc) 80%, transparent); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+.dv-ad { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.dv-deger { display: inline-flex; align-items: center; gap: 5px; color: var(--brand); }
+.dv-deger svg { width: 15px; height: 15px; }
+.dv-deger b { color: var(--fg); font-size: 15px; font-variant-numeric: tabular-nums; min-width: 1.4em; text-align: right; }
+.dv-deger.leg { padding-left: 8px; border-left: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+.dv-dugme { grid-area: dugme; justify-self: start; }
+@media (min-width: 700px) { .devam-kart { grid-template-columns: auto 1fr auto; grid-template-areas: "ikon govde dugme"; } .dv-dugme { justify-self: end; } }
+
+/* ═══ Tablet kurulum (Demir 08.11: "tablette yerimiz var, neden alt alta"): solda ayarlar, sağda oyuncular + Başla ═══ */
+@media (min-width: 900px) {
+  .kurulum .kur-izgara { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 36px; align-items: start; }
+  .kurulum .kur-sol, .kurulum .kur-sag { display: grid; gap: 4px; align-content: start; }
+  .kurulum .kur-sag { position: sticky; top: 12px; }
+  .kurulum .kur-sag .sira-liste, .kurulum .kur-sag .addp, .kurulum .kur-sag .takimlar { max-width: none; }
+  .kurulum .kur-sag .btn.big { margin-top: 10px; }
+}
+
+/* ═══ Kenar ışığı — demirkara.com ana ekranındaki .ev-ipucu (Masaustu.tsx) birebir: süzme altın ışık + nefes alan ok ═══ */
+.ev-ipucu { display: grid; place-items: center; position: fixed; z-index: 25; top: 50%; width: 30px; height: 170px; margin-top: -85px; padding: 0; border: 0; color: #fff; background: none;
+  touch-action: manipulation; transform: translateZ(0); -webkit-tap-highlight-color: transparent; }
+.ev-ipucu::before { content: ""; position: absolute; top: -10px; bottom: -10px; width: 42px; filter: blur(9px); pointer-events: none;
+  background: radial-gradient(65% 50% at var(--x, 100%) 50%, color-mix(in srgb, #ffd98a 60%, var(--brand)), color-mix(in srgb, var(--brand) 45%, transparent) 45%, transparent 78%); animation: evIpucu 2.4s ease-in-out infinite; }
+.ev-ipucu[data-yon="sag"] { right: 0; } .ev-ipucu[data-yon="sag"]::before { right: -14px; }
+.ev-ipucu[data-yon="sol"] { left: 0; } .ev-ipucu[data-yon="sol"]::before { left: -14px; --x: 0%; }
+.ev-ipucu svg { position: relative; width: 15px; height: 15px; filter: drop-shadow(0 0 6px var(--brand)); animation: evOk 2.4s ease-in-out infinite; }
+.ev-ipucu[data-yon="sag"] svg { margin-left: 12px; } .ev-ipucu[data-yon="sol"] svg { margin-right: 12px; animation-name: evOkSol; }
+@keyframes evIpucu { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes evOk { 0%, 100% { transform: translateX(2px); } 50% { transform: translateX(-3px); } }
+@keyframes evOkSol { 0%, 100% { transform: translateX(-2px); } 50% { transform: translateX(3px); } }
+/* oyunda tabloya basmayı engellemesin: dokunma şeridi daha ince */
+[data-view="play"] .ev-ipucu { width: 18px; }
+
+/* ═══ Hesap makinesi paneli (demirkara.com ArchX hesap makinesi, sade) ═══ */
+.hm-perde { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.25); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: belir .32s ease-out; }
+.hm-panel { position: fixed; z-index: 61; top: 0; bottom: 0; width: min(380px, 90vw); display: flex; flex-direction: column; gap: 12px;
+  padding: calc(14px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background: var(--sivi-ton-pencere); -webkit-backdrop-filter: blur(40px) saturate(150%); backdrop-filter: blur(40px) saturate(150%);
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); color: var(--fg); }
+.hm-sol { left: 0; border-radius: 0 28px 28px 0; border-right: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); animation: hmSol .32s cubic-bezier(.2,.9,.2,1); }
+.hm-sag { right: 0; border-radius: 28px 0 0 28px; border-left: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); animation: hmSag .32s cubic-bezier(.2,.9,.2,1); }
+@keyframes hmSol { from { transform: translateX(-100%); } }
+@keyframes hmSag { from { transform: translateX(100%); } }
+/* Demir 09.11: kapanış açılışın tam tersi — aynı süre, aynı eğrinin aynası; genel .kapan (solma + içerik aşağı kayması) burada çalışmaz */
+.hm-sol.kapan { animation: hmSolK .32s cubic-bezier(.8,0,.8,.1) forwards !important; } .hm-sag.kapan { animation: hmSagK .32s cubic-bezier(.8,0,.8,.1) forwards !important; }
+.hm-panel.kapan > * { animation: none !important; }
+@keyframes hmSolK { to { transform: translateX(-100%); } } @keyframes hmSagK { to { transform: translateX(100%); } }
+.hm-perde.kapan { animation: kaybol .32s ease-in forwards !important; }
+.hm-ust { display: flex; align-items: center; gap: 10px; }
+.hm-ust b { flex: 1; min-width: 0; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-ikon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; color: var(--brand); background: color-mix(in srgb, var(--brand) 14%, transparent); }
+.hm-ikon.renkli { color: #fff; background: var(--pc); }
+.hm-kapat { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 0; color: var(--fg); background: color-mix(in srgb, var(--fg) 10%, transparent); }
+.hm-ekran { border-radius: 16px; padding: 12px 16px 10px; background: color-mix(in srgb, #000 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent); }
+[data-tema="acik"] .hm-ekran { background: rgba(255,255,255,.4); }
+.hm-dizi { height: 20px; overflow-x: auto; white-space: nowrap; text-align: right; font-size: 13px; color: color-mix(in srgb, var(--fg) 60%, transparent); scrollbar-width: none; }
+.hm-dizi::-webkit-scrollbar { display: none; }
+.hm-sayi { min-height: 64px; display: flex; align-items: center; justify-content: flex-end; font-size: 46px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; overflow: hidden; white-space: nowrap; }
+.hm-tuslar { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, minmax(52px, 1fr)); gap: 8px; max-height: 470px; }
+.hm-tus { display: grid; place-items: center; border-radius: 14px; font: inherit; font-size: 21px; font-weight: 600; color: var(--fg);
+  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); background: color-mix(in srgb, var(--fg) 6%, transparent); }
+.hm-tus:active { transform: scale(.95); background: color-mix(in srgb, var(--brand) 18%, transparent); }
+.hm-tus.islem { color: var(--brand); }
+.hm-tus.kirmizi { color: #ff5f57; }
+.hm-tus.esit { color: #1c1408; border-color: transparent; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); }
+
+/* Hesap makinesi — cam tema (Demir 08.11: "cam temayı kullan") ve telefonda tam ekran */
+.hm-panel { border: 1px solid transparent !important;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .38), rgb(var(--cam-rgb) / .38)) padding-box, var(--sivi-kenar-isik) border-box;
+  -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%); box-shadow: var(--sivi-ic), 0 30px 80px -20px rgba(0,0,0,.6); }
+:root[data-tema="acik"] .hm-panel { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .5), rgb(255 255 255 / .5)) padding-box, var(--sivi-kenar-isik) border-box; }
+.hm-perde { background: rgba(0,0,0,.12); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.hm-ekran { background: rgb(var(--cam-rgb) / .3); box-shadow: var(--sivi-ic), inset 0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent); }
+.hm-tus { border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .35), rgb(var(--cam-rgb) / .35)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); }
+:root[data-tema="acik"] .hm-tus { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .45), rgb(255 255 255 / .45)) padding-box, var(--sivi-kenar-isik) border-box; }
+.hm-tus.esit { background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45) padding-box, linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.1)) border-box; box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 8px 20px -10px rgba(227,184,102,.8); }
+.hm-tuslar { max-height: none; }
+@media (max-width: 699px) {
+  /* telefonda ekranın tamamı: tuşlar kalan yüksekliği eşit paylaşır */
+  .hm-panel { width: 100vw; border-radius: 0 !important; padding-left: 14px; padding-right: 14px; }
+  .hm-tuslar { grid-template-rows: repeat(5, minmax(56px, 1fr)); }
+  .hm-sayi { font-size: 54px; min-height: 76px; }
+  .hm-tus { font-size: 26px; border-radius: 18px; }
+}
+
+/* Oyun tuşları: Double / Triple / Bull / Iska simgeli (Demir 08.11) */
+.k.mod, .k.bull, .k.miss { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.k.mod svg, .k.bull svg, .k.miss svg { flex: none; opacity: .9; }
+.k.bull svg { color: #ff8a80; }
+/* Geri al: atış yokken de yazısı beyaz — pasif gibi durmasın (dokununca bir şey olmaz) */
+.geri-al:disabled { color: var(--fg) !important; }
+.geri-al:disabled svg { opacity: .85; }
+
+/* Üst çubukta hava durumu (Demir 08.11): telefonda tarih yanında simge + derece; tablette saatin solunda şehirle */
+.mc-hava { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 13px; color: var(--fg); white-space: nowrap; }
+.mc-hava[hidden] { display: none !important; }
+.mc-hava svg { color: var(--brand); flex: none; }
+.mc-hava small { font-weight: 500; font-size: 12px; opacity: .8; margin-left: 2px; max-width: 9em; overflow: hidden; text-overflow: ellipsis; }
+.mc-hava-uzun { display: none; }
+@media (min-width: 720px) { .mc-hava-kisa { display: none !important; } .mc-hava-uzun { display: inline-flex; } .mc-hava-uzun[hidden] { display: none !important; } }
+@media (max-width: 380px) { .mc-durum-tarih { display: none; } } /* küçük telefonda (SE / mini) tarih yerine hava */
+
+/* Telefonun kendi seçicisi (4'ten fazla seçenek): görünen cam hap, üstünde görünmez <select> — dokununca iOS çarkı / Android listesi */
+.secici { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 132px; min-height: 46px; padding: 0 18px 0 22px;
+  border-radius: 99px; font-weight: 700; font-size: 17px; color: #1c1408; margin: 2px auto 0;
+  background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45) padding-box, linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.1)) border-box;
+  border: 1px solid transparent; box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 8px 20px -10px rgba(227,184,102,.8); }
+.secici select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; appearance: none; -webkit-appearance: none; }
+.secici svg { opacity: .75; }
+.kurulum .field > .secici { display: flex; width: max-content; }
+
+/* Uzun tablo sığdırma (tabloSigdir): satır yüksekliği alana göre */
+.ctable.olcekli td { height: var(--satir) !important; font-size: min(28px, calc(var(--satir) * .62)) !important; border-radius: min(16px, calc(var(--satir) * .35)); }
+.ctable.olcekli td.num { font-size: min(24px, calc(var(--satir) * .6)) !important; }
+.ctable.olcekli .mk.m3 { width: min(30px, calc(var(--satir) * .82)); height: min(30px, calc(var(--satir) * .82)); font-size: min(17px, calc(var(--satir) * .48)); }
+.ctable.olcekli { border-spacing: 4px 2px; }
+
+/* seçici alan başlığı (label) kuralına takılmasın: ortada, koyu yazı */
+.kurulum .field > .secici, .field > .secici { display: flex; width: max-content; margin: 4px auto 0; color: #1c1408 !important; }
+.nums { grid-template-columns: repeat(var(--sutun, 5), 1fr); }
+
+/* Devam kartı — kalabalık maç özeti */
+.dv-kalabalik { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.dv-rozetler { display: flex; }
+.dv-rozetler .pc-av { width: 30px; height: 30px; font-size: 13px; opacity: 1; margin-left: -8px; box-shadow: 0 0 0 2px rgb(var(--cam-rgb) / .9), inset 0 1px 0 rgba(255,255,255,.35); }
+.dv-rozetler .pc-av:first-child { margin-left: 0; }
+.dv-fazla { background: color-mix(in srgb, var(--fg) 25%, #333) !important; font-size: 11px !important; }
+.dv-sayi { font-weight: 700; font-size: 14px; }
+.dv-bilgi { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 13.5px; }
+.dv-bilgi > span { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+.dv-bilgi svg { width: 15px; height: 15px; color: var(--brand); flex: none; }
+.dv-bilgi i { font-style: normal; opacity: .7; }
+.dv-bilgi b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 11em; }
+
+/* ═══ Oyun uyarısı: ortada cam kart, arkası buzlanır, sonra söner (Demir 08.11) ═══ */
+.toast-perde { position: fixed; inset: 0; z-index: 39; pointer-events: none; opacity: 0; transition: opacity .25s ease;
+  background: rgba(0,0,0,.18); -webkit-backdrop-filter: blur(10px) saturate(120%); backdrop-filter: blur(10px) saturate(120%); }
+.toast-perde.show { opacity: 1; }
+.toast { top: 50% !important; left: 50%; transform: translate(-50%, -50%) scale(.85); padding: 20px 34px; border-radius: 26px; font-size: 26px; font-weight: 800;
+  letter-spacing: .02em; text-align: center; max-width: min(86vw, 520px); line-height: 1.25; z-index: 40;
+  transition: opacity .22s ease, transform .3s cubic-bezier(.2,1.3,.3,1);
+  -webkit-backdrop-filter: blur(24px) saturate(150%); backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: var(--sivi-ic), 0 24px 60px -18px rgba(0,0,0,.7); }
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+@media (min-width: 720px) { .toast { font-size: 34px; padding: 26px 46px; } }
+.kural-sinir { margin-bottom: 6px; }
+.kural-sinir + .kural-liste { margin-top: 0; }
+
+/* Oyuncu seç düğmesi (telefonun çoklu seçicisi) — cam hap, ortada */
+.oyuncu-secici { display: flex !important; width: max-content; margin: 10px auto 4px !important; gap: 8px; color: var(--fg) !important; font-size: 16px;
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .4), rgb(var(--cam-rgb) / .4)) padding-box, var(--sivi-kenar-isik) border-box !important;
+  box-shadow: var(--sivi-ic) !important; }
+:root[data-tema="acik"] .oyuncu-secici { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .45), rgb(255 255 255 / .45)) padding-box, var(--sivi-kenar-isik) border-box !important; }
+.oyuncu-secici svg { color: var(--brand); opacity: 1; }
+.oyuncu-secici small { font-weight: 600; font-size: 13px; opacity: .7; }
+
+@media (pointer: fine) { .oyuncu-secici select { display: none; } }
+.os-pano { display: grid; gap: 12px; max-height: 82vh; }
+.os-liste { display: grid; gap: 6px; overflow-y: auto; max-height: 58vh; padding: 2px; }
+.os-satir { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 6px; border-radius: 16px; font: inherit; font-size: 16px; color: var(--fg); text-align: left;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .35), rgb(var(--cam-rgb) / .35)) padding-box, var(--sivi-kenar-isik) border-box; box-shadow: var(--sivi-ic); }
+.os-satir.on { box-shadow: var(--sivi-ic), inset 0 0 0 1.5px color-mix(in srgb, var(--pc) 80%, transparent); font-weight: 700; }
+.os-satir .pc-av { width: 32px; height: 32px; }
+.os-satir.on .pc-av { opacity: 1; }
+.os-ad { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.os-tik { width: 22px; color: var(--brand); display: grid; place-items: center; }
+
+/* ═══ Cam açılır menü — demirkara.com .acilir + menü camı (Masaustu.tsx) ═══ */
+:root { --sivi-ton-menu: rgb(var(--cam-rgb) / .42); --sivi-bulanik-menu: blur(30px) saturate(190%) brightness(1.05);
+  --menu-kenar: rgba(255,255,255,.12); --menu-golge: inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 18px rgba(255,255,255,.04), 0 18px 44px -16px rgba(0,0,0,.55); }
+:root[data-tema="acik"] { --sivi-ton-menu: rgb(214 198 178 / .9); --menu-kenar: rgba(255,255,255,.7); --menu-golge: inset 0 1px 0 #fff, 0 18px 44px -18px rgba(60,40,20,.3); }
+.dx-acilir { position: fixed; z-index: 70; padding: 6px; border-radius: 14px; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; animation: belir .22s ease-out;
+  background: var(--sivi-isik), linear-gradient(var(--sivi-ton-menu), var(--sivi-ton-menu));
+  -webkit-backdrop-filter: var(--sivi-bulanik-menu); backdrop-filter: var(--sivi-bulanik-menu);
+  border: 1px solid var(--menu-kenar); box-shadow: var(--menu-golge); color: var(--fg); scrollbar-width: none; }
+.dx-acilir::-webkit-scrollbar { display: none; }
+.dx-acilir.kapan { animation: kaybol .18s ease-in forwards; }
+.dx-acilir > button { display: flex; align-items: center; gap: 10px; flex: none; min-height: 40px; padding: 0 12px; border: 0; border-radius: 9px; font: inherit; font-size: 15px; color: var(--fg); background: none; text-align: start; }
+.dx-acilir > button:hover, .dx-acilir > button:active { background: color-mix(in srgb, var(--fg) 12%, transparent); }
+.dx-acilir > button.secili { font-weight: 700; }
+.dx-acilir .ac-ad { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dx-acilir .ac-tik { width: 18px; display: grid; place-items: center; color: var(--brand); }
+.dx-acilir .ac-nokta { width: 12px; height: 12px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 0 2px color-mix(in srgb, var(--pc) 30%, transparent); flex: none; }
+.dx-acilir .ac-baslik { padding: 6px 12px 8px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); border-bottom: 1px solid color-mix(in srgb, var(--fg) 12%, transparent); margin-bottom: 4px; flex: none; }
+@media (pointer: fine) { .secici select { display: none; } }
+
+/* Telefonda üst çubuk daha ince (Demir 08.11: "alana ihtiyacımız var") — 44 → 38 px; bayrak ve simgeler biraz küçük */
+@media (max-width: 719px) {
+  :root { --ust: 38px; }
+  .mc-evim { height: 38px !important; width: 32px !important; }
+  .mc-evim svg { width: 16px; height: 16px; }
+  .mc-dil img { width: 18px !important; height: 18px !important; }
+  .menu-cubugu .mc-dugme { height: 34px; min-width: 32px; }
+  .menu-cubugu .mc-dugme svg { width: 16px; height: 16px; }
+  .mc-durum-saat { font-size: 15px; }
+  .mc-logo img { height: 16px; }
+}
+
+/* 25 = dış bull (yeşil halka, 25 puan, 1 işaret) · BULL = iç bull (kırmızı, 50 puan, 2 işaret) — iki satırlı etiket */
+.k.bull-dis, .k.bull { flex-direction: column; gap: 0 !important; line-height: 1.05; }
+.k.bull-dis small, .k.bull small { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; opacity: .75; text-transform: none; }
+.k.bull .b-ust { display: inline-flex; align-items: center; gap: 6px; }
+.k.bull-dis { display: inline-flex; align-items: center; justify-content: center; }
+/* "Oyuncu seç" cam düğmesinin yazısı beyaz (altın seçicinin koyu yazı kuralına takılmasın) */
+.kurulum .field > .secici.oyuncu-secici, .field > .secici.oyuncu-secici { color: var(--fg) !important; }
+.kurulum .field > .secici.oyuncu-secici small { color: var(--fg); opacity: .75; }
+
+/* Açılır menüde arama (demirkara.com SelectMenu): üstte sabit, liste ayrı kayar */
+.dx-acilir { overflow: hidden; }
+.dx-acilir .ac-ara { flex: none; padding: 4px 4px 8px; border-bottom: 1px solid color-mix(in srgb, var(--fg) 12%, transparent); margin-bottom: 4px; }
+.dx-acilir .ac-ara input { width: 100%; height: 36px; padding: 0 12px; border-radius: 10px; font: inherit; font-size: 15px; color: var(--fg); outline: none;
+  background: color-mix(in srgb, var(--fg) 7%, transparent); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+.dx-acilir .ac-ara input:focus { border-color: color-mix(in srgb, var(--brand) 70%, transparent); }
+.dx-acilir .ac-liste { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; }
+.dx-acilir .ac-liste::-webkit-scrollbar { display: none; }
+.dx-acilir .ac-liste > button { display: flex; align-items: center; gap: 10px; flex: none; min-height: 40px; padding: 0 12px; border: 0; border-radius: 9px; font: inherit; font-size: 15px; color: var(--fg); background: none; text-align: start; }
+.dx-acilir .ac-liste > button:hover, .dx-acilir .ac-liste > button:active { background: color-mix(in srgb, var(--fg) 12%, transparent); }
+.dx-acilir .ac-liste > button.secili { font-weight: 700; }
+.dx-acilir .ac-bos { margin: 0; padding: 10px 12px; font-size: 13px; opacity: .7; }
+
+/* Oyuncular sayfasında arama (Ara hapı camı) */
+.oyuncu-ara { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 16px; margin: 0 0 10px; border-radius: 99px; color: var(--fg);
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .4), rgb(var(--cam-rgb) / .4)) padding-box, var(--sivi-kenar-isik) border-box; box-shadow: var(--sivi-ic); }
+:root[data-tema="acik"] .oyuncu-ara { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .45), rgb(255 255 255 / .45)) padding-box, var(--sivi-kenar-isik) border-box; }
+.oyuncu-ara svg { flex: none; opacity: .8; }
+.oyuncu-ara input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: none; font: inherit; font-size: 16px; color: var(--fg); }
+.oyuncu-ara input::placeholder { color: color-mix(in srgb, var(--fg) 55%, transparent); }
+.oa-sayi { font-size: 13px; font-weight: 700; opacity: .65; font-variant-numeric: tabular-nums; }
+.prow[hidden] { display: none !important; }
+
+/* Sayfa başlığı: simge küçülüp başlığın başına geldi (Demir 08.11) — solda geri, ortada [simge] Başlık */
+.kurulum-ust { grid-template-columns: 48px 1fr 48px !important; min-height: 60px; }
+.kurulum-ust h1 { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
+.kurulum-ust h1 .b-ad { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kurulum-ust h1 .app-ico.simge { flex: none; width: 34px !important; max-width: 34px !important; height: 34px; border-radius: 9px !important; justify-self: auto; box-shadow: 0 4px 12px -4px rgba(0,0,0,.5); }
+.kurulum-ust h1 .app-ico.simge svg, .kurulum-ust h1 .app-ico.simge img { width: 100%; height: 100%; display: block; }
+@media (min-width: 700px) { .kurulum-ust { grid-template-columns: 56px 1fr 56px !important; } .kurulum-ust h1 .app-ico.simge { width: 40px !important; max-width: 40px !important; height: 40px; border-radius: 10px !important; } }
+
+/* ── TABLET DÜZENİ (Demir 09.11, kural): tablette hiçbir ekran ortada dar tek sütun kalmaz.
+   Dikey: tam genişlik (gerekirse iki blok). Yatay: iki sütun. ── */
+@media (min-width: 720px) {
+  .page.ayarlar, .page.oyuncular, .page.istatistik { max-width: none; }
+  /* Hakkında dikey: hikâye tam genişlik, altında Bilgi | Telif yan yana */
+  .hakkinda { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 18px; align-items: start; }
+  .hakkinda > * { grid-column: 1 / -1; }
+  .hakkinda > section.ay-grup { grid-column: auto; margin-top: 0 !important; }
+  .hakkinda > .hk-metin { margin-top: 0; }
+  .hakkinda > .kurulum-ust, .hakkinda > .hk-kapak { margin-bottom: 0; }
+  .hakkinda > .ay-surum { margin-top: 10px; }
+  /* Oyuncular: iki sütun */
+  .prow-liste { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+  .prow-liste > .muted { grid-column: 1 / -1; }
+  .oyuncular .oyuncu-ara, .oyuncular .addp { max-width: none; }
+  /* İstatistik: kutular yayılır */
+  .istatistik .tiles { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .istatistik .pchips { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+}
+@media (min-width: 900px) and (orientation: landscape) {
+  /* Ayarlar ve Online yatay: kartlar iki sütuna dağılır */
+  .ayarlar:not(.hakkinda) { columns: 2; column-gap: 20px; }
+  .ayarlar:not(.hakkinda) > * { break-inside: avoid; }
+  .ayarlar:not(.hakkinda) > section.ay-grup { margin: 0 0 18px !important; display: block; }
+  .ayarlar:not(.hakkinda) > .kurulum-ust, .ayarlar:not(.hakkinda) > .on-kapak, .ayarlar:not(.hakkinda) > .ay-surum { column-span: all; }
+  .ayarlar:not(.hakkinda) > .kurulum-ust { margin-bottom: 16px; }
+  /* Hakkında yatay: solda hikâye, sağda Bilgi + Telif */
+  .hakkinda { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .hakkinda > .hk-metin { grid-column: 1; grid-row: span 2; }
+  .hakkinda > section.ay-grup { grid-column: 2; }
+  .prow-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Kriket tablosu hücreleri (Demir 09.11, cam bozulması): onlarca hücrenin her biri ayrı arka plan bulanıklığı
+   yapınca bazı satırlarda cam şerit gibi bozuluyordu ve telefonu yoruyordu. Hücrelerde bulanıklık yok;
+   ton, ışık ve kenar parıltısı aynı kalır (duvar hücrelerin arkasında zaten sade). */
+.ctable td:not(.num) { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* Tek okta kapanış (Demir 09.11): yeşil halka, ortasında dolu nokta */
+.mk.m3.tek b { display: block; width: 32%; height: 32%; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px rgba(79,208,138,.6); }
+:root[data-tema="acik"] .mk.m3.tek b { box-shadow: none; }
+
+/* Sevinç anı (Demir 09.11): House!, 3 in a bed, tek okta kapanış, 180, leg/set — uyarı zıplar, konfeti patlar */
+.toast.kutla:not(.good) { --sivi-ton: rgb(227 184 102 / .88); color: #1d160a; text-shadow: none; box-shadow: var(--sivi-ic), 0 0 40px rgba(227,184,102,.55); }
+@keyframes kutlaZipla { 0% { transform: translate(-50%, -50%) scale(.5) rotate(-6deg); } 60% { transform: translate(-50%, -50%) scale(1.12) rotate(2deg); } 100% { transform: translate(-50%, -50%) scale(1) rotate(0); } }
+.konfeti { position: fixed; left: 50%; top: 50%; width: 0; height: 0; z-index: 41; pointer-events: none; }
+.konfeti i { position: absolute; left: -4px; top: -6px; width: 8px; height: 12px; border-radius: 2px; background: var(--c); opacity: 0;
+  animation: konfetiUc 1.25s cubic-bezier(.15,.7,.3,1) var(--g) forwards; }
+.konfeti i.yildiz { width: 14px; height: 14px; left: -7px; top: -7px; border-radius: 0;
+  clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%); }
+@keyframes konfetiUc {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) rotate(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) rotate(var(--r)) scale(.6); }
+}
+
+/* Online, tablet yatay (Demir 09.11: "aşağı taşıyor, taşmasın"): solda kapak + Şimdilik, sağda Neler geliyor — tek ekrana sığar */
+@media (min-width: 900px) and (orientation: landscape) {
+  .ayarlar.online { columns: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: auto auto 1fr auto; gap: 0 22px; align-items: start; }
+  .ayarlar.online > .kurulum-ust, .ayarlar.online > .ay-surum { grid-column: 1 / -1; }
+  .ayarlar.online > .on-kapak { grid-column: 1; grid-row: 2; padding-top: 0; }
+  .ayarlar.online > section.ay-grup:nth-of-type(1) { grid-column: 2; grid-row: 2 / 4; }
+  .ayarlar.online > section.ay-grup:nth-of-type(2) { grid-column: 1; grid-row: 3; }
+  .ayarlar.online > .ay-surum { margin-top: 14px; }
+  .online .on-satir { padding-top: 9px; padding-bottom: 9px; }
+}
+
+/* ═══ Uyarı simgesi + animasyonu (Demir 09.11, kural: her uyarıda konuyla ilgili simge ve animasyon) ═══ */
+.toast { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.u-ic { display: grid; place-items: center; position: relative; color: currentColor; filter: drop-shadow(0 3px 8px rgba(0,0,0,.35)); }
+.toast:not(.bad):not(.good):not(.kutla):not(.killer) .u-ic { color: var(--brand); }
+@media (min-width: 720px) { .u-ic svg { width: 58px; height: 58px; } }
+.toast.killer { --sivi-ton: rgb(60 10 10 / .88); color: #ffd9d2; box-shadow: var(--sivi-ic), 0 0 46px rgba(220,50,40,.55); }
+.toast.bad.show { box-shadow: var(--sivi-ic), 0 0 40px rgba(220,70,55,.5); }
+.toast.show.a-zipla { animation: kutlaZipla .55s cubic-bezier(.2,1.6,.4,1); }
+.toast.show.a-zipla .u-ic { animation: icZipla .7s cubic-bezier(.3,1.6,.5,1) .1s both; }
+.toast.show.a-sars { animation: kartSars .5s ease-in-out; }
+.toast.show.a-sars .u-ic { animation: icPatla .45s cubic-bezier(.2,1.8,.4,1) both; }
+.toast.show.a-dalga { animation: kutlaZipla .55s cubic-bezier(.2,1.6,.4,1); }
+.toast.show.a-dalga .u-ic::after, .toast.show.a-dalga .u-ic::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 3px solid currentColor; animation: icDalga 1s ease-out .1s both; }
+.toast.show.a-dalga .u-ic::before { animation-delay: .35s; }
+.toast.show.a-don { animation: kartDon .6s cubic-bezier(.2,1.3,.4,1); }
+.toast.show.a-don .u-ic { animation: icDon .8s cubic-bezier(.3,1.2,.5,1) both; }
+.toast.show.a-buyu { animation: kartBuyu .6s cubic-bezier(.2,1.4,.4,1); }
+.toast.show.a-buyu .u-ic { animation: icNabiz .5s ease-in-out .3s 2; }
+.toast.show.a-dus { animation: kartDus .65s cubic-bezier(.3,1.5,.5,1); }
+.toast.show.a-dus .u-ic { animation: icDus .9s ease-in .15s both; }
+.toast.show.a-perde { animation: kartPerde .5s cubic-bezier(.3,1,.4,1); }
+.toast.show.a-perde .u-ic { animation: icKirp 1s ease-in-out .3s both; }
+.toast.show.a-suz { animation: kartSuz .55s cubic-bezier(.2,1.3,.4,1); }
+.toast.show.a-suz .u-ic { animation: icSuz 1s ease-out both; }
+.toast.show.a-sal { animation: kartSal .5s ease-in-out; }
+.toast.show.a-sal .u-ic { animation: icSal .5s ease-in-out .05s; }
+@keyframes icZipla { 0% { transform: scale(0) translateY(10px); } 60% { transform: scale(1.25) translateY(-6px); } 100% { transform: scale(1); } }
+@keyframes kartSars { 0%, 100% { transform: translate(-50%, -50%); } 15% { transform: translate(calc(-50% - 14px), -50%) rotate(-2deg); } 30% { transform: translate(calc(-50% + 12px), -50%) rotate(2deg); } 45% { transform: translate(calc(-50% - 9px), -50%); } 60% { transform: translate(calc(-50% + 6px), -50%); } 75% { transform: translate(calc(-50% - 3px), -50%); } }
+@keyframes icPatla { 0% { transform: scale(.3); } 50% { transform: scale(1.35) rotate(-8deg); } 100% { transform: scale(1); } }
+@keyframes icDalga { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
+@keyframes kartDon { 0% { transform: translate(-50%, -50%) scale(.3) rotate(-160deg); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; } }
+@keyframes icDon { 0% { transform: rotate(-360deg) scale(.4); } 100% { transform: rotate(0) scale(1); } }
+@keyframes kartBuyu { 0% { transform: translate(-50%, -50%) scale(.2); filter: brightness(2); } 70% { transform: translate(-50%, -50%) scale(1.15); } 100% { transform: translate(-50%, -50%) scale(1); filter: none; } }
+@keyframes icNabiz { 50% { transform: scale(1.22); } }
+@keyframes kartDus { 0% { transform: translate(-50%, calc(-50% - 120px)); opacity: 0; } 100% { transform: translate(-50%, -50%); opacity: 1; } }
+@keyframes icDus { 0%, 30% { transform: translateY(0) rotate(0); } 100% { transform: translateY(8px) rotate(-10deg); opacity: .85; } }
+@keyframes kartPerde { 0% { clip-path: inset(0 50% 0 50% round 26px); } 100% { clip-path: inset(0 0 0 0 round 26px); } }
+@keyframes icKirp { 0%, 40%, 60%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.1); } }
+@keyframes kartSuz { 0% { transform: translate(-50%, calc(-50% + 80px)); opacity: 0; } 100% { transform: translate(-50%, -50%); opacity: 1; } }
+@keyframes icSuz { 0% { transform: translateY(14px) scale(.6); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes kartSal { 0%, 100% { transform: translate(-50%, -50%) rotate(0); } 25% { transform: translate(-50%, -50%) rotate(-4deg); } 50% { transform: translate(-50%, -50%) rotate(3deg); } 75% { transform: translate(-50%, -50%) rotate(-2deg); } }
+@keyframes icSal { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+
+/* Seçim penceresi (16 nereye yazılsın?): her seçenekte simge solda, ne yazılacağı sağda küçük (Demir 09.11) */
+.hedef-sec { display: flex; align-items: center; gap: 12px; text-align: left; }
+.hedef-sec .hs-ic { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 10px; background: rgb(255 255 255 / .1); }
+.hedef-sec.primary .hs-ic { background: rgb(0 0 0 / .12); }
+.hedef-sec .hs-ad { flex: 1; font-weight: 700; }
+.hedef-sec .hs-not { font-size: 13px; font-weight: 600; opacity: .75; }
+.btn.hs-vazgec { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Sıra değişti hapı (Demir 09.11: "Sıra Tuncay'da"): üstten kayar, oyuncu renginde halka, simge zıplar, kendiliğinden söner */
+.sira-pop { position: fixed; left: 50%; top: calc(var(--safe-t) + var(--ust, 44px) + 64px); z-index: 38; display: flex; align-items: center; gap: 10px;
+  padding: 9px 18px 9px 10px; border-radius: 99px; font-size: 17px; font-weight: 600; color: var(--fg); white-space: nowrap; pointer-events: none;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .78), rgb(var(--cam-rgb) / .78)) padding-box, var(--sivi-kenar-isik) border-box;
+  -webkit-backdrop-filter: blur(20px) saturate(150%); backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--sivi-ic), 0 0 0 2px color-mix(in srgb, var(--pc) 70%, transparent), 0 14px 34px -10px color-mix(in srgb, var(--pc) 55%, rgba(0,0,0,.6));
+  opacity: 0; transform: translate(-50%, -24px) scale(.9); transition: opacity .25s ease, transform .35s cubic-bezier(.2,1.4,.4,1); }
+.sira-pop.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.sira-pop b { color: var(--pc); font-weight: 800; filter: brightness(1.25); }
+.sira-pop small { font-size: 12.5px; color: var(--mut); }
+.sp-ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; background: var(--pc); box-shadow: 0 0 12px color-mix(in srgb, var(--pc) 70%, transparent); }
+.sira-pop.show .sp-ic { animation: icZipla .6s cubic-bezier(.3,1.6,.5,1) .1s both; }
+@media (min-width: 720px) { .sira-pop { font-size: 20px; padding: 11px 22px 11px 12px; } .sp-ic { width: 36px; height: 36px; } }
+
+/* Klasörde oyunlar tek sıraya sığıyorsa ortalı (Demir 09.11: "tek sıra olursa sola yaslanmasın"); çok sıralıda ızgara aynen kalır.
+   auto-fit boş sütunları söndürür, justify-content kalanları ortalar; sütun genişliği normal ızgarayla aynı. */
+.klasor-pano .apps:not(:has(> :nth-child(5))) { grid-template-columns: repeat(auto-fit, calc((100% - 18px) / 4)); justify-content: center; }
+@media (min-width: 720px) {
+  .klasor-pano .apps:not(:has(> :nth-child(5))) { grid-template-columns: repeat(5, 1fr); justify-content: normal; }
+  .klasor-pano .apps:not(:has(> :nth-child(6))) { grid-template-columns: repeat(auto-fit, calc((100% - 24px) / 5)); justify-content: center; }
+}
+
+/* İstatistik, tablet (Demir 09.11: "sağdan soldan ortalı olsun"): oyuncu düğmeleri ve kutular satırda ortalanır;
+   auto-fit boş sütunları söndürür, böylece az kutu varken de sola yaslanmaz. */
+@media (min-width: 720px) {
+  .istatistik .pchips { grid-template-columns: repeat(auto-fit, minmax(170px, 230px)); justify-content: center; }
+  .istatistik .tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 210px)); justify-content: center; }
+  .istatistik h2.sec, .istatistik > .muted { text-align: center; }
+}
+
+/* Takım kartında sıradaki atıcı (Demir 09.11: alt çizgi belirsizdi): altın rozet, hedef simgesi, "Sıra · Ad"; diğer üyeler sönük */
+.side-uye { align-items: center; }
+.side-uye.sirada span:not(.atan) { opacity: .55; }
+.side-uye span.atan { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px 2px 5px; border-radius: 99px; text-decoration: none;
+  color: #1d160a; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); box-shadow: 0 0 12px rgba(227,184,102,.55); text-shadow: none; font-weight: 800;
+  animation: atanNabiz 1.6s ease-in-out infinite; }
+.side-uye span.atan svg { width: 12px; height: 12px; flex: none; }
+.side-uye span.atan em { font-style: normal; font-weight: 600; opacity: .7; }
+.side-uye span.atan em::after { content: '·'; margin-left: 4px; }
+@keyframes atanNabiz { 50% { box-shadow: 0 0 18px rgba(227,184,102,.85); } }
+
+/* ═══ Telefonda Kriket tablosu ekrana sığar (Demir 09.11, "ikisini birlikte") ═══
+   1+2: "Açık:" satırı (tablo zaten gösteriyor) gizli, tuşlar alçak → tablo yer kazanır, satırlar tabloSigdir ile incelir.
+   3: "Tablodan yaz" — sayı tuşları gizli, sayı tablodaki hücreye dokunarak yazılır (tablo büyür). */
+@media (max-width: 719px) {
+  .play.kriket .turn .hint { display: none; }
+  .play.kriket .keypad .k { min-height: 44px; }
+  .play.kriket .keypad .k.mod { min-height: 38px; }
+  .play.kriket .mods:has(.tablo-dugme) { grid-template-columns: 1fr 1fr 54px; }
+  .tablo-dugme { letter-spacing: 0; padding: 0; display: grid; place-items: center; color: var(--brand); }
+  .play.tablo-yaz .keypad .nums { display: none; }
+  .play.tablo-yaz .keypad .k { min-height: 48px; }
+  .play.tablo-yaz .ctable td.active.tikla { box-shadow: var(--sivi-ic), inset 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent); }
+}
+
+/* Tek okta kapanış: tahta belirir, ok sağ üstten uçup tam ortaya saplanır, titrer; isabetten halka dalgası yayılır. Ok üstte, yazı altta. */
+.toast.show.a-dart { animation: kutlaZipla .5s cubic-bezier(.2,1.6,.4,1); }
+.toast.a-dart .u-ic { margin-bottom: 2px; }
+.u-dart { overflow: visible; }
+@media (min-width: 720px) { .toast .u-ic svg.u-dart { width: 96px; height: 96px; } }
+.toast.show.a-dart .dt-tahta { transform-origin: 32px 32px; animation: dtTahta .35s cubic-bezier(.2,1.5,.4,1) both; }
+.toast.show.a-dart .dt-ok { transform-origin: 32px 32px; animation: dtUc .42s cubic-bezier(.55,0,.9,.45) .18s both, dtTitre .5s ease-out .6s; }
+.toast.show.a-dart .u-ic::after { content: ''; position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  border: 3px solid #f5d38f; opacity: 0; animation: dtDalga .7s ease-out .58s both; }
+@keyframes dtTahta { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes dtUc { 0% { transform: translate(46px, -46px) scale(1.5); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(0, 0) scale(1); opacity: 1; } }
+@keyframes dtTitre { 0%, 100% { rotate: 0deg; } 20% { rotate: -7deg; } 40% { rotate: 5deg; } 60% { rotate: -3deg; } 80% { rotate: 1.5deg; } }
+@keyframes dtDalga { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(3.6); opacity: 0; } }
+
+/* Sıra çizgisi (Demir 09.11: "bazılarının etrafı neden çizili değil"): sırası gelen oyuncunun BÜTÜN hücreleri çizgili —
+   D, T, H dahil (bunlar dokunmaya yine kapalı; çizgi sırayı gösterir) */
+.ctable td.active:not(.num) { box-shadow: var(--sivi-ic), inset 0 0 0 1.5px color-mix(in srgb, var(--brand) 45%, transparent); }
+
+/* Sıra değişti — ortada, buzlu arka planla (Demir 09.11): oyuncunun renginde halka ve kişi simgesi, kart sağdan kayıp oturur */
+.toast.sira { box-shadow: var(--sivi-ic), 0 0 0 2.5px color-mix(in srgb, var(--pc) 80%, transparent), 0 0 40px color-mix(in srgb, var(--pc) 45%, transparent); }
+.toast.sira .u-ic { width: 64px; height: 64px; border-radius: 50%; color: #fff; background: var(--pc); box-shadow: 0 0 22px color-mix(in srgb, var(--pc) 70%, transparent); }
+.toast.sira .u-ic svg { width: 36px; height: 36px; }
+.toast.sira b { color: var(--pc); filter: brightness(1.3); }
+.toast.sira small { display: block; font-size: 15px; font-weight: 600; color: var(--mut); margin-top: 2px; }
+.toast.show.a-gec { animation: kartGec .5s cubic-bezier(.2,1.3,.4,1); }
+.toast.show.a-gec .u-ic { animation: icZipla .6s cubic-bezier(.3,1.6,.5,1) .15s both; }
+@keyframes kartGec { 0% { transform: translate(calc(-50% + 140px), -50%) scale(.9); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+@media (min-width: 720px) { .toast.sira .u-ic { width: 80px; height: 80px; } .toast.sira .u-ic svg { width: 44px; height: 44px; } }
+/* Tablodan yaz düğmesi yalnız telefonda */
+@media (min-width: 720px) { .tablo-dugme { display: none !important; } .mods:has(.tablo-dugme) { grid-template-columns: 1fr 1fr; } }
+
+/* ═══ Leg / set / maç sonu (Demir 09.11: "hemen gelip gidiyor"): kalıcı pencere, kupa animasyonu, skor tablosu ═══ */
+.lb-perde { align-items: center !important; }
+.lb-kart { text-align: center; display: grid; gap: 10px; max-width: 420px; margin-inline: auto; border-radius: 30px !important; animation: lbGel .55s cubic-bezier(.2,1.4,.4,1) !important; }
+/* kendi yerinde büyüyerek gelir (uyarıların kartBuyu'su kartı -50% kaydırıyordu → pencere sola kayık açılıyordu) */
+@keyframes lbGel { 0% { transform: scale(.4); opacity: 0; filter: brightness(1.8); } 70% { transform: scale(1.04); opacity: 1; } 100% { transform: scale(1); filter: none; } }
+@media (max-width: 719px) { .lb-perde .lb-kart { margin: 0 12px; width: calc(100% - 24px); border-radius: 30px !important; padding-bottom: 22px; } }
+.lb-ust { display: grid; place-items: center; margin-top: 4px; }
+.lb-ikon { position: relative; display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; color: #1d160a;
+  background: radial-gradient(circle at 35% 30%, #f8e2ad, #e3b866 55%, #b98a3c); box-shadow: 0 0 0 6px rgb(227 184 102 / .18), 0 0 44px rgba(227,184,102,.6);
+  animation: kupaGel .8s cubic-bezier(.2,1.6,.4,1) both, kupaParla 2.4s ease-in-out .8s infinite; }
+.lb-ikon svg { width: 50px; height: 50px; }
+.lb-ikon::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 3px solid #f5d38f; animation: dtDalga 1.1s ease-out .5s both; }
+@keyframes kupaGel { 0% { transform: scale(0) rotate(-30deg); } 60% { transform: scale(1.2) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes kupaParla { 50% { box-shadow: 0 0 0 10px rgb(227 184 102 / .1), 0 0 64px rgba(227,184,102,.85); transform: translateY(-3px); } }
+.lb-baslik { font-size: 24px; font-weight: 800; margin: 2px 0 0; }
+.lb-baslik b { filter: brightness(1.25); }
+.lb-alt, .lb-sonraki { margin: 0; font-size: 14px; color: var(--mut); }
+.lb-sonraki b { filter: brightness(1.25); }
+.lb-tablo { width: 100%; border-collapse: separate; border-spacing: 0 6px; margin: 2px 0; }
+.lb-tablo thead th { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mut); padding: 0 12px; }
+.lb-tablo tbody th, .lb-tablo tbody td { padding: 10px 12px; background: rgb(255 255 255 / .06); font-size: 17px; }
+.lb-tablo tbody th { text-align: left; border-radius: 14px 0 0 14px; font-weight: 700; }
+.lb-tablo tbody td { text-align: center; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; width: 64px; }
+.lb-tablo tbody td:last-child { border-radius: 0 14px 14px 0; }
+.lb-tablo tr.kazanan th, .lb-tablo tr.kazanan td { background: color-mix(in srgb, var(--pc) 26%, rgb(255 255 255 / .05)); }
+.lb-tablo tr.kazanan th { box-shadow: inset 4px 0 0 var(--pc); }
+.lb-tablo tr.kazanan td { color: #f5d38f; }
+.lb-nokta { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--pc); margin-right: 8px; vertical-align: 1px; }
+.lb-kupa { display: inline-grid; vertical-align: -3px; margin-left: 6px; color: #e3b866; }
+.lb-kupa svg { width: 18px; height: 18px; }
+.lb-tablo tr { animation: icSuz .5s ease-out both; }
+.lb-tablo tr:nth-child(2) { animation-delay: .08s; } .lb-tablo tr:nth-child(3) { animation-delay: .16s; } .lb-tablo tr:nth-child(4) { animation-delay: .24s; }
+.end .mac-sonu { margin-top: 30px; }
+.end .mac-sonu .lb-ikon { width: 120px; height: 120px; }
+.end .mac-sonu .lb-ikon svg { width: 64px; height: 64px; }
+
+/* ═══ Nasıl Oynanır (Demir 09.11) ═══ */
+.nasil-giris { text-align: center; color: color-mix(in srgb, var(--fg) 82%, transparent); font-size: 15px; line-height: 1.5; margin: 4px auto 6px; max-width: 620px; }
+.nasil-grup .sec { margin-top: 18px; }
+.nasil-izgara { display: grid; gap: 10px; }
+@media (min-width: 720px) { .nasil-izgara { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+@media (min-width: 1000px) { .nasil-izgara { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.nasil-kart { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-radius: 20px; text-align: left; color: var(--fg);
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(var(--sivi-ton), var(--sivi-ton)) padding-box, var(--sivi-kenar-isik) border-box; box-shadow: var(--sivi-ic); }
+.nasil-kart .app-ico.simge { width: 48px; max-width: 48px; flex: none; border-radius: 12px; }
+.nk-ad { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.nk-ad b { font-size: 16px; }
+.nk-ad small { font-size: 12.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nk-rozet { display: inline-flex; align-items: center; gap: 5px; flex: none; padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 800; color: #1d160a; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); }
+.nasil-kart.yakinda { opacity: .55; }
+.nasil-kart.yakinda .nk-rozet { color: var(--mut); background: rgb(255 255 255 / .08); font-weight: 600; }
+.nasil-kart:not(.yakinda):active { transform: scale(.98); }
+.kural-izle { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
+
+.ns-sahne { display: grid; gap: 12px; justify-items: center; }
+.ns-ust { display: grid; gap: 12px; width: 100%; justify-items: center; }
+.ns-tahta { position: relative; width: min(84vw, 360px); aspect-ratio: 1; }
+.ns-tahta svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 14px 30px rgba(0,0,0,.55)); }
+.ns-isik { fill: #fff6c8; opacity: 0; pointer-events: none; mix-blend-mode: screen; }
+.ns-uyari { position: absolute; left: 50%; top: 50%; translate: -50% -50%; padding: 10px 20px; border-radius: 18px; font-size: 22px; font-weight: 800; white-space: nowrap; pointer-events: none;
+  color: #1d160a; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); box-shadow: 0 0 30px rgba(227,184,102,.7); opacity: 0; scale: .5; }
+.ns-uyari.show { animation: nsUyari 1.7s cubic-bezier(.2,1.5,.4,1) both; }
+@keyframes nsUyari { 0% { opacity: 0; scale: .4; } 18% { opacity: 1; scale: 1.1; } 28% { scale: 1; } 82% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: .9; } }
+.ns-skor { width: min(92vw, 420px); }
+.ns-tablo { width: 100%; border-collapse: separate; border-spacing: 5px; table-layout: fixed; }
+.ns-tablo th { padding: 8px 6px; border-radius: 16px; background: rgb(255 255 255 / .06); font-size: 14px; transition: background .3s, box-shadow .3s; }
+.ns-tablo th span { display: block; font-weight: 700; }
+.ns-tablo th b { display: block; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ns-tablo th.sirada { background: color-mix(in srgb, var(--pc) 26%, rgb(255 255 255 / .05)); box-shadow: inset 0 -3px 0 var(--pc); }
+.ns-tablo.kriket th:first-child { background: none; width: 36px; }
+.ns-tablo.kriket th b { font-size: 22px; }
+.ns-tablo.kriket td { height: 30px; border-radius: 10px; text-align: center; background: rgb(255 255 255 / .05); font-size: 18px; }
+.ns-tablo.kriket td.num { background: none; color: var(--brand); font-weight: 800; }
+.ns-tablo.kriket td.sirada { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--brand) 45%, transparent); }
+.ns-tablo.kriket tr.bos td { height: 14px; background: none; color: var(--mut); font-size: 14px; line-height: 1; }
+.ns-tablo .mk.m3 { width: 24px; height: 24px; font-size: 14px; }
+.ns-yazi { width: min(92vw, 620px); display: grid; gap: 6px; padding: 14px 16px; border-radius: 20px; text-align: left;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .5), rgb(var(--cam-rgb) / .5)) padding-box, var(--sivi-kenar-isik) border-box; }
+.ns-yazi.yeni { animation: icSuz .45s ease-out both; }
+.ns-kim { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+.ns-kim i { width: 11px; height: 11px; border-radius: 50%; }
+.ns-kim i.giris { background: var(--altin); }
+.ns-yazi p { margin: 0; font-size: 15.5px; line-height: 1.5; }
+.ns-kontrol { display: flex; align-items: center; gap: 18px; }
+.ns-dugme { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: var(--fg);
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(var(--sivi-ton), var(--sivi-ton)) padding-box, var(--sivi-kenar-isik) border-box; box-shadow: var(--sivi-ic); }
+.ns-dugme.ana { width: 64px; height: 64px; color: #1d160a; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); box-shadow: 0 8px 24px -8px rgba(227,184,102,.8); }
+.ns-dugme:disabled { opacity: .35; }
+.ns-noktalar { display: flex; gap: 8px; }
+.ns-nokta { width: 10px; height: 10px; padding: 0; border-radius: 99px; background: rgb(255 255 255 / .2); border: 0; transition: width .3s, background .3s; }
+.ns-nokta.gecti { background: color-mix(in srgb, var(--brand) 55%, transparent); }
+.ns-nokta.on { width: 26px; background: var(--altin); }
+/* Tablet (kural: dar tek sütun yok): yatayda tahta solda, skor + yazı sağda */
+@media (min-width: 900px) and (orientation: landscape) {
+  .ns-sahne { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'ust yazi' 'ust kontrol' 'ust noktalar' 'ust kural'; align-items: center; column-gap: 40px; justify-content: center; }
+  .ns-ust { grid-area: ust; grid-template-columns: auto; }
+  .ns-tahta { width: min(46vh, 400px); }
+  .ns-yazi { grid-area: yazi; width: 100%; max-width: 520px; }
+  .ns-kontrol { grid-area: kontrol; } .ns-noktalar { grid-area: noktalar; } .ns-sahne > .btn { grid-area: kural; }
+}
+@media (min-width: 720px) and (orientation: portrait) { .ns-tahta { width: min(60vw, 440px); } .ns-skor, .ns-yazi { width: min(86vw, 640px); } }
+@media (min-width: 900px) and (orientation: landscape) {
+  .ns-sahne { grid-template-areas: 'tahta skor' 'tahta yazi' 'tahta kontrol' 'tahta noktalar' 'tahta kural'; row-gap: 12px; }
+  .ns-ust { display: contents; }
+  .ns-tahta { grid-area: tahta; } .ns-skor { grid-area: skor; width: 100%; max-width: 520px; }
+}
+.ns-uyari.kotu { color: #fff; background: linear-gradient(180deg, #ff7b72, #d93a30); box-shadow: 0 0 30px rgba(220,70,55,.7); }
+/* Nasıl oynanır — genel tablo (can, koşu, hedef…) */
+.ns-hedef-isik { fill: #fff6c8; pointer-events: none; mix-blend-mode: screen; animation: nsHedef 1.6s ease-in-out infinite; }
+@keyframes nsHedef { 0%, 100% { opacity: .12; } 50% { opacity: .5; } }
+.ns-hedef { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px; }
+.ns-hedef span { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mut); }
+.ns-hedef b { padding: 4px 14px; border-radius: 99px; font-size: 18px; font-weight: 800; color: #1d160a; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); }
+.ns-tablo.alan caption { caption-side: top; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mut); padding-bottom: 2px; }
+.ns-tablo.alan td { height: 34px; border-radius: 10px; text-align: center; background: rgb(255 255 255 / .05); font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ns-tablo.alan td.num { background: none; color: var(--brand); font-size: 13px; text-align: left; width: 76px; }
+.ns-tablo.alan td.sirada { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--brand) 45%, transparent); }
+.ns-tablo.alan thead th:first-child { background: none; width: 76px; }
+.ns-tablo.alan:not(:has(tbody tr)) thead th:first-child { display: none; }
+.ns-tablo.tek-oyuncu { max-width: 300px; margin-inline: auto; }
+.ns-kalpler { display: inline-flex; gap: 2px; vertical-align: middle; }
+.ns-elendi { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #ff7b72; }
+.ns-rozet { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 800; letter-spacing: .05em; color: #1d160a; background: linear-gradient(180deg, #f0cf86, #e3b866 55%, #c99a45); }
+.ns-sonuk { color: var(--mut); }
+
+/* ═══ Dartın Tarihi (Demir 09.11) — yıl sayarak değişir, dönem resmi canlanır, zaman çizgisi dolar ═══ */
+.tarih-kart { display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 6px; padding: 12px 14px; border-radius: 22px; text-align: left; color: var(--fg);
+  border: 1px solid transparent; background: linear-gradient(120deg, rgb(227 184 102 / .22), rgb(227 184 102 / .04)) padding-box, linear-gradient(rgb(var(--cam-rgb) / .55), rgb(var(--cam-rgb) / .55)) padding-box, var(--sivi-kenar-isik) border-box; box-shadow: var(--sivi-ic), 0 10px 30px -14px rgba(227,184,102,.5); }
+.tk-resim { width: 64px; height: 64px; flex: none; display: grid; place-items: center; border-radius: 16px; background: rgb(0 0 0 / .3); }
+.tk-resim svg { width: 58px; height: 58px; }
+.tk-ad { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.tk-ad small { font-size: 11.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.tk-ad b { font-size: 19px; }
+.tk-ad span { font-size: 13px; color: var(--mut); }
+.tarih-sahne { width: 100%; }
+.tr-ust { display: grid; justify-items: center; gap: 6px; width: 100%; }
+.tr-resim { width: min(52vw, 210px); aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, rgb(227 184 102 / .22), rgb(227 184 102 / 0) 68%); }
+.tr-resim svg { width: 82%; height: 82%; overflow: visible; filter: drop-shadow(0 10px 24px rgba(0,0,0,.55)); }
+.tr-resim.yeni svg { animation: trGel .7s cubic-bezier(.2,1.4,.4,1) both; }
+.tr-resim.yeni .tr-don { transform-origin: 60px 60px; animation: trDon 1s cubic-bezier(.2,1.2,.4,1) .1s both; }
+.tr-resim.yeni .tr-ok { animation: trOk .5s cubic-bezier(.55,0,.9,.45) .55s both; }
+.tr-resim.yeni .tr-vur { transform-origin: 86px 88px; animation: trVur .9s ease-in-out .3s both; }
+.tr-resim.yeni .tr-sol { animation: trSol .7s cubic-bezier(.2,1.3,.4,1) .2s both; } .tr-resim.yeni .tr-sag { animation: trSag .7s cubic-bezier(.2,1.3,.4,1) .35s both; }
+.tr-resim .tr-kivilcim { animation: nsHedef 1.2s ease-in-out infinite; }
+.tr-resim .tr-spot { animation: nsHedef 2s ease-in-out infinite; }
+@keyframes trGel { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes trDon { 0% { transform: rotate(-90deg) scale(.7); opacity: 0; } 100% { transform: rotate(0) scale(1); opacity: 1; } }
+@keyframes trOk { 0% { transform: translate(40px, -40px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes trVur { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-28deg); } 55% { transform: rotate(6deg); } 70% { transform: rotate(0); } }
+@keyframes trSol { 0% { transform: translateX(-40px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes trSag { 0% { transform: translateX(40px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.tr-bilgi { text-align: center; }
+.tr-yil { font-size: 54px; font-weight: 900; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #ffe9a8, #e3b866 55%, #b98a35); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 14px rgba(227,184,102,.35)); }
+.tr-yil.yeni { animation: icZipla .6s cubic-bezier(.3,1.6,.5,1) both; }
+.tr-baslik { margin-top: 4px; font-size: 20px; font-weight: 800; }
+.tr-cizgi { position: relative; width: min(92vw, 640px); height: 44px; margin: 10px auto 0; }
+.tr-ray { position: absolute; left: 0; right: 0; top: 9px; height: 4px; border-radius: 4px; background: rgb(255 255 255 / .12); overflow: hidden; }
+.tr-dolu { height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, #b98a35, #f0cf86); transition: width .8s cubic-bezier(.3,1,.4,1); box-shadow: 0 0 10px rgba(227,184,102,.6); }
+.tr-durak { position: absolute; top: 0; translate: -50% 0; display: grid; justify-items: center; gap: 4px; padding: 0; border: 0; background: none; color: var(--mut); }
+.tr-durak i { width: 14px; height: 14px; margin-top: 4px; border-radius: 50%; background: #3a342c; border: 2px solid rgb(255 255 255 / .2); transition: transform .3s, background .3s; }
+.tr-durak small { font-size: 10px; font-weight: 700; white-space: nowrap; opacity: 0; transition: opacity .3s; }
+.tr-durak.gecti i { background: #c99a45; border-color: #e3b866; }
+.tr-durak.on i { background: #f0cf86; border-color: #fff; transform: scale(1.35); box-shadow: 0 0 12px rgba(227,184,102,.8); }
+.tr-durak.on small, .tr-ray + .tr-durak small, .tr-durak:last-child small { opacity: 1; color: var(--fg); }
+.tarih-sahne .ns-noktalar { display: none; }
+.ns-ses.kapali { opacity: .55; }
+@media (min-width: 900px) and (orientation: landscape) {
+  .tarih-sahne { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'ust yazi' 'ust kontrol' 'cizgi cizgi'; column-gap: 48px; }
+  .tarih-sahne .tr-ust { grid-area: ust; } .tarih-sahne .ns-yazi { grid-area: yazi; } .tarih-sahne .ns-kontrol { grid-area: kontrol; }
+  .tarih-sahne .tr-cizgi { grid-area: cizgi; width: min(86vw, 900px); }
+  .tr-resim { width: min(36vh, 260px); } .tr-yil { font-size: 72px; }
+}
+
+/* X01 kartları (Demir 09.11): isim kartın TEPESİNDE ve büyük, sayı + bilgiler ortada; telefonda da ortalı */
+.board.x01 .side { align-items: center; text-align: center; justify-content: flex-start; }
+.board.x01 .side-name { font-size: clamp(19px, 5.4vw, 26px); margin: 8px 0 0; max-width: 100%; }
+.board.x01 .side-big { margin-top: auto; }
+.board.x01 .side-sub { margin-bottom: auto; justify-content: center; }
+.board.x01 .side-uye { justify-content: center; }
+.board.x01:is(.n5, .n6, .n7, .n8) .side-name { font-size: 15px; margin-top: 4px; }
+@media (min-width: 700px) { .board.x01 .side-name { font-size: 30px; margin-top: 16px; } .board.x01:is(.n5, .n6, .n7, .n8) .side-name { font-size: 18px; } }
+/* Sırası olmayan oyuncu sönük (Demir 09.11: "her oyunda"): X01 / grup kartları, Kriket başlıkları; sıradaki tam parlak */
+.board .side:not(.active) :is(.side-name, .side-big, .side-sub, .side-uye) { opacity: .45; transition: opacity .3s; }
+.ctable th:not(.active):not(:first-child) :is(.cn, .cp, .side-uye) { opacity: .45; transition: opacity .3s; }
+.ctable th:not(.active):not(:first-child)::after { opacity: .45; }
+/* Altın degradeli yıl: background-clip yalnız satır kutusunu boyar — "ğ", "Ü" gibi harflerin şapkası kesilmesin diye satıra pay (Demir 09.11) */
+.tr-yil { line-height: 1.22; padding: .06em .08em .02em; }
+/* Online "Yakında" simgesi (Demir 09.11: köşede hata): rozet taşsın diye kırpma kapalı; parlama katmanı ve çizim simgenin yuvarlak şekline kırpılır */
+.app-ico.simge.yakinda::before, .app-ico.simge.yakinda::after { border-radius: 23%; }
+.app-ico.simge.yakinda > svg { clip-path: inset(0 round 23%); }
+
+/* Nasıl Oynanır / Tarih sahnesi ekranın ortasında (Demir 09.11: "tableti ya da telefonu ortalamalısın") */
+.page.nasil-oyna { min-height: calc(100dvh - var(--ust, 44px) - var(--safe-t, 0px) - var(--safe-b, 0px)); display: flex; flex-direction: column; padding-bottom: calc(24px + var(--safe-b, 0px)); }
+.page.nasil-oyna > .ns-sahne { flex: 1; align-content: center; justify-content: center; }
+@media (min-width: 900px) and (orientation: landscape) {
+  .page.nasil-oyna > .ns-sahne { max-width: 1100px; width: 100%; margin-inline: auto; }
+  .ns-sahne:not(.tarih-sahne) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ns-sahne:not(.tarih-sahne) .ns-tahta { justify-self: center; }
+}
+/* Tarih sahnesi (160×120 çizimler) */
+.tr-resim { width: min(80vw, 330px); aspect-ratio: 4 / 3; border-radius: 24px; }
+.tr-resim svg { width: 100%; height: 100%; }
+@media (min-width: 900px) and (orientation: landscape) { .tr-resim { width: min(46vh, 420px); } }
+/* Karakter animasyonları */
+.tr-resim.yeni .tr-kol-at { animation: trAt 1.6s ease-in-out .3s infinite; }
+.tr-resim.yeni .tr-kol-sev { animation: trSev .9s ease-in-out infinite alternate; transform-origin: 0 -27px; transform-box: view-box; }
+.tr-resim.yeni .tr-kol-tokmak { animation: trTokmak 1.1s ease-in-out .4s infinite; }
+.tr-resim.yeni .tr-zipla { animation: trZipla .8s ease-in-out infinite alternate; }
+.tr-resim.yeni .tr-gec1 { animation-delay: .25s; } .tr-resim.yeni .tr-gec2 { animation-delay: .5s; }
+.tr-resim.yeni .tr-balon { animation: trBalon .5s cubic-bezier(.2,1.6,.4,1) 1s both; }
+.tr-resim.yeni .tr-tak { animation: trTak 1.1s ease-in-out .4s infinite; transform-box: fill-box; transform-origin: center; }
+.tr-resim.yeni .tr-ok { animation: trOk .5s cubic-bezier(.55,0,.9,.45) .6s both; } .tr-resim.yeni .tr-ok2 { animation-delay: 1.4s; }
+.tr-resim.yeni .tr-kupa-mini { animation: icZipla .5s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes trAt { 0%, 60%, 100% { transform: rotate(0); } 30% { transform: rotate(-55deg); } 45% { transform: rotate(25deg); } }
+@keyframes trSev { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+@keyframes trTokmak { 0%, 100% { transform: rotate(0); } 35% { transform: rotate(-40deg); } 50% { transform: rotate(15deg); } }
+@keyframes trZipla { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+@keyframes trBalon { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes trTak { 0%, 30%, 100% { transform: scale(.6); opacity: 0; } 50% { transform: scale(1.25); opacity: 1; } 75% { transform: scale(1); opacity: 1; } }
+/* Tarihçe: uçan oklar — elden çıkar, kavisli noktalı iz, saplanır ve titrer; 2,4 sn'de bir tekrar */
+.tr-resim.yeni .tr-ucan { animation: trUc 2.4s cubic-bezier(.45,0,.55,1) infinite both; }
+.tr-resim.yeni .tr-ucan .tr-sap { animation: trTitre 2.4s ease-out infinite both; animation-delay: inherit; }
+.tr-resim.yeni .tr-iz { stroke-dashoffset: 0; animation: trIz 2.4s ease-out infinite both; }
+@keyframes trUc { 0% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 8% { opacity: 1; } 30% { transform: translate(0, 0); opacity: 1; } 85% { opacity: 1; } 100% { transform: translate(0, 0); opacity: 0; } }
+@keyframes trTitre { 0%, 30% { transform: rotate(0); } 34% { transform: rotate(-9deg); } 38% { transform: rotate(6deg); } 42% { transform: rotate(-3deg); } 46%, 100% { transform: rotate(0); } }
+@keyframes trIz { 0% { opacity: 0; } 10% { opacity: .7; } 35% { opacity: .5; } 60%, 100% { opacity: 0; } }
+/* Gösterim altı telif + imza (Demir 09.11) */
+.ns-telif { display: grid; justify-items: center; gap: 4px; max-width: 560px; margin: 26px auto 0; padding-top: 16px; text-align: center; border-top: 1px solid color-mix(in srgb, var(--fg) 12%, transparent); }
+.ns-telif p { margin: 0; font-size: 12.5px; line-height: 1.5; color: color-mix(in srgb, var(--fg) 70%, transparent); }
+.ns-telif small { font-size: 11.5px; color: var(--mut); }
+.ns-imza img { height: 34px; width: auto; opacity: .92; }
+.ns-imza .imza-siyah { display: none; }
+:root[data-tema="acik"] .ns-imza .imza-beyaz { display: none; }
+:root[data-tema="acik"] .ns-imza .imza-siyah { display: block; }
+.ns-telif small { display: inline-flex; align-items: center; gap: 8px; } .ns-telif-logo { height: 16px; width: auto; opacity: .9; }
+.tr-baslik-logo { height: 1.15em; width: auto; vertical-align: -.22em; margin-left: 4px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+/* Demir ve Kenan avatarları (gösterim skor tablosu ve "kim atıyor" satırı) */
+.ns-avatar { width: 26px; height: 30px; vertical-align: middle; margin-right: 6px; border-radius: 50%; background: rgb(255 255 255 / .08); overflow: visible; }
+.ns-tablo th span { display: inline-flex; align-items: center; justify-content: center; }
+.ns-kim .ns-avatar { width: 30px; height: 34px; margin-right: 2px; }
+/* Telif + imza tabletta ekrana sığsın (Demir 09.11): yatayda tahtanın altında sol sütunda, küçük; dikeyde ve telefonda sıkı */
+.ns-telif { margin-top: 14px; padding-top: 10px; gap: 2px; }
+.ns-telif p { font-size: 11px; line-height: 1.4; }
+.ns-imza img { height: 26px; }
+@media (min-width: 900px) and (orientation: landscape) {
+  .page.nasil-oyna { min-height: 0; padding-bottom: 12px; }
+  .page.nasil-oyna > .ns-sahne { flex: none; }
+  .ns-sahne:not(.tarih-sahne) { grid-template-areas: 'tahta skor' 'tahta yazi' 'tahta kontrol' 'telif noktalar' 'telif kural'; }
+  .ns-tahta { width: min(40vh, 360px); }
+  .page.nasil-oyna .ns-telif { max-width: 520px; margin-top: 8px; }
+}
+@media (min-width: 900px) and (orientation: landscape) {
+  .page.nasil-oyna .kurulum-ust { min-height: 56px; margin-top: 0; }
+  .ns-sahne { row-gap: 8px !important; }
+  .ns-tablo.kriket td { height: 26px; }
+  .ns-tablo th { padding: 6px; } .ns-tablo th b { font-size: 24px; }
+}
+.ns-kapanis-logo { height: 22px; width: auto; } .ns-kapanis-imza { font-size: 13px; font-weight: 700; color: var(--brand); letter-spacing: .04em; }
+/* 3D chibi avatarlar (yuvarlak, yüz ortalı) */
+.ns-avatar { width: 30px; height: 30px; object-fit: cover; object-position: center 18%; border-radius: 50%; background: rgb(255 255 255 / .1); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--fg) 25%, transparent); }
+.ns-kim .ns-avatar { width: 34px; height: 34px; }
+
+/* ═══ Gösterim / tarihçe: her çözünürlükte ortalı (Demir 09.11) ═══
+   Başlık üstte; sahne + imza kalan alanın dikeyde ortasında. Tahta hem genişliğe hem yüksekliğe göre ölçeklenir. */
+.page.nasil-oyna { display: flex; flex-direction: column; min-height: calc(100dvh - var(--ust, 44px) - var(--safe-t, 0px) - var(--safe-b, 0px)) !important; padding-bottom: calc(16px + var(--safe-b, 0px)); }
+.page.nasil-oyna > .ns-sahne { flex: none !important; margin-top: auto; margin-bottom: 0; width: 100%; }
+.page.nasil-oyna > .ns-telif { margin-bottom: auto; }
+/* telefon (dikey) */
+.ns-tahta { width: clamp(220px, min(84vw, 40dvh), 420px); }
+/* tablet dikey */
+@media (min-width: 700px) and (orientation: portrait) {
+  .ns-tahta { width: clamp(300px, min(62vw, 40dvh), 520px); }
+  .ns-skor, .ns-yazi { width: min(88vw, 680px); }
+}
+/* yatay (tablet, büyük telefon yatay) */
+@media (orientation: landscape) and (min-width: 700px) {
+  .page.nasil-oyna > .ns-sahne { max-width: min(1240px, 96vw); margin-inline: auto; column-gap: clamp(24px, 4vw, 64px); }
+  .ns-tahta { width: clamp(260px, min(56dvh, 40vw), 560px); }
+  .ns-sahne:not(.tarih-sahne) .ns-skor, .ns-sahne:not(.tarih-sahne) .ns-yazi { max-width: 600px; }
+  .tr-resim { width: clamp(240px, min(46dvh, 36vw), 460px); }
+}
+/* alçak yatay ekranlar (telefon yatay vb.): sıkı */
+@media (orientation: landscape) and (max-height: 520px) {
+  .ns-tahta { width: min(60dvh, 300px); }
+  .ns-telif { display: none; }
+}
+/* dikey: tahta ekran yüksekliğine göre küçülür, tablo ve yazı sıkılaşır → sahne tek ekrana sığar */
+@media (orientation: portrait) {
+  .ns-sahne { gap: 8px; }
+  .ns-tahta { width: clamp(180px, min(70vw, 27dvh), 440px); }
+  .ns-tablo { border-spacing: 4px; }
+  .ns-tablo th { padding: 5px 4px; } .ns-tablo th b { font-size: 22px; } .ns-tablo.kriket th b { font-size: 18px; }
+  .ns-tablo.kriket td { height: clamp(20px, 2.6dvh, 30px); font-size: 15px; }
+  .ns-tablo .mk.m3 { width: 20px; height: 20px; font-size: 12px; }
+  .ns-yazi { padding: 10px 14px; } .ns-yazi p { font-size: 14px; line-height: 1.45; }
+  .ns-dugme { width: 42px; height: 42px; } .ns-dugme.ana { width: 54px; height: 54px; }
+  .page.nasil-oyna .kurulum-ust { min-height: 56px; }
+}
+@media (orientation: portrait) and (min-width: 700px) {
+  .ns-tahta { width: clamp(280px, min(56vw, 30dvh), 480px); }
+  .ns-yazi p { font-size: 16px; }
+}
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 800px) {
+  .ns-tahta { width: clamp(240px, 50dvh, 420px); }
+  .ns-tablo.kriket td { height: 22px; }
+  .ns-telif { margin-top: 6px; padding-top: 6px; } .ns-imza img { height: 22px; }
+}
+.page.nasil-oyna { padding-bottom: var(--safe-b, 0px) !important; }
+.page.nasil-oyna > .ns-telif { padding-bottom: 12px; }
+.page.nasil-oyna > .kurulum-ust { margin-bottom: 32px; } @media (orientation: portrait) and (max-width: 699px) { .page.nasil-oyna > .kurulum-ust { margin-bottom: 4px; } }
+@media (min-width: 700px) and (max-height: 1180px) and (orientation: portrait), (orientation: landscape) and (max-height: 860px) { .page.nasil-oyna > .kurulum-ust { margin-bottom: 6px; } }
+/* Demir / Kenan avatarı rozetin içinde (Demir 09.11 istisnası) */
+.pc-av:has(.oz-av) { padding: 0; overflow: hidden; background: rgb(255 255 255 / .12); }
+.oz-av { width: 100%; height: 100%; object-fit: cover; object-position: center 16%; border-radius: 50%; display: block; }
+.prow-av { width: 34px; height: 34px; flex: none; box-shadow: 0 0 0 2px var(--pc); }
+/* Oyuncular: Demir & Kenan şımartması — büyük altın halkalı avatar, altında unvan, satır hafif altın ışıltılı */
+.prow:has(.prow-av) { padding-top: 12px; padding-bottom: 12px; background: linear-gradient(100deg, rgb(227 184 102 / .16), rgb(227 184 102 / 0) 60%) padding-box, var(--sivi-isik) padding-box, linear-gradient(var(--sivi-ton), var(--sivi-ton)) padding-box, var(--sivi-kenar-isik) border-box; }
+.prow-av { width: 52px !important; height: 52px !important; box-shadow: 0 0 0 2.5px #e3b866, 0 0 18px rgb(227 184 102 / .55) !important; }
+.prow b .unvan { display: block; margin-top: 2px; font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--brand); }
+/* oyun ekranlarında ad yanındaki avatar */
+.ad-av { width: 1.5em; height: 1.5em; border-radius: 50%; object-fit: cover; object-position: center 16%; vertical-align: -.4em; margin-right: .35em; box-shadow: 0 0 0 1.5px var(--pc, #e3b866); background: rgb(255 255 255 / .1); }
+.board.x01 .side-name .ad-av { width: 1.7em; height: 1.7em; }
+.u-resim { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 16%; }
+.lb-tablo th .ad-av { width: 26px; height: 26px; }
+/* Oyuncular: sürükle-bırak tutamağı ve sürüklenen satır */
+.prow-tut { display: grid; place-items: center; width: 22px; height: 40px; margin: 0 -2px 0 -6px; flex: none; color: color-mix(in srgb, var(--fg) 45%, transparent); cursor: grab; touch-action: none; }
+.prow-tut:active { cursor: grabbing; }
+.prow-liste.siralaniyor .prow:not(.surukleniyor) { transition: transform .18s ease; }
+.prow.surukleniyor { position: relative; z-index: 5; box-shadow: var(--sivi-ic), 0 18px 40px -12px rgba(0,0,0,.7), 0 0 0 2px var(--brand); transition: none; }
+/* Nasıl Oynanır: grup başlıkları belirgin + grubun kendi simgesi (Demir 09.11) */
+.nasil-baslik { display: flex; align-items: center; gap: 12px; margin: 26px 2px 12px; font-size: 21px; font-weight: 800; letter-spacing: -.01em; text-shadow: var(--yazi-golge); }
+.nasil-baslik .app-ico.simge { width: 40px; max-width: 40px; flex: none; border-radius: 10px; }
+.nasil-baslik small { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--mut); }
+.nasil-baslik::after { content: ''; flex: 1; height: 1px; margin-left: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--brand) 55%, transparent), transparent); order: 2; }
+.nasil-baslik small { order: 3; margin-left: 0; }
+@media (min-width: 720px) { .nasil-baslik { font-size: 24px; } .nasil-baslik .app-ico.simge { width: 46px; max-width: 46px; } }
+
+/* Hesap makinesi: 3+ taraflı maçta oyuncu seçici (Demir 09.11) — sırası gelen noktayla işaretli */
+.hm-kimler { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0 2px; }
+.hm-kim { position: relative; min-height: 34px; padding: 6px 12px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--text); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); max-width: 46%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: background .2s, border-color .2s, transform .15s; }
+.hm-kim:active { transform: scale(.96); }
+.hm-kim.secili { background: color-mix(in srgb, var(--pc) 28%, transparent); border-color: var(--pc); box-shadow: 0 0 0 1px var(--pc) inset; }
+.hm-kim.sirada::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--pc); vertical-align: 1px; box-shadow: 0 0 6px var(--pc); }
+
+/* ── ALTIN CAM (Demir 09.11: "tuşlar gold cam olmalı, sarı değil") ──
+   demirkara.com'daki altın seçim tarifi (CvOlustur .cv-cipler [data-sec]: altın %16 ton + altın çerçeve) cam ışığıyla:
+   saydam altın dolgu + bulanık arka plan + altın kenar ışığı + altın yazı. Düz sarı dolgu yok. */
+:root {
+  --altin-cam-ton: linear-gradient(180deg, rgb(240 207 134 / .26), rgb(200 156 63 / .12));
+  --altin-cam-kenar: linear-gradient(135deg, rgb(255 236 190 / .95) 0%, rgb(227 184 102 / .55) 30%, rgb(200 156 63 / .25) 60%, rgb(240 207 134 / .8) 100%);
+  --altin-cam-yazi: #f3d48f;
+  --altin-cam-golge: inset 0 1px 0 rgb(255 240 200 / .35), inset 0 -8px 16px -10px rgb(200 156 63 / .45), 0 8px 24px -12px rgb(227 184 102 / .55);
+}
+:root[data-tema="acik"] {
+  --altin-cam-ton: linear-gradient(180deg, rgb(240 207 134 / .45), rgb(200 156 63 / .22));
+  --altin-cam-yazi: #6e4c12;
+  --altin-cam-golge: inset 0 1px 0 rgb(255 255 255 / .7), inset 0 -8px 16px -10px rgb(160 110 30 / .35), 0 8px 22px -12px rgb(160 110 30 / .4);
+}
+:root :is(.gold, .btn.primary, .chip.on, .k.next, .ns-dugme.ana, .geri-al, .sira-ekle, .hm-tus.esit, .secici, .ay-seg button.on, .hedefler span.on) {
+  border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box;
+  color: var(--altin-cam-yazi) !important;
+  text-shadow: 0 1px 2px rgb(0 0 0 / .35);
+  box-shadow: var(--altin-cam-golge);
+  -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik);
+}
+:root[data-tema="acik"] :is(.gold, .btn.primary, .chip.on, .k.next, .ns-dugme.ana, .geri-al, .sira-ekle, .hm-tus.esit, .secici, .ay-seg button.on, .hedefler span.on) { text-shadow: 0 1px 0 rgb(255 255 255 / .5); }

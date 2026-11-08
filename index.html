@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>DartX</title>
+  <meta name="theme-color" content="#0f1216">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DartX">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon-64.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    // Tema ilk karede doğru gelsin (beyaz/siyah parlama olmasın)
+    try {
+      var k = new URLSearchParams(location.search).get('k');
+      var d = JSON.parse(localStorage.getItem('dartx.v1' + (k ? '.' + k : '')) || '{}');
+      var t = (d.settings && d.settings.theme) || 'auto';
+      document.documentElement.dataset.tema = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'koyu' : 'acik') : t;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="toast" class="toast"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
