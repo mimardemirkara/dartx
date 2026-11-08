@@ -1900,3 +1900,9 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 
 /* House kutucuğu turkuaz (sayının altınından ayrışsın) */
 .hs-izgara .hs-H { --ton: 32 196 178; }
+
+/* Başlık sola, Tur · Leg yanında hap rozeti (Demir 09.11) */
+.play-top h1 { flex: 1; flex-direction: row; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 6px 12px; text-align: left; padding-left: 6px; }
+.play-top h1 .pt-tur { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 99px; font-size: 15px; font-weight: 800; color: var(--altin-cam-yazi);
+  border: 1px solid transparent; background: var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; text-shadow: none; white-space: nowrap; }
+@media (min-width: 700px) { .play-top h1 .pt-tur { font-size: 19px; padding: 6px 16px; } }
