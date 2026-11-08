@@ -844,7 +844,7 @@ function keypad(m, g) {
     <div class="nums ${bos ? 'geri-icte' : ''}" style="--sutun:${sutun}">${nums.join('')}</div>
     <div class="extra">
       <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><span class="b-ust">${TUS_IC.disBull}<span>BULL</span></span><small>25</small></button>
-      <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>RED BULL</span></span><small>50</small></button>
+      <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>D-BULL</span></span><small>50</small></button>
       <button class="k miss" data-act="dart" data-n="0">${TUS_IC.iska}<span>${t('Iska')}</span></button>
       <button class="k next" data-act="pass">${t('Sıradaki Oyuncu ›')}</button>
     </div>
@@ -1196,9 +1196,12 @@ function modal() {
     body = `<h2>${t('{0} nereye yazılsın?', esc(etk))}</h2>
       <div class="hs-izgara">${md.sec.map((x, i) => {
         // simge solda (tuş takımı ve uyarılarla aynı), adı ortada, kaç işaret yazılacağı sağda küçük (Demir 09.11)
-        const ic = { n: TUS_IC.bull, D: TUS_IC.double, T: TUS_IC.triple, H: HS_EV }[x.v] || TUS_IC.bull;
-        const [ad, not = ''] = String(x.l).split(' · ');
-        return `<button class="btn hedef-sec hs-${x.v === 'n' ? 'sayi' : x.v}" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span></button>`;
+        const ic = x.v === 'n' && md.ok.n === 25 ? (md.ok.m === 2 ? TUS_IC.bull : TUS_IC.disBull) : ({ n: TUS_IC.bull, D: TUS_IC.double, T: TUS_IC.triple, H: HS_EV }[x.v] || TUS_IC.bull);
+        let [ad, not = ''] = String(x.l).split(' · ');
+        // D-Bull'a basıldıysa (Demir 09.11) kutucuk tuşla aynı kırmızı, adı D-Bull; tekli Bull yeşil
+        const bullKutu = x.v === 'n' && md.ok.n === 25 ? (md.ok.m === 2 ? 'dbull' : 'bull25') : '';
+        if (bullKutu === 'dbull') ad = 'D-Bull';
+        return `<button class="btn hedef-sec hs-${x.v === 'n' ? 'sayi' : x.v} ${bullKutu ? 'hs-' + bullKutu : ''}" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span>${x.e && x.e.metin ? `<span class="hs-etki e-${x.e.tur}">${esc(kelimeBuyuk(x.e.metin))}</span>` : ''}</button>`;
       }).join('')}</div>
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
   } else if (md.type === 'ilksira') {

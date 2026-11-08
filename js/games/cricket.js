@@ -124,7 +124,30 @@ function make(id) {
     const td = m.turnDarts || [];
     const onceki = td[td.length - 1] === d ? td.slice(0, -1) : td; // ok henüz eklenmemiş ya da eklenmiş olabilir
     if (onceki.length === 2 && onceki.every(x => x.n === d.n) && faydali(m, g, 'H')) liste.push({ v: 'H', l: tr('House · 1 işaret') });
+    // Anlık hesap (Demir 09.11: "şu kadar puan / ceza gibi anlık hesaplarsan daha teşvik edici olur")
+    liste.forEach(x => { x.e = onizle(m, g, d, x.v, onceki); });
     return liste;
+  }
+  // Bu seçenek yazılırsa ne olur: kaç puan (ya da rakibe ceza), hangi hedef kapanır
+  function onizle(m, g, d, v, onceki) {
+    const turBasi = g.turBasi && g.turBasi.tur === m.round && g.turBasi.cur === m.cur && onceki.length ? g.turBasi.s : null;
+    const taban = v === 'H' && turBasi ? turBasi : g.s;
+    const kopya = { ...g, s: JSON.parse(JSON.stringify(taban)) };
+    const once = JSON.parse(JSON.stringify(taban));
+    const rec = { marks: 0 };
+    const hedef = v === 'n' ? d.n : v;
+    const deger = v === 'H' ? onceki.concat([d]).reduce((a, x) => a + dartValue(x), 0) : v === 'n' ? sayiDegeri(d.n) : dartValue(d);
+    yaz(m, kopya, rec, hedef, v === 'n' ? d.m : 1, deger);
+    const ben = kopya.s[m.cur], benOnce = once[m.cur];
+    const puan = ben.pts - benOnce.pts;
+    const ceza = kopya.s.reduce((a, o, i) => a + (i === m.cur ? 0 : o.pts - once[i].pts), 0);
+    const kapanir = benOnce.k[hedef] < 3 && ben.k[hedef] >= 3;
+    const parca = [];
+    if (kapanir) parca.push(tr('{0} kapanır', hedefAd(hedef)));
+    // Türk Kriketi dilinde fazla yazılan puan rakibe cezadır (Demir 09.11: "2 ok için 22 ceza yazarsın")
+    if (puan + ceza > 0) parca.push(tr('rakibe {0} ceza', puan + ceza));
+    if (v === 'H' && turBasi && g.s[m.cur].pts > turBasi[m.cur].pts && puan <= 0 && !kapanir) parca.push(tr('önceki oklar silinir'));
+    return { tur: puan > 0 || ceza > 0 ? 'puan' : kapanir ? 'kapat' : 'bos', metin: parca.join(' · ') || tr('{0} olur: {1}/3', hedefAd(hedef) === 'H' ? 'House' : hedefAd(hedef) === 'D' ? 'Double' : hedefAd(hedef) === 'T' ? 'Triple' : hedefAd(hedef), ben.k[hedef]) };
   }
   // Bir hedefe 'adet' işaret yaz; kapalıysa (rakip açıkken) puanı kendine yaz
   function yaz(m, g, rec, hedef, adet, deger) {

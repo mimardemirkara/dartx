@@ -2155,3 +2155,21 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 .onay-kart h2 { font-size: 22px; } .onay-kart p { font-size: 16px; }
 @media (max-width: 520px) { :root .onay-dugmeler .onay-tus { font-size: 16px; padding: 0 10px; gap: 7px; } .onay-dugmeler .onay-tus svg { width: 20px; height: 20px; } }
 @media (min-width: 700px) { :root .onay-dugmeler .onay-tus { min-height: 78px; font-size: 21px; } .onay-kart h2 { font-size: 28px; } .onay-kart p { font-size: 19px; } }
+
+/* Seçim penceresinde anlık hesap rozeti: puan yeşil, kapanış altın, etkisiz gri */
+.hedef-sec .hs-etki { display: inline-block; margin-top: 8px; padding: 5px 12px; border-radius: 99px; font-size: 14px; font-weight: 800; line-height: 1.2; color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / .4); }
+.hedef-sec .hs-etki.e-puan { background: linear-gradient(160deg, rgb(47 179 109 / .9), rgb(30 130 78 / .8)); box-shadow: 0 0 14px rgb(47 179 109 / .45); }
+.hedef-sec .hs-etki.e-kapat { background: rgb(0 0 0 / .35); border: 1px solid rgb(255 255 255 / .35); }
+.hedef-sec .hs-etki.e-bos { background: rgb(0 0 0 / .25); opacity: .8; font-weight: 600; }
+@media (min-width: 700px) { .hedef-sec .hs-etki { font-size: 16px; padding: 6px 14px; } }
+
+/* Seçim kutucuğunda Bull: D-Bull kırmızı, tekli Bull yeşil (tuş takımıyla aynı) */
+.hs-izgara .hedef-sec.hs-dbull { --ton: 233 75 60; }
+.hs-izgara .hedef-sec.hs-bull25 { --ton: 47 179 109; }
+/* Sıradaki oyuncu kartı: resim solda büyük, isim yanında (Demir 09.11) */
+.turn .who { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 10px; min-width: 0; }
+.turn .who .ad-av { grid-row: 1 / span 2; width: 44px; height: 44px; margin: 0; vertical-align: middle; box-shadow: 0 0 0 2px var(--pc), 0 0 12px color-mix(in srgb, var(--pc) 50%, transparent); }
+.turn .who b { font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.turn .who:has(.ad-av) b::before { display: none; }
+.turn .who small { grid-column: 2; }
+@media (min-width: 700px) { .turn .who .ad-av { width: 58px; height: 58px; } .turn .who b { font-size: 26px; } }
