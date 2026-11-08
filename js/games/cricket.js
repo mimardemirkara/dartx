@@ -64,7 +64,7 @@ Tüm hedefleri kapatan ve puanda geride olmayan kazanır.`,
   turk: `Hedefler 20'den 10'a kadar sayılar (istersen 12'ye ya da 15'e kadar), <b>D</b> (double), <b>T</b> (triple), <b>B</b> (Bull) ve <b>H</b> (House). Her hedef 3 işaretle kapanır.
 <b>Double attığında seçersin:</b> o sayıya 2 işaret ya da D'ye 1 işaret. <b>Triple'da:</b> sayıya 3 işaret (tek seferde kapatır) ya da T'ye 1 işaret. Double Bull: Bull'a 2 işaret ya da D'ye 1 işaret.
 <b>House:</b> bir elde 3 okun üçü de tablodaki aynı sayıya girerse, ya o sayıya yazarsın ya da H'ye 1 işaret. Tablo dışındaki sayılar D, T ve H için de sayılmaz.
-<b>Cezalı:</b> kapattığın ama rakibin kapatmadığı hedefe vurdukça puanı kendi hanene yazarsın (Bull 25, double Bull 50). Tüm hedefleri kapatan ve puanı yüksek olan kazanır; puanı düşük olan, rakibin açık hedeflerine vurarak öne geçebilir.
+<b>Cezalı:</b> kapattığın ama rakibin kapatmadığı hedefe vurdukça puanı kendi hanene yazarsın (Bull 25, double Bull 50). Tüm hedefleri kapatan ve puanı rakiplerden yüksek olan kazanır (eşit puan yetmez); puanı düşük olan, rakibin açık hedeflerine vurarak öne geçebilir.
 <b>Cezasız:</b> puan yok; bütün hedefleri ilk kapatan kazanır.`,
   cricket: `Hedefler 15–20 ve Bull. ${ORTAK}
 Kapattığın ama rakibin henüz kapatmadığı sayıya vurdukça puan toplarsın.
@@ -240,9 +240,9 @@ function make(id) {
       const kapaliOnce = hedefler(g).every(n => (once[n] || 0) >= 3), kapaliSimdi = hedefler(g).every(n => me.k[n] >= 3);
       if (!kapaliOnce && kapaliSimdi && puanli(m) && !cezali(m) && m.sides.length > 1 && !r?.legWinner) {
         const en = Math.max(...g.s.filter(x => x !== me).map(x => x.pts));
-        if (me.pts < en) {
+        if (me.pts < en || (T.secimli && me.pts === en)) {
           const vur = this.vurHedef(m, g);
-          m.msg = tr('Hepsini kapattın ama {0} puan geridesin!', en - me.pts) + (vur.length ? ' ' + tr('Puan için vur: {0}', vur.join(', ')) : '');
+          m.msg = (me.pts === en ? tr('Hepsini kapattın ama puan eşit — öne geçmelisin!') : tr('Hepsini kapattın ama {0} puan geridesin!', en - me.pts)) + (vur.length ? ' ' + tr('Puan için vur: {0}', vur.join(', ')) : '');
         }
       }
       else if (tekOldu && !m.msg) { m.msg = tr('Tek okta kapattı!'); m.kutla = true; }
@@ -292,7 +292,8 @@ function make(id) {
       if (!puanli(m)) return m.cur;
       const others = g.s.filter((_, i) => i !== m.cur).map(o => o.pts);
       if (!others.length) return m.cur;
-      if (cezali(m) ? me.pts <= Math.min(...others) : me.pts >= Math.max(...others)) return m.cur;
+      // Türk Kriketi (Demir 09.11): hepsini kapatan puanda ÖNDE olmalı; eşitlik yetmez. Diğer kriketlerde "düşük olmayan" kazanır.
+      if (cezali(m) ? me.pts <= Math.min(...others) : (T.secimli ? me.pts > Math.max(...others) : me.pts >= Math.max(...others))) return m.cur;
       return null;
     },
 
