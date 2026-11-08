@@ -143,7 +143,8 @@ function make(id) {
     const ceza = kopya.s.reduce((a, o, i) => a + (i === m.cur ? 0 : o.pts - once[i].pts), 0);
     const kapanir = benOnce.k[hedef] < 3 && ben.k[hedef] >= 3;
     const parca = [];
-    if (kapanir) parca.push(tr('{0} kapanır', hedefAd(hedef)));
+    // Hedef 0 işaretteyken bu tek okla kapanıyorsa tabloda ⊙ çıkar — seçenekte de söylensin
+    if (kapanir) parca.push(benOnce.k[hedef] === 0 ? tr('{0} tek okta kapanır ⊙', hedefAd(hedef)) : tr('{0} kapanır', hedefAd(hedef)));
     // Türk Kriketi dilinde fazla yazılan puan rakibe cezadır (Demir 09.11: "2 ok için 22 ceza yazarsın")
     if (puan + ceza > 0) parca.push(tr('rakibe {0} ceza', puan + ceza));
     if (v === 'H' && turBasi && g.s[m.cur].pts > turBasi[m.cur].pts && puan <= 0 && !kapanir) parca.push(tr('önceki oklar silinir'));
