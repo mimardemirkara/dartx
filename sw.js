@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-0.9.9';
+const VERSION = 'dartx-1.0.0';
 const FILES = [
   'ses/atc/tr-00.mp3',
   'ses/atc/tr-01.mp3',
@@ -191,6 +191,8 @@ const FILES = [
   'img/duvar-acik.webp',
   'img/duvar-koyu-genis.webp',
   'img/duvar-acik-genis.webp',
+  'img/duvar-koyu-dikey.webp',
+  'img/duvar-acik-dikey.webp',
 ];
 
 self.addEventListener('install', e => {

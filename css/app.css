@@ -25,7 +25,7 @@
   --cizgi: rgba(255,255,255,.08);
   --gl-main: #f6dc9f; --gl-party: #d9dde6; --gl-practice: #cfe6d6;
   --hl-yazi: #ffe3a6; --bull-yazi: #ff9a8a; --tehlike-yazi: #ffb3a8;
-  --duvar: url('../img/duvar-koyu.webp');   /* demirkara.com DK Steel koyu, logosuz (sitenin telefon duvar kâğıdı) */
+  --duvar: url('../img/duvar-koyu-dikey.webp');   /* demirkara.com DK Steel koyu, logosuz (sitenin telefon duvar kâğıdı) */
   --duvar-genis: url('../img/duvar-koyu-genis.webp');   /* tablet: kadife koyu geniş, 2560 px (logosuz, yüksek çözünürlük) */
   --duvar-isik: linear-gradient(transparent, transparent);
   --zemin: #0d0c0b;
@@ -58,7 +58,7 @@
   --cizgi: rgba(60,45,30,.12);
   --gl-main: #7a5614; --gl-party: #3a3f4a; --gl-practice: #285c3c;
   --hl-yazi: #6b4a0e; --bull-yazi: #b3301f; --tehlike-yazi: #9a2418;
-  --duvar: url('../img/duvar-acik.webp');   /* DK Steel açık, logosuz */
+  --duvar: url('../img/duvar-acik-dikey.webp');   /* DK Steel açık, logosuz */
   --duvar-genis: url('../img/duvar-acik-genis.webp');
   --duvar-isik: linear-gradient(transparent, transparent);
   --zemin: #b9ad9c;
@@ -2408,3 +2408,24 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 :root[data-tema="acik"] .hs-izgara .hedef-sec .hs-ic { background: rgb(255 255 255 / .55) !important; color: rgb(var(--ton)); filter: brightness(.6) saturate(1.5); }
 :root[data-tema="acik"] .hs-izgara .hedef-sec { background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .45), rgb(var(--ton) / .25)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton) / .6)) border-box !important; }
 :root[data-tema="acik"] .hedef-sec .hs-etki.e-kapat, :root[data-tema="acik"] .hedef-sec .hs-etki.e-bos { background: rgb(40 32 24 / .75); color: #fff; }
+/* ==== Açık tema turu (Demir 09.11) ==== */
+/* İlk atış kartları: başlık ve alt yazı koyu, okunur */
+:root[data-tema="acik"] .bs-kart b { color: #241d15 !important; text-shadow: 0 1px 0 rgb(255 255 255 / .4); }
+:root[data-tema="acik"] .bs-kart small { color: #3b3127 !important; opacity: .85; }
+:root[data-tema="acik"] .bs-zar-ic { color: #6d3fb3; } :root[data-tema="acik"] .bs-sec-ic { color: #2463c7; }
+/* Kurulum: oyuncu sayısı rozeti görünür */
+:root[data-tema="acik"] .kurulum .kp-sayi { background: rgb(138 93 20 / .9); color: #fff; }
+:root[data-tema="acik"] .kurulum .kur-panel { background: var(--sivi-isik) padding-box, linear-gradient(rgb(255 255 255 / .35), rgb(255 255 255 / .35)) padding-box, var(--sivi-kenar-isik) border-box; }
+:root[data-tema="acik"] .kurulum .ekle-satir { border-color: rgb(138 93 20 / .45); }
+/* Devam et: açık temada altın zeminde koyu yazı */
+html:root[data-tema="acik"] body .pill.gold.dv-dugme { color: #241d15 !important; text-shadow: 0 1px 0 rgb(255 255 255 / .4) !important; }
+/* Menü kutuları: simge daha koyu, kutu biraz daha dolu */
+:root[data-tema="acik"] .menu-kutu { background: var(--sivi-isik) padding-box, linear-gradient(160deg, rgb(var(--ton) / .55), rgb(var(--ton) / .3)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton) / .6)) border-box !important; }
+:root[data-tema="acik"] .menu-kutu .mk-ic svg { color: rgb(var(--ton)); filter: brightness(.55) saturate(1.6); }
+/* Durum satırı ve ipucu açık temada okunur */
+:root[data-tema="acik"] .turn .ipucu { color: #3b3127; }
+:root[data-tema="acik"] .durum-satir.d-esit { color: #6e4c12; background: rgb(227 184 102 / .3); }
+/* Bull 25 / D-Bull 50 puanı okunur: büyük ve parlak (telefon ve tablet) */
+:root .keypad :is(.k.bull-dis, .k.bull) small { font-size: min(20px, 15cqw) !important; font-weight: 800; opacity: 1 !important; color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / .45); }
+:root[data-tema="acik"] .keypad :is(.k.bull-dis, .k.bull) small { color: #26221e !important; text-shadow: none !important; }
+@media (max-width: 520px) { :root .keypad :is(.k.bull-dis, .k.bull) small { font-size: 16px !important; } }
