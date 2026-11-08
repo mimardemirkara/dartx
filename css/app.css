@@ -2367,3 +2367,25 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 :root .keypad .k.miss span { text-transform: uppercase; letter-spacing: .06em; font-weight: 800; }
 :root .keypad .k.miss { font-size: 22px; }
 @media (min-width: 700px) { :root .keypad .k.miss { font-size: 28px; } :root .keypad .k.miss svg { width: 28px; height: 28px; } }
+/* Tablo hücreleri: şimdiki cam, biraz buzlu ve daha opak — duvar dokusu hücrenin içinde görünmesin (Demir 09.11) */
+.ctable td:not(.num) { -webkit-backdrop-filter: blur(6px) saturate(1.1); backdrop-filter: blur(6px) saturate(1.1);
+  background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .68), rgb(var(--cam-rgb) / .58)) padding-box, var(--sivi-kenar-isik) border-box !important; }
+/* ISKA biraz küçük */
+:root .keypad .k.miss { font-size: 18px; }
+@media (min-width: 700px) { :root .keypad .k.miss { font-size: 22px; } :root .keypad .k.miss svg { width: 22px; height: 22px; } }
+/* Açık tema renkli tuşlar (Demir 09.11): soluk değil, koyu temadaki gibi dolu renkli cam + beyaz yazı */
+:root[data-tema="acik"] .keypad :is(.k.mod[data-m="2"], .k.mod[data-m="3"], .k.mod.house-tus, .k.bull-dis, .k.bull, .k.miss) {
+  color: #fff !important; text-shadow: 0 1px 2px rgb(0 0 0 / .35) !important;
+  background: var(--sivi-isik) padding-box, linear-gradient(160deg, rgb(var(--ton) / .95), rgb(var(--ton) / .78)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton)) 45%, rgb(var(--ton) / .6)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 6px 16px -8px rgb(var(--ton) / .7) !important; }
+:root[data-tema="acik"] .keypad .k.mod[data-m="2"] { --ton: 61 139 253; } :root[data-tema="acik"] .keypad .k.mod[data-m="3"] { --ton: 168 98 242; }
+:root[data-tema="acik"] .keypad .k.mod.house-tus { --ton: 32 176 160; }
+:root[data-tema="acik"] .keypad .k.bull-dis { --ton: 40 160 95; } :root[data-tema="acik"] .keypad .k.bull { --ton: 220 70 55; } :root[data-tema="acik"] .keypad .k.miss { --ton: 120 130 148; }
+:root[data-tema="acik"] .keypad :is(.k.mod[data-m="2"], .k.mod[data-m="3"], .k.mod.house-tus, .k.bull-dis, .k.bull, .k.miss) :is(svg, small, span, b) { color: #fff !important; }
+:root[data-tema="acik"] .keypad .k3-alt :is(.k3-d, .k3-t) { color: #fff !important; text-shadow: 0 1px 2px rgb(0 0 0 / .3);
+  background: var(--sivi-isik) padding-box, linear-gradient(160deg, rgb(var(--ton) / .95), rgb(var(--ton) / .78)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton))) border-box !important; }
+:root[data-tema="acik"] .keypad .k3-d { --ton: 61 139 253; } :root[data-tema="acik"] .keypad .k3-t { --ton: 168 98 242; }
+:root[data-tema="acik"] .keypad .k.mod.house-tus:disabled { opacity: .4; }
+:root[data-tema="acik"] .play-top .geri-al:disabled { opacity: .65; }
+/* Duvar kâğıdı: dikey tablette geniş resim aşırı büyüyüp bulanıklaşıyordu — dikeyde uzun resim */
+@media (min-width: 720px) and (orientation: portrait) { body::before { background-image: var(--duvar); } }
