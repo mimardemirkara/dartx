@@ -50,7 +50,7 @@ const vib = ms => {
   if (navigator.vibrate) navigator.vibrate(ms);
   else iosTitret();
 };
-let toastT;
+let toastT, uyariKilit = 0;
 // Oyun uyarıları (BUST!, YARIYA İNDİ!, House!, leg aldı…) — Demir 08.11: ekranın ortasında, arka plan buzlanır,
 // kısa süre kalıp kendiliğinden kaybolur. Dokunmayı engellemez (oyun devam eder).
 // Demir 09.11 (kural): her uyarıda konuyla ilgili simge + o ana uygun animasyon. Simgeler lucide (demirkara.com ile aynı set).
@@ -113,6 +113,7 @@ function toast(msg, kind = '', ozel = null) {
   el.innerHTML = `<span class="u-ic">${ic}</span><span class="u-yazi">${msg}</span>`;
   void el.offsetWidth; // animasyon her uyarıda baştan başlasın
   el.classList.add('show'); perde.classList.add('show');
+  uyariKilit = Date.now() + 1500 + 450; // uyarı ve sönme animasyonu boyunca alttaki tuşlar basılmaz
   if (/\bkutla\b/.test(kind)) konfeti();
   clearTimeout(toastT);
   toastT = setTimeout(() => { el.classList.remove('show'); perde.classList.remove('show'); }, 1500);
@@ -133,10 +134,13 @@ let siraT1;
 // Sıra duyurusu sürerken (Demir 09.11) ekrana dokunmak alttaki tuşa basmasın: dokunuş yalnız duyuruyu kapatır
 let siraKilit = 0;
 function siraKilitAc() { siraKilit = 0; clearTimeout(toastT); document.getElementById('toast')?.classList.remove('show'); document.getElementById('toast-perde')?.classList.remove('show'); }
+// Demir 09.11 (ikinci kez): HER uyarıda (sıra, bust, House…) ve sönme animasyonu bitene kadar ekranın
+// neresine dokunulursa dokunulsun alttaki düğme çalışmaz; dokunuş yalnız uyarıyı kapatır.
+function kilitliMi() { const n = Date.now(); return n < uyariKilit || (siraKilit && n < siraKilit && S.view === 'play' && !S.modal); }
 addEventListener('click', e => {
-  if (!siraKilit || Date.now() > siraKilit || S.view !== 'play' || S.modal) return;
-  if (!e.target.closest('.keypad, .scores, .turn')) return;
-  e.preventDefault(); e.stopPropagation(); siraKilitAc();
+  if (!kilitliMi()) return;
+  e.preventDefault(); e.stopPropagation();
+  if (document.getElementById('toast')?.classList.contains('show')) { siraKilitAc(); uyariKilit = Date.now() + 250; }
 }, true);
 function siraGoster(m, gecikme) {
   clearTimeout(siraT1);
@@ -697,6 +701,19 @@ function takimlar(st) {
 // Takım simgesi: lucide shield (demirkara.com seti) + içinde takım harfi
 const KALKAN = h => `<svg class="kalkan" viewBox="0 0 24 24" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><text x="12" y="15.6" text-anchor="middle" font-size="9.5" font-weight="800" fill="currentColor" fill-opacity="1" stroke="none" font-family="system-ui, sans-serif">${h}</text></svg>`;
 
+// House / 3 in a bed: elin üç oku da aynı sayıya; son okta H seçilir
+function houseAt(m, n) {
+  const gg = GAMES[m.gameId];
+  if ((m.turnDarts || []).length) { toast(t('House için elin ilk okundan başla'), 'bad'); render(); return; }
+  let res = null;
+  for (let k = 0; k < 3; k++) {
+    const ok = { n, m: 1 };
+    if (k === 2 && gg.secenekler) { const s = gg.secenekler(m, m.g, ok); if (s && s.some(x => x.v === 'H')) ok.sec = 'H'; }
+    S.sonOk = ok; res = E.throwDart(m, ok);
+    if (k < 2 && res && res.event && res.event !== 'dart') break;
+  }
+  afterThrow(res);
+}
 // Kura bitti: kazanan ilk atışı yapar
 function kuraBitti(m, i) {
   if (!S.modal || S.modal.type !== 'baslayan') return;
@@ -772,7 +789,7 @@ function viewPlay() {
       <div class="who">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
       ${useTotal ? `<div class="totalbuf">${S.totalBuf || '0'}</div>` : `<div class="slots">${slots}</div><div class="tp">${turnPts}</div>`}
       ${hint ? `<div class="hint">${esc(hint)}</div>` : ''}
-      ${(() => { const d = g.durum ? g.durum(m, m.g) : null; return d ? `<div class="durum-satir d-${d.tur}">${d.tur === 'onde' ? '▲' : d.tur === 'geride' ? '▼' : '='} ${esc(d.metin)}</div>` : ''; })()}
+      ${(() => { const d = g.durum ? g.durum(m, m.g) : null; return d ? `<div class="durum-satir d-${d.tur}">${DURUM_YUZ[d.tur] || ''}<span>${esc(kelimeBuyuk(d.metin))}</span></div>` : ''; })()}
     </section>
     ${useTotal ? numpad() : keypad(m, g)}
   </div>`;
@@ -789,6 +806,11 @@ function tabloYazAcik(m, g) {
   return (m.g && m.g.h ? m.g.h.length : 0) > 15;
 }
 
+const GERI_IC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>';
+// Durum satırı (Demir 09.11): öndeyse gülen yüz + yeşil, gerideyse üzgün yüz + kırmızı, eşitse düz yüz; kelimeler büyük harfle
+const yuz = agiz => LUCIDE('<circle cx="12" cy="12" r="10"/>' + agiz + '<line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>', 22, 2.2);
+const DURUM_YUZ = { onde: yuz('<path d="M8 14s1.5 2 4 2 4-2 4-2"/>'), geride: yuz('<path d="M16 16s-1.5-2-4-2-4 2-4 2"/>'), esit: yuz('<line x1="8" x2="16" y1="15" y2="15"/>') };
+const kelimeBuyuk = s => String(s).split(' ').map(w => w ? w.charAt(0).toLocaleUpperCase(dil() === 'en' ? 'en' : 'tr') + w.slice(1) : w).join(' ');
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -805,21 +827,24 @@ function keypad(m, g) {
   if (sadece && sadece.length) sadece.forEach(n => nums.push(num(n)));
   else for (let n = 1; n <= 20; n++) nums.push(num(n));
   const sutun = !sadece ? 5 : sadece.length <= 6 ? 3 : sadece.length <= 8 ? 4 : sadece.length <= 12 ? 4 : 5;
-  return `<section class="keypad mod${mod} ${hizli ? 'hizli' : ''}">
+  // Demir 09.11: sayı ızgarasında boş kalan yere "Son Atışı Geri Al" (üstteki gizlenir)
+  const bos = (sutun - nums.length % sutun) % sutun;
+  if (bos) nums.push(`<button class="k geri-tus" style="grid-column: span ${bos}" data-act="undo" ${E.canUndo() ? '' : 'disabled'}>${GERI_IC}<span>${t('Son Atışı Geri Al')}</span></button>`);
+  return `<section class="keypad mod${mod} ${hizli ? 'hizli' : ''} ${S.house ? 'modH' : ''}">
     <div class="mods">
       ${hizli ? '' : `<button class="k mod ${mod === 2 ? 'on' : ''}" data-act="mod" data-m="2">${TUS_IC.double}<span>DOUBLE</span></button>
       <button class="k mod ${mod === 3 ? 'on' : ''}" data-act="mod" data-m="3">${TUS_IC.triple}<span>TRIPLE</span></button>`}
-      ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus" data-act="ozelsatir" data-h="H">${HS_EV}<span>HOUSE</span></button>` : ''}
-      ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus" data-act="ozelsatir" data-h="B3">${HS_EV}<span>3 IN A BED</span></button>` : ''}
+      ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="H">${HS_EV}<span>HOUSE</span></button>` : ''}
+      ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="B3">${HS_EV}<span>3 IN A BED</span></button>` : ''}
       ${`<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>`}
       ${g.cat === 'cricket' && g.view ? (tabloYazAcik(m, g)
         ? `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="0" aria-label="${t('Tuşlarla yaz')}" title="${t('Tuşlarla yaz')}">${KLAVYE_IC}</button>`
         : `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="1" aria-label="${t('Tablodan yaz')}" title="${t('Tablodan yaz')}">${TABLO_IC}</button>`) : ''}
     </div>
-    <div class="nums" style="--sutun:${sutun}">${nums.join('')}</div>
+    <div class="nums ${bos ? 'geri-icte' : ''}" style="--sutun:${sutun}">${nums.join('')}</div>
     <div class="extra">
-      <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><span class="b-ust">${TUS_IC.disBull}<b>25</b></span><small>${t('Dış Bull')}</small></button>
-      <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>BULL</span></span><small>50</small></button>
+      <button class="k bull-dis ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="1"><span class="b-ust">${TUS_IC.disBull}<span>BULL</span></span><small>25</small></button>
+      <button class="k bull ${hl.has(25) ? 'hl' : ''}" data-act="dart" data-n="25" data-fix="2"><span class="b-ust">${TUS_IC.bull}<span>RED BULL</span></span><small>50</small></button>
       <button class="k miss" data-act="dart" data-n="0">${TUS_IC.iska}<span>${t('Iska')}</span></button>
       <button class="k next" data-act="pass">${t('Sıradaki Oyuncu ›')}</button>
     </div>
@@ -1389,10 +1414,16 @@ app.addEventListener('click', e => {
     }
     case 'start': startMatch(); break;
 
+    // House modu (Demir 09.11): ayrı pencere yok — basınca sayı tuşları turkuaza döner, sayıya dokununca 3 ok o sayıya
+    case 'housemod': {
+      if ((m.turnDarts || []).length && !S.house) { toast(t('House için elin ilk okundan başla'), 'bad'); break; }
+      S.house = S.house ? null : el.dataset.h; S.mod = 1; vib(8); ses.tus(); render(); break;
+    }
     case 'kriketgiris': { const s = data().settings, k = s.kriketGiris || {}; k[m.gameId] = k[m.gameId] === 'klasik' ? 'hizli' : 'klasik'; s.kriketGiris = k; S.mod = 1; store.save(); vib(8); ses.tus(); render(); break; }
     case 'tabloyaz': { const s = data().settings; s.tabloYaz = { ...(s.tabloYaz || {}), [m.gameId]: el.dataset.v === '1' }; store.save(); vib(8); ses.tus(); render(); break; }
-    case 'mod': S.mod = S.mod === Number(el.dataset.m) ? 1 : Number(el.dataset.m); vib(8); ses.tus(); render(); break;
+    case 'mod': S.house = null; S.mod = S.mod === Number(el.dataset.m) ? 1 : Number(el.dataset.m); vib(8); ses.tus(); render(); break;
     case 'dart': {
+      if (S.house) { const n = Number(el.dataset.n); S.house = null; if (!n || n === 25) { render(); break; } houseAt(m, n); break; }
       const n = Number(el.dataset.n);
       let mm = el.dataset.fix ? Number(el.dataset.fix) : S.mod;
       if (n === 0) mm = 1;
@@ -1457,15 +1488,7 @@ app.addEventListener('click', e => {
         if (gg.secenekler && gg.secenekler(m, m.g, ok)) ok.sec = h; // Türk Kriketi: seçimi D/T olarak yap
         S.sonOk = ok; afterThrow(E.throwDart(m, ok)); break;
       }
-      // House / 3B: elin üç oku da aynı sayıya; son okta H seçilir
-      let res = null;
-      for (let k = 0; k < 3; k++) {
-        const ok = { n, m: 1 };
-        if (k === 2 && gg.secenekler) { const s = gg.secenekler(m, m.g, ok); if (s && s.some(x => x.v === 'H')) ok.sec = 'H'; }
-        S.sonOk = ok; res = E.throwDart(m, ok);
-        if (k < 2 && res && res.event && res.event !== 'dart') break;
-      }
-      afterThrow(res); break;
+      houseAt(m, n); break;
     }
     case 'hedefsec': {
       const md = S.modal; if (!md || md.type !== 'hedefsec') break;

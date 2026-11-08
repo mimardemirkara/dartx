@@ -280,7 +280,7 @@ function make(id) {
       const me = g.s[m.cur];
       const left = hedefler(g).filter(n => me.k[n] < 3);
       if (!left.length) return tr(cezali(m) ? 'Hepsi kapalı — puanın en düşük olunca kazanırsın' : 'Hepsi kapalı — puanda öne geç!');
-      const goster = left.map(n => (T.gizli && !g.acik.includes(n) ? '?' : hedefAd(n)));
+      const goster = left.map(n => (T.gizli && !g.acik.includes(n) ? '?' : n === 25 ? 'B' : hedefAd(n)));
       return tr('Açık: {0}', goster.join(' · '));
     },
 
@@ -304,7 +304,7 @@ function make(id) {
       if (fark > 0) return { tur: 'onde', metin: tr('Öndesin · +{0} puan', fark) + (hepsiKapali ? '' : ' · ' + tr('hepsini kapatırsan kazanırsın')) };
       const yer = puanYeri.length ? ' · ' + tr('puan için vur: {0}', puanYeri.join(', ')) : '';
       if (fark === 0) return { tur: 'esit', metin: tr('Puan eşit') + yer };
-      return { tur: 'geride', metin: (hepsiKapali ? tr('Hepsini kapattın ama {0} puan gerideysin', -fark) : tr('{0} puan gerideysin', -fark)) + yer };
+      return { tur: 'geride', metin: (hepsiKapali ? tr('Hepsini kapattın ama {0} puan geridesin', -fark) : tr('{0} puan geridesin', -fark)) + yer };
     },
 
     highlight(m, g) {
