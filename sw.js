@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-0.7.1';
+const VERSION = 'dartx-0.7.2';
 const FILES = [
   'ses/atc/tr-00.mp3',
   'ses/atc/tr-01.mp3',

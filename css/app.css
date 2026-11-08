@@ -1906,3 +1906,10 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 .play-top h1 .pt-tur { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 99px; font-size: 15px; font-weight: 800; color: var(--altin-cam-yazi);
   border: 1px solid transparent; background: var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; text-shadow: none; white-space: nowrap; }
 @media (min-width: 700px) { .play-top h1 .pt-tur { font-size: 19px; padding: 6px 16px; } }
+
+/* İki kişilik kriket: sayılar ortada (Demir 09.11) — ilk sütun kuralları orta sütuna taşınır */
+.board.orta-sayi .ctable th:first-child { width: auto; background: var(--sivi-isik) padding-box, linear-gradient(var(--sivi-ton), var(--sivi-ton)) padding-box, var(--sivi-kenar-isik) border-box; border: 1px solid transparent; box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+.board.orta-sayi .ctable th:first-child::after { display: block; }
+.board.orta-sayi .ctable th.orta-bas { width: 52px; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.board.orta-sayi .ctable td.num { text-align: center; width: 52px; }
+@media (min-width: 700px) { .board.orta-sayi .ctable th.orta-bas, .board.orta-sayi .ctable td.num { width: 66px; } }

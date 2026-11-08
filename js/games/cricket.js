@@ -291,8 +291,9 @@ function make(id) {
     },
 
     view(m, g, ctx) {
-      const head = m.sides.map((_, i) =>
-        `<th class="${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="cn">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}${ctx.legInfo(i)}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="cp">${puanli(m) ? g.s[i].pts : ''}</div></th>`).join('');
+      const orta = m.sides.length === 2;
+      const headHucre = i =>
+        `<th class="${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="cn">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}${ctx.legInfo(i)}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="cp">${puanli(m) ? g.s[i].pts : ''}</div></th>`;
       const rows = hedefler(g).map(n => {
         const gizli = T.gizli && !g.acik.includes(n);
         const allClosed = g.s.every(s => s.k[n] >= 3);
@@ -300,10 +301,15 @@ function make(id) {
         // D / T / H / 3B satırları (Demir 09.11: "Türk Kriketi'nde tablodan D, T, H basmıyor"): dokununca hangi sayı diye sorulur
         const dokun = gizli ? '' : typeof n === 'number' ? `data-act="dart" data-n="${n}"` : `data-act="ozelsatir" data-h="${n}"`;
         const tik = dokun ? 'tikla' : '';
-        return `<tr class="${allClosed ? 'dead' : ''} ${gizli ? 'gizli' : ''}"><td class="num ${tik}" ${dokun}>${gizli ? '?' : etiket(n)}</td>` +
-          g.s.map((s, i) => `<td class="${ctx.active(i) ? 'active ' + tik : ''}" ${ctx.active(i) ? dokun : ''}>${markSym(s.k[n], s.tek && s.tek[n])}</td>`).join('') + '</tr>';
+        const sayi = `<td class="num ${tik}" ${dokun}>${gizli ? '?' : etiket(n)}</td>`;
+        const hucre = (s, i) => `<td class="${ctx.active(i) ? 'active ' + tik : ''}" ${ctx.active(i) ? dokun : ''}>${markSym(s.k[n], s.tek && s.tek[n])}</td>`;
+        // İki taraf (Demir 09.11): sayılar ortada, klasik kriket tahtası gibi — solda 1. taraf, sağda 2. taraf
+        const ic = orta ? hucre(g.s[0], 0) + sayi + hucre(g.s[1], 1) : sayi + g.s.map(hucre).join('');
+        return `<tr class="${allClosed ? 'dead' : ''} ${gizli ? 'gizli' : ''}">${ic}</tr>`;
       }).join('');
-      return `<div class="board cricket ${hedefler(g).length > 10 ? 'uzun' : ''}"><table class="ctable"><thead><tr><th></th>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+      const basliklar = m.sides.map((_, i) => headHucre(i));
+      const ust = orta ? basliklar[0] + '<th class="orta-bas"></th>' + basliklar[1] : '<th></th>' + basliklar.join('');
+      return `<div class="board cricket ${orta ? 'orta-sayi' : ''} ${hedefler(g).length > 10 ? 'uzun' : ''}"><table class="ctable"><thead><tr>${ust}</tr></thead><tbody>${rows}</tbody></table></div>`;
     },
 
     summary(m, pid) {
