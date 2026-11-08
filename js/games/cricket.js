@@ -235,6 +235,15 @@ function make(id) {
       for (const n of Object.keys(me.k)) if (once[n] === 0 && me.k[n] >= 3) { (me.tek = me.tek || {})[n] = 1; tekOldu = true; }
       // Sevinç anları (Demir 09.11): House / 3 in a bed / tek okta kapanış → kutlama animasyonu + sesi
       if (m.msg === tr('House!') || m.msg === tr('3 in a bed!')) m.kutla = true;
+      // Demir 09.11: hepsini kapattığı an puanda gerideyse anlık uyarı — nereye vurması gerektiğiyle
+      const kapaliOnce = hedefler(g).every(n => (once[n] || 0) >= 3), kapaliSimdi = hedefler(g).every(n => me.k[n] >= 3);
+      if (!kapaliOnce && kapaliSimdi && puanli(m) && !cezali(m) && m.sides.length > 1 && !r?.legWinner) {
+        const en = Math.max(...g.s.filter(x => x !== me).map(x => x.pts));
+        if (me.pts < en) {
+          const vur = this.vurHedef(m, g);
+          m.msg = tr('Hepsini kapattın ama {0} puan geridesin!', en - me.pts) + (vur.length ? ' ' + tr('Puan için vur: {0}', vur.join(', ')) : '');
+        }
+      }
       else if (tekOldu && !m.msg) { m.msg = tr('Tek okta kapattı!'); m.kutla = true; }
       return r;
     },
@@ -299,6 +308,13 @@ function make(id) {
       }
     },
 
+    // Puan alınabilecek hedefler: ben kapattım, rakiplerden biri kapatmadı (hepsi kapalıyken ipucunun yanında renkli)
+    vurHedef(m, g) {
+      if (!puanli(m) || cezali(m)) return [];
+      const me = g.s[m.cur], others = g.s.filter((_, i) => i !== m.cur);
+      if (!hedefler(g).every(n => me.k[n] >= 3)) return [];
+      return hedefler(g).filter(n => others.some(o => o.k[n] < 3)).map(n => (n === 25 ? 'B' : hedefAd(n)));
+    },
     hint(m, g) {
       const me = g.s[m.cur];
       const left = hedefler(g).filter(n => me.k[n] < 3);
@@ -325,7 +341,7 @@ function make(id) {
       const en = others.reduce((a, b) => (b.s.pts > a.s.pts ? b : a));
       const fark = me.pts - en.s.pts;
       if (fark > 0) return { tur: 'onde', metin: tr('Öndesin · +{0} puan', fark) + (hepsiKapali ? '' : ' · ' + tr('hepsini kapatırsan kazanırsın')) };
-      const yer = puanYeri.length ? ' · ' + tr('puan için vur: {0}', puanYeri.join(', ')) : '';
+      const yer = puanYeri.length && !hepsiKapali ? ' · ' + tr('puan için vur: {0}', puanYeri.join(', ')) : ''; // hepsi kapalıyken hedefler ipucu satırında
       if (fark === 0) return { tur: 'esit', metin: tr('Puan eşit') + yer };
       return { tur: 'geride', metin: (hepsiKapali ? tr('Hepsini kapattın ama {0} puan geridesin', -fark) : tr('{0} puan geridesin', -fark)) + yer };
     },
@@ -339,7 +355,7 @@ function make(id) {
     view(m, g, ctx) {
       const orta = m.sides.length === 2;
       const headHucre = i =>
-        `<th class="${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="cn">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}${ctx.legInfo(i)}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="cp">${puanli(m) ? g.s[i].pts : ''}</div></th>`;
+        `<th class="${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="cn">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}${ctx.legInfo(i)}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="cp">${puanli(m) ? `<small class="cp-et">${T.secimli || cezali(m) ? tr('Ceza') : tr('Puan')}</small><span>${g.s[i].pts}</span>` : ''}</div></th>`;
       const rows = hedefler(g).map(n => {
         const gizli = T.gizli && !g.acik.includes(n);
         const allClosed = g.s.every(s => s.k[n] >= 3);

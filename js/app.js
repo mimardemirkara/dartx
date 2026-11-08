@@ -84,6 +84,7 @@ const UYARI_TUR = [
   [['180!'], { ic: 'ates', a: 'a-zipla', k: 'kutla' }],
   [['{0} leg\'i aldı!', '{0} set\'i aldı!'], { ic: 'kupa', a: 'a-zipla', k: 'good kutla' }],
   [['House!', '3 in a bed!'], { ic: 'ev', a: 'a-zipla', k: 'kutla', ses: 'kutlama' }],
+  [['Hepsini kapattın ama {0}'], { ic: 'dikkat', a: 'a-buyu', k: 'bad', ses: 'hata' }],
   [['Tek okta kapattı!'], { ic: 'dart', a: 'a-dart', k: 'kutla', ses: 'kutlama' }],
   [['SHANGHAI!', 'SHANGHAI +100', 'GOTCHA!'], { ic: 'yildiz', a: 'a-don', k: 'kutla', ses: 'kutlama' }],
   [['KILLER oldun!'], { ic: 'kurukafa', a: 'a-buyu', k: 'killer', ses: 'killer' }],
@@ -788,8 +789,8 @@ function viewPlay() {
     <section class="turn" style="--pc:${p.color}">
       <div class="who">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
       ${useTotal ? `<div class="totalbuf">${S.totalBuf || '0'}</div>` : `<div class="slots">${slots}</div><div class="tp">${turnPts}</div>`}
-      ${hint ? `<div class="hint">${esc(hint)}</div>` : ''}
-      ${(() => { const d = g.durum ? g.durum(m, m.g) : null; return d ? `<div class="durum-satir d-${d.tur}">${DURUM_YUZ[d.tur] || ''}<span>${esc(kelimeBuyuk(d.metin))}</span></div>` : ''; })()}
+      ${hint ? `<div class="hint">${esc(hint)}${(() => { const v = g.vurHedef ? g.vurHedef(m, m.g) : []; return v.length ? ` <span class="hint-vur">${t('Vur')}: ${esc(v.join(' · '))}</span>` : ''; })()}</div>` : ''}
+      ${(() => { const d = g.durum ? g.durum(m, m.g) : null; return d ? `<div class="durum-satir d-${d.tur}">${DURUM_YUZ[d.tur] || ''}<span>${esc(kelimeBuyuk(d.metin)).replace(/([+]?\d+ (Puan|Points|Ceza)|Puan Eşit|\d+ (Puan|Points) Behind)/, '<b class="ds-puan">$1</b>')}</span></div>` : ''; })()}
     </section>
     ${useTotal ? numpad() : keypad(m, g)}
   </div>`;
