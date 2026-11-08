@@ -2143,3 +2143,15 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 .toast.sira .u-ic svg { stroke: #fff !important; stroke-width: 2.6; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .75)) drop-shadow(0 0 1px rgb(0 0 0 / .9)); opacity: 1 !important; }
 /* Ana sayfa "Devam et": altın zeminde siyah yazı, okunur */
 :root .dv-dugme.gold { color: #1a1206 !important; text-shadow: 0 1px 0 rgb(255 255 255 / .35); font-weight: 800; }
+
+/* Onay penceresi: büyük, simgeli, eşit genişlikte düğmeler (Demir 09.11) */
+.onay-kart { width: min(560px, 92vw); }
+.telif-dugmeler.onay-dugmeler { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 20px; }
+.telif-dugmeler.onay-dugmeler.tek { grid-template-columns: 1fr; }
+.onay-dugmeler .onay-tus { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; padding: 0 18px; font-size: 18px; font-weight: 800; border-radius: 22px; }
+.onay-dugmeler .onay-tus svg { flex: none; width: 24px; height: 24px; }
+@media (min-width: 700px) { .onay-dugmeler .onay-tus { min-height: 76px; font-size: 21px; } .onay-dugmeler .onay-tus svg { width: 28px; height: 28px; } }
+:root .onay-dugmeler .onay-tus { min-height: 66px; white-space: nowrap; }
+.onay-kart h2 { font-size: 22px; } .onay-kart p { font-size: 16px; }
+@media (max-width: 520px) { :root .onay-dugmeler .onay-tus { font-size: 16px; padding: 0 10px; gap: 7px; } .onay-dugmeler .onay-tus svg { width: 20px; height: 20px; } }
+@media (min-width: 700px) { :root .onay-dugmeler .onay-tus { min-height: 78px; font-size: 21px; } .onay-kart h2 { font-size: 28px; } .onay-kart p { font-size: 19px; } }
