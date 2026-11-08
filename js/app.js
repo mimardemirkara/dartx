@@ -622,11 +622,12 @@ const CARPI = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 function viewSetup() {
   const g = GAMES[S.gameId];
   const st = S.setup;
-  const opts = (g.options || []).map(o => `<div class="field"><label>${alanIkon(o.key)}${t(o.label)}</label>${chips(o.key, o.values, st.opts[o.key])}</div>`).join('');
+  // Demir 09.11 (A · Ayar satırları): her ayar tek cam satır — solda simge + ad, sağda seçenekler
+  const opts = (g.options || []).map(o => `<div class="field ayar-satir"><label>${alanIkon(o.key)}${t(o.label)}</label>${chips(o.key, o.values, st.opts[o.key])}</div>`).join('');
   const legs = g.legs ? `
-    <div class="field"><label>${alanIkon('legs')}${t('Leg (ilk kazanan)')}</label>${chips('legs', [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6']], st.opts.legs)}</div>
-    <div class="field"><label>${alanIkon('sets')}${t('Set (ilk kazanan)')}</label>${chips('sets', [[1, 'Yok'], [2, '2'], [3, '3'], [4, '4']], st.opts.sets)}</div>` : '';
-  const input = g.totalInput ? `<div class="field"><label>${alanIkon('input')}${t('Skor girişi')}</label>${chips('input', [['darts', 'Ok ok'], ['total', 'Tur toplamı']], st.opts.input)}</div>` : '';
+    <div class="field ayar-satir"><label>${alanIkon('legs')}${t('Leg (ilk kazanan)')}</label><span class="sayac"><button class="sayac-b" data-act="legadim" data-d="-1" ${(st.opts.legs || 1) <= 1 ? 'disabled' : ''} aria-label="${t('Azalt')}">−</button><b>${st.opts.legs || 1}</b><button class="sayac-b" data-act="legadim" data-d="1" ${(st.opts.legs || 1) >= 9 ? 'disabled' : ''} aria-label="${t('Artır')}">+</button></span></div>
+    <div class="field ayar-satir"><label>${alanIkon('sets')}${t('Set (ilk kazanan)')}</label>${chips('sets', [[1, 'Yok'], [2, '2'], [3, '3'], [4, '4']], st.opts.sets)}</div>` : '';
+  const input = g.totalInput ? `<div class="field ayar-satir"><label>${alanIkon('input')}${t('Skor girişi')}</label>${chips('input', [['darts', 'Ok ok'], ['total', 'Tur toplamı']], st.opts.input)}</div>` : '';
 
   const all = data().players;
   st.pids = st.pids.filter(id => all.some(p => p.id === id)); // silinmiş oyuncu sırada kalmasın
@@ -1386,6 +1387,7 @@ app.addEventListener('click', e => {
     case 'rules': S.modal = { type: 'rules', id: S.gameId }; render(); break;
     case 'rulesplay': S.modal = { type: 'rules', id: m.gameId }; render(); break;
     case 'opt': secenekYaz(el.dataset.k, el.dataset.v); break;
+    case 'legadim': { const o = S.setup.opts; o.legs = Math.max(1, Math.min(9, (Number(o.legs) || 1) + Number(el.dataset.d))); vib(6); ses.tus(); render(); break; }
     case 'teams': S.setup.teams = el.dataset.v === '1'; render(); break;
     case 'oyuncusecac': {
       // dokunmatikte üstteki <select multiple> (telefonun seçicisi) zaten açılır; fareyle cam menü

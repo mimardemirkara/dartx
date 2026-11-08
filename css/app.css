@@ -2267,3 +2267,21 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
   .ctable th .legs, .board .side .legs { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 5px; margin: 0; }
   .ctable th .cn, .board .side .side-name { justify-content: center; text-align: center; padding-right: 0; }
 }
+
+/* Kurulum: A · Ayar satırları (Demir 09.11) — her ayar tek cam satır; solda simge + ad, sağda birleşik seçenek grubu */
+.kurulum .field.ayar-satir { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 8px; padding: 10px 12px 10px 14px; text-align: left; border-radius: 18px;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .42), rgb(var(--cam-rgb) / .42)) padding-box, var(--sivi-kenar-isik) border-box;
+  box-shadow: var(--sivi-ic); -webkit-backdrop-filter: var(--bulanik); backdrop-filter: var(--bulanik); }
+.kurulum .field.ayar-satir > label { flex: 1; min-width: 0; margin: 0; justify-content: flex-start; flex-wrap: nowrap; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kurulum .field.ayar-satir > .chips { flex: none; justify-content: flex-end; gap: 0; flex-wrap: nowrap; padding: 3px; border-radius: 99px; background: rgb(0 0 0 / .28); box-shadow: inset 0 1px 2px rgb(0 0 0 / .35); }
+.kurulum .field.ayar-satir > .chips .chip { min-height: 38px; padding: 0 13px; border-radius: 99px; font-size: 14px; margin: 0; }
+.kurulum .field.ayar-satir > .chips .chip:not(.on) { background: transparent !important; border-color: transparent !important; box-shadow: none !important; }
+.kurulum .field.ayar-satir > .secici { margin: 0 !important; flex: none; }
+.kurulum .field.ayar-satir > small { display: none; }
+.sayac { display: inline-flex; align-items: center; gap: 4px; padding: 3px; border-radius: 99px; background: rgb(0 0 0 / .28); box-shadow: inset 0 1px 2px rgb(0 0 0 / .35); }
+.sayac b { min-width: 40px; text-align: center; font-size: 18px; font-weight: 800; }
+.sayac-b { width: 38px; height: 38px; border-radius: 99px; font-size: 22px; font-weight: 700; line-height: 1; display: grid; place-items: center; color: #1c1408;
+  border: 1px solid transparent; background: var(--sivi-isik) padding-box, var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; }
+.sayac-b:disabled { opacity: .35; }
+@media (min-width: 700px) { .kurulum .field.ayar-satir { padding: 12px 14px 12px 18px; } .kurulum .field.ayar-satir > label { font-size: 17px; } .kurulum .field.ayar-satir > .chips .chip { min-height: 44px; padding: 0 16px; font-size: 15px; } }
+@media (max-width: 420px) { .kurulum .field.ayar-satir > .chips .chip { padding: 0 9px; font-size: 13px; } .kurulum .field.ayar-satir > label { font-size: 14px; } }
