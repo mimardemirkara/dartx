@@ -1,3 +1,7 @@
+/* ==== TUŞ RENK KURALI (Demir 09.11) — her tuş türü NEREDE OLURSA OLSUN aynı renk ve cam (algı karışmasın) ====
+   DOUBLE/D mavi 61 139 253 · TRIPLE/T mor 168 98 242 · HOUSE turkuaz 32 196 178 · BULL(25) yeşil 47 179 109
+   D-BULL(50) kırmızı 233 75 60 · Iska çelik 150 160 178 · Son Atışı Geri Al turuncu 245 130 32 · Sıradaki Oyuncu fuşya 214 51 132
+   Cam: var(--sivi-isik) + rgb(--ton) degrade + beyazdan renge kenar. Yeni ekranda aynı --ton ile kullan. */
 /* DartX — demirkara.com cam teması (Liquid Glass) — mobil + tablet
    Cam tarifi sitenin Masaustu "sivi" değişkenlerinden: ışık + ton + kenar ışığı + iç gölge + buzlu bulanıklık. */
 :root {
@@ -2112,10 +2116,10 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
 :root .keypad :is(.k.bull-dis, .k.bull) small { font-size: 14px; font-weight: 800; opacity: .9; }
 @media (min-width: 700px) { :root .keypad :is(.k.bull-dis, .k.bull) .b-ust { font-size: 24px; } :root .keypad :is(.k.bull-dis, .k.bull) small { font-size: 16px; } }
 /* Üstteki Son Atışı Geri Al da turuncu (tuş takımındakiyle aynı) */
-:root .play-top .geri-al { --ton: 245 130 32; color: #fff !important; text-shadow: 0 1px 2px rgb(0 0 0 / .4);
+:root .play .play-top .geri-al { --ton: 245 130 32; color: #fff !important; text-shadow: 0 1px 2px rgb(0 0 0 / .4);
   background: var(--sivi-isik) padding-box, linear-gradient(160deg, rgb(var(--ton) / .82), rgb(var(--ton) / .5)) padding-box, linear-gradient(135deg, #fff 0%, rgb(var(--ton)) 40%, rgb(var(--ton) / .4) 70%, rgb(var(--ton)) 100%) border-box;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / .3), 0 0 18px -4px rgb(var(--ton) / .6); }
-:root .play-top .geri-al:disabled { opacity: .45; box-shadow: none; }
+:root .play .play-top .geri-al:disabled { opacity: .45; box-shadow: none; }
 /* Telefonda mod satırı taşmasın: yazılar sığar, satır ekran genişliğini aşmaz */
 .keypad { min-width: 0; }
 .keypad .mods > .k.mod { overflow: hidden; }
