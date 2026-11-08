@@ -485,7 +485,8 @@ function viewHome() {
       else if (s && typeof s.pts === 'number') { skor = s.pts; skorIc = KURAL_IKON.arti; }
       else if (s && typeof s.lives === 'number') { skor = s.lives; skorIc = KURAL_IKON.kalp; }
       const ad = E.sideName(cur, i, player);
-      return `<span class="dv-oyuncu ${i === cur.cur ? 'sirada' : ''}" style="--pc:${player(cur.sides[i].members[0]).color}">
+      const renk = player(cur.sides[i].members[0]).color;
+      return `<span class="dv-oyuncu ${i === cur.cur ? 'sirada' : ''} ${acikRenk(renk) ? 'dv-acik' : 'dv-koyu'}" style="--pc:${renk}">
         <span class="pc-av">${avatarIc(ad, esc(basHarf(ad)))}</span><span class="dv-ad">${esc(ad)}</span>
         ${skor !== '' ? `<span class="dv-deger">${skorIc}<b>${esc(String(skor))}</b></span>` : ''}
         ${legVar ? `<span class="dv-deger leg">${KURAL_IKON.kupa}<b>${cur.legsWon[i]}</b></span>` : ''}</span>`;
@@ -812,6 +813,12 @@ const GERI_IC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" str
 const yuz = agiz => LUCIDE('<circle cx="12" cy="12" r="10"/>' + agiz + '<line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>', 22, 2.2);
 const DURUM_YUZ = { onde: yuz('<path d="M8 14s1.5 2 4 2 4-2 4-2"/>'), geride: yuz('<path d="M16 16s-1.5-2-4-2-4 2-4 2"/>'), esit: yuz('<line x1="8" x2="16" y1="15" y2="15"/>') };
 const kelimeBuyuk = s => String(s).split(' ').map(w => w ? w.charAt(0).toLocaleUpperCase(dil() === 'en' ? 'en' : 'tr') + w.slice(1) : w).join(' ');
+// Renk açık mı (Demir 09.11: açık renkte yazı siyah, koyu renkte beyaz)
+function acikRenk(hex) {
+  const h = String(hex || '').replace('#', ''); if (h.length < 6) return false;
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => (c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4));
+  return .2126 * r + .7152 * g + .0722 * b > .32;
+}
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;

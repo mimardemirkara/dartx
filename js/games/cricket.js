@@ -355,7 +355,7 @@ function make(id) {
     view(m, g, ctx) {
       const orta = m.sides.length === 2;
       const headHucre = i =>
-        `<th class="${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="cn">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}${ctx.legInfo(i)}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="cp">${puanli(m) ? `<small class="cp-et">${T.secimli || cezali(m) ? tr('Ceza') : tr('Puan')}</small><span>${g.s[i].pts}</span>` : ''}</div></th>`;
+        `<th class="${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="cn">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}${ctx.legInfo(i)}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="cp">${puanli(m) ? g.s[i].pts : ''}</div></th>`;
       const rows = hedefler(g).map(n => {
         const gizli = T.gizli && !g.acik.includes(n);
         const allClosed = g.s.every(s => s.k[n] >= 3);
