@@ -2349,3 +2349,17 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
   .board.cricket:not(.orta-sayi) .ctable th .cn .ad-av { width: 1.7em; height: 1.7em; }
 }
 .ctable th { vertical-align: top; }
+/* Bull / D-Bull yazısı tuşun genişliğine göre küçülür (taşmaz); Iska yazısı büyük */
+:root .keypad :is(.k.bull-dis, .k.bull) { container-type: inline-size; overflow: hidden; padding: 0 6px; }
+:root .keypad :is(.k.bull-dis, .k.bull) .b-ust { font-size: min(24px, 15.5cqw) !important; gap: 4px; }
+:root .keypad .k.miss { font-size: 20px; gap: 8px; }
+:root .keypad .k.miss svg { width: 22px; height: 22px; }
+@media (min-width: 700px) { :root .keypad .k.miss { font-size: 24px; } :root .keypad .k.miss svg { width: 26px; height: 26px; } }
+/* Telefonda 3+ oyuncu: sütunlar dar — başlıkta resim gizli (alttaki kartta görünür), isim sığar */
+@media (max-width: 699px) {
+  .board.cricket:not(.orta-sayi) .ctable th .cn .ad-av { display: none; }
+  .board.cricket:not(.orta-sayi) .ctable th .cn { font-size: 14px; justify-content: center; min-height: 0; padding: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; text-align: center; }
+}
+@media (max-width: 699px) { .board.cricket:not(.orta-sayi) .ctable th .legs { display: none; } }
+:root .keypad :is(.k.bull-dis, .k.bull) .b-ust { font-size: min(26px, 17cqw) !important; }
+:root .keypad :is(.k.bull-dis, .k.bull) small { font-size: min(17px, 12cqw); }
