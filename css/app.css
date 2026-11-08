@@ -1847,3 +1847,34 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea {
   .keypad:not(.numpad) .nums { flex: 1; grid-auto-rows: 1fr; align-content: stretch; }
   .keypad:not(.numpad) .nums .k { min-height: 0; height: 100%; }
 }
+
+/* Seçim penceresi (Demir 09.11): satır yerine uygulama simgesi gibi büyük kutucuklar — tablette kolay dokunma */
+.hs-izgara { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 12px; margin: 8px 0 12px; }
+.hs-izgara .hedef-sec { flex-direction: column; justify-content: center; text-align: center; gap: 8px; min-height: 150px; padding: 16px 10px; border-radius: 26px; }
+.hs-izgara .hedef-sec .hs-ic { width: 64px; height: 64px; border-radius: 20px; }
+.hs-izgara .hedef-sec .hs-ic svg { width: 34px; height: 34px; }
+.hs-izgara .hedef-sec .hs-ad { flex: none; font-size: 22px; }
+.hs-izgara .hedef-sec .hs-not { font-size: 13.5px; }
+@media (min-width: 700px) { .hs-izgara .hedef-sec { min-height: 180px; } .hs-izgara .hedef-sec .hs-ic { width: 76px; height: 76px; } .hs-izgara .hedef-sec .hs-ad { font-size: 26px; } }
+/* kutucuk renkleri: sayı altın, Double mavi, Triple mor, House turuncu (tuşlarla aynı) */
+.hs-izgara .hedef-sec { --ton: 227 184 102; border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .28), rgb(var(--ton) / .10)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .95), rgb(var(--ton) / .3) 35%, rgb(var(--ton) / .12) 65%, rgb(var(--ton) / .7)) border-box !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .2), 0 10px 26px -14px rgb(var(--ton) / .6); color: var(--fg) !important; }
+.hs-izgara .hedef-sec .hs-ic { background: rgb(var(--ton) / .22) !important; color: rgb(var(--ton)); }
+.hs-izgara .hs-D { --ton: 61 139 253; } .hs-izgara .hs-T { --ton: 168 98 242; } .hs-izgara .hs-H { --ton: 240 140 60; }
+
+/* Double / Triple tuşları (Demir 09.11): ayrı renk, daha yüksek. Double mavi cam, Triple mor cam */
+:root .keypad .k.mod[data-m="2"], :root .keypad .k.mod[data-m="3"] { border: 1px solid transparent;
+  background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .26), rgb(var(--ton) / .10)) padding-box,
+    linear-gradient(135deg, rgb(var(--ton) / .9), rgb(var(--ton) / .3) 35%, rgb(var(--ton) / .12) 65%, rgb(var(--ton) / .65)) border-box;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .2), 0 8px 22px -12px rgb(var(--ton) / .5); color: rgb(var(--yazi)); }
+:root .keypad .k.mod[data-m="2"] { --ton: 61 139 253; --yazi: 196 220 255; }
+:root .keypad .k.mod[data-m="3"] { --ton: 168 98 242; --yazi: 228 206 255; }
+:root .keypad .k.mod[data-m="2"].on, :root .keypad .k.mod[data-m="3"].on {
+  background: var(--sivi-isik) padding-box, linear-gradient(180deg, rgb(var(--ton) / .75), rgb(var(--ton) / .5)) padding-box, linear-gradient(135deg, #fff, rgb(var(--ton))) border-box;
+  color: #fff; box-shadow: 0 0 0 2px rgb(var(--ton) / .5), 0 0 26px rgb(var(--ton) / .7); }
+:root[data-tema="acik"] .keypad .k.mod[data-m="2"] { --yazi: 20 70 160; } :root[data-tema="acik"] .keypad .k.mod[data-m="3"] { --yazi: 90 40 150; }
+.keypad .k.mod { min-height: 58px; font-size: 17px; }
+.keypad .k.mod svg { width: 22px; height: 22px; }
+@media (min-width: 700px) { .keypad .k.mod { min-height: 72px; font-size: 19px; } .keypad .k.mod svg { width: 26px; height: 26px; } }

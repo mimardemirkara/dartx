@@ -579,8 +579,11 @@ function chips(key, values, cur, act = 'opt') {
 // Tekli / Takım seçeneklerinin simgeleri (lucide user / users)
 // Oyun tuşlarının simgeleri (Demir 08.11): Double = iki katman, Triple = üç katman, Bull = hedef, Iska = yasak işareti
 const TUS_IC = {
-  double: LUCIDE('<path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74z"/><path d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845"/>', 16, 2),
-  triple: LUCIDE('<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>', 16, 2),
+  // Demir 09.11 öneri: dart tahtası; double = dış ince halka dolu, triple = orta halka dolu
+  double: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke-width="3.6"/><circle cx="12" cy="12" r="6.4" opacity=".55"/><circle cx="12" cy="12" r="3.6" opacity=".55"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" opacity=".7"/></svg>',
+  triple: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="10" opacity=".55"/><circle cx="12" cy="12" r="6.4" stroke-width="3.6"/><circle cx="12" cy="12" r="3.6" opacity=".55"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" opacity=".7"/></svg>',
+  eskiDouble: LUCIDE('<path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74z"/><path d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845"/>', 16, 2),
+  eskiTriple: LUCIDE('<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>', 16, 2),
   bull: LUCIDE('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', 16, 2),
   disBull: LUCIDE('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/>', 16, 2), // lucide "disc"
   iska: LUCIDE('<circle cx="12" cy="12" r="10"/><path d="M4.929 4.929 19.07 19.071"/>', 15, 2),
@@ -1124,12 +1127,12 @@ function modal() {
     // Cezalı Kriket: double / triple / house nereye yazılsın
     const etk = md.ok.n === 25 ? (md.ok.m === 2 ? 'D-Bull' : 'Bull') : (md.ok.m === 3 ? 'T' : md.ok.m === 2 ? 'D' : '') + md.ok.n;
     body = `<h2>${t('{0} nereye yazılsın?', esc(etk))}</h2>
-      ${md.sec.map((x, i) => {
+      <div class="hs-izgara">${md.sec.map((x, i) => {
         // simge solda (tuş takımı ve uyarılarla aynı), adı ortada, kaç işaret yazılacağı sağda küçük (Demir 09.11)
         const ic = { n: TUS_IC.bull, D: TUS_IC.double, T: TUS_IC.triple, H: HS_EV }[x.v] || TUS_IC.bull;
         const [ad, not = ''] = String(x.l).split(' · ');
-        return `<button class="btn ${i === 0 ? 'primary' : ''} hedef-sec" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span></button>`;
-      }).join('')}
+        return `<button class="btn hedef-sec hs-${x.v === 'n' ? 'sayi' : x.v}" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span></button>`;
+      }).join('')}</div>
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
   } else if (md.type === 'ilksira') {
     const m = data().current; if (!m) { S.modal = null; return ''; }
