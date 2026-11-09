@@ -2739,3 +2739,14 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
   .play .board.cricket.orta-sayi .ctable th .cn { display: inline-flex; vertical-align: middle; min-height: 0; padding: 2px 0; }
   .play .board.cricket.orta-sayi .ctable th .cp { display: inline-block; vertical-align: middle; margin: 0 0 0 10px; font-size: 26px; line-height: 1; }
 }
+/* Sayı şeridi (Demir 10.11, öneri B): ortadaki sayılar da ince altın kartta; ayraçlar oyuncu kartlarıyla aynı hizada */
+:root .ctable.kartli td.num {
+  border: solid rgb(227 184 102 / .38); border-width: 0 1px; border-radius: 0 !important;
+  background: linear-gradient(rgb(227 184 102 / .12), rgb(227 184 102 / .08));
+  box-shadow: inset 0 1px 0 rgb(227 184 102 / .16);
+}
+:root .ctable.kartli tbody tr:first-child td.num { border-top-width: 1px; border-radius: 12px 12px 0 0 !important; box-shadow: none; }
+:root .ctable.kartli tbody tr:last-child td.num { border-bottom-width: 1px; border-radius: 0 0 12px 12px !important; }
+:root .ctable.kartli tr.dead td.num { opacity: 1; color: rgb(227 184 102 / .4); }
+:root[data-tema="acik"] .ctable.kartli td.num { border-color: rgb(150 105 30 / .4); background: linear-gradient(rgb(227 184 102 / .22), rgb(227 184 102 / .15)); box-shadow: inset 0 1px 0 rgb(150 105 30 / .18); }
+:root[data-tema="acik"] .ctable.kartli tbody tr:first-child td.num { box-shadow: none; }
