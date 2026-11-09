@@ -2696,3 +2696,28 @@ a.ay-satir { text-decoration: none; color: inherit; }
   .play .board.cricket .ctable th .cn { padding: 1px 0; min-height: 0; }
   .play .board.cricket .ctable th .cn .ad-av { width: 1.6em; height: 1.6em; }
 }
+
+/* ═══ Kriket tahtası: oyuncu kartı (Demir 10.11, öneri C) ═══
+   Her oyuncunun bütün satırları tek cam kartta; satırlar arasında ince ayraç; sırası gelenin kartı kendi renginde çerçeveli */
+:root .ctable.kartli { border-spacing: 6px 0 !important; }
+:root .ctable.kartli tr.ust-ara th { height: 6px; padding: 0; border: 0; background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root .ctable.kartli tr.ust-ara th::after { display: none; }
+:root .ctable.kartli td.oy {
+  border-radius: 0 !important; border: solid rgb(255 255 255 / .13); border-width: 0 1px;
+  background: linear-gradient(rgb(var(--cam-rgb) / .62), rgb(var(--cam-rgb) / .52)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .06) !important;
+}
+:root .ctable.kartli tbody tr:first-child td.oy { border-top-width: 1px; border-radius: 14px 14px 0 0 !important; box-shadow: inset 0 1px 0 rgb(255 255 255 / .14) !important; }
+:root .ctable.kartli tbody tr:last-child td.oy { border-bottom-width: 1px; border-radius: 0 0 14px 14px !important; }
+:root .ctable.kartli tbody tr:only-child td.oy { border-radius: 14px !important; }
+:root .ctable.kartli td.oy.active { border-color: color-mix(in srgb, var(--pc) 85%, white 15%); border-width: 0 1.5px;
+  background: linear-gradient(color-mix(in srgb, var(--pc) 16%, rgb(var(--cam-rgb) / .6)), color-mix(in srgb, var(--pc) 10%, rgb(var(--cam-rgb) / .5))) !important; }
+:root .ctable.kartli tbody tr:first-child td.oy.active { border-top-width: 1.5px; box-shadow: inset 0 1px 0 rgb(255 255 255 / .14), 0 -4px 14px -6px var(--pc) !important; }
+:root .ctable.kartli tbody tr:last-child td.oy.active { border-bottom-width: 1.5px; box-shadow: 0 6px 16px -8px var(--pc) !important; }
+:root .ctable.kartli tr.dead td.oy { opacity: 1; color: rgb(255 255 255 / .35); }
+:root .ctable.kartli tr.dead td.num { opacity: .35; }
+:root[data-tema="acik"] .ctable.kartli td.oy { border-color: rgb(60 45 30 / .16); box-shadow: inset 0 1px 0 rgb(60 45 30 / .07) !important; }
+:root[data-tema="acik"] .ctable.kartli tr.dead td.oy { color: rgb(60 45 30 / .35); }
+/* Sıra DartBot'ta (Demir 10.11): tuş takımı ve tablo pasif, soluk; bot atarken basılamaz */
+.play.bot-sirasi .keypad, .play.bot-sirasi .board .tikla { pointer-events: none; }
+.play.bot-sirasi .keypad { opacity: .45; filter: saturate(.6); transition: opacity .3s, filter .3s; }

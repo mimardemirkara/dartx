@@ -357,17 +357,18 @@ function tabloSigdir() {
   const anahtar = [satirlar, tablo.tHead ? tablo.tHead.rows[0].cells.length : 0, alan.clientHeight, alan.clientWidth].join('|');
   const uygula = y => { if (y == null) { tablo.classList.remove('olcekli'); tablo.style.removeProperty('--satir'); } else { tablo.classList.add('olcekli'); tablo.style.setProperty('--satir', y + 'px'); } };
   if (tabloOlcu && tabloOlcu.anahtar === anahtar) { uygula(tabloOlcu.y); return; }
-  // yeni ölçü: önce doğal boyutta sığıyor mu?
+  // yeni ölçü (Demir 10.11): satır yüksekliği, tablo alanı dolduracak şekilde sığan en büyük değer
+  // (uzun tabloda incelir, az satırlıda büyür; boşluk kalmaz). Kısa ekranda en az 12 px, telefonda en çok 52, tablette 72.
   uygula(null);
   let y = null;
-  if (satirlar && alan.scrollHeight > alan.clientHeight + 1) {
-    tablo.classList.add('olcekli'); // sıkı satır aralığıyla ölç
+  if (satirlar) {
+    const enAz = innerHeight < 760 ? 12 : 16, enCok = innerWidth >= 700 ? 72 : 52;
+    const sigar = v => { uygula(v); return alan.scrollHeight <= alan.clientHeight + 1; };
     const bas = tablo.tHead ? tablo.tHead.getBoundingClientRect().height : 0;
-    const enAz = innerHeight < 760 ? 12 : 16; // kısa ekran (iPhone SE, iPhone Duo kapalı): satır 12 px'e kadar incelir
-    y = Math.max(enAz, Math.floor((alan.clientHeight - bas - (satirlar + 2) * 2 - 6) / satirlar));
+    y = Math.max(enAz, Math.min(enCok, Math.floor((alan.clientHeight - bas - 4) / satirlar)));
+    while (y > enAz && !sigar(y)) y--;
+    while (y < enCok && sigar(y + 1)) y++;
     uygula(y);
-    // yazı / işaret yüzünden birkaç piksel taşarsa incelt (yalnız ilk ölçümde, en çok birkaç adım)
-    while (alan.scrollHeight > alan.clientHeight + 1 && y > enAz) { y--; uygula(y); }
   }
   tabloOlcu = { anahtar, y };
 }
@@ -837,7 +838,7 @@ function viewPlay() {
   const legTxt = cokLeg ? `${(m.opts.sets || 1) > 1 ? `<span class="pt-seg"><i>${t('Set')}</i><b>${setNo}</b></span>` : ''}<span class="pt-seg"><i>${t('Leg')}</i><b>${m.legNo}</b></span>` : '';
   const useTotal = g.totalInput && m.opts.input === 'total';
   const tabloYaz = tabloYazAcik(m, g);
-  return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''}">
+  return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''} ${botSirasi(m) ? 'bot-sirasi' : ''}">
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
@@ -903,7 +904,7 @@ addEventListener('scroll', e => {
 // Atışı Geri Al'a uzun basma → geri al listesi
 let uzunBasildi = false, uzunT = null;
 app.addEventListener('pointerdown', e => {
-  const b = e.target.closest('[data-act="undo"]'); if (!b || b.disabled) return;
+  const b = e.target.closest('[data-act="undo"]'); if (!b || b.disabled || botSirasi(data().current)) return;
   clearTimeout(uzunT);
   uzunT = setTimeout(() => { uzunBasildi = true; vib(25); ses.tus(); S.modal = { type: 'gerilist' }; render(); }, 550);
 });
@@ -919,6 +920,7 @@ const BOT_SV_IC = {
 };
 const BOT_IC = LUCIDE('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>', 22, 2);
 let botT = null, botEl = [];
+function botSirasi(m) { if (!m || m.done) return false; const p = player(E.currentPid(m)); return !!(p && p.bot); }
 function botKontrol() {
   clearTimeout(botT);
   const m = data().current;
@@ -1531,6 +1533,8 @@ app.addEventListener('click', e => {
   if (el.tagName === 'FORM' || el.tagName === 'INPUT') return;
   if (S.dilAcik && act !== 'dilac' && act !== 'dil') { S.dilAcik = false; render(); }
   const m = data().current;
+  // Sıra DartBot'taysa tuş takımı ve tablo kilitli (Demir 10.11: yanlışlıkla basınca botun eli bozuluyordu)
+  if (S.view === 'play' && botSirasi(m) && el.closest('.keypad, .board, .numpad')) { vib(6); return; }
 
   switch (act) {
     case 'tab': go(el.dataset.v); break;

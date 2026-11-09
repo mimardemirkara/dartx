@@ -422,14 +422,14 @@ function make(id) {
         const dokun = gizli ? '' : typeof n === 'number' ? `data-act="dart" data-n="${n}"` : `data-act="ozelsatir" data-h="${n}"`;
         const tik = dokun ? 'tikla' : '';
         const sayi = `<td class="num ${tik}" ${dokun}>${gizli ? '?' : etiket(n)}</td>`;
-        const hucre = (s, i) => `<td class="${ctx.active(i) ? 'active ' + tik : ''}" ${ctx.active(i) ? dokun : ''}>${markSym(s.k[n], s.tek && s.tek[n])}</td>`;
+        const hucre = (s, i) => `<td class="oy ${ctx.active(i) ? 'active ' + tik : ''}" style="--pc:${ctx.color(i)}" ${ctx.active(i) ? dokun : ''}>${markSym(s.k[n], s.tek && s.tek[n])}</td>`;
         // İki taraf (Demir 09.11): sayılar ortada, klasik kriket tahtası gibi — solda 1. taraf, sağda 2. taraf
         const ic = orta ? hucre(g.s[0], 0) + sayi + hucre(g.s[1], 1) : sayi + g.s.map(hucre).join('');
         return `<tr class="${allClosed ? 'dead' : ''} ${gizli ? 'gizli' : ''}">${ic}</tr>`;
       }).join('');
       const basliklar = m.sides.map((_, i) => headHucre(i));
       const ust = orta ? basliklar[0] + '<th class="orta-bas"></th>' + basliklar[1] : '<th></th>' + basliklar.join('');
-      return `<div class="board cricket ${orta ? 'orta-sayi' : ''} ${hedefler(g).length > 10 ? 'uzun' : ''}"><table class="ctable"><thead><tr>${ust}</tr></thead><tbody>${rows}</tbody></table></div>`;
+      return `<div class="board cricket ${orta ? 'orta-sayi' : ''} ${hedefler(g).length > 10 ? 'uzun' : ''}"><table class="ctable kartli"><thead><tr>${ust}</tr><tr class="ust-ara"><th colspan="${m.sides.length + 1}"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
     },
 
     summary(m, pid) {
