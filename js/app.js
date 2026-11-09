@@ -1714,7 +1714,11 @@ app.addEventListener('click', e => {
     case 'sesliokuma': {
       const st = data().settings; st.sesliOkuma = !st.sesliOkuma; store.save(); vib(8);
       if (st.sesliOkuma) okuma.oku(t('Sesli okuma açık'), true);
-      render(); break;
+      // Demir 09.11: menüdeyken ekranı baştan çizme (menü kapanıp açılıyordu) — yalnız düğmeler güncellenir
+      const acik = !!st.sesliOkuma;
+      document.querySelectorAll('.menu-okuma').forEach(b => { b.classList.toggle('acik', acik); const y = b.querySelector('b'); if (y) y.textContent = acik ? t('Açık') : t('Kapalı'); });
+      document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', acik); b.innerHTML = acik ? SESLI_IC : SESSIZ_IC; b.title = t('Sesli Okuma') + ': ' + (acik ? t('Açık') : t('Kapalı')); });
+      break;
     }
     case 'gerilist': { // listeden bir hamleye kadar tek seferde geri dön
       const n = Number(el.dataset.n);
