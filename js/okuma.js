@@ -6,10 +6,10 @@ import { dil } from './i18n.js';
 import { checkout } from './checkout.js';
 
 const TR = { triple: 'Tripıl', double: 'Dabıl', bull: 'Bul', dbull: 'Dabıl bul', iska: 'Iska', bust: 'Bast', oyun: 'Geym şat', yuzseksen: 'Yüz seksen!', kalan: 'kalan', sira: 'Sıra' };
-const EN = { triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next' };
+const EN = { triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next up,' };
 const S = () => (dil() === 'en' ? EN : TR);
 
-export const acikMi = () => data().settings.sesliOkuma === true;
+export const acikMi = () => data().settings.sesliOkuma === true && data().settings.sessiz !== true;
 export const destekli = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 
 let sesler = [];
@@ -49,23 +49,29 @@ export function atisOku(m, res, ad) {
   const k = S();
   const son = (m.adimlar || []).slice().reverse().find(a => a.t === 'd');
   const ok = son ? son.d : null;
-  if (res.event === 'dart') { oku(okSozu(ok), true); return; }
-  if (res.event === 'bust') { oku(k.bust, true); return; }
-  if (res.event === 'leg' || res.event === 'set' || res.event === 'match') { oku(k.oyun, true); return; }
+  // Demir 09.11: her ok basıldığı anda okunur, hiçbiri kesilmez (elin son oku dahil); özet okların arkasından gelir
+  if (res.event !== 'undo') oku(okSozu(ok));
+  if (res.event === 'dart') return;
+  if (res.event === 'bust') { oku(k.bust); if (ad) oku(`${k.sira} ${ad}`); return; }
+  if (res.event === 'leg' || res.event === 'set' || res.event === 'match') { oku(k.oyun); return; }
   if (res.event !== 'turn') return;
   if (x01Mi(m)) {
-    // X01: el toplamı, sonra sıradakinin kalanı ve bitirişi (170 ve altı)
+    // X01: el toplamı, sonra sıradaki; kalanı 170 ve altıysa kalan ve bitiriş yolu
     const l = m.log && m.log[m.log.length - 1];
     const top = l ? l.points : null;
-    const metin = top === 180 ? k.yuzseksen : top != null ? String(top) : okSozu(ok);
-    oku(metin, true);
+    if (top != null) oku(top === 180 ? k.yuzseksen : String(top));
     const s = m.g.s[m.cur];
-    if (s && s.open !== false && s.score <= 170) {
-      const yol = checkout(s.score, 3, m.opts.out);
-      if (yol) oku(dil() === 'en' ? `${ad}, ${k.kalan} ${s.score}. ${yol.map(okSozu).join(', ')}` : `${ad}, ${k.kalan} ${s.score}. ${yol.map(okSozu).join(', ')}`);
-    }
-  } else {
-    oku(okSozu(ok), true);
-    if (ad) oku(dil() === 'en' ? `${ad}` : `${k.sira} ${ad}`);
-  }
+    const yol = s && s.open !== false && s.score <= 170 ? checkout(s.score, 3, m.opts.out) : null;
+    if (yol) oku(`${k.sira} ${ad}, ${k.kalan} ${s.score}. ${yol.map(okSozu).join(', ')}`);
+    else if (ad) oku(`${k.sira} ${ad}`);
+  } else if (ad) oku(`${k.sira} ${ad}`);
 }
+
+/** Okuma bitince cb (en çok enCok ms bekler) — sıra uyarısı konuşmanın üstüne binmesin */
+export function bitince(cb, enCok = 4500) {
+  if (!acikMi() || !destekli()) { cb(); return; }
+  const bas = Date.now();
+  const bak = () => { if (!speechSynthesis.speaking && !speechSynthesis.pending) cb(); else if (Date.now() - bas > enCok) cb(); else setTimeout(bak, 120); };
+  setTimeout(bak, 150);
+}
+export function sustur() { if (destekli()) speechSynthesis.cancel(); }

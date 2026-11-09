@@ -49,8 +49,9 @@ function gurultu({ sure = 0.05, vol = 0.4, gec = 0, suzgec = 1800 }) {
   s.start(t0); s.stop(t0 + sure + 0.02);
 }
 
-const tusAcik = () => data().settings.tusSes !== false;
-const oyunAcik = () => data().settings.oyunSes !== false;
+const sessiz = () => data().settings.sessiz === true; // üst çubuktaki ses menüsü: Bütün sesler kapalı
+const tusAcik = () => !sessiz() && data().settings.tusSes !== false;
+const oyunAcik = () => !sessiz() && data().settings.oyunSes !== false;
 
 // ---- tuş sesi: kısa, yumuşak tık
 export function tus() {

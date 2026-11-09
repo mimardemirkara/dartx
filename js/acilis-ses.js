@@ -14,7 +14,7 @@ function getCtx() {
 
 /** Ses bağlamını açmayı dener; tarayıcı 250 ms içinde açarsa bağlamı verir, açmazsa (izin yok) null. */
 async function hazir() {
-  if (data().settings.oyunSes === false) return null; // Ayarlar > Oyun sesleri kapalıysa açılış da sessiz
+  if (data().settings.oyunSes === false || data().settings.sessiz === true) return null; // Ayarlar > Oyun sesleri kapalıysa açılış da sessiz
   const c = getCtx();
   if (!c) return null;
   if (c.state === 'running') return c;

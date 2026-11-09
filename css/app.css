@@ -2837,3 +2837,7 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .play-top .pt-ses svg { width: 20px; height: 20px; }
 .play-top .pt-ses.acik { color: rgb(47 179 109); box-shadow: var(--sivi-ic), inset 0 0 0 1.5px rgb(47 179 109 / .55); }
 @media (min-width: 700px) { .play-top .pt-ses { width: 46px; height: 46px; } .play-top .pt-ses svg { width: 22px; height: 22px; } }
+
+/* Üst çubukta ses tuşu (Demir 09.11): bütün sesler kapalıyken üstü çizili ve soluk */
+.menu-cubugu .mc-ses svg { width: 19px; height: 19px; }
+.menu-cubugu .mc-ses.kapali { opacity: .6; color: rgb(233 75 60); }

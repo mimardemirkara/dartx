@@ -157,10 +157,12 @@ function siraGoster(m, gecikme) {
   const bo = S.botOzet; S.botOzet = null;
   if (bo) gecikme = (gecikme || 0) + 500;
   const yazi = (bo ? `<span class="bot-ozet"><b>${esc(bo.ad)}</b>${bo.oklar.map(x => `<i>${esc(x)}</i>`).join('')}</span>` : '') + (dil() === 'tr' ? `Sıra <b>${esc(p.name)}</b>${bulunmaEki(p.name)}` : `<b>${esc(p.name)}</b>'s turn`) + (takim ? `<small>${esc(takim)}</small>` : '');
-  siraT1 = setTimeout(() => {
+  const goster = () => {
     toast(yazi, 'sira', { tur: { ic: botMu(p.name) ? 'bot' : adResim(p.name) ? 'resim:' + adResim(p.name) : 'kisi', a: 'a-gec', k: 'sira' }, renk: p.color });
-    ses.oyun('sira');
-  }, gecikme);
+    if (!okuma.acikMi()) ses.oyun('sira'); // Demir 09.11: sesli okuma "Sıra …" diyor, efekt çakışmasın
+  };
+  // sesli okuma açıksa uyarı okuma bitince gelir (görüntü ve ses üst üste binmesin)
+  siraT1 = setTimeout(() => (okuma.acikMi() ? okuma.bitince(goster) : goster()), gecikme);
 }
 
 // Sevinç anı (Demir 09.11): uyarının çevresinden altın / yeşil / beyaz konfeti ve yıldız patlar
@@ -289,6 +291,7 @@ function topbar() {
       <span class="mc-menuler">${menu}</span>
     </div>
     <div class="mc-sag">
+      <button class="mc-dugme mc-ses ${data().settings.sessiz ? 'kapali' : ''}" data-act="sesmenu" aria-label="${t('Sesler')}" title="${t('Sesler')}">${data().settings.sessiz ? SESSIZ_IC : SESLI_IC}</button>
       <button class="mc-dugme mc-ara" data-act="ara" aria-label="${t('Ara')}" title="${t('Ara')}">${IC.ara}</button>
       <button class="mc-dugme" data-act="temadon" aria-label="${t('Tema')}: ${t(TEMA_AD[tema])}" title="${t('Tema')}: ${t(TEMA_AD[tema])}">${temaIc}</button>
       <span class="mc-hava mc-hava-uzun" data-hava="uzun" ${hava ? '' : 'hidden'}>${havaYaz(true)}</span>
@@ -844,7 +847,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
-      ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? SESLI_IC : SESSIZ_IC}</button>` : ''}
+      ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? OKUMA_IC : OKUMA_KAPALI_IC}</button>` : ''}
       <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
@@ -884,6 +887,9 @@ function acikRenk(hex) {
 // Sesli okuma (Demir 09.11): hoparlör simgesi
 const SESLI_IC = LUCIDE('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>', 22, 2);
 const SESSIZ_IC = LUCIDE('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>', 22, 2);
+// Sesli okuma simgesi (Demir 09.11: "hoparlör değil, sesli okumayla ilgili"): konuşan kişi (lucide speech); kapalıyken üstü çizili
+const OKUMA_IC = LUCIDE('<path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/>', 22, 2);
+const OKUMA_KAPALI_IC = LUCIDE('<path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="m16 8 6 6"/><path d="m22 8-6 6"/>', 22, 2);
 const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
 // Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
 const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
@@ -1364,7 +1370,7 @@ function modal() {
         ${kutu('home', DURAKLAT_IC, t('Maça Ara Ver'), t('Maç Kayıtlı Kalır'), 'mk-celik')}
         ${kutu('abort', KURAL_IKON.bust, t('Maçı İptal Et'), '', 'mk-kirmizi')}
       </div>
-      ${okuma.destekli() ? `<button class="btn menu-okuma ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma">${SESLI_IC}<span>${t('Sesli Okuma')}</span><b>${okuma.acikMi() ? t('Açık') : t('Kapalı')}</b></button>` : ''}`;
+      ${okuma.destekli() ? `<button class="btn menu-okuma ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma">${OKUMA_IC}<span>${t('Sesli Okuma')}</span><b>${okuma.acikMi() ? t('Açık') : t('Kapalı')}</b></button>` : ''}`;
   } else if (md.type === 'hedefsec') {
     // Cezalı Kriket: double / triple / house nereye yazılsın
     const etk = md.ok.n === 25 ? (md.ok.m === 2 ? 'D-Bull' : 'Bull') : (md.ok.m === 3 ? 'T' : md.ok.m === 2 ? 'D' : '') + md.ok.n;
@@ -1711,13 +1717,42 @@ app.addEventListener('click', e => {
       const p = store.addPlayer(ad); store.updatePlayer(p.id, { bot: sv });
       vib(10); ses.tus(); toast(t('{0} eklendi', ad), 'good'); render(); break;
     }
+    case 'sesmenu': {
+      // Demir 09.11: üst çubukta ses menüsü — bütün sesler, sesli okuma, tuş sesi, oyun efektleri
+      const st = data().settings;
+      const liste = () => [
+        { v: 'sessiz', l: t('Bütün sesler'), on: st.sessiz !== true },
+        ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true && st.sessiz !== true }] : []),
+        { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false && st.sessiz !== true },
+        { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false && st.sessiz !== true },
+      ];
+      acilirAc(el, liste, v => {
+        if (v === 'sessiz') { st.sessiz = !st.sessiz; if (st.sessiz) okuma.sustur(); }
+        else {
+          // tek bir ses açılırsa "bütün sesler kapalı" kalkar
+          const acik = v === 'sesliOkuma' ? st.sesliOkuma === true : st[v] !== false;
+          if (st.sessiz) { st.sessiz = false; st[v] = true; } else st[v] = v === 'sesliOkuma' ? !acik : !acik;
+          if (v === 'sesliOkuma' && st.sesliOkuma) okuma.oku(t('Sesli okuma açık'));
+          if (v === 'sesliOkuma' && !st.sesliOkuma) okuma.sustur();
+          if (v === 'tusSes' && st.tusSes) ses.tus();
+        }
+        store.save(); vib(6);
+        document.querySelectorAll('.mc-ses').forEach(b => { b.classList.toggle('kapali', !!st.sessiz); b.innerHTML = st.sessiz ? SESSIZ_IC : SESLI_IC; });
+        const ok = okuma.acikMi();
+        document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', ok); b.innerHTML = ok ? OKUMA_IC : OKUMA_KAPALI_IC; });
+      }, { coklu: true, baslik: t('Sesler') });
+      break;
+    }
     case 'sesliokuma': {
-      const st = data().settings; st.sesliOkuma = !st.sesliOkuma; store.save(); vib(8);
+      const st = data().settings;
+      if (st.sessiz) { st.sessiz = false; st.sesliOkuma = true; document.querySelectorAll('.mc-ses').forEach(b => { b.classList.remove('kapali'); b.innerHTML = SESLI_IC; }); }
+      else st.sesliOkuma = !st.sesliOkuma;
+      store.save(); vib(8);
       if (st.sesliOkuma) okuma.oku(t('Sesli okuma açık'), true);
       // Demir 09.11: menüdeyken ekranı baştan çizme (menü kapanıp açılıyordu) — yalnız düğmeler güncellenir
-      const acik = !!st.sesliOkuma;
+      const acik = okuma.acikMi();
       document.querySelectorAll('.menu-okuma').forEach(b => { b.classList.toggle('acik', acik); const y = b.querySelector('b'); if (y) y.textContent = acik ? t('Açık') : t('Kapalı'); });
-      document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', acik); b.innerHTML = acik ? SESLI_IC : SESSIZ_IC; b.title = t('Sesli Okuma') + ': ' + (acik ? t('Açık') : t('Kapalı')); });
+      document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', acik); b.innerHTML = acik ? OKUMA_IC : OKUMA_KAPALI_IC; b.title = t('Sesli Okuma') + ': ' + (acik ? t('Açık') : t('Kapalı')); });
       break;
     }
     case 'gerilist': { // listeden bir hamleye kadar tek seferde geri dön
