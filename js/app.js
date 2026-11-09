@@ -534,15 +534,20 @@ function viewHome() {
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge yakinda">${ikon('grp-online')}<i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Online')}</span></button>`
     + `<button class="app" data-act="tab" data-v="about"><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="app-ad">${t('Hakkında')}</span></button>`;
   // Ara verilmiş diğer maçlar (Demir 10.11): büyük kartın altında küçük satırlar — Devam ve Sil
-  const araListe = (data().ara || []).length ? `<div class="ara-liste glass">
-      <div class="ara-bas">${DURAKLAT_IC}<span>${t('Ara verilen maçlar')}</span><small>${data().ara.length}</small></div>
-      ${data().ara.map(am => { const ag = GAMES[am.gameId]; if (!ag) return '';
-        const adlar = am.sides.map((_, i) => E.sideName(am, i, player)).join(' · ');
-        return `<div class="ara-satir"><span class="app-ico simge ara-ic">${ikon(ag.id)}</span>
-          <span class="ara-govde"><b>${esc(gt(ag, 'name'))}</b><small>${esc(adlar)} · ${t('Tur {0}', am.round)}</small></span>
-          <button class="ara-sil" data-act="arasil" data-id="${am.id}" aria-label="${t('Sil')}">${CARPI}</button>
-          <button class="pill gold ara-devam" data-act="aradevam" data-id="${am.id}">${t('Devam')}</button></div>`; }).join('')}
+  // Demir 10.11 ("tek liste yap"): bütün yarım maçlar tek listede — en son oynanan en üstte ve büyük
+  const yarim = [cur, ...(data().ara || [])].filter(Boolean);
+  const satir = (am, ilk) => { const ag = GAMES[am.gameId]; if (!ag) return '';
+    const adlar = am.sides.map((_, i) => E.sideName(am, i, player)).join(' · ');
+    const sirada = !am.done ? E.sideName(am, am.cur, player) : '';
+    return `<div class="ara-satir ${ilk ? 'ilk' : ''}"><span class="app-ico simge ara-ic">${ikon(ag.id)}</span>
+      <span class="ara-govde"><b>${esc(gt(ag, 'name'))}</b><small>${esc(adlar)} · ${t('Tur {0}', am.round)}</small>${ilk && sirada ? `<small class="ara-sira">${KURAL_IKON.oynat}${t('Sırada')} <b>${esc(sirada)}</b></small>` : ''}</span>
+      <button class="ara-sil" data-act="arasil" data-id="${am.id}" aria-label="${t('Sil')}">${CARPI}</button>
+      <button class="pill gold ara-devam" data-act="${ilk ? 'resume' : 'aradevam'}" data-id="${am.id}">${t('Devam')}</button></div>`; };
+  const araListe = yarim.length ? `<div class="ara-liste glass">
+      <div class="ara-bas">${DURAKLAT_IC}<span>${t('Yarım Maçlar')}</span><small>${yarim.length}</small></div>
+      ${yarim.map((am, i) => satir(am, i === 0)).join('')}
     </div>` : '';
+  widget = '';
   return `<main class="page home">${header('')}${ara}${widget}${araListe}<div class="apps ana">${klasorler}${menu}</div></main>`;
 }
 
@@ -1455,9 +1460,9 @@ app.addEventListener('click', e => {
     }
     case 'aradevam': { E.clearUndo(); const am = store.araDevam(el.dataset.id); if (am) { go('play'); if (!am.done) siraGoster(am, 350); } break; }
     case 'arasil': {
-      const am = data().ara.find(x => x.id === el.dataset.id); if (!am) break;
+      const am = [data().current, ...data().ara].find(x => x && x.id === el.dataset.id); if (!am) break;
       onayla({ baslik: t('Yarım maç silinsin mi?'), metin: t('{0} maçı kaydedilmeden silinir.', gt(GAMES[am.gameId], 'name')), evet: t('Sil'), tehlike: true })
-        .then(ok => { if (ok) { store.araSil(am.id); render(); } });
+        .then(ok => { if (ok) { if (data().current && data().current.id === am.id) { data().current = null; store.save(); E.clearUndo(); } else store.araSil(am.id); render(); } });
       break;
     }
 

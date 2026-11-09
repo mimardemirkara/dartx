@@ -1,6 +1,8 @@
 // X01: 301 / 501 / 701
 import { dartValue, dartLabel, esc, adAvatar } from '../util.js';
 import { checkout } from '../checkout.js';
+// lucide crosshair (hedef) — bitiriş önerisi simgesi
+const BITIS_IC = '<svg class="bitis-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>';
 import { t as tr } from '../i18n.js';
 
 const finishOk = (d, out) => (out === 'single' ? true : out === 'master' ? d.m >= 2 : d.m === 2);
@@ -96,7 +98,8 @@ export default {
     if (!s.open) return tr('Başlamak için double vur');
     const left = 3 - m.turnDarts.length;
     const route = checkout(s.score, left, m.opts.out);
-    if (route) return tr('Bitiriş: {0}', route.map(dartLabel).join('  '));
+    // Tablette bitiriş önerisi oyuncunun kartında; telefonda kart küçük, alttaki oyuncu kartında yazar
+    if (route) return typeof innerWidth !== 'undefined' && innerWidth < 700 ? tr('Bitiriş: {0}', route.map(dartLabel).join('  ')) : '';
     if (s.score <= 170 && !checkout(s.score, 3, m.opts.out)) return tr('Bu puan 3 okta bitmez');
     return '';
   },
@@ -121,6 +124,12 @@ export default {
         <div class="side-big">${s.score}</div>
         <div class="side-sub"><span>${tr('Ort {0}', avg)}</span><span>${tr('Son {0}', lastTxt)}</span><span>${tr('{0} ok', nd)}</span></div>
         ${!s.open ? `<div class="side-tag">${tr('Double In bekliyor')}</div>` : ''}
+        ${(() => { // Bitiriş önerisi kartın içinde (Demir 10.11): sıradakinde kalan ok sayısına göre, diğerlerinde 3 okla
+          if (!s.open || s.score > 170) return '';
+          const kalan = ctx.active(i) ? 3 - m.turnDarts.length : 3;
+          const r = checkout(s.score, kalan, m.opts.out);
+          return r ? `<div class="bitis ${ctx.active(i) ? 'sirada' : ''}">${BITIS_IC}<span class="bitis-ust">${tr('Bitiriş')}</span><span class="bitis-oklar">${r.map(d => `<b>${dartLabel(d)}</b>`).join('')}</span></div>` : '';
+        })()}
       </div>`;
     }).join('') + '</div>';
   },

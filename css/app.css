@@ -2449,3 +2449,33 @@ html:root body .pill.gold.ara-devam { color: #241d15 !important; text-shadow: no
 .play:has(.keypad .geri-tus) .play-top .geri-al { display: none !important; }
 :root .keypad .mods > .k.geri-tus.geri-modda { flex: 1 1 0; flex-direction: row; gap: 8px; font-size: 16px; }
 @media (min-width: 700px) { :root .keypad .mods > .k.geri-tus.geri-modda { font-size: 19px; } }
+
+/* Tek liste: en son oynanan maç en üstte, biraz büyük ve altın kenarlı */
+.ara-satir.ilk { padding: 10px 10px 10px 12px; border-radius: 20px; background: var(--sivi-isik) padding-box, linear-gradient(rgb(var(--cam-rgb) / .5), rgb(var(--cam-rgb) / .5)) padding-box, var(--altin-cam-kenar) border-box; }
+.ara-satir.ilk .ara-ic { width: 56px; height: 56px; border-radius: 15px; }
+.ara-satir.ilk .ara-govde b { font-size: 19px; }
+.ara-sira { display: inline-flex; align-items: center; gap: 5px; opacity: 1 !important; color: var(--brand); }
+.ara-sira svg { width: 13px; height: 13px; } .ara-sira b { font-size: 14px !important; color: var(--fg); }
+.ara-satir.ilk .ara-devam { min-height: 48px; padding: 0 22px; font-size: 17px; }
+@media (min-width: 700px) { .ara-satir.ilk .ara-ic { width: 66px; height: 66px; } .ara-satir.ilk .ara-govde b { font-size: 22px; } }
+
+/* X01 kart alt bilgisi okunur (Demir 10.11) */
+.board.x01 .side-sub { font-size: 15px; font-weight: 700; color: rgb(255 255 255 / .85); gap: 4px 14px; }
+@media (min-width: 700px) { .board.x01 .side-sub { font-size: 19px; } }
+.board.x01 .side.active .side-sub { color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / .4); }
+:root[data-tema="acik"] .board.x01 .side-sub { color: #3b3127; }
+/* Bitiriş önerisi kartın boş alt kısmında, hedef simgesiyle */
+.board.x01 .side { display: flex; flex-direction: column; }
+.bitis { margin-top: auto; align-self: stretch; display: grid; justify-items: center; gap: 6px; padding: 10px 8px; border-radius: 18px; background: rgb(0 0 0 / .28); border: 1px solid rgb(255 255 255 / .18); }
+.bitis-ic { width: 22px; height: 22px; color: var(--brand); }
+.bitis-ust { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.bitis-oklar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.bitis-oklar b { min-width: 46px; padding: 6px 10px; border-radius: 12px; text-align: center; font-size: 18px; font-weight: 800; color: #fff; background: rgb(255 255 255 / .14); border: 1px solid rgb(255 255 255 / .3); }
+.bitis.sirada { background: rgb(0 0 0 / .35); border-color: rgb(255 255 255 / .45); }
+.bitis.sirada .bitis-ic, .bitis.sirada .bitis-ust { color: #fff; }
+.bitis.sirada .bitis-oklar b { font-size: 22px; background: rgb(255 255 255 / .22); }
+@media (min-width: 700px) { .bitis { padding: 14px 10px; gap: 8px; } .bitis-oklar b { font-size: 24px; min-width: 64px; } .bitis.sirada .bitis-oklar b { font-size: 30px; } .bitis-ust { font-size: 14px; } .bitis-ic { width: 28px; height: 28px; } }
+@media (max-width: 699px) { .board.x01:is(.n3, .n4, .n5, .n6, .n7, .n8) .bitis { padding: 6px 4px; } .board.x01:is(.n3, .n4, .n5, .n6, .n7, .n8) .bitis-oklar b { font-size: 14px; min-width: 0; padding: 4px 6px; } }
+:root[data-tema="acik"] .bitis { background: rgb(255 255 255 / .45); border-color: rgb(138 93 20 / .35); } :root[data-tema="acik"] .bitis-oklar b { color: #241d15; background: rgb(255 255 255 / .6); }
+.board .side:not(.active) .bitis { opacity: .55; }
+@media (max-width: 699px) { .board.x01 .bitis { display: none; } .board.x01 .side-sub { font-size: 13px; } }
