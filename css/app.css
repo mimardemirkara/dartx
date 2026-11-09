@@ -1,6 +1,6 @@
 /* ==== TUŞ RENK KURALI (Demir 09.11) — her tuş türü NEREDE OLURSA OLSUN aynı renk ve cam (algı karışmasın) ====
    DOUBLE/D mavi 61 139 253 · TRIPLE/T mor 168 98 242 · HOUSE turkuaz 32 196 178 · BULL(25) yeşil 47 179 109
-   D-BULL(50) kırmızı 233 75 60 · Iska çelik 150 160 178 · Son Atışı Geri Al turuncu 245 130 32 · Sıradaki Oyuncu fuşya 214 51 132
+   D-BULL(50) kırmızı 233 75 60 · Iska çelik 150 160 178 · Son Atışı Geri Al turuncu 245 130 32 · Sıradaki Oyuncu çivit 92 96 230
    Cam: var(--sivi-isik) + rgb(--ton) degrade + beyazdan renge kenar. Yeni ekranda aynı --ton ile kullan. */
 /* DartX — demirkara.com cam teması (Liquid Glass) — mobil + tablet
    Cam tarifi sitenin Masaustu "sivi" değişkenlerinden: ışık + ton + kenar ışığı + iç gölge + buzlu bulanıklık. */
@@ -2575,3 +2575,14 @@ a.ay-satir { text-decoration: none; color: inherit; }
 .gl-kim { flex: 1; min-width: 0; display: grid; } .gl-kim b { font-size: 16px; } .gl-kim small { font-size: 12px; opacity: .7; }
 .gl-ok { font-size: 20px; font-weight: 800; color: var(--brand); }
 .hs-izgara .hedef-sec.etkisiz { opacity: .8; filter: saturate(.55); }
+/* 3'e bölünmüş tek tuş (Demir 10.11): iç köşeler düz, aralar ince çizgi; yalnız dış köşeler yuvarlak */
+.keypad .k3 { gap: 2px !important; border-radius: 18px; overflow: hidden; }
+.keypad .k3 .k3-s { border-radius: 18px 18px 0 0 !important; }
+.keypad .k3-alt { gap: 2px !important; }
+.keypad .k3-alt .k3-d { border-radius: 0 0 0 18px !important; }
+.keypad .k3-alt .k3-t { border-radius: 0 0 18px 0 !important; }
+.keypad .k3-alt button { min-height: 44px; }
+.keypad .k3:active { transform: none; }
+/* Sıradaki Oyuncu (Demir 10.11): diğer tuşlar gibi köşeli-yuvarlak, pembe değil — çivit (indigo) cam */
+:root .keypad .k.next { --ton: 92 96 230 !important; border-radius: 18px !important; }
+:root[data-tema="acik"] .keypad .k.next { --ton: 92 96 230 !important; }
