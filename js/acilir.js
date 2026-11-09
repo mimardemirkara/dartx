@@ -69,3 +69,6 @@ export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = f
 
 /** Dokunmatik ekran mı (telefon / tablet): o zaman telefonun kendi seçicisi kullanılır */
 export const dokunmatik = () => window.matchMedia('(pointer: coarse)').matches;
+
+/** Bir açılır menü şu an açık mı (aynı düğmeye ikinci basış kapatsın diye) */
+export const acilirAcik = () => !!acik;

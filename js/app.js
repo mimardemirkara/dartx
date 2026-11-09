@@ -17,7 +17,7 @@ import { acilisGoster } from './acilis.js';
 import * as okuma from './okuma.js';
 import { yedekAl, yedekYukle } from './yedek.js';
 import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
-import { acilirAc, acilirKapat, dokunmatik } from './acilir.js';
+import { acilirAc, acilirKapat, acilirAcik, dokunmatik } from './acilir.js';
 import * as ses from './ses.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
@@ -1720,6 +1720,7 @@ app.addEventListener('click', e => {
       vib(10); ses.tus(); toast(t('{0} eklendi', ad), 'good'); render(); break;
     }
     case 'sesmenu': {
+      if (acilirAcik()) { acilirKapat(); break; } // Demir 09.11: bastığımda açılsın, bir daha bastığımda kapansın
       // Demir 09.11: üst çubukta ses menüsü — bütün sesler, sesli okuma, tuş sesi, oyun efektleri
       const st = data().settings;
       const liste = () => [
