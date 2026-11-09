@@ -25,7 +25,7 @@
   --cizgi: rgba(255,255,255,.08);
   --gl-main: #f6dc9f; --gl-party: #d9dde6; --gl-practice: #cfe6d6;
   --hl-yazi: #ffe3a6; --bull-yazi: #ff9a8a; --tehlike-yazi: #ffb3a8;
-  --duvar: url('../img/duvar-koyu-dikey.webp');   /* demirkara.com DK Steel koyu, logosuz (sitenin telefon duvar kâğıdı) */
+  --duvar: url('../img/duvar-koyu.webp');   /* demirkara.com DK Steel koyu, logosuz (sitenin telefon duvar kâğıdı) */
   --duvar-genis: url('../img/duvar-koyu-genis.webp');   /* tablet: kadife koyu geniş, 2560 px (logosuz, yüksek çözünürlük) */
   --duvar-isik: linear-gradient(transparent, transparent);
   --zemin: #0d0c0b;
@@ -2445,3 +2445,7 @@ html:root[data-tema="acik"] body .pill.gold.dv-dugme { color: #241d15 !important
 html:root body .pill.gold.ara-devam { color: #241d15 !important; text-shadow: none !important; }
 @media (min-width: 700px) { .ara-govde b { font-size: 17px; } .ara-ic, .ara-sil { width: 46px; height: 46px; } .ara-devam { min-height: 46px; padding: 0 20px; } }
 @media (min-width: 700px) { .ara-liste { max-width: 760px; margin-left: auto; margin-right: auto; } }
+/* Atışı Geri Al: ızgarada boş yer yoksa mod satırının boş kısmında (Demir 09.11); üstteki gizli */
+.play:has(.keypad .geri-tus) .play-top .geri-al { display: none !important; }
+:root .keypad .mods > .k.geri-tus.geri-modda { flex: 1 1 0; flex-direction: row; gap: 8px; font-size: 16px; }
+@media (min-width: 700px) { :root .keypad .mods > .k.geri-tus.geri-modda { font-size: 19px; } }

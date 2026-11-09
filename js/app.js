@@ -796,7 +796,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
-      <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Son Atışı Geri Al')}</span></button>
+      <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
     <section class="turn" style="--pc:${p.color}">
@@ -857,7 +857,7 @@ function keypad(m, g) {
   const sutun = !sadece ? 5 : sadece.length <= 6 ? 3 : sadece.length <= 8 ? 4 : sadece.length <= 12 ? 4 : 5;
   // Demir 09.11: sayı ızgarasında boş kalan yere "Son Atışı Geri Al" (üstteki gizlenir)
   const bos = (sutun - nums.length % sutun) % sutun;
-  if (bos) nums.push(`<button class="k geri-tus" style="grid-column: span ${bos}" data-act="undo" ${E.canUndo() ? '' : 'disabled'}>${GERI_IC}<span>${t('Son Atışı Geri Al')}</span></button>`);
+  if (bos) nums.push(`<button class="k geri-tus" style="grid-column: span ${bos}" data-act="undo" ${E.canUndo() ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>`);
   return `<section class="keypad mod${mod} ${hizli ? 'hizli' : ''} ${S.house ? 'modH' : ''}">
     <div class="mods">
       ${hizli ? '' : `<button class="k mod ${mod === 2 ? 'on' : ''}" data-act="mod" data-m="2">${TUS_IC.double}<span>DOUBLE</span></button>
@@ -865,6 +865,7 @@ function keypad(m, g) {
       ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="H" ${(m.turnDarts || []).length && !S.house ? 'disabled' : ''}>${HS_EV}<span>HOUSE</span></button>` : ''}
       ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="B3" ${(m.turnDarts || []).length && !S.house ? 'disabled' : ''}>${HS_EV}<span>3 IN A BED</span></button>` : ''}
       ${`<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>`}
+      ${!bos ? `<button class="k mod geri-tus geri-modda" data-act="undo" ${E.canUndo() ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>` : ''}
       ${g.cat === 'cricket' && g.view ? (tabloYazAcik(m, g)
         ? `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="0" aria-label="${t('Tuşlarla yaz')}" title="${t('Tuşlarla yaz')}">${KLAVYE_IC}</button>`
         : `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="1" aria-label="${t('Tablodan yaz')}" title="${t('Tablodan yaz')}">${TABLO_IC}</button>`) : ''}
