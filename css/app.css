@@ -3118,3 +3118,7 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 @media (min-width: 980px) { .kam-sag { max-height: calc(100dvh - var(--safe-t, 0px) - 130px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; border-radius: 20px; }
   .kam-sag::-webkit-scrollbar { display: none; } }
 @media (min-width: 980px) { .kam-sag { max-height: calc(100dvh - var(--safe-t, 0px) - 140px); } }
+/* Kamera ekranındaki yüzen kutular: lacivert yerine uygulamanın sıcak koyu camı (Demir 10.11 "arka planı neden lacivert") */
+.kam-oneri, .kam-yonerge, .kam-kalip, .kam-aci, .kam-flas:not(.on) { background: rgb(26 21 16 / .86); }
+:root[data-tema="acik"] .kam-oneri, :root[data-tema="acik"] .kam-yonerge, :root[data-tema="acik"] .kam-kalip, :root[data-tema="acik"] .kam-aci { background: rgb(40 32 24 / .86); }
+.kam-onizleme { background: #140f0b; }
