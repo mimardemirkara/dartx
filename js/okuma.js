@@ -38,7 +38,7 @@ export function kayitlariYukle() {
 }
 const kayitVar = id => !!tampon[id];
 const adId = ad => 'sira_' + String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr')
-  .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]/g, '');
+  .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/â/g, 'a').replace(/î/g, 'i').replace(/[^a-z0-9]/g, '');
 
 let sesler = [];
 function sesSec() {
@@ -84,7 +84,15 @@ function seslendir(parca, metin, ok = false, atlanir = ok) {
   kuyruk.push({ parca, metin, atlanir });
   pompala();
 }
-/** Serbest metin (ör. "Sesli okuma açık") — telefonun sesiyle */
+/** "Sesli okuma açık / kapalı" duyurusu (Mert'in kaydı) — okuma kapalıyken de çalar; "Sessize al" açıksa susar */
+export async function duyur(acik) {
+  if (data().settings.sessiz === true) return;
+  await kayitlariYukle();
+  const id = acik ? 'okuma_acik' : 'okuma_kapali', c = sesBaglam();
+  if (c && tampon[id]) { const k = c.createBufferSource(); k.buffer = tampon[id]; k.connect(c.destination); k.start(); kaynaklar.push(k); return; }
+  if (ttsVar()) { const u = new SpeechSynthesisUtterance(acik ? 'Sesli okuma açık' : 'Sesli okuma kapalı'); u.lang = 'tr-TR'; speechSynthesis.speak(u); }
+}
+/** Serbest metin — telefonun sesiyle */
 export function oku(metin, kes = false) {
   if (kes) sustur();
   seslendir(null, metin);
@@ -105,35 +113,82 @@ function okParca(d) {
   return [(d.m === 3 ? 't' : d.m === 2 ? 'd' : 'n') + d.n];
 }
 const sayiParca = n => (n >= 0 && n <= 180 ? ['n' + n] : null);
+// "Kalan kırk" tek kayıt (Demir 10.11: "kalan" tek başına "kalaaan" diye uzuyordu); kayıt yoksa iki parça
+const kalanParca = n => (kayitVar('kalan_' + n) ? ['kalan_' + n] : ['kalan', 'n' + n]);
 // Karakterlerin adı Türkçe okunsun diye tam cümle kaydı var: "Sıradaki oyuncu, Demir." (Demir 09.11: tek kelime İngilizce gibi okunuyordu)
 // Bilinmeyen ad kayıtla okunmaz, yalnız "Sıradaki oyuncu" denir
 function siraParca(ad) { const id = adId(ad); return kayitVar(id) ? [id] : ['siradaki']; }
 
 const x01Mi = m => !!(m && m.g && m.g.s && m.g.s[0] && typeof m.g.s[0].score === 'number' && m.opts && m.opts.out);
 
-/** Atıştan sonra (app.js afterThrow): ne olduysa onu söyler */
-export function atisOku(m, res, ad) {
-  if (!acikMi() || !m || !res) return;
+// Konuşma seviyesi (Demir 09.11, sesli koç): kisa = oklar + sıra · normal = + el toplamı, kapanan sayılar · koc = + durum ve öneri
+export const seviye = () => data().settings.okumaSeviye || 'koc';
+const enAz = sv => ({ kisa: 0, normal: 1, koc: 2 }[seviye()] >= ({ kisa: 0, normal: 1, koc: 2 }[sv]));
+
+// Kriket ailesinde kapanan sayıyı yakalamak için işaretlerin bir önceki hali
+let onceIsaret = null;
+const isaretler = m => (m && m.g && Array.isArray(m.g.s) && m.g.s[0] && m.g.s[0].k ? m.g.s.map(x => ({ ...x.k })) : null);
+function kapananlar(m) {
+  const simdi = isaretler(m), once = onceIsaret; onceIsaret = simdi;
+  if (!simdi || !once || once.length !== simdi.length) return [];
+  const sonuc = [];
+  simdi.forEach((k, i) => Object.keys(k).forEach(h => {
+    const a = once[i][h] || 0, b = k[h] || 0;
+    if (a < 3 && b >= 3) sonuc.push({ h: isNaN(h) ? h : Number(h), tek: a === 0 });
+  }));
+  return sonuc;
+}
+const hedefParca = h => (h === 25 ? 'bull' : typeof h === 'number' ? 'n' + h : h === 'H' ? 'house' : null);
+
+/** Sıra başı durum özeti (koç): kriket ailesinde puan farkı + öneri; X01'de kalan + bitiriş */
+function durumParca(m, g) {
+  if (!m || !g) return [];
+  if (x01Mi(m)) {
+    const s = m.g.s[m.cur]; if (!s) return [];
+    if (s.open === false) return ['k_double_ac'];
+    const yol = s.score <= 170 ? checkout(s.score, 3, m.opts.out) : null;
+    if (yol) return [...kalanParca(s.score), ...yol.flatMap(okParca)];
+    if (s.score <= 180) return [...kalanParca(s.score)];
+    return [];
+  }
+  const p = [];
+  try { const d = g.durum && g.durum(m, m.g); if (d && d.ses) p.push(...d.ses); } catch (e) { /* yok say */ }
+  try { const ip = g.ipucu && g.ipucu(m, m.g); if (ip && ip.ses) p.push(...ip.ses); } catch (e) { /* yok say */ }
+  return p;
+}
+
+/** Atıştan sonra (app.js afterThrow): ne olduysa onu söyler. g: oyunun tanımı (GAMES[m.gameId]) */
+export function atisOku(m, res, ad, g) {
+  if (!acikMi() || !m || !res) { onceIsaret = isaretler(m); return; }
   const k = S();
   // yalnız son adım gerçekten bir oksa okunur ("Sıradaki Oyuncu" ve toplam girişinde önceki ok tekrar okunmasın)
   const son = (m.adimlar || [])[(m.adimlar || []).length - 1];
   const ok = son && son.t === 'd' ? son.d : null;
+  const kapanan = kapananlar(m);
   if (ok) seslendir(okParca(ok), okSozu(ok), true, res.event === 'dart'); // elin son oku atlanmaz
+  // kapanan sayı: "On dokuz kapandı." · tek okta: "Tek okta kapandı!"
+  if (ok && enAz('normal')) kapanan.forEach(x => { const hp = hedefParca(x.h); if (x.tek) seslendir(['tekok'], ''); else if (hp) seslendir([hp, 'k_kapandi'], ''); });
   if (res.event === 'dart') return;
   if (res.event === 'bust') { seslendir(['bust'], k.bust); if (ad) seslendir(siraParca(ad), `${k.sira} ${ad}`); return; }
   if (res.event === 'match') { seslendir(['gameshot_mac'], k.oyun); return; }
   if (res.event === 'leg' || res.event === 'set') { seslendir(['gameshot'], k.oyun); return; }
   if (res.event !== 'turn') return;
-  if (x01Mi(m)) {
-    // X01: el toplamı, sonra sıradaki; kalanı 170 ve altıysa kalan ve bitiriş yolu
+  if (x01Mi(m) && enAz('normal')) {
     const l = m.log && m.log[m.log.length - 1];
     const top = l ? l.points : null;
     if (top != null) seslendir(top === 180 ? ['yuzseksen'] : sayiParca(top), top === 180 ? k.yuzseksen : String(top));
-    const s = m.g.s[m.cur];
-    const yol = s && s.open !== false && s.score <= 170 ? checkout(s.score, 3, m.opts.out) : null;
-    if (yol) seslendir([...siraParca(ad), 'kalan', 'n' + s.score, ...yol.flatMap(okParca)], `${k.sira} ${ad}, ${k.kalan} ${s.score}. ${yol.map(okSozu).join(', ')}`);
-    else if (ad) seslendir(siraParca(ad), `${k.sira} ${ad}`);
-  } else if (ad) seslendir(siraParca(ad), `${k.sira} ${ad}`);
+  }
+  // sıradaki oyuncu; koç seviyesinde ardından durum ve öneri (X01: kalan + bitiriş; kriket: puan farkı + ipucu)
+  const durum = enAz('koc') || x01Mi(m) && enAz('normal') ? durumParca(m, g) : [];
+  if (ad) seslendir([...siraParca(ad), ...durum], `${k.sira} ${ad}`);
+}
+
+/** Oyuncu kartına dokununca: sıradakinin durumunu bir daha söyler */
+export function durumuOku(m, g, ad) {
+  if (!acikMi() || !m) return;
+  const k = S();
+  sustur();
+  seslendir([...siraParca(ad), ...durumParca(m, g)], `${k.sira} ${ad}`);
 }
 
 /** Okuma bitince cb (en çok enCok ms bekler) */

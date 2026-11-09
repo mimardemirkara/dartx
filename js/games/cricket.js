@@ -337,12 +337,15 @@ function make(id) {
       const sirala = a => a.slice().sort((x, y) => deg(y) - deg(x));
       const kalan = n => 3 - Math.min(3, me.k[n]);
       const cezaDili = T.secimli; // Türk Kriketi: fazla yazılan puan rakibe ceza
+      // sesli koç parçaları (ses/spiker): sayı → n19, Bull → bull, House → house; D/T/B3 için kayıt yok
+      const sp = n => (n === 25 ? 'bull' : typeof n === 'number' ? 'n' + n : n === 'H' ? 'house' : null);
+      const ses = (...a) => (a.every(Boolean) ? a : null);
       if (cezali(m)) {
         // Cut-throat: rakibin kapattığı, benim açık hedefim bana ceza yazdırır
         const tehlike = sirala(H.filter(n => me.k[n] < 3 && others.some(o => o.k[n] >= 3)));
-        if (tehlike.length) return { tur: 'uyari', metin: tr('Rakip {0} kapattı, sana ceza yazabilir: önce {0} kapat', ad(tehlike[0])) };
+        if (tehlike.length) return { tur: 'uyari', metin: tr('Rakip {0} kapattı, sana ceza yazabilir: önce {0} kapat', ad(tehlike[0])), ses: ses('k_rakip_kapatti', sp(tehlike[0]), 'k_onerim', sp(tehlike[0])) };
         const firsat = sirala(H.filter(n => me.k[n] >= 3 && others.some(o => o.k[n] < 3)));
-        if (firsat.length) return { tur: 'firsat', metin: tr('{0} sende kapalı: vurdukça kapatmayan rakiplere ceza yazılır', ad(firsat[0])) };
+        if (firsat.length) return { tur: 'firsat', metin: tr('{0} sende kapalı: vurdukça kapatmayan rakiplere ceza yazılır', ad(firsat[0])), ses: ses(sp(firsat[0]), 'k_rakipte_acik', 'k_onerim', sp(firsat[0])) };
       } else {
         const en = Math.max(...others.map(o => o.pts)), fark = en - me.pts;
         const tehlike = sirala(H.filter(n => me.k[n] < 3 && others.some(o => o.k[n] >= 3)));
@@ -351,20 +354,20 @@ function make(id) {
         if (hepsi && fark >= 0 && firsat.length) {
           const n = firsat.find(x => typeof x === 'number' && x !== 25) || firsat[0];
           const tek = typeof n === 'number' && n !== 25 ? n * 3 : 0;
-          return { tur: 'firsat', metin: tek ? tr('Öne geçmek için {0} puan lazım: T{1} ile {2} yazarsın', fark + 1, n, tek) : tr('Öne geçmek için {0} puan lazım: {1} vur', fark + 1, ad(n)) };
+          return { tur: 'firsat', metin: tek ? tr('Öne geçmek için {0} puan lazım: T{1} ile {2} yazarsın', fark + 1, n, tek) : tr('Öne geçmek için {0} puan lazım: {1} vur', fark + 1, ad(n)), ses: ses('k_one_gec', 'k_onerim', tek ? 't' + n : sp(n)) };
         }
         if (tehlike.length && fark >= 0)
-          return { tur: 'uyari', metin: cezaDili ? tr('Rakip {0} kapattı, sana ceza yazabilir: önce {0} kapat', ad(tehlike[0])) : tr('Rakip {0} kapattı, puan toplayabilir: önce {0} kapat', ad(tehlike[0])) };
+          return { tur: 'uyari', metin: cezaDili ? tr('Rakip {0} kapattı, sana ceza yazabilir: önce {0} kapat', ad(tehlike[0])) : tr('Rakip {0} kapattı, puan toplayabilir: önce {0} kapat', ad(tehlike[0])), ses: ses('k_rakip_kapatti', sp(tehlike[0]), 'k_onerim', sp(tehlike[0])) };
         if (firsat.length && fark >= 0)
-          return { tur: 'firsat', metin: cezaDili ? tr('{0} sende kapalı, rakipte açık: vurdukça rakibe ceza yazarsın', ad(firsat[0])) : tr('{0} sende kapalı, rakipte açık: vurdukça puan yazarsın', ad(firsat[0])) };
-        if (tehlike.length) return { tur: 'uyari', metin: tr('Rakip {0} kapattı: önce {0} kapat', ad(tehlike[0])) };
+          return { tur: 'firsat', metin: cezaDili ? tr('{0} sende kapalı, rakipte açık: vurdukça rakibe ceza yazarsın', ad(firsat[0])) : tr('{0} sende kapalı, rakipte açık: vurdukça puan yazarsın', ad(firsat[0])), ses: ses(sp(firsat[0]), 'k_rakipte_acik', 'k_onerim', sp(firsat[0])) };
+        if (tehlike.length) return { tur: 'uyari', metin: tr('Rakip {0} kapattı: önce {0} kapat', ad(tehlike[0])), ses: ses('k_rakip_kapatti', sp(tehlike[0]), 'k_onerim', sp(tehlike[0])) };
       }
       // Kapanmaya yakın hedef
       const yakin = sirala(H.filter(n => me.k[n] > 0 && me.k[n] < 3)).sort((x, y) => kalan(x) - kalan(y));
-      if (yakin.length) { const n = yakin[0]; return { tur: 'bilgi', metin: kalan(n) === 1 ? tr('{0} kapanmaya 1 işaret kaldı', ad(n)) : tr('{0} kapanmaya {1} işaret kaldı', ad(n), kalan(n)) }; }
+      if (yakin.length) { const n = yakin[0]; return { tur: 'bilgi', metin: kalan(n) === 1 ? tr('{0} kapanmaya 1 işaret kaldı', ad(n)) : tr('{0} kapanmaya {1} işaret kaldı', ad(n), kalan(n)), ses: ses(sp(n), kalan(n) === 1 ? 'k_1isaret' : 'k_2isaret') }; }
       // Kimsenin açmadığı en büyük sayı
       const bos = sirala(H.filter(n => typeof n === 'number' && n !== 25 && g.s.every(s2 => s2.k[n] === 0)));
-      if (bos.length) return { tur: 'bilgi', metin: tr('Kimse {0} açmadı: T{0} ile tek okta kapatırsın', bos[0]) };
+      if (bos.length) return { tur: 'bilgi', metin: tr('Kimse {0} açmadı: T{0} ile tek okta kapatırsın', bos[0]), ses: ['k_kimse_acmadi', 'n' + bos[0], 'k_onerim', 't' + bos[0]] };
       return null;
     },
     vurHedef(m, g) {
@@ -398,10 +401,12 @@ function make(id) {
       }
       const en = others.reduce((a, b) => (b.s.pts > a.s.pts ? b : a));
       const fark = me.pts - en.s.pts;
-      if (fark > 0) return { tur: 'onde', metin: tr('Öndesin · +{0} puan', fark) + (hepsiKapali ? '' : ' · ' + tr('hepsini kapatırsan kazanırsın')) };
+      const sn = v => (v >= 0 && v <= 180 ? 'n' + v : null); // sesli koç: sayı kaydı (0–180)
+      if (fark > 0) return { tur: 'onde', metin: tr('Öndesin · +{0} puan', fark) + (hepsiKapali ? '' : ' · ' + tr('hepsini kapatırsan kazanırsın')), ses: sn(fark) ? [sn(fark), 'k_onde'] : null };
       const yer = puanYeri.length && !hepsiKapali ? ' · ' + tr('puan için vur: {0}', puanYeri.join(', ')) : ''; // hepsi kapalıyken hedefler ipucu satırında
-      if (fark === 0) return { tur: 'esit', metin: tr('Puan eşit') + yer };
-      return { tur: 'geride', metin: (hepsiKapali ? tr('Hepsini kapattın ama {0} puan geridesin', -fark) : tr('{0} puan geridesin', -fark)) + yer };
+      if (fark === 0) return { tur: 'esit', metin: tr('Puan eşit') + yer, ses: ['k_esit'] };
+      return { tur: 'geride', metin: (hepsiKapali ? tr('Hepsini kapattın ama {0} puan geridesin', -fark) : tr('{0} puan geridesin', -fark)) + yer,
+        ses: sn(-fark) ? [...(hepsiKapali ? ['k_hepsi_kapali'] : []), sn(-fark), 'k_geride'] : null };
     },
 
     highlight(m, g) {

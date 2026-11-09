@@ -2887,3 +2887,24 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 :root .keypad .geri-modda { padding-left: 8px !important; padding-right: 8px !important; gap: 6px; }
 :root .keypad .geri-modda span { letter-spacing: 0 !important; font-size: clamp(12px, 10.5cqi, 17px) !important; overflow: hidden; text-overflow: ellipsis; }
 :root .keypad .geri-modda svg { flex: none; width: clamp(14px, 11cqi, 20px); height: clamp(14px, 11cqi, 20px); }
+/* Bot el özeti (Demir 09.11): ad kendi satırında, atışlar altında ortalı — yan boşluk kalmasın */
+.bot-ozet { justify-content: center; }
+.bot-ozet b { flex-basis: 100%; text-align: center; margin: 0 0 2px; }
+
+/* House kutlaması: hedef + yandan uçup saplanan üç DartX dartı (Demir 10.11) */
+.u-ic .h3 { position: relative; display: block; width: 92px; height: 92px; }
+@media (min-width: 720px) { .u-ic .h3 { width: 112px; height: 112px; } }
+.u-ic .h3-hedef { position: absolute; left: 4%; top: 22%; width: 62%; height: 62%; }
+/* dart görselinde uç 15/162, 152/166 noktasında; görsel 46% genişlik, uç hedefin içine oturur */
+.u-ic .h3-ok { position: absolute; width: 46%; height: auto; opacity: 0; transform-origin: 9% 92%; filter: drop-shadow(2px 4px 3px rgb(0 0 0 / .55));
+  animation: h3Uc .32s cubic-bezier(.5,0,.9,.5) forwards; }
+.u-ic .h3-ok1 { left: 26%; top: 6%; animation-delay: .1s; }
+.u-ic .h3-ok2 { left: 33%; top: 15%; animation-delay: .4s; }
+.u-ic .h3-ok3 { left: 22%; top: 18%; animation-delay: .7s; }
+@keyframes h3Uc {
+  0% { opacity: 0; transform: translate(150%, -60%) rotate(-8deg) scale(1.25); }
+  20% { opacity: 1; }
+  88% { transform: translate(0, 0) rotate(0) scale(1); }
+  94% { transform: translate(3%, -2%) rotate(1.5deg); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0); }
+}

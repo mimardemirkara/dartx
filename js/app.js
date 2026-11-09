@@ -14,6 +14,7 @@ import { korumaKur, telifAc } from './telif.js';
 import { kuralMaddeleri, KURAL_IKON } from './kurallar.js';
 import { onayla, bilgi } from './dialog.js';
 import { acilisGoster } from './acilis.js';
+import { dartVurusSesi } from './acilis-ses.js';
 import * as okuma from './okuma.js';
 import './kaydir.js'; // kayan listelerde "devamı var" işareti (kenar solması + ok)
 import { yedekAl, yedekYukle } from './yedek.js';
@@ -64,6 +65,7 @@ const UYARI_IC = {
   ates: UI('<path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>'),
   kupa: UI('<path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/>'),
   ev: UI('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),
+  house: UI('<circle cx="8" cy="16" r="6"/><circle cx="8" cy="16" r="2"/><path d="M8 16 18.5 5.5"/><path d="m18.5 5.5 2.6-.4"/><path d="m18.5 5.5.4-2.6"/><path d="M8 16 21 11.5"/><path d="m21 11.5 1.6 1.4"/><path d="m21 11.5.3-2.1"/><path d="M8 16 12.5 3.5"/><path d="m12.5 3.5-1.9-1"/><path d="m12.5 3.5 1.9-.6"/>'),
   hedef: UI('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'),
   yildiz: UI('<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>'),
   kurukafa: UI('<path d="m12.5 17-.5-1-.5 1h1z"/><path d="M15 22a1 1 0 0 0 1-1v-1a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20v1a1 1 0 0 0 1 1z"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="12" r="1"/>'),
@@ -89,7 +91,7 @@ const UYARI_TUR = [
   [['BUST!', 'BUST', 'Sıfırın altı — bitti'], { ic: 'bomba', a: 'a-sars', k: 'bad', ses: 'bust' }],
   [['180!'], { ic: 'ates', a: 'a-zipla', k: 'kutla' }],
   [['{0} leg\'i aldı!', '{0} set\'i aldı!'], { ic: 'kupa', a: 'a-zipla', k: 'good kutla' }],
-  [['House!', '3 in a bed!'], { ic: 'ev', a: 'a-zipla', k: 'kutla', ses: 'kutlama' }],
+  [['House!', '3 in a bed!'], { ic: 'house3', a: 'a-zipla', k: 'kutla', ses: 'kutlama' }],
   [['Hepsini kapattın ama {0}'], { ic: 'dikkat', a: 'a-buyu', k: 'bad', ses: 'hata' }],
   [['Tek okta kapattı!'], { ic: 'dart', a: 'a-dart', k: 'kutla', ses: 'kutlama' }],
   [['SHANGHAI!', 'SHANGHAI +100', 'GOTCHA!'], { ic: 'yildiz', a: 'a-don', k: 'kutla', ses: 'kutlama' }],
@@ -108,6 +110,8 @@ function uyariTur(msg) {
   return { ic: 'simsek', a: 'a-zipla', k: '' };
 }
 
+// House kutlaması (Demir 10.11): yandan uçan üç DartX dartı (logodaki dartın kendisi, img/acilis-dart.webp) hedefe pat pat pat saplanır
+const HOUSE3_HTML = `<span class="h3" aria-hidden="true"><svg class="h3-hedef" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="#1c1a17" stroke="rgb(255 255 255 / .35)" stroke-width="2"/><circle cx="32" cy="32" r="20" fill="none" stroke="#e94b3c" stroke-width="5"/><circle cx="32" cy="32" r="11" fill="none" stroke="rgb(255 255 255 / .55)" stroke-width="3"/><circle cx="32" cy="32" r="4.5" fill="#2fb36d"/></svg>${[1, 2, 3].map(i => `<img class="h3-ok h3-ok${i}" src="img/acilis-dart.webp" alt="">`).join('')}</span>`;
 function toast(msg, kind = '', ozel = null) {
   const el = document.getElementById('toast');
   let perde = document.getElementById('toast-perde');
@@ -116,14 +120,17 @@ function toast(msg, kind = '', ozel = null) {
   if (!kind) kind = tur.k;
   el.style.setProperty('--pc', (ozel && ozel.renk) || '');
   el.className = `toast ${kind} ${tur.a}`;
-  const ic = String(tur.ic).startsWith('resim:') ? `<img class="u-resim" src="${tur.ic.slice(6)}" alt="">` : UYARI_IC[tur.ic];
+  const ic = tur.ic === 'house3' ? HOUSE3_HTML : String(tur.ic).startsWith('resim:') ? `<img class="u-resim" src="${tur.ic.slice(6)}" alt="">` : UYARI_IC[tur.ic];
   el.innerHTML = `<span class="u-ic">${ic}</span><span class="u-yazi">${msg}</span>`;
   void el.offsetWidth; // animasyon her uyarıda baştan başlasın
   el.classList.add('show'); perde.classList.add('show');
   uyariKilit = Date.now() + 1500 + 450; // uyarı ve sönme animasyonu boyunca alttaki tuşlar basılmaz
   if (/\bkutla\b/.test(kind)) konfeti();
+  // House: üç dart arka arkaya saplanır, her birinde "tak" sesi (uyarı biraz daha uzun kalır)
+  const h3 = tur.ic === 'house3';
+  if (h3) { uyariKilit += 600; [380, 680, 980].forEach(ms => setTimeout(() => dartVurusSesi(), ms)); }
   clearTimeout(toastT);
-  toastT = setTimeout(() => { el.classList.remove('show'); perde.classList.remove('show'); }, 1500);
+  toastT = setTimeout(() => { el.classList.remove('show'); perde.classList.remove('show'); }, h3 ? 2100 : 1500);
 }
 
 // Sıra değişti (Demir 09.11: "Sıra Tuncay'da" — kimde olduğu anlaşılsın): üstten kayan küçük cam hap, oyuncunun
@@ -668,7 +675,8 @@ const TUS_IC = {
   iska: LUCIDE('<circle cx="12" cy="12" r="10"/><path d="M4.929 4.929 19.07 19.071"/>', 15, 2),
 };
 const GIRIS_IC = LUCIDE('<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>', 16, 2); // lucide layout-grid
-const HS_EV = LUCIDE('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>', 16, 2);
+// House (Demir 10.11): ev değil, tek hedefe saplanmış üç ok — Türk Kriketi'nde House = aynı sayıya üç ok
+const HS_EV = LUCIDE('<circle cx="8" cy="16" r="6"/><circle cx="8" cy="16" r="2"/><path d="M8 16 18.5 5.5"/><path d="m18.5 5.5 2.6-.4"/><path d="m18.5 5.5.4-2.6"/><path d="M8 16 21 11.5"/><path d="m21 11.5 1.6 1.4"/><path d="m21 11.5.3-2.1"/><path d="M8 16 12.5 3.5"/><path d="m12.5 3.5-1.9-1"/><path d="m12.5 3.5 1.9-.6"/>', 16, 2);
 const HS_CARPI = LUCIDE('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', 16, 2);
 const TEK_IC = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
 
@@ -853,7 +861,7 @@ function viewPlay() {
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
     <section class="turn" style="--pc:${p.color}">
-      <div class="who">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
+      <div class="who" data-act="durumoku">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
       ${useTotal ? `<div class="totalbuf">${S.totalBuf || '0'}</div>` : `<div class="slots">${slots}</div><div class="tp">${turnPts}</div>`}
       ${hint ? `<div class="hint">${esc(hint)}</div>` : ''}
       ${(() => { const ip = g.ipucu ? g.ipucu(m, m.g) : null; return ip ? `<div class="ipucu i-${ip.tur}">${IPUCU_IC}<span>${esc(ip.metin)}</span></div>` : ''; })()}
@@ -1051,7 +1059,7 @@ function afterThrow(res) {
   if (!res) return;
   vib(res.event === 'dart' ? 12 : 30);
   oyunSesi(res, m);
-  try { const sp = player(E.currentPid(m)); okuma.atisOku(m, res, sp && sp.name); } catch (e) { /* okuma hatası oyunu durdurmasın */ }
+  try { const sp = player(E.currentPid(m)); okuma.atisOku(m, res, sp && sp.name, GAMES[m.gameId]); } catch (e) { /* okuma hatası oyunu durdurmasın */ }
   if (res.event === 'bust') toast('BUST!', 'bad');
   else if (res.event === 'leg' || res.event === 'set') { S.modal = { type: 'legbitti', ev: res.event, kazanan: res.winner }; konfeti(); }
   else if (m.msg) toast(esc(m.msg), m.kutla ? 'kutla' : '');
@@ -1720,6 +1728,10 @@ app.addEventListener('click', e => {
       const p = store.addPlayer(ad); store.updatePlayer(p.id, { bot: sv });
       vib(10); ses.tus(); toast(t('{0} eklendi', ad), 'good'); render(); break;
     }
+    case 'durumoku': { // Demir 09.11: oyuncu kartına dokununca sesli koç durumu bir daha söyler
+      if (okuma.acikMi()) { okuma.durumuOku(m, GAMES[m.gameId], player(E.currentPid(m)).name); vib(6); }
+      break;
+    }
     case 'sesmenu': {
       if (acilirAcik()) { acilirKapat(); break; } // Demir 09.11: bastığımda açılsın, bir daha bastığımda kapansın
       // Demir 09.11: üst çubukta ses menüsü — bütün sesler, sesli okuma, tuş sesi, oyun efektleri
@@ -1731,17 +1743,20 @@ app.addEventListener('click', e => {
           ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true, ic: OKUMA_IC, soluk: sz }] : []),
           { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false, ic: TUS_SES_IC, soluk: sz },
           { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false, ic: EFEKT_IC, soluk: sz },
+          ...(okuma.destekli() ? [['kisa', 'Konuşma: Kısa'], ['normal', 'Konuşma: Normal'], ['koc', 'Konuşma: Koç']].map(([v, l], i) =>
+            ({ v: 'sv_' + v, l: t(l), on: okuma.seviye() === v, ic: OKUMA_IC, ayir: i === 0, soluk: sz || st.sesliOkuma !== true })) : []),
           { v: 'sessiz', l: t('Sessize al'), on: sz, ic: SESSIZ_IC, ayir: true },
         ];
       };
       acilirAc(el, liste, v => {
+        if (v.startsWith('sv_')) { st.okumaSeviye = v.slice(3); store.save(); vib(6); return; } // konuşma seviyesi (Kısa / Normal / Koç)
         if (v === 'sessiz') { st.sessiz = !st.sessiz; if (st.sessiz) okuma.sustur(); }
         else {
           // sessizdeyken bir sese dokunulursa sessizlik kalkar ve o ses açılır
           if (st.sessiz) { st.sessiz = false; st[v] = true; }
           else if (v === 'sesliOkuma') st.sesliOkuma = !st.sesliOkuma;
           else st[v] = st[v] === false;
-          if (v === 'sesliOkuma') { if (okuma.acikMi()) okuma.oku(t('Sesli okuma açık')); else okuma.sustur(); }
+          if (v === 'sesliOkuma') { okuma.sustur(); okuma.duyur(okuma.acikMi()); }
           if (v === 'tusSes' && st.tusSes) ses.tus();
         }
         store.save(); vib(6);
@@ -1756,7 +1771,7 @@ app.addEventListener('click', e => {
       if (st.sessiz) { st.sessiz = false; st.sesliOkuma = true; document.querySelectorAll('.mc-ses').forEach(b => { b.classList.remove('kapali'); b.innerHTML = SESLI_IC; }); }
       else st.sesliOkuma = !st.sesliOkuma;
       store.save(); vib(8);
-      if (st.sesliOkuma) okuma.oku(t('Sesli okuma açık'), true);
+      okuma.sustur(); okuma.duyur(okuma.acikMi()); // Mert: "Sesli okuma açık / kapalı"
       // Demir 09.11: menüdeyken ekranı baştan çizme (menü kapanıp açılıyordu) — yalnız düğmeler güncellenir
       const acik = okuma.acikMi();
       document.querySelectorAll('.menu-okuma').forEach(b => { b.classList.toggle('acik', acik); const y = b.querySelector('b'); if (y) y.textContent = acik ? t('Açık') : t('Kapalı'); });
@@ -1825,7 +1840,10 @@ app.addEventListener('click', e => {
       sides.push(sides.shift());
       const nm = E.createMatch(lm.gameId, { ...lm.opts }, sides);
       store.setCurrent(nm);
+      S.mod = 1; S.totalBuf = '';
       go('play');
+      // Demir 10.11: rövanşta da kimin başladığı gösterilsin (İlk atış ekranı, animasyonlu)
+      S.modal = { type: 'ilksira' }; render();
       break;
     }
     case 'undoend': {
