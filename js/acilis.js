@@ -132,8 +132,9 @@ export function acilisGoster(acik = true) {
     oran = d.oran || oran;
     boyut(); addEventListener('resize', boyut);
     A.noktalar = d.n;
-    baslat();
+    baslat(); // Demir 09.11: intro beklemeden doğrudan açılır (dokunuş bekleyen sürüm geri alındı)
   }).catch(() => kat.remove());
+
 
   function baslat() {
     // ?an=1.6 → o saniyeden başla; &dur=1 → zamanı orada dondur (sitedeki gibi, yalnız kontrol görüntüsü için)

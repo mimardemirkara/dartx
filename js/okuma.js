@@ -5,8 +5,8 @@ import { data } from './store.js';
 import { dil } from './i18n.js';
 import { checkout } from './checkout.js';
 
-const TR = { triple: 'Tripıl', double: 'Dabıl', bull: 'Bul', dbull: 'Dabıl bul', iska: 'Iska', bust: 'Bast', oyun: 'Geym şat', yuzseksen: 'Yüz seksen!', kalan: 'kalan', sira: 'Sıra' };
-const EN = { triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next up,' };
+const TR = { house: 'Haus', triple: 'Tripıl', double: 'Dabıl', bull: 'Bul', dbull: 'Dabıl bul', iska: 'Iska', bust: 'Bast', oyun: 'Geym şat', yuzseksen: 'Yüz seksen!', kalan: 'kalan', sira: 'Sıra' };
+const EN = { house: 'House', triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next up,' };
 const S = () => (dil() === 'en' ? EN : TR);
 
 export const acikMi = () => data().settings.sesliOkuma === true && data().settings.sessiz !== true;
@@ -38,6 +38,7 @@ export function okSozu(d) {
   const k = S();
   if (!d || !d.n) return k.iska;
   if (d.n === 25) return d.m === 2 ? k.dbull : k.bull;
+  if (d.sec === 'H') return k.house + ' ' + d.n; // Türk Kriketi House (üç ok aynı sayı): "Haus 18"
   return (d.m === 3 ? k.triple + ' ' : d.m === 2 ? k.double + ' ' : '') + d.n;
 }
 

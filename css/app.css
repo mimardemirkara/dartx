@@ -2855,3 +2855,10 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .home .saat-arac { container-type: inline-size; min-width: 0; }
 :root .home .saat-arac .ds-saat { font-size: min(clamp(44px, 7vh, 72px), 31cqi); white-space: nowrap; }
 @media (min-width: 720px) and (orientation: portrait) { :root .home .araclar:not(.tek) { grid-template-columns: clamp(200px, 27vw, 260px) minmax(0, 480px); } }
+
+/* Açılış ilk dokunuşu bekler (Demir 09.11): ortada nabız gibi atan ışık (patlayacak atom) + "Başlamak için dokun" */
+.acilis.bekle .acilis-ipucu { opacity: 1; animation: acBekleYazi 2.4s ease-in-out infinite; }
+.acilis-atom { position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fff 0%, rgba(243,241,236,.55) 30%, rgba(243,241,236,0) 70%); animation: acAtom 1.6s ease-in-out infinite; }
+@keyframes acAtom { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.7); opacity: 1; } }
+@keyframes acBekleYazi { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
