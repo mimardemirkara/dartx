@@ -48,10 +48,11 @@ const x01Mi = m => !!(m && m.g && m.g.s && m.g.s[0] && typeof m.g.s[0].score ===
 export function atisOku(m, res, ad) {
   if (!acikMi() || !m || !res) return;
   const k = S();
-  const son = (m.adimlar || []).slice().reverse().find(a => a.t === 'd');
-  const ok = son ? son.d : null;
+  // yalnız son adım gerçekten bir oksa okunur ("Sıradaki Oyuncu" ve toplam girişinde önceki ok tekrar okunmasın)
+  const son = (m.adimlar || [])[(m.adimlar || []).length - 1];
+  const ok = son && son.t === 'd' ? son.d : null;
   // Demir 09.11: her ok basıldığı anda okunur, hiçbiri kesilmez (elin son oku dahil); özet okların arkasından gelir
-  if (res.event !== 'undo') oku(okSozu(ok));
+  if (ok) oku(okSozu(ok));
   if (res.event === 'dart') return;
   if (res.event === 'bust') { oku(k.bust); if (ad) oku(`${k.sira} ${ad}`); return; }
   if (res.event === 'leg' || res.event === 'set' || res.event === 'match') { oku(k.oyun); return; }
