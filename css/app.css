@@ -2862,3 +2862,15 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
   background: radial-gradient(circle, #fff 0%, rgba(243,241,236,.55) 30%, rgba(243,241,236,0) 70%); animation: acAtom 1.6s ease-in-out infinite; }
 @keyframes acAtom { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.7); opacity: 1; } }
 @keyframes acBekleYazi { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+
+/* Kayan listelerde "devamı var" (Demir 09.11, öneri A+B): kenar solması + küçük altın ok; parmakla kaydırma aynen çalışır */
+.kd-alt:not(.kd-ust) { -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent); }
+.kd-ust:not(.kd-alt) { -webkit-mask-image: linear-gradient(transparent, #000 22%); mask-image: linear-gradient(transparent, #000 22%); }
+.kd-ust.kd-alt { -webkit-mask-image: linear-gradient(transparent, #000 18%, #000 80%, transparent); mask-image: linear-gradient(transparent, #000 18%, #000 80%, transparent); }
+.kd-ok { position: absolute; z-index: 3; width: 34px; height: 22px; margin-left: -17px; padding: 0; border: 0; border-radius: 99px; display: grid; place-items: center; cursor: pointer;
+  color: #2a2014; background: rgb(227 184 102 / .92); box-shadow: 0 3px 10px rgb(0 0 0 / .45); animation: kdNabiz 1.6s ease-in-out infinite; }
+.kd-ok[hidden] { display: none; }
+.kd-ok:active { transform: scale(.9); }
+@keyframes kdNabiz { 0%, 100% { opacity: .85; translate: 0 0; } 50% { opacity: 1; translate: 0 2px; } }
+.kd-ok.kd-ust { animation-name: kdNabizUst; }
+@keyframes kdNabizUst { 0%, 100% { opacity: .85; translate: 0 0; } 50% { opacity: 1; translate: 0 -2px; } }

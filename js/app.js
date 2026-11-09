@@ -15,6 +15,7 @@ import { kuralMaddeleri, KURAL_IKON } from './kurallar.js';
 import { onayla, bilgi } from './dialog.js';
 import { acilisGoster } from './acilis.js';
 import * as okuma from './okuma.js';
+import './kaydir.js'; // kayan listelerde "devamı var" işareti (kenar solması + ok)
 import { yedekAl, yedekYukle } from './yedek.js';
 import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
 import { acilirAc, acilirKapat, acilirAcik, dokunmatik } from './acilir.js';
