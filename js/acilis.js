@@ -42,17 +42,9 @@ const ATOM = 0.45;
 const LOGO = { src: 'img/logo-dartx.webp', noktalar: 'img/logo-dartx-noktalar.json', olcek: 0.9 };
 // Uçan dart (Demir 09.11): vuruş anı (sn), uçuş süresi, logodaki dartın ucu ve açısı (logo görseli 1000×370)
 const DART = { vurus: 3.5, ucus: 0.42, uc: [86, 194], aci: 43.8 };
-// Dart çizimi: uç x=0'da, gövde +x yönünde (165 birim ≈ logodaki dart); bakır gövde, çelik uç, iki kanat
-const DART_SVG = s => `<svg width="${180 * s}" height="${96 * s}" viewBox="-6 -48 180 96" style="left:${-6 * s}px;top:${-48 * s}px" aria-hidden="true">
-  <defs><linearGradient id="adBakir" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b98a"/><stop offset=".45" stop-color="#c8703e"/><stop offset="1" stop-color="#6e3416"/></linearGradient>
-  <linearGradient id="adCelik" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset=".5" stop-color="#a9aeb5"/><stop offset="1" stop-color="#5b6068"/></linearGradient></defs>
-  <path d="M0 0 L22 -2.2 L22 2.2 Z" fill="url(#adCelik)"/>
-  <path d="M22 -5 Q26 -6.5 46 -6.5 L68 -4.2 L68 4.2 L46 6.5 Q26 6.5 22 5 Z" fill="url(#adBakir)"/>
-  <path d="M30 -6 v12 M35 -6.4 v12.8 M40 -6.5 v13 M45 -6.5 v13" stroke="#5a2a10" stroke-width="1.2" opacity=".55"/>
-  <rect x="68" y="-2.2" width="38" height="4.4" rx="2" fill="url(#adBakir)"/>
-  <path d="M100 -2 L128 -40 Q150 -44 166 -34 L148 -3 Z" fill="url(#adBakir)" stroke="#5a2a10" stroke-width="1"/>
-  <path d="M100 2 L128 40 Q150 44 166 34 L148 3 Z" fill="url(#adBakir)" stroke="#5a2a10" stroke-width="1"/>
-  <path d="M104 0 L160 0" stroke="#7a3a18" stroke-width="3"/></svg>`;
+// Uçan dart (Demir 09.11: "saplanan okla logodaki ok aynı değil"): logodaki dartın kendisi görselden kesildi
+// (img/acilis-dart.webp = logo görselinin 70,40 – 232,206 kırpığı); uç bu kırpıkta 15,152.5'te. Saplanınca piksel piksel aynı.
+const DART_IMG = { src: 'img/acilis-dart.webp', x0: 70, y0: 40, w: 162, h: 166 };
 
 export function acilisGoster(acik = true) {
   // Sistemde "hareketi azalt" açıksa atlanır (sitedeki gibi); ?acilis=1 ile yine de gösterilir (önizleme / deneme)
@@ -87,7 +79,7 @@ export function acilisGoster(acik = true) {
     const d = document.createElement('div');
     d.className = 'acilis-dart';
     d.style.left = ux + 'px'; d.style.top = uy + 'px';
-    d.innerHTML = `<div class="ad-don" style="transform: rotate(${-DART.aci}deg)">${DART_SVG(s)}</div>`;
+    d.innerHTML = `<img class="ad-resim" src="${DART_IMG.src}" alt="" style="left:${(DART_IMG.x0 - DART.uc[0]) * s}px;top:${(DART_IMG.y0 - DART.uc[1]) * s}px;width:${DART_IMG.w * s}px;height:${DART_IMG.h * s}px">`;
     kat.appendChild(d);
     dartUcusSesi(DART.ucus);
     const uc = d.animate([
@@ -114,6 +106,7 @@ export function acilisGoster(acik = true) {
     };
   }
 
+  new Image().src = DART_IMG.src; // uçan dart resmi önceden yüklensin
   const kapat = () => {
     if (A.cikis !== null) return;
     A.cikis = performance.now();

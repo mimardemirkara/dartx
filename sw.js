@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b132';
+const VERSION = 'dartx-b133';
 const FILES = [
   'ses/atc/tr-00.mp3',
   'ses/atc/tr-01.mp3',
@@ -178,7 +178,7 @@ const FILES = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
-  'img/logo-dartx.webp',
+  'img/logo-dartx.webp', 'img/acilis-dart.webp',
   'img/karakter/demir.webp',
   'img/karakter/kenan.webp',
   'img/karakter/demir-avatar.webp',

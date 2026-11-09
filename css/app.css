@@ -2806,3 +2806,5 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .acilis-logo.sars { animation: adSars .38s cubic-bezier(.3,.6,.4,1); }
 @keyframes adSars { 0% { transform: translate(-50%, -50%); } 20% { transform: translate(calc(-50% - 5px), calc(-50% + 4px)) rotate(-.6deg); }
   45% { transform: translate(calc(-50% + 3px), calc(-50% - 2px)) rotate(.4deg); } 70% { transform: translate(calc(-50% - 1px), calc(-50% + 1px)); } 100% { transform: translate(-50%, -50%); } }
+
+.acilis-dart .ad-resim { position: absolute; max-width: none; filter: drop-shadow(5px 9px 6px rgba(0,0,0,.55)); }
