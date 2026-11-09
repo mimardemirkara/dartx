@@ -34,6 +34,8 @@ if (!db.gocKoyu) {
   db.gocKoyu = 1;
   try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* sessiz */ }
 }
+// Demir 09.11: sesli okuma her açılışta kapalı gelir (maçta konuşan kişi düğmesinden ya da ses menüsünden açılır)
+if (db.settings) db.settings.sesliOkuma = false;
 function renkleriAyir() {
   const kullanilan = new Set(); let degisti = false;
   for (const p of db.players) {
