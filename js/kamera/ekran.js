@@ -414,15 +414,18 @@ function ciz() {
     cx.beginPath(); cx.arc(q.x, q.y, 6.5 * o, 0, Math.PI * 2); cx.fillStyle = 'rgb(233 75 60 / .95)'; cx.fill();
     cx.lineWidth = 1.6 * o; cx.strokeStyle = '#fff'; cx.stroke(); cx.restore();
     cx.beginPath(); cx.arc(q.x, q.y, 1.6 * o, 0, Math.PI * 2); cx.fillStyle = '#fff'; cx.fill();
-    const yz = AYAR_YAZI[i]; cx.font = `700 ${Math.round(10 * o)}px system-ui`; const gw = cx.measureText(yz).width + 10 * o, gh = 15 * o, gy = q.y - 12 * o - gh;
-    cx.fillStyle = 'rgb(26 21 16 / .82)'; cx.beginPath(); cx.roundRect ? cx.roundRect(q.x - gw / 2, gy, gw, gh, gh / 2) : cx.rect(q.x - gw / 2, gy, gw, gh); cx.fill();
-    cx.fillStyle = '#f3d48f'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(yz, q.x, gy + gh / 2 + .5 * o);
+    const yz = AYAR_YAZI[i]; cx.font = `700 ${Math.round(10 * o)}px system-ui`; const gw = cx.measureText(yz).width + 10 * o, gh = 15 * o;
+    // etiket noktanın tahta merkezine bakan tarafında (dışarıdaki dilim numaralarının üstüne binmesin)
+    const mz = S.kal ? uygula(S.kal.T2G, 0, 0) : { x: S.w / 2, y: S.h / 2 }, dx = mz.x - q.x, dy = mz.y - q.y, dl = Math.hypot(dx, dy) || 1;
+    const ex = q.x + dx / dl * 22 * o, ey = q.y + dy / dl * 22 * o;
+    cx.fillStyle = 'rgb(26 21 16 / .82)'; cx.beginPath(); cx.roundRect ? cx.roundRect(ex - gw / 2, ey - gh / 2, gw, gh, gh / 2) : cx.rect(ex - gw / 2, ey - gh / 2, gw, gh); cx.fill();
+    cx.fillStyle = '#f3d48f'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(yz, ex, ey + .5 * o);
   });
   if (S.kutu) { cx.lineWidth = lw; cx.strokeStyle = 'rgb(61 139 253 / .9)'; cx.setLineDash([6 * o, 4 * o]); cx.strokeRect(S.kutu.x, S.kutu.y, S.kutu.w, S.kutu.h); cx.setLineDash([]); }
   // Vuruş işareti (Demir 10.11 "kaba"): ince halka + merkez nokta + dışta 4 kısa çizgi (uç görünür kalsın);
   // ekrana dokunma denemesi altın, kameranın bulduğu ok yeşil
   if (S.oneri) {
-    const { x, y } = S.oneri, r = 9 * o, renk = S.oneri.deneme ? '#f3d48f' : '#3ddc84';
+    const { x, y } = S.oneri, r = 9 * o, renk = S.oneri.deneme ? '#ff5a4a' : '#3ddc84'; // Demir 10.11: dokunuş işareti kırmızı
     cx.save(); cx.shadowColor = 'rgb(0 0 0 / .7)'; cx.shadowBlur = 4 * o; cx.strokeStyle = renk; cx.fillStyle = renk; cx.lineWidth = 1.6 * o; cx.lineCap = 'round';
     cx.beginPath(); cx.arc(x, y, r, 0, Math.PI * 2); cx.stroke();
     cx.beginPath(); cx.arc(x, y, 1.8 * o, 0, Math.PI * 2); cx.fill();
