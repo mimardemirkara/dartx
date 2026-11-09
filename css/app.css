@@ -2775,3 +2775,12 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
   .play .keypad.hizli .k3 .k3-s { font-size: 18px; padding-top: 0; padding-bottom: 0; }
   .play .keypad.hizli .k3 .k3-alt button { font-size: 13px; padding: 0; }
 }
+/* Atışı Geri Al açıklaması (Demir 10.11): basılı tutunca son 10 atış listesi açılır */
+.keypad .geri-tus .geri-not { display: block; font-size: 11px; font-weight: 600; opacity: .75; line-height: 1.1; margin-top: 2px; white-space: nowrap; }
+@media (min-width: 700px) { .keypad .geri-tus .geri-not { font-size: 13px; margin-top: 4px; } }
+.keypad .geri-modda .geri-not { display: none; }
+@media (min-width: 700px) { .keypad .geri-modda .geri-not { display: block; font-size: 11px; margin-top: 0; } }
+.keypad .geri-tus:disabled .geri-not { opacity: .5; }
+@media (min-width: 700px) { .keypad .geri-modda .geri-not { font-size: 13px; margin: 0 0 0 10px; padding-left: 10px; border-left: 1px solid rgb(255 255 255 / .4); letter-spacing: 0; } }
+:root .keypad .geri-tus .geri-not { color: rgb(255 255 255 / .9) !important; opacity: 1; text-shadow: 0 1px 2px rgb(0 0 0 / .3); font-weight: 600; }
+:root .keypad .geri-tus:disabled .geri-not { opacity: .6; }
