@@ -128,7 +128,9 @@ function make(id) {
     if (onceki.length === 2 && onceki.every(x => x.n === d.n) && hedefler(g).includes('H')) ekle('H', tr('House · 1 işaret'), 'H');
     if (!tumu) return liste.map(x => (x.e = onizle(m, g, d, x.v, onceki), x));
     // Anlık hesap (Demir 09.11: "şu kadar puan / ceza gibi anlık hesaplarsan daha teşvik edici olur")
-    liste.forEach(x => { x.e = x.etkisiz ? { tur: 'bos', metin: tr('Kapalı · etkisi yok') } : onizle(m, g, d, x.v, onceki); });
+    // Etkisiz seçenek de seçilebilir (Demir 10.11): House varken "19" demek = önceki okların yazdığı kalsın, bu ok boşa gitsin
+    const houseVar = liste.some(x => x.v === 'H');
+    liste.forEach(x => { x.e = x.etkisiz ? { tur: 'bos', metin: houseVar && x.v === 'n' ? tr('{0} kapalı kalır · bu ok boşa', hedefAd(d.n) === 25 ? 'B' : hedefAd(d.n)) : tr('Bu ok boşa · etkisi yok') } : onizle(m, g, d, x.v, onceki); });
     return liste;
   }
   // Bu seçenek yazılırsa ne olur: kaç puan (ya da rakibe ceza), hangi hedef kapanır
@@ -150,7 +152,14 @@ function make(id) {
     if (kapanir) parca.push(benOnce.k[hedef] === 0 ? tr('{0} tek okta kapanır ⊙', hedefAd(hedef)) : tr('{0} kapanır', hedefAd(hedef)));
     // Türk Kriketi dilinde fazla yazılan puan rakibe cezadır (Demir 09.11: "2 ok için 22 ceza yazarsın")
     if (puan + ceza > 0) parca.push(tr('rakibe {0} ceza', puan + ceza));
-    if (v === 'H' && turBasi && g.s[m.cur].pts > turBasi[m.cur].pts && puan <= 0 && !kapanir) parca.push(tr('önceki oklar silinir'));
+    // House seçilirse elin önceki iki okunun yazdıkları silinir (Demir 10.11: "3. ok boşa mı gider?") — bunu açıkça söyle
+    if (v === 'H' && turBasi) {
+      hedefler(g).filter(n => n !== 'H').forEach(n => {
+        const simdi = g.s[m.cur].k[n], sonra = ben.k[n];
+        if (sonra < simdi) parca.push(tr('{0} geri açılır ({1}/3)', hedefAd(n) === 25 ? 'B' : hedefAd(n), sonra));
+      });
+      if (g.s[m.cur].pts > turBasi[m.cur].pts && !(puan > 0)) parca.push(tr('önceki oklar silinir'));
+    }
     return { tur: puan > 0 || ceza > 0 ? 'puan' : kapanir ? 'kapat' : 'bos', metin: parca.join(' · ') || tr('{0} olur: {1}/3', hedefAd(hedef) === 'H' ? 'House' : hedefAd(hedef) === 'D' ? 'Double' : hedefAd(hedef) === 'T' ? 'Triple' : hedefAd(hedef), ben.k[hedef]) };
   }
   // Bir hedefe 'adet' işaret yaz; kapalıysa (rakip açıkken) puanı kendine yaz

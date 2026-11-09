@@ -2564,3 +2564,14 @@ a.ay-satir { text-decoration: none; color: inherit; }
 
 /* Etkisiz seçenek (Demir 10.11 "her zaman sor"): görünür ama soluk */
 .hs-izgara .hedef-sec.etkisiz { opacity: .5; filter: saturate(.3); }
+
+/* Geri al listesi (uzun basınca) */
+.gl-ust { display: flex; align-items: center; gap: 10px; } .gl-ust h2 { margin: 0; }
+.gl-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: rgb(245 130 32 / .85); flex: none; }
+.gl-not { margin: 8px 0 12px; }
+.gl-liste { display: grid; gap: 6px; max-height: 55vh; overflow-y: auto; }
+.gl-satir { display: flex !important; align-items: center; gap: 12px; text-align: left; min-height: 54px; padding: 6px 14px !important; border-left: 4px solid var(--pc) !important; }
+.gl-no { width: 26px; height: 26px; border-radius: 99px; display: grid; place-items: center; font-size: 13px; font-weight: 800; background: rgb(0 0 0 / .3); flex: none; }
+.gl-kim { flex: 1; min-width: 0; display: grid; } .gl-kim b { font-size: 16px; } .gl-kim small { font-size: 12px; opacity: .7; }
+.gl-ok { font-size: 20px; font-weight: 800; color: var(--brand); }
+.hs-izgara .hedef-sec.etkisiz { opacity: .8; filter: saturate(.55); }

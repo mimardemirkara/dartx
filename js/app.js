@@ -818,7 +818,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
-      <button class="geri-al" data-act="undo" ${E.canUndo() ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
+      <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
     <section class="turn" style="--pc:${p.color}">
@@ -877,6 +877,15 @@ addEventListener('scroll', e => {
   const i = Math.round(k.scrollLeft / k.clientWidth);
   k.parentElement.querySelectorAll('.ym-noktalar i').forEach((n, j) => n.classList.toggle('on', i === j));
 }, true);
+// Atışı Geri Al'a uzun basma → geri al listesi
+let uzunBasildi = false, uzunT = null;
+app.addEventListener('pointerdown', e => {
+  const b = e.target.closest('[data-act="undo"]'); if (!b || b.disabled) return;
+  clearTimeout(uzunT);
+  uzunT = setTimeout(() => { uzunBasildi = true; vib(25); ses.tus(); S.modal = { type: 'gerilist' }; render(); }, 550);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(uzunT)));
+app.addEventListener('contextmenu', e => { if (e.target.closest('[data-act="undo"]')) e.preventDefault(); });
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -895,7 +904,7 @@ function keypad(m, g) {
   const sutun = !sadece ? 5 : sadece.length <= 6 ? 3 : sadece.length <= 8 ? 4 : sadece.length <= 12 ? 4 : 5;
   // Demir 09.11: sayı ızgarasında boş kalan yere "Son Atışı Geri Al" (üstteki gizlenir)
   const bos = (sutun - nums.length % sutun) % sutun;
-  if (bos) nums.push(`<button class="k geri-tus" style="grid-column: span ${bos}" data-act="undo" ${E.canUndo() ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>`);
+  if (bos) nums.push(`<button class="k geri-tus" style="grid-column: span ${bos}" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>`);
   return `<section class="keypad mod${mod} ${hizli ? 'hizli' : ''} ${S.house ? 'modH' : ''}">
     <div class="mods">
       ${hizli ? '' : `<button class="k mod ${mod === 2 ? 'on' : ''}" data-act="mod" data-m="2">${TUS_IC.double}<span>DOUBLE</span></button>
@@ -903,7 +912,7 @@ function keypad(m, g) {
       ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="H" ${(m.turnDarts || []).length && !S.house ? 'disabled' : ''}>${HS_EV}<span>HOUSE</span></button>` : ''}
       ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="B3" ${(m.turnDarts || []).length && !S.house ? 'disabled' : ''}>${HS_EV}<span>3 IN A BED</span></button>` : ''}
       ${`<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>`}
-      ${!bos ? `<button class="k mod geri-tus geri-modda" data-act="undo" ${E.canUndo() ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>` : ''}
+      ${!bos ? `<button class="k mod geri-tus geri-modda" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>` : ''}
       ${g.cat === 'cricket' && g.view ? (tabloYazAcik(m, g)
         ? `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="0" aria-label="${t('Tuşlarla yaz')}" title="${t('Tuşlarla yaz')}">${KLAVYE_IC}</button>`
         : `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="1" aria-label="${t('Tablodan yaz')}" title="${t('Tablodan yaz')}">${TABLO_IC}</button>`) : ''}
@@ -983,7 +992,7 @@ function viewEnd() {
     ${rows ? `<div class="tablewrap"><table class="sum"><thead><tr><th></th>${pids.map(pid => `<th style="color:${player(pid).color}">${esc(player(pid).name)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>` : ''}
     <button class="btn primary big" data-act="rematch">${t('Rövanş')}</button>
     <div class="row">
-      <button class="btn" data-act="undoend" ${E.canUndo() ? '' : 'disabled'}>${t('↶ Son oku geri al')}</button>
+      <button class="btn" data-act="undoend" ${E.canUndo(m) ? '' : 'disabled'}>${t('↶ Son oku geri al')}</button>
       <button class="btn" data-act="home">${t('Ana sayfa')}</button>
     </div>
   </main>`;
@@ -1275,6 +1284,18 @@ function modal() {
         if (bullKutu === 'dbull') ad = 'D-Bull';
         return `<button class="btn hedef-sec hs-${x.v === 'n' ? 'sayi' : x.v} ${bullKutu ? 'hs-' + bullKutu : ''} ${x.etkisiz ? 'etkisiz' : ''}" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span>${x.e && x.e.metin ? `<span class="hs-etki e-${x.e.tur}">${esc(kelimeBuyuk(x.e.metin))}</span>` : ''}</button>`;
       }).join('')}</div>
+      <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
+  } else if (md.type === 'gerilist') {
+    // Atışı Geri Al'a uzun basınca: son 10 hamle; dokununca o hamle dahil sonrası geri alınır (Demir 10.11)
+    const m = data().current; if (!m) { S.modal = null; return ''; }
+    const ad = pid => esc(player(pid).name);
+    const etiket = a => a.t === 'd' ? (a.d.n === 0 ? t('Iska') : dartLabel(a.d) + (a.d.sec && a.d.sec !== 'n' ? ' → ' + a.d.sec : ''))
+      : a.t === 'p' ? t('Sıradaki Oyuncu') : a.t === 'T' ? t('Tur toplamı {0}', a.total) : t('Oyunu bitir');
+    const liste = E.sonHamleler(m, 10);
+    body = `<div class="gl-ust"><span class="gl-ic">${GERI_IC}</span><h2>${t('Nereye kadar geri alınsın?')}</h2></div>
+      <p class="muted gl-not">${t('Bir atışa dokun: o atış ve sonrakiler silinir. Maçın başına kadar geri alınabilir.')}</p>
+      <div class="gl-liste">${liste.map((a, i) => `<button class="btn gl-satir" data-act="gerilist" data-n="${i + 1}" style="--pc:${player(a.p).color}">
+        <span class="gl-no">${i + 1}</span><span class="gl-kim"><b>${ad(a.p)}</b><small>${t('Tur {0}', a.r)}</small></span><span class="gl-ok">${esc(etiket(a))}</span></button>`).join('') || `<p class="muted">${t('Geri alınacak atış yok')}</p>`}</div>
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
   } else if (md.type === 'ilksira') {
     const m = data().current; if (!m) { S.modal = null; return ''; }
@@ -1588,7 +1609,14 @@ app.addEventListener('click', e => {
       break;
     }
     case 'pass': ses.tus(); afterThrow(E.passTurn(m)); break;
+    case 'gerilist': { // listeden bir hamleye kadar tek seferde geri dön
+      const n = Number(el.dataset.n);
+      S.modal = null;
+      if (E.geriAl(m, n)) { S.mod = 1; S.totalBuf = ''; S.house = null; store.setCurrent(m); vib(20); ses.oyun('geri'); toast(t('{0} atış geri alındı', n), '', { tur: { ic: 'karisik', a: 'a-don', k: '' } }); }
+      render(); break;
+    }
     case 'undo':
+      if (uzunBasildi) { uzunBasildi = false; break; }
       if (E.undo(m)) { S.mod = 1; S.totalBuf = ''; if (S.modal && S.modal.type === 'legbitti') S.modal = null; store.setCurrent(m); vib(20); ses.oyun('geri'); render(); }
       break;
     case 'np': {
