@@ -115,8 +115,8 @@ export function algilayici(o) {
     const a = 0.5 * Math.atan2(2 * sxy, sxx - syy), ex = Math.cos(a), ey = Math.sin(a);
     const pr = tum.map(j => { const x = j % KW, y = (j / KW) | 0; return { x, y, t: (x - mx) * ex + (y - my) * ey }; }).sort((p, q) => p.t - q.t);
     const n = pr.length, boy = pr[n - 1].t - pr[0].t || 1;
-    // uç tarafı hafif (ince gövde), kanatçık tarafı ağır: eksenin iki yarısındaki piksel sayısı
-    const orta = pr[0].t + boy / 2, bas = pr.filter(p => p.t < orta).length, son = n - bas;
+    // uç tarafı ince: eksenin iki ucundaki %20'lik dilimde piksel sayısı (yarı-ağırlık denendi, simülasyonda kötüleştirdi)
+    const bas = pr.filter(p => p.t < pr[0].t + boy * .2).length, son = pr.filter(p => p.t > pr[n - 1].t - boy * .2).length;
     const k = Math.max(2, Math.round(n * .03));
     // uç seçimi: iki uçtan yalnız biri tahtanın içindeyse uç odur (kanatçık çoğu zaman dışarı taşar); yoksa İNCE olan uç
     const ort = l => ({ x: (l.reduce((s, p) => s + p.x, 0) / l.length + .5) * olc, y: (l.reduce((s, p) => s + p.y, 0) / l.length + .5) * olc });

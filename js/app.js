@@ -2104,7 +2104,7 @@ app.addEventListener('click', e => {
   e.preventDefault(); e.stopImmediatePropagation(); history.back();
 }, true);
 // Ana ekrana eklenmiş uygulamada iOS kenar kaydırması yok: aynısı simgesiz (sayfa parmakla kayar)
-const tekBasina = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const tekBasina = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true || new URLSearchParams(location.search).has('tek'); // ?tek=1: deneme
 if (tekBasina) kenarKaydirKur({
   geriVar: () => !S.modal && S.view !== 'play' && gIdx > 0,
   ileriVar: () => !S.modal && S.view !== 'play' && gIdx < gMax,
