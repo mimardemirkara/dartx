@@ -2916,3 +2916,35 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .play-top .pt-ses[data-sv="kisa"]::after { content: 'S'; background: rgb(150 160 178); }
 .play-top .pt-ses[data-sv="koc"]::after { content: 'K'; }
 .play-top .pt-ses:not(.acik)::after { opacity: .5; }
+
+/* Kamera (Beta) — oyunda kamera düğmesi, köşe önizlemesi, eşleştirme penceresi (Demir 10.11) */
+.play-top .pt-kam { flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; color: rgb(150 160 178); margin-left: auto; position: relative; }
+.play-top .pt-kam + .pt-ses { margin-left: 0; }
+@media (min-width: 700px) { .play-top .pt-kam { width: 46px; height: 46px; } .play-top .pt-kam svg { width: 22px; height: 22px; } }
+.play-top .pt-kam[data-d="yerel"], .play-top .pt-kam[data-d="uzak"] { color: rgb(47 179 109); }
+.play-top .pt-kam[data-d="yerel"]::after, .play-top .pt-kam[data-d="uzak"]::after { content: ''; position: absolute; right: 5px; top: 5px; width: 8px; height: 8px; border-radius: 50%;
+  background: rgb(47 179 109); box-shadow: 0 0 0 2px rgb(20 18 16); animation: kamNabiz 1.6s ease-in-out infinite; }
+@keyframes kamNabiz { 50% { opacity: .35; } }
+.ay-ad small { display: block; font-size: 12.5px; color: var(--mut); font-weight: 400; margin-top: 2px; }
+.beta-rozet { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .1em; padding: 2px 7px; border-radius: 99px; color: #1d160a; background: var(--altin); vertical-align: 2px; }
+.kam-onizleme { position: fixed; z-index: 40; right: 10px; bottom: calc(env(safe-area-inset-bottom) + 10px); width: 112px; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden;
+  border: 1.5px solid rgb(47 179 109 / .8); box-shadow: 0 8px 24px -8px rgb(0 0 0 / .7); background: #000; cursor: pointer; }
+.kam-onizleme .kam-video { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .85; }
+.kam-onizleme .kam-nokta { position: absolute; left: 6px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: rgb(233 75 60); animation: kamNabiz 1.2s ease-in-out infinite; }
+.kam-onizleme .kam-son { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px #000; }
+.kam-onizleme.vurdu { animation: kamVur .45s ease-out; }
+@keyframes kamVur { 30% { transform: scale(1.12); border-color: #f0cf86; } }
+.kam-perde { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgb(7 9 11 / .78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.kam-kart { width: min(440px, 100%); max-height: 100%; overflow: auto; padding: 20px; border-radius: 22px; background: #171b20; color: #ece7dd; border: 1px solid rgb(255 255 255 / .12); text-align: center; display: grid; gap: 12px; }
+:root[data-tema="acik"] .kam-kart { background: #fbf8f2; color: #1d160a; }
+.kam-kart h3 { margin: 0; font-size: 18px; }
+.kam-kart p { margin: 0; color: var(--mut); font-size: 14px; }
+.kam-adimlar { text-align: left; margin: 0; padding-left: 20px; font-size: 14px; display: grid; gap: 6px; }
+.kam-qr { background: #fff; border-radius: 14px; padding: 10px; }
+.kam-qr svg { display: block; width: 100%; height: auto; }
+.kam-tara { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 4 / 3; }
+.kam-tara video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.kam-cerceve { position: absolute; inset: 15%; border: 3px solid #f0cf86; border-radius: 12px; animation: kamNabiz 1.4s ease-in-out infinite; z-index: 1; }
+.kam-tamam { width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 34px; font-weight: 800; color: #fff; background: rgb(47 179 109); animation: kamVur .5s ease-out; }
+.kam-adim { padding: 20px 0; }
+.kam-kart .btn.primary { color: #1d160a; }

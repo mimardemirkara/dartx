@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b159';
+const VERSION = 'dartx-b160';
 const FILES = [
   'ses/spiker/liste.json',
   'ses/spiker/bull.mp3',
@@ -886,6 +886,7 @@ const FILES = [
   'js/app.js',
   'js/derleme.js',
   'js/bot.js', 'js/okuma.js', 'js/kaydir.js',
+  'kamera.html', 'js/kamera/tahta.js', 'js/kamera/algila.js', 'js/kamera/baglanti.js', 'js/kamera/oyun.js', 'js/kamera/kamera.js', 'js/vendor/qrcode.js', 'js/vendor/jsQR.js',
   'js/store.js',
   'js/engine.js',
   'js/util.js',

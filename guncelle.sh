@@ -8,7 +8,7 @@ sed -i "s/export const DERLEME = [0-9]*;/export const DERLEME = $N;/" "$K/js/der
 sed -i "s/const VERSION = 'dartx-[^']*';/const VERSION = 'dartx-b$N';/" "$K/sw.js"
 echo "Derleme $N"
 rm -rf "$Y/css" "$Y/js" "$Y/img" "$Y/icons" "$Y/ses"
-cp -r "$K"/{index.html,manifest.webmanifest,sw.js,css,js,img,icons,ses} "$Y/"
+cp -r "$K"/{index.html,kamera.html,manifest.webmanifest,sw.js,css,js,img,icons,ses} "$Y/"
 rm -rf "$Y/img/karakter/kaynak"; find "$Y" -name "*.md" ! -name README.md -delete
 cd "$Y"; git add -A
 git -c user.name="Demir Kara" -c user.email="demirkaramimar@gmail.com" commit -q -m "${1:-DartX güncellemesi}

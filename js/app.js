@@ -16,6 +16,7 @@ import { onayla, bilgi } from './dialog.js';
 import { acilisGoster } from './acilis.js';
 import { dartVurusSesi } from './acilis-ses.js';
 import * as okuma from './okuma.js';
+import * as kam from './kamera/oyun.js';
 import './kaydir.js'; // kayan listelerde "devamı var" işareti (kenar solması + ok)
 import { yedekAl, yedekYukle } from './yedek.js';
 import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
@@ -856,6 +857,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
+      ${kamDugme(useTotal)}
       ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-sv="${okuma.seviye()}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? OKUMA_IC : OKUMA_KAPALI_IC}</button>` : ''}
       <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
@@ -941,6 +943,29 @@ app.addEventListener('pointerdown', e => {
   }, 500);
 });
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(svT)));
+// ---------- Kamera (Beta): telefonun kendi kamerası ya da eşleşmiş telefondan gelen atış ----------
+const KAM_IC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
+function kamDugme(useTotal) {
+  const d = kam.durum();
+  if (d === 'ayarsiz' || useTotal) return '';
+  return `<button class="icon-btn pt-kam" data-d="${d}" data-act="kamera" aria-label="${t('Kamera')}" title="${t('Kamera')}">${KAM_IC}</button>`;
+}
+function kameraAtis(p) {
+  const m = data().current;
+  if (S.view !== 'play' || !m || m.done) return;
+  const g = GAMES[m.gameId];
+  if (S.modal || botSirasi(m) || (g.totalInput && m.opts.input === 'total')) { toast(t('Kamera atışı yazılamadı: önce açık pencereyi kapat'), 'bad'); return; }
+  const ok = { n: p.n, m: p.n === 0 ? 1 : p.m };
+  const sec = g.secenekler ? g.secenekler(m, m.g, ok) : null;
+  if (sec) { S.modal = { type: 'hedefsec', ok, sec }; vib(10); render(); return; }
+  S.house = null; S.mod = 1; S.sonOk = ok;
+  afterThrow(E.throwDart(m, ok));
+}
+kam.kur({
+  atis: kameraAtis,
+  durum: () => { if (S.view === 'play') render(); else if (S.view === 'settings') render(); },
+});
+
 // Atışı Geri Al'a uzun basma → geri al listesi
 let uzunBasildi = false, uzunT = null;
 app.addEventListener('pointerdown', e => {
@@ -1177,6 +1202,8 @@ function viewStats() {
 // Ayarlar
 // Ayarlar (iPhone Ayarlar uygulaması gibi gruplu cam liste). Satır simgeleri lucide-react 1.26.0 — demirkara.com ile aynı set.
 const AY = {
+  kamera: LUCIDE('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>', 17),
+  telefon: LUCIDE('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>', 17),
   sirket: LUCIDE('<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>', 18),
   insta: LUCIDE('<rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>', 18),
   disari: LUCIDE('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"/>', 14),
@@ -1289,6 +1316,10 @@ function viewSettings() {
       ${satir(AY.ekran, t('Oyunda ekran açık kalsın'), anahtar('keepAwake'))}
       ${satir(AY.yildiz, t('Açılış efekti'), anahtar('acilis', data().settings.acilis !== false))}
       ${okuma.destekli() ? satir(AY.oyunSes, t('Sesli okuma (atışlar ve bitiriş)'), anahtar('sesliOkuma', s.sesliOkuma === true)) : ''}`)}
+    ${kart(AY.kamera, t('Kamera') + ' <span class="beta-rozet">BETA</span>', `
+      <button class="ay-satir tikla" data-act="kamsayfa">${ikonKutu(AY.kamera)}<span class="ay-ad">${t('Bu cihaz kamera')}<small>${t('Tahtayı ayarla, dene, tablete bağlan')}</small></span><span class="ay-ok">${AY.ok}</span></button>
+      <button class="ay-satir tikla" data-act="kameslestir">${ikonKutu(AY.telefon)}<span class="ay-ad">${t('Kamerayı telefondan al')}<small>${kam.durum() === 'uzak' ? t('Telefon bağlı') : t('QR ile eşleştir · aynı Wi-Fi, internet gerekmez')}</small></span><span class="ay-ok">${AY.ok}</span></button>
+      <p class="ay-not">${t('Kamera saplanan oku tanır, puanı kendiliğinden yazar. Yanlış yazarsa Atışı Geri Al ile düzelt. Deneme aşamasında: ışık ve açı isabeti etkiler.')}</p>`)}
     ${kart(AY.indir, t('Yedek'), `
       <button class="ay-satir tikla" data-act="export">${ikonKutu(AY.indir)}<span class="ay-ad">${t('Yedek al')}</span><span class="ay-ok">${AY.ok}</span></button>
       <label class="ay-satir tikla">${ikonKutu(AY.yukle)}<span class="ay-ad">${t('Yedeği yükle')}</span><span class="ay-ok">${AY.ok}</span><input type="file" accept=".json,application/json" data-act="import" hidden></label>
@@ -1883,6 +1914,17 @@ app.addEventListener('click', e => {
       break;
 
     case 'export': exportBackup(); break;
+    case 'kamsayfa': kam.yerelKapat(); location.href = 'kamera.html'; break;
+    case 'kameslestir': kam.eslestir(t); break;
+    case 'kamera': { // oyunda kamera düğmesi
+      const d = kam.durum();
+      if (d === 'uzak') { toast(t('Kamera: telefon bağlı'), ''); break; }
+      if (d === 'yerel') { kam.yerelKapat(); toast(t('Kamera kapandı'), ''); break; }
+      if (d === 'ayarsiz') { location.href = 'kamera.html'; break; }
+      kam.yerelAc().then(ok => { if (ok) toast(t('Kamera açık: atışlar kendiliğinden yazılır'), ''); })
+        .catch(e => toast(t('Kamera açılamadı') + (e && e.name === 'NotAllowedError' ? ': ' + t('izin verilmedi') : ''), 'bad'));
+      break;
+    }
     case 'reset':
       onayla({ baslik: t('Tüm veriler silinsin mi?'), metin: t('TÜM oyuncular ve maçlar silinecek. Bu işlem geri alınamaz.'), evet: t('Tümünü sil'), tehlike: true })
         .then(ok => { if (ok) { store.resetAll(); go('home'); } });
