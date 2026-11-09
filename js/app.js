@@ -1,6 +1,7 @@
 // DartX — arayüz
 import * as store from './store.js';
 import { DERLEME } from './derleme.js';
+import { botAt, botHedef, BOT_SEVIYE } from './bot.js';
 import { data, player } from './store.js';
 import { GAMES, GAME_LIST, CATS } from './games/index.js';
 import * as E from './engine.js';
@@ -422,6 +423,7 @@ function render() {
   if (S.view === 'play') tabloSigdir();
   if (v === 'nasiloyna') nasilBaslat(S.nasilId); else nasilDurdur();
   app.dataset.view = v;
+  if (v === 'play') botKontrol();
 }
 
 // Kapsayıcının çocuklarını yeni HTML ile karşılaştırıp yalnız farklı olanları değiştirir; .play içinde bir kat daha iner.
@@ -886,6 +888,52 @@ app.addEventListener('pointerdown', e => {
 });
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(uzunT)));
 app.addEventListener('contextmenu', e => { if (e.target.closest('[data-act="undo"]')) e.preventDefault(); });
+// ---- DartBot sırası (Demir 10.11): sıra bota gelince okları kendisi atar; seçim sorulursa en anlamlısını seçer
+const BOT_IC = LUCIDE('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>', 22, 2);
+let botT = null;
+function botKontrol() {
+  clearTimeout(botT);
+  const m = data().current;
+  if (!m || m.done || S.view !== 'play' || S.modal || S.house) return;
+  const p = player(E.currentPid(m)); if (!p || !p.bot) return;
+  const ilk = !(m.turnDarts || []).length;
+  botT = setTimeout(() => {
+    const m2 = data().current;
+    if (!m2 || m2 !== m || m2.done || S.view !== 'play' || S.modal) return;
+    if (player(E.currentPid(m2)).id !== p.id) return;
+    const gg = GAMES[m2.gameId];
+    const ok = botAt(botHedef(gg, m2), p.bot);
+    if (gg.secenekler) { const sec = gg.secenekler(m2, m2.g, ok); if (sec) { const iyi = sec.find(x => !x.etkisiz && x.e && x.e.tur !== 'bos') || sec.find(x => !x.etkisiz) || sec[0]; ok.sec = iyi.v; } }
+    S.sonOk = ok;
+    afterThrow(E.throwDart(m2, ok));
+  }, ilk ? 2100 : 850);
+}
+
+// Isı haritası: tahta (20 dilim × tekli dış, triple, tekli iç, double) + bull; renk yoğunluğu isabet sayısına göre
+const TAHTA_SIRA = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+function isiTahta(isi) {
+  const k = isi.k, en = Math.max(1, ...Object.entries(k).filter(([a]) => a !== 'iska').map(([, v]) => v));
+  const renk = v => { if (!v) return 'rgb(255 255 255 / .06)'; const o = v / en; return `rgb(${Math.round(255)} ${Math.round(200 - 170 * o)} ${Math.round(80 - 60 * o)} / ${(.25 + .75 * o).toFixed(2)})`; };
+  const yay = (r1, r2, a1, a2) => { const P = (r, a) => `${(100 + r * Math.sin(a)).toFixed(2)} ${(100 - r * Math.cos(a)).toFixed(2)}`;
+    return `M ${P(r2, a1)} A ${r2} ${r2} 0 0 1 ${P(r2, a2)} L ${P(r1, a2)} A ${r1} ${r1} 0 0 0 ${P(r1, a1)} Z`; };
+  const halka = [[78, 86, 2], [52, 78, 1], [46, 52, 3], [14, 46, 1]];
+  let svg = '';
+  TAHTA_SIRA.forEach((n, i) => {
+    const a1 = (i * 18 - 9) * Math.PI / 180, a2 = (i * 18 + 9) * Math.PI / 180;
+    halka.forEach(([r1, r2, mm], hi) => { const key = n + ':' + mm; const v = hi === 3 ? (k[n + ':1'] || 0) : (hi === 1 ? 0 : (k[key] || 0));
+      const sayi = hi === 1 || hi === 3 ? (k[n + ':1'] || 0) / 2 : v;
+      svg += `<path d="${yay(r1, r2, a1, a2)}" fill="${renk(sayi)}" stroke="rgb(255 255 255 / .18)" stroke-width=".6"><title>${mm === 3 ? 'T' : mm === 2 ? 'D' : ''}${n}: ${k[key] || 0}</title></path>`; });
+    const a = i * 18 * Math.PI / 180;
+    svg += `<text x="${(100 + 94 * Math.sin(a)).toFixed(1)}" y="${(100 - 94 * Math.cos(a) + 3.5).toFixed(1)}" class="isi-no">${n}</text>`;
+  });
+  svg += `<circle cx="100" cy="100" r="14" fill="${renk(k.b25 || 0)}" stroke="rgb(255 255 255 / .25)" stroke-width=".6"><title>25: ${k.b25 || 0}</title></circle>`;
+  svg += `<circle cx="100" cy="100" r="6" fill="${renk(k.b50 || 0)}" stroke="rgb(255 255 255 / .35)" stroke-width=".6"><title>Bull: ${k.b50 || 0}</title></circle>`;
+  // en çok vurulan 5 bölge
+  const ilk5 = Object.entries(k).filter(([a]) => a !== 'iska').sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([a, v]) => { const ad = a === 'b25' ? '25' : a === 'b50' ? 'Bull' : (a.split(':')[1] === '3' ? 'T' : a.split(':')[1] === '2' ? 'D' : '') + a.split(':')[0]; return `<span><b>${ad}</b> %${Math.round(v / isi.n * 100)}</span>`; }).join('');
+  return `<div class="isi-icerik"><svg class="isi-svg" viewBox="0 0 200 200">${svg}</svg><div class="isi-ilk">${ilk5}<span class="isi-iska"><b>${t('Iska')}</b> %${Math.round((k.iska || 0) / isi.n * 100)}</span></div></div>`;
+}
+
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -1019,6 +1067,8 @@ function viewPlayers() {
     ${ara}
     <div class="prow-liste">${list}</div>
     <form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form>
+    <div class="bot-ekle glass"><div class="bot-bas">${BOT_IC}<b>DartBot</b><small>${t('Bilgisayara karşı oyna — seviye seç')}</small></div>
+      <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv" data-act="botekle" data-v="${k}"><b>${t(v.ad)}</b><small>${t('~{0} ort.', v.ort)}</small></button>`).join('')}</div></div>
   </main>`;
 }
 
@@ -1044,6 +1094,7 @@ function viewStats() {
       ${tile(x.t100, '100+')}${tile(x.t140, '140+')}${tile(x.t180, '180')}</div>` : ''}
     ${c ? `<h2 class="sec">${t('Kriket')}</h2><div class="tiles">${tile(Number.isFinite(c.mpr) ? c.mpr.toFixed(2) : '–', 'MPR')}${tile(c.bestTurn, 'En iyi tur (işaret)')}${tile(c.darts, 'Ok')}</div>` : ''}
     ${st.records.length ? `<h2 class="sec">${t('Rekorlar')}</h2><div class="tiles">${st.records.map(r => tile(r.best + (r.unit ? ' ' + t(r.unit) : ''), `${esc(gt(GAMES[r.id], 'name'))} · ${t('{0} kez', r.n)}`)).join('')}</div>` : ''}
+    ${st.isi && st.isi.n ? `<h2 class="sec">${t('Isı haritası')}</h2><div class="isi-kutu glass">${isiTahta(st.isi)}<p class="muted isi-not">${t('{0} ok · koyu kırmızı = en çok isabet', st.isi.n)}</p></div>` : ''}
     <h2 class="sec">${t('Son maçlar')}</h2>${recent || `<p class="muted">${t('Henüz maç yok.')}</p>`}
   </main>`;
 }
@@ -1609,6 +1660,12 @@ app.addEventListener('click', e => {
       break;
     }
     case 'pass': ses.tus(); afterThrow(E.passTurn(m)); break;
+    case 'botekle': {
+      const sv = el.dataset.v, ad = 'DartBot ' + t(BOT_SEVIYE[sv].ad);
+      if (data().players.some(p => p.name === ad)) { toast(t('Bu isim zaten var'), 'bad'); break; }
+      const p = store.addPlayer(ad); store.updatePlayer(p.id, { bot: sv });
+      vib(10); ses.tus(); toast(t('{0} eklendi', ad), 'good'); render(); break;
+    }
     case 'gerilist': { // listeden bir hamleye kadar tek seferde geri dön
       const n = Number(el.dataset.n);
       S.modal = null;

@@ -73,6 +73,14 @@ export function playerStats(pid) {
     res.cricket = { mpr: nd ? (marks / nd) * 3 : NaN, bestTurn: best, darts: nd };
   }
 
+  // Isı haritası (Demir 10.11): bütün maçlardaki okların dilim / halka dağılımı
+  const isi = {}; let isiN = 0;
+  hist.forEach(m => m.log.filter(t => t.pid === pid).forEach(t => (t.darts || []).forEach(d => {
+    const k = d.n === 0 ? 'iska' : d.n === 25 ? (d.m === 2 ? 'b50' : 'b25') : d.n + ':' + d.m;
+    isi[k] = (isi[k] || 0) + 1; isiN++;
+  })));
+  res.isi = { k: isi, n: isiN };
+
   // Rekorlar: skoru olan oyunlarda en iyi sonuç (yalnız tek kişilik taraf)
   res.records = [];
   Object.values(GAMES).forEach(g => {

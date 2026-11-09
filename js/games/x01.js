@@ -142,12 +142,16 @@ export default {
     const co = t.filter(x => x.checkout);
     const att = t.reduce((a, x) => a + (x.att || 0), 0);
     const coHits = co.filter(x => x.att).length;
+    // İlk 9 ok ortalaması: her leg'in ilk 3 turu (Demir 10.11)
+    const legI = {}; let f9p = 0, f9d = 0;
+    t.forEach(x => { const i = (legI[x.leg] = (legI[x.leg] || 0) + 1); if (i <= 3) { f9p += x.points || 0; f9d += x.nd ?? x.darts.length; } });
     return [
       ['Ortalama', nd ? ((pts / nd) * 3).toFixed(1) : '–'],
+      ['İlk 9 ort.', f9d ? ((f9p / f9d) * 3).toFixed(1) : '–'],
       ['180', t.filter(x => x.points === 180).length],
       ['140+', t.filter(x => x.points >= 140).length],
       ['En yüksek bitiriş', co.length ? Math.max(...co.map(x => x.checkout)) : '–'],
-      ['Checkout', att ? `${coHits}/${att}` : co.length || '–'],
+      ['Checkout', att ? `${coHits}/${att} · %${Math.round(coHits / att * 100)}` : co.length || '–'],
     ];
   },
 };
