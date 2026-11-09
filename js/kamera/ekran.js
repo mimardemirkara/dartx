@@ -60,7 +60,7 @@ function kokKur() {
       <div class="kam-aci" hidden></div>
       <button class="kam-flas" data-k="flas" hidden aria-label="${t('Flaş')}">${L(IC.flas, 20)}<span>${t('Flaş')}</span></button>
       <div class="kam-yonerge" hidden></div>
-      <div class="kam-oneri"><strong class="kam-oneri-puan">T20</strong>
+      <div class="kam-oneri"><em class="kam-deneme-yazi">${t('Dokunduğun yer:')}</em><strong class="kam-oneri-puan">T20</strong>
         <button class="btn sm primary" data-k="onayla">${L(IC.onay, 18)}${t('Onayla')}</button>
         <button class="btn sm" data-k="duzelt">${L(IC.kalem, 16)}${t('Düzelt')}</button><em class="kam-gitti">${t('tablete gitti')}</em></div>
     </div>
@@ -250,16 +250,30 @@ function dokun(e) {
   const yakin = S.noktalar.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < 28 * olcek());
   if (yakin >= 0 && S.mod === 'hazir') { S.surukle = yakin; tuval.setPointerCapture(e.pointerId); return; }
   if (!S.kal) return;
-  if (S.mod === 'duzelt' || !S.algila) { oneriKoy(p, S.mod === 'duzelt'); S.mod = 'hazir'; }
+  if (S.mod === 'duzelt') { oneriKoy(p, true); S.mod = 'hazir'; return; }
+  if (!S.algila) denemeGoster(p); // Demir 10.11: dokunuş atış gibi görünmesin — yalnız "Dokunduğun yer" bilgisi
 }
 
 // ---------- öneri ve kayıt ----------
-function oneriKoy(p, duz = false) { const q = uygula(S.kal.G2T, p.x, p.y); S.oneri = { x: p.x, y: p.y, p: puan(q.x, q.y), duz }; oneriGoster(); }
+// Ayar kontrolü: dokunulan noktanın puanı; atış listesine girmez, Onayla/Düzelt yok, birkaç saniye sonra kaybolur
+let denemeT = null;
+function denemeGoster(p) {
+  const q = uygula(S.kal.G2T, p.x, p.y), pu = puan(q.x, q.y);
+  S.oneri = { x: p.x, y: p.y, p: pu, deneme: true };
+  const o = $('.kam-oneri');
+  o.classList.add('deneme');
+  oneriGoster();
+  $('.kam-oneri-puan').textContent = pu.n === 0 ? t('Tahtanın dışı') : pu.ad;
+  clearTimeout(denemeT);
+  denemeT = setTimeout(() => { if (S.oneri && S.oneri.deneme) { S.oneri = null; oneriGoster(); } }, 2600);
+}
+function oneriKoy(p, duz = false) {
+  if (kok) $('.kam-oneri').classList.remove('deneme'); const q = uygula(S.kal.G2T, p.x, p.y); S.oneri = { x: p.x, y: p.y, p: puan(q.x, q.y), duz }; oneriGoster(); }
 function oneriGoster(gitti = false) {
   const o = $('.kam-oneri'); o.classList.toggle('on', !!S.oneri); o.classList.toggle('gitti', gitti);
   if (S.oneri) { $('.kam-oneri-puan').textContent = S.oneri.p.ad; o.classList.remove('gir'); void o.offsetWidth; o.classList.add('gir'); }
 }
-function onayla() { if (!S.oneri) return; S.kayit.push(S.oneri); S.oneri = null; oneriGoster(); kayitCiz(); if (navigator.vibrate) navigator.vibrate(8); }
+function onayla() { if (!S.oneri || S.oneri.deneme) return; S.kayit.push(S.oneri); S.oneri = null; oneriGoster(); kayitCiz(); if (navigator.vibrate) navigator.vibrate(8); }
 function kayitCiz() {
   const k = $('.kam-kayit');
   if (!S.kayit.length) { k.innerHTML = `<em>${t('Atışlar burada görünür')}</em>`; $('.kam-isabet').textContent = ''; return; }
@@ -278,11 +292,11 @@ function algilamaKur() {
     okBulundu: (u, p, kutu, say) => {
       S.kutu = kutu;
       if (S.tablet) { S.tablet.gonder({ t: 'ok', n: p.n, m: p.m, ad: p.ad }); S.kayit.push({ x: u.x, y: u.y, p }); kayitCiz(); S.oneri = { x: u.x, y: u.y, p }; oneriGoster(true); }
-      else { if (S.oneri) onayla(); oneriKoy(u); }
+      else { if (S.oneri && !S.oneri.deneme) onayla(); oneriKoy(u); }
       if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
       if (say >= 3) yonerge(t('3 ok tamam. Okları çekince yeni el başlar.'));
     },
-    yeniEl: () => { if (S.oneri && !S.tablet) onayla(); S.oneri = null; S.kutu = null; oneriGoster(); bildir(t('Yeni el: oklar çekildi'), 'hedef'); },
+    yeniEl: () => { if (S.oneri && !S.oneri.deneme && !S.tablet) onayla(); S.oneri = null; S.kutu = null; oneriGoster(); bildir(t('Yeni el: oklar çekildi'), 'hedef'); },
   });
   S.alg.baslat();
 }

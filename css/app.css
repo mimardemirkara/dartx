@@ -3125,3 +3125,10 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 /* Kalıp şeridi kartın içinde: kartla aynı sıcak cam, ince altın kenar */
 .kam-kalip { background: linear-gradient(180deg, rgb(255 255 255 / .05), rgb(255 255 255 / .02)), rgb(30 24 18 / .55); border-color: rgb(240 207 134 / .28); }
 .kam-yon { background: rgb(0 0 0 / .25); }
+
+/* Dokunuş denemesi (atış değil): "Dokunduğun yer: T20", düğmesiz, daha sakin (Demir 10.11) */
+.kam-deneme-yazi { display: none; font-style: normal; font-size: 13px; color: #cfc8bc; }
+.kam-oneri.deneme { padding: 8px 16px; border-color: rgb(255 255 255 / .2); box-shadow: none; }
+.kam-oneri.deneme .kam-deneme-yazi { display: inline; }
+.kam-oneri.deneme .btn, .kam-oneri.deneme .kam-gitti { display: none !important; }
+.kam-oneri.deneme .kam-oneri-puan { font-size: 20px; min-width: 0; }
