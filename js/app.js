@@ -14,6 +14,7 @@ import { korumaKur, telifAc } from './telif.js';
 import { kuralMaddeleri, KURAL_IKON } from './kurallar.js';
 import { onayla, bilgi } from './dialog.js';
 import { acilisGoster } from './acilis.js';
+import * as okuma from './okuma.js';
 import { yedekAl, yedekYukle } from './yedek.js';
 import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
 import { acilirAc, acilirKapat, dokunmatik } from './acilir.js';
@@ -879,6 +880,8 @@ function acikRenk(hex) {
   const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => (c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4));
   return .2126 * r + .7152 * g + .0722 * b > .32;
 }
+// Sesli okuma (Demir 09.11): hoparlör simgesi
+const SESLI_IC = LUCIDE('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>', 22, 2);
 const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
 // Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
 const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
@@ -1037,6 +1040,7 @@ function afterThrow(res) {
   if (!res) return;
   vib(res.event === 'dart' ? 12 : 30);
   oyunSesi(res, m);
+  try { const sp = player(E.currentPid(m)); okuma.atisOku(m, res, sp && sp.name); } catch (e) { /* okuma hatası oyunu durdurmasın */ }
   if (res.event === 'bust') toast('BUST!', 'bad');
   else if (res.event === 'leg' || res.event === 'set') { S.modal = { type: 'legbitti', ev: res.event, kazanan: res.winner }; konfeti(); }
   else if (m.msg) toast(esc(m.msg), m.kutla ? 'kutla' : '');
@@ -1247,7 +1251,8 @@ function viewSettings() {
       ${satir(AY.tusSes, t('Tuş sesi'), anahtar('tusSes', s.tusSes !== false))}
       ${satir(AY.oyunSes, t('Oyun sesleri'), anahtar('oyunSes', s.oyunSes !== false))}
       ${satir(AY.ekran, t('Oyunda ekran açık kalsın'), anahtar('keepAwake'))}
-      ${satir(AY.yildiz, t('Açılış efekti'), anahtar('acilis', data().settings.acilis !== false))}`)}
+      ${satir(AY.yildiz, t('Açılış efekti'), anahtar('acilis', data().settings.acilis !== false))}
+      ${okuma.destekli() ? satir(AY.oyunSes, t('Sesli okuma (atışlar ve bitiriş)'), anahtar('sesliOkuma', s.sesliOkuma === true)) : ''}`)}
     ${kart(AY.indir, t('Yedek'), `
       <button class="ay-satir tikla" data-act="export">${ikonKutu(AY.indir)}<span class="ay-ad">${t('Yedek al')}</span><span class="ay-ok">${AY.ok}</span></button>
       <label class="ay-satir tikla">${ikonKutu(AY.yukle)}<span class="ay-ad">${t('Yedeği yükle')}</span><span class="ay-ok">${AY.ok}</span><input type="file" accept=".json,application/json" data-act="import" hidden></label>
@@ -1356,7 +1361,8 @@ function modal() {
         ${kutu('rulesplay', IC.kitap, t('Kurallar'), '', 'mk-mavi')}
         ${kutu('home', DURAKLAT_IC, t('Maça Ara Ver'), t('Maç Kayıtlı Kalır'), 'mk-celik')}
         ${kutu('abort', KURAL_IKON.bust, t('Maçı İptal Et'), '', 'mk-kirmizi')}
-      </div>`;
+      </div>
+      ${okuma.destekli() ? `<button class="btn menu-okuma ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma">${SESLI_IC}<span>${t('Sesli Okuma')}</span><b>${okuma.acikMi() ? t('Açık') : t('Kapalı')}</b></button>` : ''}`;
   } else if (md.type === 'hedefsec') {
     // Cezalı Kriket: double / triple / house nereye yazılsın
     const etk = md.ok.n === 25 ? (md.ok.m === 2 ? 'D-Bull' : 'Bull') : (md.ok.m === 3 ? 'T' : md.ok.m === 2 ? 'D' : '') + md.ok.n;
@@ -1702,6 +1708,11 @@ app.addEventListener('click', e => {
       if (data().players.some(p => p.name === ad)) { toast(t('Bu isim zaten var'), 'bad'); break; }
       const p = store.addPlayer(ad); store.updatePlayer(p.id, { bot: sv });
       vib(10); ses.tus(); toast(t('{0} eklendi', ad), 'good'); render(); break;
+    }
+    case 'sesliokuma': {
+      const st = data().settings; st.sesliOkuma = !st.sesliOkuma; store.save(); vib(8);
+      if (st.sesliOkuma) okuma.oku(t('Sesli okuma açık'), true);
+      render(); break;
     }
     case 'gerilist': { // listeden bir hamleye kadar tek seferde geri dön
       const n = Number(el.dataset.n);

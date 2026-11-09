@@ -2808,3 +2808,27 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
   45% { transform: translate(calc(-50% + 3px), calc(-50% - 2px)) rotate(.4deg); } 70% { transform: translate(calc(-50% - 1px), calc(-50% + 1px)); } 100% { transform: translate(-50%, -50%); } }
 
 .acilis-dart .ad-resim { position: absolute; max-width: none; filter: drop-shadow(5px 9px 6px rgba(0,0,0,.55)); }
+
+/* Oyun menüsünde Sesli Okuma aç/kapa (Demir 09.11) */
+.menu-okuma { display: flex !important; align-items: center; gap: 12px; width: 100%; margin-top: 12px; min-height: 56px; padding: 0 18px !important; --ton: 150 160 178; }
+.menu-okuma svg { color: rgb(var(--ton)); flex: none; }
+.menu-okuma span { flex: 1; text-align: left; font-weight: 700; }
+.menu-okuma b { padding: 4px 12px; border-radius: 99px; font-size: 14px; background: rgb(var(--ton) / .22); color: rgb(var(--ton)); }
+.menu-okuma.acik { --ton: 47 179 109; }
+/* Ana ekran saati (Demir 09.11): yarım maç yokken saat tek başına ve ortada; yarım maç varsa saat + maç kartı yan yana ortada */
+@media (min-width: 720px) { :root .home .araclar.tek { grid-template-columns: clamp(220px, 26vw, 300px); justify-content: center; } }
+/* Hakkında yatay tablet (Demir 09.11 "dengeli olsun"): üstte Demir kartı | Bilgi kartı eşit boyda, altta Telif tam genişlikte */
+@media (min-width: 900px) and (orientation: landscape) {
+  :root .hakkinda { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: stretch; }
+  :root .hakkinda > .hk-metin { grid-column: 1; grid-row: auto; display: flex; flex-direction: column; }
+  :root .hakkinda > .hk-metin .hk-imza, :root .hakkinda > .hk-metin > :last-child { margin-top: auto; }
+  :root .hakkinda > section.ay-grup { grid-column: 2; display: flex; flex-direction: column; }
+  :root .hakkinda > section.ay-grup .ay-satir { flex: 1; }
+  :root .hakkinda > section.ay-grup ~ section.ay-grup { grid-column: 1 / -1; }
+  :root .hakkinda > section.ay-grup ~ section.ay-grup .ay-satir { flex: none; }
+}
+@media (min-width: 720px) and (orientation: portrait) {
+  :root .hakkinda { align-items: stretch; }
+  :root .hakkinda > section.ay-grup:not(.hk-metin) { display: flex; flex-direction: column; }
+  :root .hakkinda > section.ay-grup:not(.hk-metin) > :last-child { margin-top: auto; }
+}
