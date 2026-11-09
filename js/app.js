@@ -856,7 +856,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
-      ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? OKUMA_IC : OKUMA_KAPALI_IC}</button>` : ''}
+      ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-sv="${okuma.seviye()}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? OKUMA_IC : OKUMA_KAPALI_IC}</button>` : ''}
       <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
@@ -924,6 +924,23 @@ addEventListener('scroll', e => {
   const i = Math.round(k.scrollLeft / k.clientWidth);
   k.parentElement.querySelectorAll('.ym-noktalar i').forEach((n, j) => n.classList.toggle('on', i === j));
 }, true);
+// Konuşma seviyesi (Demir 10.11): Sade = atışlar + sıra · Standart = + toplam, kalan, kapanan · Koç = + durum ve tavsiye
+const SEVIYELER = [['kisa', 'Sade · yalnız atışlar'], ['normal', 'Standart · + toplam, kalan'], ['koc', 'Koç · + tavsiye']];
+function seviyeKoy(sv) {
+  data().settings.okumaSeviye = sv; store.save(); vib(6);
+  document.querySelectorAll('.pt-ses').forEach(b => { b.dataset.sv = sv; });
+}
+// Konuşan kişi düğmesine basılı tutunca seviye menüsü (kısa dokunuş okumayı açar/kapatır)
+let svUzun = false, svT = null;
+app.addEventListener('pointerdown', e => {
+  const b = e.target.closest('.pt-ses'); if (!b) return;
+  clearTimeout(svT);
+  svT = setTimeout(() => {
+    svUzun = true; vib(20); ses.tus();
+    acilirAc(b, () => SEVIYELER.map(([v, l]) => ({ v, l: t(l), on: okuma.seviye() === v, ic: OKUMA_IC })), v => seviyeKoy(v), { baslik: t('Konuşma'), en: 250 });
+  }, 500);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(svT)));
 // Atışı Geri Al'a uzun basma → geri al listesi
 let uzunBasildi = false, uzunT = null;
 app.addEventListener('pointerdown', e => {
@@ -1743,13 +1760,13 @@ app.addEventListener('click', e => {
           ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true, ic: OKUMA_IC, soluk: sz }] : []),
           { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false, ic: TUS_SES_IC, soluk: sz },
           { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false, ic: EFEKT_IC, soluk: sz },
-          ...(okuma.destekli() ? [['kisa', 'Konuşma: Kısa'], ['normal', 'Konuşma: Normal'], ['koc', 'Konuşma: Koç']].map(([v, l], i) =>
+          ...(okuma.destekli() ? SEVIYELER.map(([v, l], i) =>
             ({ v: 'sv_' + v, l: t(l), on: okuma.seviye() === v, ic: OKUMA_IC, ayir: i === 0, soluk: sz || st.sesliOkuma !== true })) : []),
           { v: 'sessiz', l: t('Sessize al'), on: sz, ic: SESSIZ_IC, ayir: true },
         ];
       };
       acilirAc(el, liste, v => {
-        if (v.startsWith('sv_')) { st.okumaSeviye = v.slice(3); store.save(); vib(6); return; } // konuşma seviyesi (Kısa / Normal / Koç)
+        if (v.startsWith('sv_')) { seviyeKoy(v.slice(3)); return; } // konuşma seviyesi (Sade / Standart / Koç)
         if (v === 'sessiz') { st.sessiz = !st.sessiz; if (st.sessiz) okuma.sustur(); }
         else {
           // sessizdeyken bir sese dokunulursa sessizlik kalkar ve o ses açılır
@@ -1763,10 +1780,11 @@ app.addEventListener('click', e => {
         document.querySelectorAll('.mc-ses').forEach(b => { b.classList.toggle('kapali', !!st.sessiz); b.innerHTML = st.sessiz ? SESSIZ_IC : SESLI_IC; });
         const ok = okuma.acikMi();
         document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', ok); b.innerHTML = ok ? OKUMA_IC : OKUMA_KAPALI_IC; });
-      }, { coklu: true, baslik: t('Sesler'), en: 220 });
+      }, { coklu: true, baslik: t('Sesler'), en: 250 }); // Demir 10.11: "Konuşma: Normal" sığsın
       break;
     }
     case 'sesliokuma': {
+      if (svUzun) { svUzun = false; break; } // basılı tutup seviye menüsü açıldı
       const st = data().settings;
       if (st.sessiz) { st.sessiz = false; st.sesliOkuma = true; document.querySelectorAll('.mc-ses').forEach(b => { b.classList.remove('kapali'); b.innerHTML = SESLI_IC; }); }
       else st.sesliOkuma = !st.sesliOkuma;

@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b158';
+const VERSION = 'dartx-b159';
 const FILES = [
   'ses/spiker/liste.json',
   'ses/spiker/bull.mp3',
@@ -124,17 +124,24 @@ const FILES = [
   'ses/spiker/kalan_150.mp3',
   'ses/spiker/kalan_151.mp3',
   'ses/spiker/kalan_152.mp3',
+  'ses/spiker/kalan_153.mp3',
   'ses/spiker/kalan_154.mp3',
   'ses/spiker/kalan_155.mp3',
+  'ses/spiker/kalan_156.mp3',
   'ses/spiker/kalan_157.mp3',
+  'ses/spiker/kalan_158.mp3',
+  'ses/spiker/kalan_159.mp3',
   'ses/spiker/kalan_16.mp3',
   'ses/spiker/kalan_160.mp3',
+  'ses/spiker/kalan_161.mp3',
+  'ses/spiker/kalan_162.mp3',
   'ses/spiker/kalan_163.mp3',
   'ses/spiker/kalan_166.mp3',
   'ses/spiker/kalan_169.mp3',
   'ses/spiker/kalan_17.mp3',
   'ses/spiker/kalan_172.mp3',
   'ses/spiker/kalan_175.mp3',
+  'ses/spiker/kalan_178.mp3',
   'ses/spiker/kalan_18.mp3',
   'ses/spiker/kalan_19.mp3',
   'ses/spiker/kalan_2.mp3',

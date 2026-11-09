@@ -122,7 +122,7 @@ function siraParca(ad) { const id = adId(ad); return kayitVar(id) ? [id] : ['sir
 const x01Mi = m => !!(m && m.g && m.g.s && m.g.s[0] && typeof m.g.s[0].score === 'number' && m.opts && m.opts.out);
 
 // Konuşma seviyesi (Demir 09.11, sesli koç): kisa = oklar + sıra · normal = + el toplamı, kapanan sayılar · koc = + durum ve öneri
-export const seviye = () => data().settings.okumaSeviye || 'koc';
+export const seviye = () => data().settings.okumaSeviye || 'normal'; // Demir 10.11: varsayılan Standart (yeni kullanıcı bunalmasın)
 const enAz = sv => ({ kisa: 0, normal: 1, koc: 2 }[seviye()] >= ({ kisa: 0, normal: 1, koc: 2 }[sv]));
 
 // Kriket ailesinde kapanan sayıyı yakalamak için işaretlerin bir önceki hali
