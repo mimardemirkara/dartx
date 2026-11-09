@@ -411,7 +411,7 @@ function render() {
   else if (v === 'nasiloyna') html = nasilSahne(S.nasilId, header(S.nasilId === 'tarih' ? t('Dartın Tarihi') : esc(gt(GAMES[S.nasilId], 'name')), 'nasilliste'));
   // Dock yok (Demir 08.11): tablette üst çubuk menüsü, telefonda ana ekran simgeleri + ⌂
   // Kenar ışıkları (hesap makinesi): ana ekranda ve oyunda; başka ekrana geçince açık hesap makinesi kapanır
-  const hmYer = (S.view === 'home' || S.view === 'play') && !S.modal;
+  const hmYer = S.view === 'play' && !S.modal;
   if (S.view !== 'home' && S.view !== 'play') hesapKapat(true);
   if (S.view !== 'setup') acilirKapat();
   const yeniHtml = topbar() + html + (hmYer ? kenarlar(hesapBaglam()) : '') + (S.modal ? modal() : '');
@@ -1774,7 +1774,7 @@ function hesapBaglam() {
 }
 hesapKur({
   baglam: hesapBaglam,
-  izinli: () => (S.view === 'home' || S.view === 'play') && !S.modal,
+  izinli: () => S.view === 'play' && !S.modal,
   oku: taraf => { const m = data().current; return S.view === 'play' && m ? (m.hesap || {})[taraf] : hmGenel.d; },
   yaz: (taraf, d) => {
     const m = data().current;
