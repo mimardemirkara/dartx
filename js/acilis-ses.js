@@ -95,3 +95,32 @@ export function sesiAc() { getCtx(); }
 // İlk dokunuşta açılış ses bağlamı da uyansın (tablet/telefon)
 function acilisKilit() { const c = getCtx(); if (c && c.state === 'running') ['pointerdown', 'touchend'].forEach(o => removeEventListener(o, acilisKilit, true)); }
 ['pointerdown', 'touchend'].forEach(o => addEventListener(o, acilisKilit, true));
+
+/** Dart uçuşu (Demir 09.11): kısa, yükselen hava sesi */
+export async function dartUcusSesi(sure = 0.42) {
+  const c = await hazir();
+  if (!c) return;
+  const t = c.currentTime + 0.01;
+  const n = gurultu(c, sure + 0.05);
+  const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4;
+  f.frequency.setValueAtTime(700, t); f.frequency.exponentialRampToValueAtTime(3200, t + sure);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + sure * 0.85); g.gain.exponentialRampToValueAtTime(0.0001, t + sure + 0.04);
+  n.connect(f).connect(g).connect(c.destination);
+  n.start(t); n.stop(t + sure + 0.06);
+}
+
+/** Dart saplanması: tok "tak" — kısa tahta vuruşu + alçak gövde sesi */
+export async function dartVurusSesi() {
+  const c = await hazir();
+  if (!c) return;
+  const t = c.currentTime + 0.005;
+  const n = gurultu(c, 0.09);
+  const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1900; f.Q.value = 2.2;
+  const g = c.createGain(); g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  n.connect(f).connect(g).connect(c.destination); n.start(t); n.stop(t + 0.09);
+  const o = c.createOscillator(); o.type = 'sine';
+  o.frequency.setValueAtTime(170, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.22);
+  const g2 = c.createGain(); g2.gain.setValueAtTime(0.75, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
+  o.connect(g2).connect(c.destination); o.start(t); o.stop(t + 0.28);
+}

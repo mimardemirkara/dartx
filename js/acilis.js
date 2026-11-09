@@ -3,7 +3,7 @@
 // dart işaretleri / simgeleri / yazıları; sonra yıldızlar akıp DartX logosunun noktalarına dizilir, gerçek logo netleşir.
 // Logo netleşince sitedeki gibi "Kaydır ya da dokun" yazar ve bekler; kaydırınca / dokununca logo küçülüp
 // yıldızlar dağılır, uygulama arkadan açılır.
-import { patlamaSesi, donmeSesi, logoSesi } from './acilis-ses.js';
+import { patlamaSesi, donmeSesi, logoSesi, dartUcusSesi, dartVurusSesi } from './acilis-ses.js';
 import { t } from './i18n.js';
 
 // Dart simgeleri: 24×24 çizgi çizimleri (lucide target / crosshair / trophy / medal / award + dart, tahta, çetele)
@@ -40,6 +40,19 @@ const ZAMAN = { acilis: 1.2, kureSon: 1.9, akisSon: 3.6, logoGel: 3.3 };
 const ATOM = 0.45;
 
 const LOGO = { src: 'img/logo-dartx.webp', noktalar: 'img/logo-dartx-noktalar.json', olcek: 0.9 };
+// Uçan dart (Demir 09.11): vuruş anı (sn), uçuş süresi, logodaki dartın ucu ve açısı (logo görseli 1000×370)
+const DART = { vurus: 3.5, ucus: 0.42, uc: [86, 194], aci: 43.8 };
+// Dart çizimi: uç x=0'da, gövde +x yönünde (165 birim ≈ logodaki dart); bakır gövde, çelik uç, iki kanat
+const DART_SVG = s => `<svg width="${180 * s}" height="${96 * s}" viewBox="-6 -48 180 96" style="left:${-6 * s}px;top:${-48 * s}px" aria-hidden="true">
+  <defs><linearGradient id="adBakir" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b98a"/><stop offset=".45" stop-color="#c8703e"/><stop offset="1" stop-color="#6e3416"/></linearGradient>
+  <linearGradient id="adCelik" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset=".5" stop-color="#a9aeb5"/><stop offset="1" stop-color="#5b6068"/></linearGradient></defs>
+  <path d="M0 0 L22 -2.2 L22 2.2 Z" fill="url(#adCelik)"/>
+  <path d="M22 -5 Q26 -6.5 46 -6.5 L68 -4.2 L68 4.2 L46 6.5 Q26 6.5 22 5 Z" fill="url(#adBakir)"/>
+  <path d="M30 -6 v12 M35 -6.4 v12.8 M40 -6.5 v13 M45 -6.5 v13" stroke="#5a2a10" stroke-width="1.2" opacity=".55"/>
+  <rect x="68" y="-2.2" width="38" height="4.4" rx="2" fill="url(#adBakir)"/>
+  <path d="M100 -2 L128 -40 Q150 -44 166 -34 L148 -3 Z" fill="url(#adBakir)" stroke="#5a2a10" stroke-width="1"/>
+  <path d="M100 2 L128 40 Q150 44 166 34 L148 3 Z" fill="url(#adBakir)" stroke="#5a2a10" stroke-width="1"/>
+  <path d="M104 0 L160 0" stroke="#7a3a18" stroke-width="3"/></svg>`;
 
 export function acilisGoster(acik = true) {
   // Sistemde "hareketi azalt" açıksa atlanır (sitedeki gibi); ?acilis=1 ile yine de gösterilir (önizleme / deneme)
@@ -63,6 +76,43 @@ export function acilisGoster(acik = true) {
   const olcek = () => (innerWidth >= 720 ? 0.45 : 0.72);
   const logoH = () => Math.min((canvas.width * 0.72) / oran, canvas.height * 0.44) * olcek(); // piksel (tuval)
   const logoBoy = () => { logoImg.style.height = `${logoH() / DPR}px`; };
+
+  // ── Dart atışı: logodaki dartın ucu (logo görselinde 86,194 / 1000×370), gövdesi sağ üste 43.8° ──
+  function dartAt() {
+    if (A.cikis !== null || bitti) return;
+    const r = logoImg.getBoundingClientRect(); if (!r.width) return;
+    const s = r.width / 1000, ux = r.left + DART.uc[0] * s, uy = r.top + DART.uc[1] * s;
+    const uz = Math.max(innerWidth, innerHeight) * 0.85; // geldiği uzaklık (gövde yönünde)
+    const yx = Math.cos(DART.aci * Math.PI / 180), yy = -Math.sin(DART.aci * Math.PI / 180);
+    const d = document.createElement('div');
+    d.className = 'acilis-dart';
+    d.style.left = ux + 'px'; d.style.top = uy + 'px';
+    d.innerHTML = `<div class="ad-don" style="transform: rotate(${-DART.aci}deg)">${DART_SVG(s)}</div>`;
+    kat.appendChild(d);
+    dartUcusSesi(DART.ucus);
+    const uc = d.animate([
+      { transform: `translate(${yx * uz}px, ${yy * uz}px) scale(2.4)`, opacity: 0 },
+      { opacity: 1, offset: 0.15 },
+      { transform: 'translate(0px, 0px) scale(1)', opacity: 1 },
+    ], { duration: DART.ucus * 1000, easing: 'cubic-bezier(.45,0,.9,.6)', fill: 'forwards' });
+    uc.onfinish = () => {
+      if (A.cikis !== null) return;
+      dartVurusSesi();
+      // saplanma: küçük geri tepme, halka dalgası, kıvılcım; logo sarsılır
+      const tep = 6 * s * 10;
+      d.animate([{ transform: 'translate(0px, 0px)' }, { transform: `translate(${yx * tep}px, ${yy * tep}px)` }, { transform: 'translate(0px, 0px)' }],
+        { duration: 160, easing: 'ease-out' });
+      const h = document.createElement('div');
+      h.className = 'acilis-halka'; h.style.left = ux + 'px'; h.style.top = uy + 'px'; h.style.setProperty('--b', (r.height * 0.9) + 'px');
+      h.innerHTML = '<i></i><i></i>' + Array.from({ length: 10 }, (_, i) => `<b style="--a:${i * 36 + Math.random() * 20}deg;--u:${(0.35 + Math.random() * 0.4) * r.height}px"></b>`).join('');
+      kat.appendChild(h);
+      logoImg.classList.add('sars');
+      setTimeout(() => h.remove(), 1200);
+      // logo tam netleşince uçan dart logodaki dartın içinde kaybolur
+      setTimeout(() => d.classList.add('git'), 1300);
+      setTimeout(() => d.remove(), 1800);
+    };
+  }
 
   const kapat = () => {
     if (A.cikis !== null) return;
@@ -106,6 +156,9 @@ export function acilisGoster(acik = true) {
       setTimeout(() => donmeSesi((ZAMAN.kureSon - ZAMAN.acilis) + 0.4), ZAMAN.acilis * 1000 - 300);
       setTimeout(() => logoSesi(), ZAMAN.kureSon * 1000);
     }
+    // Demir 09.11: logo belirirken bir dart uçup logodaki bullseye'a saplanır
+    const kalan = DART.vurus - an;
+    if (kalan > DART.ucus) setTimeout(dartAt, (kalan - DART.ucus) * 1000);
     kareBaslat();
   }
 
