@@ -1295,7 +1295,7 @@ function modal() {
     body = `<div class="gl-ust"><span class="gl-ic">${GERI_IC}</span><h2>${t('Nereye kadar geri alınsın?')}</h2></div>
       <p class="muted gl-not">${t('Bir atışa dokun: o atış ve sonrakiler silinir. Maçın başına kadar geri alınabilir.')}</p>
       <div class="gl-liste">${liste.map((a, i) => `<button class="btn gl-satir" data-act="gerilist" data-n="${i + 1}" style="--pc:${player(a.p).color}">
-        <span class="gl-no">${i + 1}</span><span class="gl-kim"><b>${ad(a.p)}</b><small>${t('Tur {0}', a.r)}</small></span><span class="gl-ok">${esc(etiket(a))}</span></button>`).join('') || `<p class="muted">${t('Geri alınacak atış yok')}</p>`}</div>
+        <span class="gl-no">${i + 1}</span><span class="gl-kim"><b>${ad(a.p)}</b><small>${t('Tur {0}', a.r)}</small></span><span class="gl-ok">${esc(etiket(a))}</span></button>`).join('') || `<p class="muted">${m.adimlar ? t('Geri alınacak atış yok') : t('Bu maç güncellemeden önce başladı; atış listesi yeni maçlarda çalışır. Bu maçta düğmeye kısa basarak tek tek geri alabilirsin.')}</p>`}</div>
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
   } else if (md.type === 'ilksira') {
     const m = data().current; if (!m) { S.modal = null; return ''; }
