@@ -993,7 +993,7 @@ function keypad(m, g) {
       <button class="k mod ${mod === 3 ? 'on' : ''}" data-act="mod" data-m="3">${TUS_IC.triple}<span>TRIPLE</span></button>`}
       ${(m.g && m.g.h || []).includes('H') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="H" ${(m.turnDarts || []).length && !S.house ? 'disabled' : ''}>${HS_EV}<span>HOUSE</span></button>` : ''}
       ${(m.g && m.g.h || []).includes('B3') ? `<button class="k mod house-tus ${S.house ? 'on' : ''}" data-act="housemod" data-h="B3" ${(m.turnDarts || []).length && !S.house ? 'disabled' : ''}>${HS_EV}<span>3 IN A BED</span></button>` : ''}
-      ${`<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? TUS_IC.double : GIRIS_IC}<span>${hizli ? t('Klasik') : t('Hızlı')}</span></button>`}
+      ${`<button class="k mod giris-dugme" data-act="kriketgiris" aria-label="${hizli ? t('Klasik giriş') : t('Hızlı giriş')}" title="${hizli ? t('Klasik giriş (Double/Triple tuşu)') : t('Hızlı giriş (her sayıda D ve T)')}">${hizli ? GIRIS_IC : TUS_IC.double}<span>${hizli ? t('Hızlı') : t('Klasik')}<i class="gd-degis" aria-hidden="true">⇄</i></span></button>`}
       ${!bos ? `<button class="k mod geri-tus geri-modda" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'}>${GERI_IC}<span>${t('Atışı Geri Al')}</span></button>` : ''}
       ${g.cat === 'cricket' && g.view ? (tabloYazAcik(m, g)
         ? `<button class="k mod tablo-dugme" data-act="tabloyaz" data-v="0" aria-label="${t('Tuşlarla yaz')}" title="${t('Tuşlarla yaz')}">${KLAVYE_IC}</button>`

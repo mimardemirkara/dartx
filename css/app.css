@@ -2721,3 +2721,21 @@ a.ay-satir { text-decoration: none; color: inherit; }
 /* Sıra DartBot'ta (Demir 10.11): tuş takımı ve tablo pasif, soluk; bot atarken basılamaz */
 .play.bot-sirasi .keypad, .play.bot-sirasi .board .tikla { pointer-events: none; }
 .play.bot-sirasi .keypad { opacity: .45; filter: saturate(.6); transition: opacity .3s, filter .3s; }
+
+/* Alttaki siyah bant (Demir 10.11, iPhone): duvar kâğıdı büyük ekran yüksekliği (araç çubukları gizliyken) kadar uzar */
+body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
+
+/* Kenar okları (hesap makinesi) telefonda tuşların üstüne binmesin: daha ince, tahta hizasında (Demir 10.11) */
+@media (max-width: 699px) {
+  [data-view="play"] .ev-ipucu { width: 12px; height: 120px; margin-top: -60px; top: 30%; }
+  [data-view="play"] .ev-ipucu svg { width: 12px; height: 12px; }
+  [data-view="play"] .ev-ipucu[data-yon="sag"] svg { margin-left: 4px; } [data-view="play"] .ev-ipucu[data-yon="sol"] svg { margin-right: 4px; }
+}
+/* Giriş modu tuşu (Demir 10.11): şu anki modu gösterir; ⇄ dokununca değişeceğini anlatır */
+.keypad .giris-dugme span { display: inline-flex; align-items: center; gap: 3px; }
+.keypad .giris-dugme .gd-degis { font-style: normal; font-size: .85em; opacity: .7; color: var(--brand); }
+/* Kısa yatay ekran (iPhone Duo açık yatay 890×626): kriket başlığı tek satır */
+@media (min-width: 700px) and (max-height: 700px) {
+  .play .board.cricket.orta-sayi .ctable th .cn { display: inline-flex; vertical-align: middle; min-height: 0; padding: 2px 0; }
+  .play .board.cricket.orta-sayi .ctable th .cp { display: inline-block; vertical-align: middle; margin: 0 0 0 10px; font-size: 26px; line-height: 1; }
+}
