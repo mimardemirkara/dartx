@@ -2648,3 +2648,6 @@ a.ay-satir { text-decoration: none; color: inherit; }
 .bot-sv .bsv-ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: rgb(var(--bt)); background: rgb(var(--bt) / .16); box-shadow: inset 0 0 0 1.5px rgb(var(--bt) / .55), 0 0 12px rgb(var(--bt) / .25); }
 .bot-kolay { --bt: 47 179 109; } .bot-orta { --bt: 227 184 102; } .bot-zor { --bt: 245 130 32; } .bot-usta { --bt: 233 75 60; }
 @media (max-width: 520px) { .bot-sv { flex-direction: column; gap: 4px; } .bot-sv .bsv-yazi { text-align: center; } .bot-sv .bsv-ic { width: 30px; height: 30px; } .bot-sv .bsv-ic svg { width: 18px; height: 18px; } }
+/* X01 kart (Demir 10.11): Ort / Son / ok satırı sayıdan uzak, kartın alt kısmında */
+.board.x01 .side-sub { margin-top: auto; margin-bottom: 12px; padding-top: 10px; }
+@media (min-width: 700px) { .board.x01 .side-sub { margin-bottom: 22px; } }
