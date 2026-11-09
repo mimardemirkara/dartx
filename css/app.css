@@ -2879,3 +2879,11 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 :root .ctable.kartli td.oy.tikla:active { background: linear-gradient(color-mix(in srgb, var(--pc) 42%, rgb(var(--cam-rgb) / .6)), color-mix(in srgb, var(--pc) 34%, rgb(var(--cam-rgb) / .5))) !important; }
 :root .ctable.kartli td.num.tikla:active { color: #fff; background: rgb(227 184 102 / .38) !important; }
 :root .ctable.kartli td.tikla { transition: background .12s ease; }
+/* Üst satırdaki Geri Al (Demir 09.11, 501'de kayma): yazı tek satır; açıklama yalnız düğme yeterince genişse görünür */
+.keypad .geri-modda { container-type: inline-size; }
+.keypad .geri-modda span { white-space: nowrap; }
+:root .keypad .geri-modda .geri-not { display: none !important; }
+@container (min-width: 300px) { :root .keypad .geri-modda .geri-not { display: block !important; } }
+:root .keypad .geri-modda { padding-left: 8px !important; padding-right: 8px !important; gap: 6px; }
+:root .keypad .geri-modda span { letter-spacing: 0 !important; font-size: clamp(12px, 10.5cqi, 17px) !important; overflow: hidden; text-overflow: ellipsis; }
+:root .keypad .geri-modda svg { flex: none; width: clamp(14px, 11cqi, 20px); height: clamp(14px, 11cqi, 20px); }
