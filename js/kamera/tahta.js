@@ -5,13 +5,12 @@ export const HALKA = { dbull: 6.35, bull: 15.9, tIc: 99, tDis: 107, dIc: 162, dD
 // Saat yönünde, tepeden başlayarak dilimler
 export const DILIM = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
-// Kalibrasyon noktaları: double halkasının DIŞ çizgisi, dilimin tam ortası (20 üst, 6 sağ, 3 alt, 11 sol)
-export const AYAR_NOKTALARI = [
-  { ad: '20', x: 0, y: HALKA.dDis },
-  { ad: '6', x: HALKA.dDis, y: 0 },
-  { ad: '3', x: 0, y: -HALKA.dDis },
-  { ad: '11', x: -HALKA.dDis, y: 0 },
-];
+// Kalibrasyon noktaları (Demir 10.11, DeepDarts gibi): iki dilim arasındaki TELİN double halkasının DIŞ çizgisiyle kesiştiği yer
+// — görüntüde net bir nokta, dokunması ve oturtması kolay. 5|20 (99°), 13|6 (9°), 17|3 (279°), 8|11 (189°)
+const kes = (ad, aci) => ({ ad, x: HALKA.dDis * Math.cos(aci * Math.PI / 180), y: HALKA.dDis * Math.sin(aci * Math.PI / 180) });
+export const AYAR_NOKTALARI = [kes('5|20', 99), kes('13|6', 9), kes('17|3', 279), kes('8|11', 189)];
+// Ana yönler (kalıp ve açı ölçüsü için): 20 üst, 6 sağ, 3 alt, 11 sol
+export const ANA_YONLER = [{ x: 0, y: HALKA.dDis }, { x: HALKA.dDis, y: 0 }, { x: 0, y: -HALKA.dDis }, { x: -HALKA.dDis, y: 0 }];
 
 /** Tahtadaki bir noktanın puanı: { n, m, ad } — m: 0 ıska, 1 tek, 2 double, 3 triple */
 export function puan(x, y) {

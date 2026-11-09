@@ -139,7 +139,7 @@ export function algilayici(o) {
 }
 
 // ---------- kalibrasyon kaydı (cihaz başına) ----------
-const ANAHTAR = 'dartx.kamera.v1';
+const ANAHTAR = 'dartx.kamera.v2'; // v2: ayar noktaları tel kesişimlerinde (v1 dilim ortasıydı)
 export function ayarOku(w, h) {
   try { const k = JSON.parse(localStorage.getItem(ANAHTAR) || 'null'); if (k && k.noktalar && k.noktalar.length === 4 && (!w || (k.w === w && k.h === h))) return k; } catch (e) { /* yok say */ }
   return null;
@@ -148,11 +148,22 @@ export function ayarYaz(w, h, noktalar) { localStorage.setItem(ANAHTAR, JSON.str
 
 // ---------- arka kamerayı aç ----------
 export async function kameraAc(yon = 'environment') {
-  const akis = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: yon }, width: { ideal: 1920 }, height: { ideal: 1080 } } });
+  const akis = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: yon }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } }); // Autodarts: 720p 30 kare yeterli
   const v = document.createElement('video');
   v.playsInline = true; v.muted = true; v.setAttribute('playsinline', ''); v.srcObject = akis;
   v.play().catch(() => {});
   if (!v.videoWidth) await new Promise(r => { v.onloadedmetadata = r; });
   return v;
+}
+// ---------- flaş (Demir 10.11): tarayıcı yalnız aç/kapat verir; kısma (dimleme) yalnız App Store sürümünde ----------
+const FLAS_ANAHTAR = 'dartx.kamera.flas';
+const iz = v => v && v.srcObject && v.srcObject.getVideoTracks ? v.srcObject.getVideoTracks()[0] : null;
+export function flasVar(v) { try { const c = iz(v).getCapabilities ? iz(v).getCapabilities() : {}; return !!c.torch; } catch (e) { return false; } }
+export const flasTercih = () => { try { return localStorage.getItem(FLAS_ANAHTAR) === '1'; } catch (e) { return false; } };
+export async function flasKoy(v, acik, kaydet = true) {
+  const tr = iz(v); if (!tr) return false;
+  try { await tr.applyConstraints({ advanced: [{ torch: !!acik }] }); } catch (e) { return false; }
+  if (kaydet) try { localStorage.setItem(FLAS_ANAHTAR, acik ? '1' : '0'); } catch (e) { /* yok say */ }
+  return true;
 }
 export function kameraKapat(v) { try { v.srcObject && v.srcObject.getTracks().forEach(t => t.stop()); } catch (e) { /* yok say */ } }

@@ -3075,3 +3075,46 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .kam-uyari .kam-kart { width: min(380px, 100%); }
 .kam-uyari .kam-kart-ic svg { width: 30px; height: 30px; }
 .kam-uyari.kapan { opacity: 0; transition: opacity .2s; }
+
+/* Hologram kalıp kontrolleri, açı göstergesi, fotoğraf bağlantısı (Demir 10.11) */
+.kam-foto-bag { margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--altin-cam-yazi); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; opacity: .85; }
+.kam-kalip { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px;
+  width: max-content; max-width: calc(100% - 20px); padding: 8px; border-radius: 18px; background: rgb(15 18 22 / .82); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgb(240 207 134 / .35); }
+.kam-kalip[hidden], .kam-aci[hidden] { display: none; }
+.kam-yon { display: flex; padding: 3px; border-radius: 99px; background: rgb(255 255 255 / .06); }
+.kam-yon button { appearance: none; border: 0; background: none; color: #cfc8bc; font: inherit; font-size: 13.5px; font-weight: 600; padding: 7px 12px; border-radius: 99px; cursor: pointer; }
+.kam-yon button.on { color: var(--altin-cam-yazi); background: var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; border: 1px solid transparent; box-shadow: var(--altin-cam-golge); }
+.kam-kalip .btn { min-height: 40px; padding: 0 14px; gap: 6px; }
+.kam-elle { appearance: none; border: 0; background: none; color: #9a948a; font: inherit; font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.kam-aci { position: absolute; left: 10px; bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; max-width: calc(100% - 20px); padding: 7px 12px; border-radius: 12px;
+  background: rgb(15 18 22 / .84); border: 1px solid rgb(233 140 60 / .6); color: #ece7dd; font-size: 13px; }
+.kam-aci.iyi { border-color: rgb(47 179 109 / .7); }
+.kam-aci b { font-weight: 700; }
+.kam-aci i { font-style: normal; color: #fff; background: rgb(47 179 109); width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; }
+.kam-aci small { width: 100%; color: #f0b27a; font-size: 12.5px; }
+.kam-oneri.on ~ .kam-aci { display: none; }
+/* 5 düğme: son sıradakiler genişlesin, boşluk kalmasın */
+.kam-araclar { display: flex; flex-wrap: wrap; }
+.kam-araclar .btn { flex: 1 1 calc(50% - 8px); }
+@media (min-width: 640px) { .kam-araclar .btn { flex: 1 1 calc(33.3% - 8px); } }
+@media (min-width: 1200px) { .kam-araclar .btn { flex: 1 1 auto; } }
+/* Kalıp kontrolleri görüntünün altında şerit (telefonda görüntüyü kapatmasın) */
+.kam-kalip { position: static; transform: none; width: auto; max-width: none; margin: 0; justify-content: center; }
+@media (max-width: 639px) { .kam-yonerge { font-size: 12.5px; padding: 6px 10px; } }
+/* Boş ekranda fotoğraf: yazı + altında küçük Yükle düğmesi (Demir 10.11) */
+.kam-foto-yazi { margin-top: 10px; font-size: 13px; color: var(--mut); }
+.kam-bos .kam-foto-yukle { min-height: 34px; padding: 0 14px; gap: 6px; font-size: 13px; cursor: pointer; }
+.kam-sahne:has(.kam-oneri.on) .kam-aci { display: none; } /* öneri kutusu ile üst üste binmesin */
+
+/* Flaş düğmesi (Demir 10.11): görüntünün sağ üst köşesi; açıkken altın cam */
+.kam-flas { position: absolute; right: 10px; top: 10px; z-index: 3; display: inline-flex; align-items: center; gap: 5px; padding: 7px 11px; border-radius: 99px; cursor: pointer;
+  border: 1px solid rgb(255 255 255 / .18); background: rgb(15 18 22 / .78); color: #cfc8bc; font: inherit; font-size: 13px; font-weight: 600; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.kam-flas[hidden] { display: none; }
+.kam-flas.on { color: var(--altin-cam-yazi); background: var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; border-color: transparent; box-shadow: var(--altin-cam-golge), 0 0 18px rgb(255 226 160 / .5); }
+.kam-sahne:has(.kam-flas:not([hidden])) .kam-yonerge { max-width: calc(100% - 130px); }
+.kam-ipucu-kart .kam-not { padding: 14px 16px; }
+/* Işık ipucu Adımlar kartının altında; yatay tablette sağ sütun kendi içinde kayar, sayfa kaymaz */
+.kam-ipucu { border-top: 1px solid var(--cizgi); padding-top: 12px !important; margin-top: 2px; }
+@media (min-width: 980px) { .kam-sag { max-height: calc(100dvh - var(--safe-t, 0px) - 130px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; border-radius: 20px; }
+  .kam-sag::-webkit-scrollbar { display: none; } }
+@media (min-width: 980px) { .kam-sag { max-height: calc(100dvh - var(--safe-t, 0px) - 140px); } }

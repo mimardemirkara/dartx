@@ -1,7 +1,7 @@
 // DartX kamera (Beta) — uygulamanın içi:
 //  · Yalnız telefon: bu cihazın kamerası oyunda açılır, saplanan ok kendiliğinden yazılır (köşede küçük önizleme)
 //  · Tablet + telefon: telefon kamera.html'de algılar, sonucu QR ile eşleşmiş tablete gönderir
-import { algilayici, ayarOku, kameraAc, kameraKapat } from './algila.js';
+import { algilayici, ayarOku, kameraAc, kameraKapat, flasVar, flasKoy, flasTercih } from './algila.js';
 import { kalibre } from './tahta.js';
 import { tabletBaslat, qrSvg, qrOku } from './baglanti.js';
 import { IC } from './ekran.js';
@@ -27,6 +27,7 @@ export async function yerelAc() {
   if (yerel) return true;
   const ay = ayarOku(); if (!ay) return false;
   const video = await kameraAc();
+  if (flasVar(video) && flasTercih()) flasKoy(video, true, false); // kamera ekranında flaş açık bırakıldıysa oyunda da açık
   const w = video.videoWidth, h = video.videoHeight;
   // ayar başka çözünürlükte yapıldıysa noktalar oranla taşınır
   const noktalar = ay.w === w && ay.h === h ? ay.noktalar : ay.noktalar.map(p => ({ x: p.x * w / ay.w, y: p.y * h / ay.h }));
