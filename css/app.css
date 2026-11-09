@@ -2832,3 +2832,8 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
   :root .hakkinda > section.ay-grup:not(.hk-metin) { display: flex; flex-direction: column; }
   :root .hakkinda > section.ay-grup:not(.hk-metin) > :last-child { margin-top: auto; }
 }
+/* Oyun ekranında küçük sesli okuma düğmesi (Demir 09.11): açıkken yeşil hoparlör, kapalıyken üstü çizili gri */
+.play-top .pt-ses { flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; color: rgb(150 160 178); margin-left: auto; }
+.play-top .pt-ses svg { width: 20px; height: 20px; }
+.play-top .pt-ses.acik { color: rgb(47 179 109); box-shadow: var(--sivi-ic), inset 0 0 0 1.5px rgb(47 179 109 / .55); }
+@media (min-width: 700px) { .play-top .pt-ses { width: 46px; height: 46px; } .play-top .pt-ses svg { width: 22px; height: 22px; } }

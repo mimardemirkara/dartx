@@ -844,6 +844,7 @@ function viewPlay() {
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
+      ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? SESLI_IC : SESSIZ_IC}</button>` : ''}
       <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
@@ -882,6 +883,7 @@ function acikRenk(hex) {
 }
 // Sesli okuma (Demir 09.11): hoparlör simgesi
 const SESLI_IC = LUCIDE('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>', 22, 2);
+const SESSIZ_IC = LUCIDE('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>', 22, 2);
 const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
 // Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
 const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
