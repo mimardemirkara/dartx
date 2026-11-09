@@ -3031,3 +3031,47 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .kurulum-ust h1 .kam-baslik-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; margin: 0; }
 .kurulum-ust h1 .kam-baslik-ic svg { width: 20px; height: 20px; }
 @media (min-width: 700px) { .kurulum-ust h1 .kam-baslik-ic { width: 40px; height: 40px; border-radius: 12px; } .kurulum-ust h1 .kam-baslik-ic svg { width: 23px; height: 23px; } }
+/* Ana ekranda Kamera simgesinin BETA rozeti (Demir 10.11: kamera ana menüde) */
+.app-ico .rozet-beta { position: absolute; right: -6px; top: -6px; font-style: normal; font-size: 9px; font-weight: 800; letter-spacing: .08em; padding: 2px 6px; border-radius: 99px;
+  color: #1d160a; background: var(--altin); box-shadow: 0 2px 6px rgb(0 0 0 / .45); z-index: 2; }
+.kam-not { margin: 0; padding: 4px 16px 10px; color: var(--mut); font-size: 13.5px; line-height: 1.45; }
+.kam-tablet-dugme { padding: 0 16px 16px; display: grid; }
+.kam-tablet-dugme .btn { gap: 7px; }
+.rozet-yakinda.rozet-beta { right: -10px; top: -6px; color: #1d160a; background: var(--altin); }
+/* Açılış saplanma efekti (Demir 10.11): efekt uçan dartın ÖNÜNDE (dart resmi logodan kesildiği için D harfinin bir parçasını da taşıyor;
+   efekt altta kalınca "D'nin altında" görünüyordu) + toz duman bulutları + düşen sisal kırıntıları */
+.acilis-halka { z-index: 4; }
+.acilis-halka s { position: absolute; left: 0; top: 0; width: var(--z); height: var(--z); margin: calc(var(--z) / -2) 0 0 calc(var(--z) / -2); border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, rgb(214 196 168 / .55), rgb(170 150 122 / .28) 45%, rgb(140 120 95 / 0) 72%); filter: blur(2px);
+  opacity: 0; transform: translate(0, 0) scale(.2); animation: adDuman var(--t) cubic-bezier(.15,.75,.35,1) var(--d) forwards; }
+@keyframes adDuman { 0% { opacity: 0; transform: translate(0, 0) scale(.2); } 12% { opacity: .95; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.6); } }
+.acilis-halka u { position: absolute; left: 0; top: 0; width: var(--w); height: calc(var(--w) * .45); margin: calc(var(--w) * -.22) 0 0 calc(var(--w) / -2); border-radius: 1px;
+  background: #d9c7a0; box-shadow: 0 0 2px rgb(0 0 0 / .4); opacity: 0; animation: adKirinti 1s cubic-bezier(.2,.6,.5,1) var(--d) forwards; }
+@keyframes adKirinti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  45% { opacity: 1; transform: translate(calc(var(--x) * .75), var(--y)) rotate(calc(var(--r) * .5)); }
+  100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + var(--g))) rotate(var(--r)); } }
+.acilis-halka s { background: radial-gradient(circle at 45% 45%, rgb(226 212 188 / .78), rgb(180 162 136 / .42) 42%, rgb(140 120 95 / 0) 72%); filter: blur(3px); }
+.acilis-halka u { background: #e4d2aa; }
+.rozet-yakinda { z-index: 10; } /* cam parlaması (::before/::after) rozetin üstüne binmesin — BETA saydam görünüyordu */
+/* Ana ekranda Kamera: kamera ekranındaki saydam altın cam karonun aynısı (Demir 10.11) */
+.app-ico.kam-ana { overflow: visible; }
+.app-ico.kam-ana .kam-ana-ic { width: 100%; height: 100%; border-radius: 23%; display: grid; place-items: center; }
+.app-ico.kam-ana .kam-ana-ic svg { width: 54%; height: 54%; }
+.app-ico.kam-ana .kam-ana-ic svg { width: 62%; height: 62%; }
+/* Kenardan kaydırma göstergesi (Demir 10.11): yalnız çekerken görünür; kenarda altın cam daire, eşiği geçince dolar */
+.kk-ok { position: fixed; z-index: 90; top: 50%; left: 8px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; display: grid; place-items: center; pointer-events: none;
+  color: var(--altin-cam-yazi); border: 1.5px solid transparent; background: var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; box-shadow: var(--altin-cam-golge);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  opacity: 0; transform: translateX(calc(-60px + var(--o, 0) * 60px)) scale(calc(.6 + var(--o, 0) * .4)); transition: opacity .15s; }
+.kk-ok.gor { opacity: 1; }
+.kk-ok.sag { left: auto; right: 8px; transform: translateX(calc(60px - var(--o, 0) * 60px)) scale(calc(.6 + var(--o, 0) * .4)) rotate(180deg); }
+.kk-ok.hazir { background: var(--altin) padding-box, var(--altin-cam-kenar) border-box; color: #1d160a; }
+.kk-ok { display: none !important; } /* Demir 10.11: ok simgesi istemiyor — iPhone gibi yalnız sayfa kayar */
+/* Adım numaraları (Demir 10.11 "sarı dolgu bozuk"): düz altın degrade yerine uygulamanın altın cam dairesi */
+.kam-adim-liste li.simdi i { background: var(--altin-cam-ton) padding-box, var(--altin-cam-kenar) border-box; border: 1.5px solid transparent;
+  color: var(--altin-cam-yazi); box-shadow: var(--altin-cam-golge); text-shadow: 0 1px 2px rgb(0 0 0 / .5); animation: none; }
+@media (min-width: 980px) { .kam-sahne { height: calc(100dvh - var(--safe-t, 0px) - 310px); } } /* yatay tablette sayfa ekrana sığsın (kaydırma ve üst çubuk altında çizgi olmasın) */
+.kam-uyari .kam-kart { width: min(380px, 100%); }
+.kam-uyari .kam-kart-ic svg { width: 30px; height: 30px; }
+.kam-uyari.kapan { opacity: 0; transition: opacity .2s; }

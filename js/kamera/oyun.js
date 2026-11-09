@@ -74,6 +74,8 @@ function pencereKapat() {
 export async function eslestir(t = s => s) {
   if (uzak) { try { uzak.baglanti.kapat(); } catch (e) { /* yok say */ } uzak = null; durumCb(); }
   pencere(`<p class="kam-adim">${t('Hazırlanıyor…')}</p>`);
+  // iPad/iPhone Safari, kamera izni olmayan sayfanın yerel ağ adresini paylaşmaz: önce kamera açılır (QR okumada da bu kamera kullanılır)
+  if (!taramaVideo) { try { taramaVideo = await kameraAc('user'); } catch (e) { /* izin yoksa yine dene */ } }
   let b;
   try {
     b = await tabletBaslat({
@@ -89,7 +91,7 @@ export async function eslestir(t = s => s) {
   const svg = await qrSvg(b.qr);
   pencere(`${baslik(IC.tablet, t('Kamerayı telefondan al'))}
     <ol class="kam-adimlar"><li>${t('İki cihaz aynı Wi-Fi’ye (ya da telefonun hotspot’una) bağlı olsun. İnternet gerekmez.')}</li>
-    <li>${t('Telefonda DartX → Ayarlar → Kamera → <b>Bu cihaz kamera</b>, sonra <b>Tablete bağlan</b>; bu kodu telefonla okut.')}</li></ol>
+    <li>${t('Telefonda DartX → <b>Kamera</b>: kamerayı aç, tahtayı ayarla, sonra <b>Tablete bağlan</b>; bu kodu telefonla okut.')}</li></ol>
     <div class="kam-qr">${svg}</div>
     <button class="btn primary" data-kam="ileri">${t('Telefon kodu gösteriyor ›')}</button>
     <button class="btn" data-kam="kapat">${t('Vazgeç')}</button>`);
@@ -100,7 +102,7 @@ async function cevapOkut(b, t) {
   pencere(`${baslik(IC.kamera, t('Telefonun kodunu okut'))}<p>${t('Telefon ekranındaki kodu bu cihazın kamerasına göster.')}</p>
     <div class="kam-tara"><span class="kam-cerceve"></span></div><p class="kam-hata"></p><button class="btn" data-kam="kapat">${t('Vazgeç')}</button>`);
   try {
-    taramaVideo = await kameraAc('user');
+    if (!taramaVideo) taramaVideo = await kameraAc('user');
   } catch (e) { document.querySelector('.kam-hata').textContent = t('Kamera açılamadı'); return; }
   document.querySelector('.kam-tara').prepend(taramaVideo);
   taramaDur = qrOku(taramaVideo, async kod => {

@@ -10,13 +10,13 @@ const RENK_ESIK = 40;    // |ΔR|+|ΔG|+|ΔB| — gümüş gövde krem dilimde g
 const HAREKET_ESIK = 6;  // kare arası oynayan piksel: ince bir ok bile bunu geçer
 const AZ = 0.0008, COK = 0.06;
 
-const renkFark = (a, b, j) => { const i = j * 4; return Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]); };
 
 /** @param o { kaynak, w, h, kal, okBulundu(nokta, puan, kutu), yeniEl(), bilgi(metin) } */
 export function algilayici(o) {
   const kucuk = document.createElement('canvas'), kc = kucuk.getContext('2d', { willReadFrequently: true });
   const kh = Math.round(KW * o.h / o.w), N = KW * kh, olc = o.w / KW;
   kucuk.width = KW; kucuk.height = kh;
+  kc.imageSmoothingEnabled = true; kc.imageSmoothingQuality = 'high'; // küçültürken ortalama: kamera kumlanması yumuşar
   // maske: tahta + çevresi (kanatçık tahtanın dışına taşabilir)
   const maske = new Uint8Array(N); let maskeSay = 0;
   for (let y = 0; y < kh; y++) for (let x = 0; x < KW; x++) {
@@ -24,6 +24,30 @@ export function algilayici(o) {
     if (Math.hypot(t.x, t.y) <= HALKA.dDis + 70) { maske[y * KW + x] = 1; maskeSay++; }
   }
   let ref = null, bosRef = null, once = null, sabit = 0, zaman = null, okSay = 0;
+
+  // Gerçek kamerada (Demir 10.11 simülasyonu): parlaklık kendiliğinden kayar, tripod piksel altı titrer.
+  // · ofset: iki kare arasındaki genel renk kayması (kanal başına ortalama) çıkarılır
+  // · fark: piksel, karşılaştırılan karede KENDİSİ ve 8 KOMŞUSUNUN en yakını ile kıyaslanır → ≤1 piksellik kayma fark sayılmaz,
+  //   ince ok (komşuları da tahta) yine fark sayılır
+  function ofset(a, b) {
+    let r = 0, y = 0, m = 0, n = 0;
+    for (let j = 0; j < N; j += 5) if (maske[j]) { const i = j * 4; r += a[i] - b[i]; y += a[i + 1] - b[i + 1]; m += a[i + 2] - b[i + 2]; n++; }
+    return n ? [r / n, y / n, m / n] : [0, 0, 0];
+  }
+  function fark(a, b, j, o) {
+    const x = j % KW, y = (j / KW) | 0, i = j * 4;
+    const r = a[i] - o[0], g = a[i + 1] - o[1], m = a[i + 2] - o[2];
+    let en = 1e9;
+    for (let dy = -1; dy <= 1; dy++) {
+      const ny = y + dy; if (ny < 0 || ny >= kh) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx; if (nx < 0 || nx >= KW) continue;
+        const k = (ny * KW + nx) * 4, d = Math.abs(r - b[k]) + Math.abs(g - b[k + 1]) + Math.abs(m - b[k + 2]);
+        if (d < en) { en = d; if (en <= RENK_ESIK) return en; }
+      }
+    }
+    return en;
+  }
 
   function kare() {
     kc.drawImage(o.kaynak, 0, 0, KW, kh);
@@ -36,17 +60,19 @@ export function algilayici(o) {
     if (!o.kaynak.videoWidth && o.kaynak.tagName === 'VIDEO') return;
     const g = kare();
     if (!ref) { ref = once = bosRef = g; return; }
-    let hareket = 0, fark = 0, bosFark = 0;
+    let hareket = 0, fk = 0, bosFark = 0;
+    const oO = ofset(g.c, once.c), oR = ofset(g.c, ref.c), oB = okSay ? ofset(g.c, bosRef.c) : null;
     for (let i = 0; i < N; i++) {
       if (!maske[i]) continue;
-      if (Math.abs(g.g[i] - once.g[i]) > 25) hareket++;
-      if (renkFark(g.c, ref.c, i) > RENK_ESIK) fark++;
-      if (okSay && renkFark(g.c, bosRef.c, i) > RENK_ESIK) bosFark++;
+      if (fark(g.c, once.c, i, oO) > RENK_ESIK + 15) hareket++;
+      if (fark(g.c, ref.c, i, oR) > RENK_ESIK) fk++;
+      if (oB && fark(g.c, bosRef.c, i, oB) > RENK_ESIK) bosFark++;
     }
     once = g;
+    if (o.iz) o.iz({ hareket, fk, oran: fk / maskeSay, sabit, oO, oR });
     if (hareket > HAREKET_ESIK) { sabit = 0; return; }
-    if (++sabit !== 4) return; // ~0,5 sn kıpırtısız kalınca bir kez karar ver
-    const oran = fark / maskeSay;
+    if (++sabit !== 3) return; // ~0,4 sn kıpırtısız kalınca bir kez karar ver
+    const oran = fk / maskeSay;
     if (okSay && oran >= AZ && bosFark / maskeSay < AZ) { ref = bosRef = g; okSay = 0; o.yeniEl && o.yeniEl(); return; } // oklar çekildi
     if (oran < AZ) { ref = g; if (!okSay) bosRef = g; return; } // değişiklik yok (ışık kaymasını da sıfırlar)
     if (oran > COK) { ref = bosRef = g; if (okSay) { okSay = 0; o.yeniEl && o.yeniEl(); } return; }
@@ -60,8 +86,12 @@ export function algilayici(o) {
 
   /** Farktaki parçalar (gövde + kanatçık) birlikte; ana eksen boyunca İNCE olan uç = sivri uç */
   function ucBul(g) {
-    const b = new Uint8Array(N);
-    for (let i = 0; i < N; i++) if (maske[i] && renkFark(g.c, ref.c, i) > RENK_ESIK) b[i] = 1;
+    const b = new Uint8Array(N), oR = ofset(g.c, ref.c), c = g.c, rc = ref.c;
+    // gölge sayılmaz: üç kanal da aynı oranda kararmış (renk tonu aynı) piksel okun gölgesidir
+    const golge = i => { const k = i * 4, r0 = rc[k] + 8, g0 = rc[k + 1] + 8, b0 = rc[k + 2] + 8;
+      const a = (c[k] + 8) / r0, e = (c[k + 1] + 8) / g0, f = (c[k + 2] + 8) / b0;
+      return a < .88 && e < .88 && f < .88 && Math.max(a, e, f) - Math.min(a, e, f) < .14; };
+    for (let i = 0; i < N; i++) if (maske[i] && fark(g.c, ref.c, i, oR) > RENK_ESIK && !golge(i)) b[i] = 1;
     const etiket = new Uint8Array(N), yigin = [], tum = [];
     for (let i = 0; i < N; i++) {
       if (!b[i] || etiket[i]) continue;
@@ -85,9 +115,15 @@ export function algilayici(o) {
     const a = 0.5 * Math.atan2(2 * sxy, sxx - syy), ex = Math.cos(a), ey = Math.sin(a);
     const pr = tum.map(j => { const x = j % KW, y = (j / KW) | 0; return { x, y, t: (x - mx) * ex + (y - my) * ey }; }).sort((p, q) => p.t - q.t);
     const n = pr.length, boy = pr[n - 1].t - pr[0].t || 1;
-    const bas = pr.filter(p => p.t < pr[0].t + boy * .2).length, son = pr.filter(p => p.t > pr[n - 1].t - boy * .2).length;
+    // uç tarafı hafif (ince gövde), kanatçık tarafı ağır: eksenin iki yarısındaki piksel sayısı
+    const orta = pr[0].t + boy / 2, bas = pr.filter(p => p.t < orta).length, son = n - bas;
     const k = Math.max(2, Math.round(n * .03));
-    const uc = bas <= son ? pr.slice(0, k) : pr.slice(-k);
+    // uç seçimi: iki uçtan yalnız biri tahtanın içindeyse uç odur (kanatçık çoğu zaman dışarı taşar); yoksa İNCE olan uç
+    const ort = l => ({ x: (l.reduce((s, p) => s + p.x, 0) / l.length + .5) * olc, y: (l.reduce((s, p) => s + p.y, 0) / l.length + .5) * olc });
+    const yaricap = q => { const t = uygula(o.kal.G2T, q.x, q.y); return Math.hypot(t.x, t.y); };
+    const rBas = yaricap(ort(pr.slice(0, k))), rSon = yaricap(ort(pr.slice(-k))), ICERI = HALKA.dDis + 4;
+    const basSec = (rBas <= ICERI) !== (rSon <= ICERI) ? rBas <= ICERI : bas <= son;
+    const uc = basSec ? pr.slice(0, k) : pr.slice(-k);
     const x = uc.reduce((s, p) => s + p.x, 0) / uc.length, y = uc.reduce((s, p) => s + p.y, 0) / uc.length;
     let x0 = KW, y0 = kh, x1 = 0, y1 = 0;
     for (const p of pr) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }

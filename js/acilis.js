@@ -100,10 +100,16 @@ export function acilisGoster(acik = true) {
         { duration: 160, easing: 'ease-out' });
       const h = document.createElement('div');
       h.className = 'acilis-halka'; h.style.left = ux + 'px'; h.style.top = uy + 'px'; h.style.setProperty('--b', (r.height * 0.9) + 'px');
-      h.innerHTML = '<i></i><i></i>' + Array.from({ length: 10 }, (_, i) => `<b style="--a:${i * 36 + Math.random() * 20}deg;--u:${(0.35 + Math.random() * 0.4) * r.height}px"></b>`).join('');
+      const R = r.height, ra = (a, b) => a + Math.random() * (b - a);
+      // Demir 10.11: toz duman — uçtan yayılıp sönen bulutlar (sola-aşağı, darta ters yön ağırlıklı) + düşen sisal kırıntıları
+      const duman = Array.from({ length: 10 }, () => { const a = ra(100, 300) * Math.PI / 180, u = ra(.12, .34) * R;
+        return `<s style="--x:${(Math.cos(a) * u).toFixed(1)}px;--y:${(Math.sin(a) * u * .7 - R * .05).toFixed(1)}px;--z:${ra(.24, .42) * R}px;--d:${ra(0, .12).toFixed(2)}s;--t:${ra(1.1, 1.7).toFixed(2)}s"></s>`; }).join('');
+      const kirinti = Array.from({ length: 22 }, () => { const a = ra(120, 330) * Math.PI / 180, u = ra(.15, .45) * R;
+        return `<u style="--x:${(Math.cos(a) * u).toFixed(1)}px;--y:${(-Math.abs(Math.sin(a)) * u * .6).toFixed(1)}px;--g:${(R * ra(.35, .6)).toFixed(1)}px;--r:${ra(-260, 260).toFixed(0)}deg;--w:${ra(1.2, 2.8).toFixed(1)}px;--d:${ra(0, .08).toFixed(2)}s"></u>`; }).join('');
+      h.innerHTML = '<i></i><i></i>' + duman + kirinti + Array.from({ length: 10 }, (_, i) => `<b style="--a:${i * 36 + Math.random() * 20}deg;--u:${(0.35 + Math.random() * 0.4) * r.height}px"></b>`).join('');
       kat.appendChild(h);
       logoImg.classList.add('sars');
-      setTimeout(() => h.remove(), 1200);
+      setTimeout(() => h.remove(), 2000);
       // logo tam netleşince uçan dart logodaki dartın içinde kaybolur
       setTimeout(() => d.classList.add('git'), 1300);
       setTimeout(() => d.remove(), 1800);

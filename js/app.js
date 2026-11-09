@@ -332,15 +332,21 @@ async function keepAwake(on) {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.view === 'play') keepAwake(true); });
 
-// Kenardan kaydırma ile geri / ileri (Demir 10.11): geri dönülen ekranlar "ileri" yığınında durur;
-// başka bir yere gidilince (sekme, oyun vb.) yığın temizlenir — tarayıcıdaki gibi.
-const ILERI_OLUR = ['players', 'stats', 'settings', 'kamera', 'about', 'online', 'nasil', 'nasiloyna'];
-const ileriYigin = [];
-let gezinme = null; // 'geri' | 'ileri' — go() yığını temizlemesin
+// Geri / ileri iPhone gibi (Demir 10.11, demirkara.com gibi): her ekran tarayıcı geçmişine yazılır.
+// Safari'de iPhone/iPad'in kendi kenar kaydırması, Android'de geri tuşu/hareketi çalışır; ana ekrana eklenmiş
+// uygulamada (iOS orada hareket vermez) kenar-kaydir.js aynı işi simgesiz yapar. Oyun içi geçişler (kurulum → oyun → bitiş) yeni kayıt açmaz.
+const OYUN_ICI = new Set(['setup', 'play', 'end']);
+let gIdx = 0, gMax = 0, gecmisAtla = false;
+function gecmisYaz(view) {
+  const st = { v: view, n: S.nasilId || null, i: gIdx };
+  const eski = history.state && history.state.v;
+  if (!eski || eski === view || (OYUN_ICI.has(eski) && OYUN_ICI.has(view))) { history.replaceState(st, ''); return; }
+  gIdx++; gMax = gIdx; st.i = gIdx; history.pushState(st, '');
+}
 function go(view, extra = {}) {
-  if (!gezinme) ileriYigin.length = 0;
-  gezinme = null;
+  const yaz = !gecmisAtla; gecmisAtla = false;
   Object.assign(S, { view, modal: null }, extra);
+  if (yaz) gecmisYaz(view);
   keepAwake(view === 'play');
   render();
   window.scrollTo(0, 0);
@@ -569,6 +575,7 @@ function viewHome() {
   const menu = [['players', 'Oyuncular'], ['stats', 'İstatistik'], ['settings', 'Ayarlar']].map(([v, l]) => `
       <button class="app" data-act="tab" data-v="${v}"><span class="app-ico simge">${ikon(v)}</span><span class="app-ad">${t(l)}</span></button>`).join('')
     + `<button class="app" data-act="tab" data-v="nasil"><span class="app-ico simge">${ikon('nasil')}</span><span class="app-ad">${t('Nasıl Oynanır')}</span></button>`
+    + `<button class="app" data-act="tab" data-v="kamera"><span class="app-ico kam-ana"><span class="kam-kart-ic kam-ana-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span><i class="rozet-yakinda rozet-beta">BETA</i></span><span class="app-ad">${t('Kamera')}</span></button>`
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge yakinda">${ikon('grp-online')}<i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Online')}</span></button>`
     + `<button class="app" data-act="tab" data-v="about"><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="app-ad">${t('Hakkında')}</span></button>`;
   // Ara verilmiş diğer maçlar (Demir 10.11): büyük kartın altında küçük satırlar — Devam ve Sil
@@ -960,8 +967,19 @@ app.addEventListener('pointerdown', e => {
 const KAM_IC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
 function kamDugme(useTotal) {
   const d = kam.durum();
-  if (d === 'ayarsiz' || useTotal) return '';
+  if (useTotal) return ''; // ayar yoksa da görünür: basınca kamera ekranı açılır (Demir 10.11)
   return `<button class="icon-btn pt-kam" data-d="${d}" data-act="kamera" aria-label="${t('Kamera')}" title="${t('Kamera')}">${KAM_IC}</button>`;
+}
+// Oyunda kamera düğmesi, tahta ayarlanmamışken (Demir 10.11): ekranda kalan uyarı, baş harfler büyük,
+// altında Tamam; herhangi bir yere dokununca kapanır ve kamera ayar ekranında kalınır
+function kamAyarUyari() {
+  const p = document.createElement('div');
+  p.className = 'kam-perde kam-uyari';
+  p.innerHTML = `<div class="kam-kart"><span class="kam-kart-ic">${KAM_IC}</span>
+    <h3>${t('Önce Tahtayı Ayarla')}</h3><p>${t('Bitince Geri İle Oyuna Dön, Kamera Kendiliğinden Açılır')}</p>
+    <button class="btn primary">${t('Tamam')}</button></div>`;
+  p.addEventListener('click', () => { p.classList.add('kapan'); setTimeout(() => p.remove(), 200); vib(6); });
+  document.body.appendChild(p);
 }
 function kameraAtis(p) {
   const m = data().current;
@@ -1333,10 +1351,6 @@ function viewSettings() {
       ${satir(AY.ekran, t('Oyunda ekran açık kalsın'), anahtar('keepAwake'))}
       ${satir(AY.yildiz, t('Açılış efekti'), anahtar('acilis', data().settings.acilis !== false))}
       ${okuma.destekli() ? satir(AY.oyunSes, t('Sesli okuma (atışlar ve bitiriş)'), anahtar('sesliOkuma', s.sesliOkuma === true)) : ''}`)}
-    ${kart(AY.kamera, t('Kamera') + ' <span class="beta-rozet">BETA</span>', `
-      <button class="ay-satir tikla" data-act="kamsayfa">${ikonKutu(AY.kamera)}<span class="ay-ad">${t('Bu cihaz kamera')}<small>${t('Tahtayı ayarla, dene, tablete bağlan')}</small></span><span class="ay-ok">${AY.ok}</span></button>
-      <button class="ay-satir tikla" data-act="kameslestir">${ikonKutu(AY.telefon)}<span class="ay-ad">${t('Kamerayı telefondan al')}<small>${kam.durum() === 'uzak' ? t('Telefon bağlı') : t('QR ile eşleştir · aynı Wi-Fi, internet gerekmez')}</small></span><span class="ay-ok">${AY.ok}</span></button>
-      <p class="ay-not">${t('Kamera saplanan oku tanır, puanı kendiliğinden yazar. Yanlış yazarsa Atışı Geri Al ile düzelt. Deneme aşamasında: ışık ve açı isabeti etkiler.')}</p>`)}
     ${kart(AY.indir, t('Yedek'), `
       <button class="ay-satir tikla" data-act="export">${ikonKutu(AY.indir)}<span class="ay-ad">${t('Yedek al')}</span><span class="ay-ok">${AY.ok}</span></button>
       <label class="ay-satir tikla">${ikonKutu(AY.yukle)}<span class="ay-ad">${t('Yedeği yükle')}</span><span class="ay-ok">${AY.ok}</span><input type="file" accept=".json,application/json" data-act="import" hidden></label>
@@ -1932,13 +1946,18 @@ app.addEventListener('click', e => {
 
     case 'export': exportBackup(); break;
     case 'kamsayfa': kam.yerelKapat(); go('kamera'); break;
-    case 'kamgeri': go('settings'); break;
+    case 'kamgeri': { // oyundan gelindiyse oyuna döner; tahta ayarlandıysa kamera kendiliğinden açılır
+      const don = S.kamDonus === 'play' && data().current ? 'play' : 'home';
+      S.kamDonus = null; go(don);
+      if (don === 'play' && kam.durum() === 'hazir') kam.yerelAc().then(ok => { if (ok) toast(t('Kamera açık: atışlar kendiliğinden yazılır'), ''); }).catch(() => {});
+      break;
+    }
     case 'kameslestir': kam.eslestir(t); break;
     case 'kamera': { // oyunda kamera düğmesi
       const d = kam.durum();
       if (d === 'uzak') { toast(t('Kamera: telefon bağlı'), ''); break; }
       if (d === 'yerel') { kam.yerelKapat(); toast(t('Kamera kapandı'), ''); break; }
-      if (d === 'ayarsiz') { go('kamera'); break; }
+      if (d === 'ayarsiz') { go('kamera', { kamDonus: 'play' }); kamAyarUyari(); break; }
       kam.yerelAc().then(ok => { if (ok) toast(t('Kamera açık: atışlar kendiliğinden yazılır'), ''); })
         .catch(e => toast(t('Kamera açılamadı') + (e && e.name === 'NotAllowedError' ? ': ' + t('izin verilmedi') : ''), 'bad'));
       break;
@@ -2068,23 +2087,35 @@ hesapKur({
   },
   titret: () => vib(6),
 });
-// Geri tuşu (dokunarak ya da kenardan kaydırarak): bulunulan ekran "ileri" için saklanır
+// Tarayıcının geri / ileri hareketi (Safari kenar kaydırması, Android geri) → ekran değişir
+addEventListener('popstate', e => {
+  const st = e.state; if (!st || !st.v) return;
+  gIdx = st.i || 0;
+  let v = st.v;
+  if (v === 'play' && !data().current) v = 'home';
+  if (v === 'end' && !S.lastMatch) v = 'home';
+  gecmisAtla = true; S.modal = null;
+  go(v, v === 'nasiloyna' && st.n ? { nasilId: st.n } : {});
+});
+// Ekrandaki Geri tuşu da geçmişte geri gider (sonra sağ kenardan ileri dönülebilsin)
 app.addEventListener('click', e => {
-  if (!e.target.closest('.kurulum-ust .geri-dugme')) return;
-  if (ILERI_OLUR.includes(S.view)) { ileriYigin.push({ view: S.view, nasilId: S.nasilId }); if (ileriYigin.length > 10) ileriYigin.shift(); }
-  gezinme = 'geri';
-  setTimeout(() => { if (gezinme === 'geri') gezinme = null; }, 0); // geri tuşu go() çağırmadıysa bayrak kalmasın
+  const b = e.target.closest('.kurulum-ust .geri-dugme'); if (!b || gIdx < 1) return;
+  if (S.view === 'kamera' && S.kamDonus) return; // oyundan gelinen kamera ekranı: kendi dönüşü (kamera açılır)
+  e.preventDefault(); e.stopImmediatePropagation(); history.back();
 }, true);
-kenarKaydirKur({
-  geriVar: () => !S.modal && S.view !== 'play' && S.view !== 'home' && !!app.querySelector('.kurulum-ust .geri-dugme'),
-  ileriVar: () => !S.modal && S.view !== 'play' && ileriYigin.length > 0,
-  geri: () => { const b = app.querySelector('.kurulum-ust .geri-dugme'); if (b) b.click(); },
-  ileri: () => { const h = ileriYigin.pop(); if (!h) return; gezinme = 'ileri'; go(h.view, h.view === 'nasiloyna' ? { nasilId: h.nasilId } : {}); },
+// Ana ekrana eklenmiş uygulamada iOS kenar kaydırması yok: aynısı simgesiz (sayfa parmakla kayar)
+const tekBasina = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+if (tekBasina) kenarKaydirKur({
+  geriVar: () => !S.modal && S.view !== 'play' && gIdx > 0,
+  ileriVar: () => !S.modal && S.view !== 'play' && gIdx < gMax,
+  geri: () => history.back(),
+  ileri: () => history.forward(),
   sayfa: () => app.querySelector('main.page, .page') || app.lastElementChild,
   engel: el => !!(el.closest && el.closest('.kam-tuval, input, textarea, select, .modal-bg, .kam-perde, .dx-acilir, .spot-perde')) || !!document.querySelector('.kam-perde, .modal-bg'),
 });
-kamEkran.kur({ bildir: (m, ic) => toast(m, '', { tur: { ic: ic || 'kamera', a: ic === 'dikkat' ? 'a-sal' : 'a-zipla', k: ic === 'dikkat' ? 'bad' : '' } }) });
+kamEkran.kur({ eslestir: () => kam.eslestir(t), uzakMi: () => kam.durum() === 'uzak', bildir: (m, ic) => toast(m, '', { tur: { ic: ic || 'kamera', a: ic === 'dikkat' ? 'a-sal' : 'a-zipla', k: ic === 'dikkat' ? 'bad' : '' } }) });
 if (location.hash === '#kamera') { S.view = 'kamera'; history.replaceState(null, '', location.pathname + location.search); } // eski kamera.html bağlantısı
+history.replaceState({ v: S.view, n: null, i: 0 }, '');
 acilisGoster(data().settings.acilis !== false); // demirkara.com açılışı: yıldız küresi patlar, dart işaretleriyle döner, DartX logosuna akar
 document.documentElement.lang = dil();
 if (data().current && data().current.done) { store.finishCurrent(); }

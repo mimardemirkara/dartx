@@ -20,16 +20,27 @@ export const IC = {
   kalem: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
 };
 
+// Cihaz türü (Demir 10.11: "telefonsa telefon, tabletse tablet yaz"): kısa kenar ≥ 700 px dokunmatik = tablet; iPad masaüstü kimliğiyle de gelir
+function cihaz() {
+  const dokunmatik = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 1;
+  // önizleme (onizleme.html çerçevesi): çerçeve ölçüsüne göre
+  if (!dokunmatik && window.self !== window.top) return Math.min(innerWidth, innerHeight) >= 700 ? 'tablet' : 'telefon';
+  if (!dokunmatik) return 'cihaz';
+  if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return 'tablet';
+  return Math.min(screen.width, screen.height) >= 700 ? 'tablet' : 'telefon';
+}
+const CIHAZ_AD = { telefon: ['Telefon', 'Telefonu'], tablet: ['Tablet', 'Tableti'], cihaz: ['Telefon ya da tablet', 'Telefonu ya da tableti'] };
+
 const S = {
   kaynak: null, video: false, w: 0, h: 0, akis: null,
   noktalar: [], kal: null, mod: 'bos', // bos | ayar | hazir | duzelt
   izgara: true, algila: false, oneri: null, kayit: [], surukle: -1, alg: null, tablet: null, kutu: null,
 };
-let kok = null, tuval = null, cx = null, bildir = () => {}, tarama = null;
+let kok = null, tuval = null, cx = null, bildir = () => {}, tarama = null, eslestirCb = () => {};
 const $ = s => kok.querySelector(s);
 
 /** Uygulama: bildir(metin, simge) — uygulamanın simgeli uyarısı */
-export function kur(o) { bildir = o.bildir || bildir; }
+export function kur(o) { bildir = o.bildir || bildir; eslestirCb = o.eslestir || eslestirCb; }
 
 function kokKur() {
   kok = document.createElement('div');
@@ -40,7 +51,7 @@ function kokKur() {
       <canvas class="kam-tuval" width="16" height="9"></canvas>
       <div class="kam-bos">
         <span class="kam-bos-ic">${L(IC.kamera, 44)}</span>
-        <b>${t('Telefonu tahtaya bakacak şekilde sabitle')}</b>
+        <b>${t('{0} tahtaya bakacak şekilde sabitle', t(CIHAZ_AD[cihaz()][1]))}</b>
         <span>${t('Sonra Kamerayı aç’a dokun. Kamera yoksa tahtanın bir fotoğrafıyla da deneyebilirsin.')}</span>
       </div>
       <div class="kam-yonerge" hidden></div>
@@ -61,11 +72,16 @@ function kokKur() {
     <section class="ay-grup kam-adimlar-kart">
       <div class="kart-bas">${L(IC.adim, 16)}<span>${t('Adımlar')}</span></div>
       <ol class="kam-adim-liste">
-        <li data-a="1"><i>1</i><span><b>${t('Kamerayı aç')}</b><small>${t('Telefon tahtaya 30–40° açıyla, yaklaşık 1 m uzakta, bull hizasında dursun')}</small></span></li>
+        <li data-a="1"><i>1</i><span><b>${t('Kamerayı aç')}</b><small>${t('{0} tahtaya 30–40° açıyla, yaklaşık 1 m uzakta dursun; kamera yerden 173 cm yükseklikte (bull’un yüksekliği)', t(CIHAZ_AD[cihaz()][0]))}</small></span></li>
         <li data-a="2"><i>2</i><span><b>${t('Tahtayı ayarla')}</b><small>${t('20, 6, 3 ve 11’in double halkasının dış çizgisine sırayla dokun')}</small></span></li>
         <li data-a="3"><i>3</i><span><b>${t('Izgarayı kontrol et')}</b><small>${t('Altın çizgiler tahtaya oturmalı; oturmazsa kırmızı noktaları sürükle')}</small></span></li>
         <li data-a="4"><i>4</i><span><b>${t('Algılamayı aç ya da tablete bağlan')}</b><small>${t('Tahta boşken başla; ok saplanınca puan gelir')}</small></span></li>
       </ol>
+    </section>
+    <section class="ay-grup kam-tablet-kart">
+      <div class="kart-bas">${L(IC.tablet, 16)}<span>${t('Tablet ile')}</span></div>
+      <p class="kam-not">${t('Bu cihaz tabletse ve kamera telefonda olacaksa: buradan eşleştir. Telefonda bu ekranda Tablete bağlan’a bas. Aynı Wi-Fi yeter, internet gerekmez.')}</p>
+      <div class="kam-tablet-dugme"><button class="btn sm primary" data-k="eslestir">${L(IC.tablet, 18)}<span>${t('Kamerayı telefondan al')}</span></button></div>
     </section>
     <section class="ay-grup kam-kayit-kart">
       <div class="kart-bas">${L(IC.liste, 16)}<span>${t('Atışlar')}</span><span class="kam-isabet"></span></div>
@@ -82,6 +98,7 @@ function kokKur() {
   $('[data-k="izgara"]').onclick = () => { S.izgara = !S.izgara; dugmeler(); };
   $('[data-k="algila"]').onclick = () => algilamaAc(!S.algila);
   $('[data-k="tablet"]').onclick = tabletTikla;
+  $('[data-k="eslestir"]').onclick = () => eslestirCb();
   $('[data-k="onayla"]').onclick = onayla;
   $('[data-k="duzelt"]').onclick = () => { S.mod = 'duzelt'; yonerge(t('Okun ucunun saplandığı yere dokun')); };
   tuval.addEventListener('pointerdown', dokun);
