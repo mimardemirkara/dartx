@@ -183,7 +183,7 @@ function konfeti() {
 // ---------- tema (demirkara.com DK Steel koyu / açık)
 const koyuMQ = window.matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
-  const t = data().settings.theme || 'auto';
+  const t = data().settings.theme || 'koyu';
   const tema = t === 'auto' ? (koyuMQ.matches ? 'koyu' : 'acik') : t;
   document.documentElement.dataset.tema = tema;
   const meta = document.querySelector('meta[name="theme-color"]');
@@ -271,7 +271,7 @@ setInterval(() => {
 
 function topbar() {
   const s = saatYaz();
-  const tema = data().settings.theme || 'auto';
+  const tema = data().settings.theme || 'koyu';
   const temaIc = tema === 'koyu' ? IC.ay : tema === 'acik' ? IC.gunes : IC.ekran;
   const m = data().current;
   const aktif = S.view === 'play' && m ? gt(GAMES[m.gameId], 'name')
@@ -1255,7 +1255,7 @@ function viewSettings() {
   return `<main class="page ayarlar">${header(t('Ayarlar'))}
     ${kart(AY.tema, t('Görünüm'), `
       ${satir(AY.dil, t('Dil'), seg('dil', DILLER.map(d => [d.kod, `<img class="seg-bayrak" src="img/bayrak/${d.bayrak}.svg" alt="">${d.kod === 'tr' ? 'Türkçe' : 'English'}`]), dil()))}
-      ${satir(AY.tema, t('Tema'), seg('tema', [['auto', `${IC.ekran}${t('Otomatik')}`], ['koyu', `${IC.ay}${t('Koyu')}`], ['acik', `${IC.gunes}${t('Açık')}`]], s.theme || 'auto'))}`)}
+      ${satir(AY.tema, t('Tema'), seg('tema', [['auto', `${IC.ekran}${t('Otomatik')}`], ['koyu', `${IC.ay}${t('Koyu')}`], ['acik', `${IC.gunes}${t('Açık')}`]], s.theme || 'koyu'))}`)}
     ${kart(AY.titresim, t('Oyun'), `
       ${satir(AY.titresim, t('Titreşim'), anahtar('vibrate'))}
       ${satir(AY.tusSes, t('Tuş sesi'), anahtar('tusSes', s.tusSes !== false))}
@@ -1596,7 +1596,7 @@ app.addEventListener('click', e => {
     case 'klasor': S.modal = { type: 'klasor', cat: el.dataset.v }; render(); break;
     case 'ara': S.modal = { type: 'ara' }; render(); setTimeout(() => document.getElementById('ara-giris')?.focus(), 30); break;
     case 'temadon': {
-      const yeni = TEMA_SIRA[data().settings.theme || 'auto'];
+      const yeni = TEMA_SIRA[data().settings.theme || 'koyu'];
       data().settings.theme = yeni; store.save(); applyTheme(); render();
       break;
     }

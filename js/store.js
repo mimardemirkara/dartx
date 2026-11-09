@@ -11,7 +11,7 @@ function blank() {
     history: [],      // biten maçlar
     current: null,    // devam eden maç
     ara: [],          // ara verilmiş maçlar (en yeni başta; current ile birlikte en fazla 5)
-    settings: { vibrate: true, keepAwake: true, x01Input: 'darts', theme: 'auto' },
+    settings: { vibrate: true, keepAwake: true, x01Input: 'darts', theme: 'koyu' },
     lastSetup: {},    // oyun başına son ayarlar
   };
 }
@@ -27,6 +27,13 @@ if (!db.gocTurk) {
 }
 
 // Demir 09.11: iki oyuncunun rengi asla aynı olmasın — çakışan (sonradan eklenen) oyuncuya boştaki renk verilir
+// Demir 09.11: uygulama hep koyu temada açılsın, sistem teması değil — eski "Otomatik" ayarı bir kez koyuya çevrilir
+if (!db.gocKoyu) {
+  db.settings = db.settings || {};
+  if (!db.settings.theme || db.settings.theme === 'auto') db.settings.theme = 'koyu';
+  db.gocKoyu = 1;
+  try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* sessiz */ }
+}
 function renkleriAyir() {
   const kullanilan = new Set(); let degisti = false;
   for (const p of db.players) {

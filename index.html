@@ -18,7 +18,8 @@
     try {
       var k = new URLSearchParams(location.search).get('k');
       var d = JSON.parse(localStorage.getItem('dartx.v1' + (k ? '.' + k : '')) || '{}');
-      var t = (d.settings && d.settings.theme) || 'auto';
+      var t = (d.settings && d.settings.theme) || 'koyu';
+      if (!d.gocKoyu && t === 'auto') t = 'koyu'; // Demir 09.11: hep koyu açılır (Otomatik bir kez koyuya çevrilir)
       document.documentElement.dataset.tema = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'koyu' : 'acik') : t;
     } catch (e) {}
   </script>
