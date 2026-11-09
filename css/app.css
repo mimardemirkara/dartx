@@ -2586,3 +2586,12 @@ a.ay-satir { text-decoration: none; color: inherit; }
 /* Sıradaki Oyuncu (Demir 10.11): diğer tuşlar gibi köşeli-yuvarlak, pembe değil — çivit (indigo) cam */
 :root .keypad .k.next { --ton: 92 96 230 !important; border-radius: 18px !important; }
 :root[data-tema="acik"] .keypad .k.next { --ton: 92 96 230 !important; }
+/* Üçlü tuş oranı (Demir 10.11 "D ve T orantısız"): her ekranda üst sayı %56, alt D/T %44 — dengeli; yazı tam ortada */
+.keypad.hizli .nums .k3 { display: grid !important; grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr) !important; }
+.keypad.hizli .nums .k3 .k3-s { height: 100% !important; min-height: 0 !important; }
+.keypad.hizli .nums .k3 .k3-alt { height: 100%; min-height: 0; }
+.keypad.hizli .nums .k3 .k3-alt button { height: 100% !important; min-height: 0 !important; display: grid; place-items: center; padding: 0; line-height: 1; }
+.keypad.hizli .nums .k3 { min-height: 104px !important; }
+@media (min-width: 700px) { .keypad.hizli .nums .k3 { min-height: 132px !important; } .keypad.hizli .nums .k3 .k3-alt button { font-size: 20px !important; } }
+@media (min-width: 700px) and (orientation: landscape) { .keypad.hizli .nums .k3 { min-height: 0 !important; height: 100%; } }
+@media (max-width: 699px) { .keypad.hizli .nums .k3 .k3-alt button { font-size: 16px !important; } }
