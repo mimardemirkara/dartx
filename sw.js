@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-1.0.1';
+const VERSION = 'dartx-1.0.2';
 const FILES = [
   'ses/atc/tr-00.mp3',
   'ses/atc/tr-01.mp3',
@@ -181,6 +181,8 @@ const FILES = [
   'img/karakter/kenan.webp',
   'img/karakter/demir-avatar.webp',
   'img/karakter/kenan-avatar.webp',
+  'img/karakter/tuncay.webp',
+  'img/karakter/tuncay-avatar.webp',
   'img/demir-kara.webp',
   'img/imza-beyaz.png',
   'img/imza-siyah.png',

@@ -19,6 +19,6 @@ export const pct = (a, b) => (b ? Math.round((a / b) * 100) + '%' : '–');
 // Demir ve Kenan istisnası (Demir 09.11): adı (ilk kelimesi) Demir / Kenan olan oyuncunun yanında kendi avatarı
 export function adResim(ad) {
   const k = String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr');
-  return k === 'demir' || k === 'kenan' ? `img/karakter/${k}-avatar.webp` : '';
+  return k === 'demir' || k === 'kenan' || k === 'tuncay' ? `img/karakter/${k}-avatar.webp` : '';
 }
 export const adAvatar = (ad, cls = 'ad-av') => { const r = adResim(ad); return r ? `<img class="${cls}" src="${r}" alt="">` : ''; };
