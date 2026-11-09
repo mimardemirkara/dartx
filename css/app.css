@@ -2633,3 +2633,18 @@ a.ay-satir { text-decoration: none; color: inherit; }
 .isi-ilk { display: grid; gap: 6px; font-size: 15px; } .isi-ilk b { display: inline-block; min-width: 46px; color: var(--brand); } .isi-iska { opacity: .7; }
 .isi-not { text-align: center; margin: 8px 0 0; font-size: 13px; }
 @media (max-width: 560px) { .isi-icerik { grid-template-columns: 1fr; } .isi-ilk { grid-template-columns: repeat(3, auto); justify-content: center; } }
+
+/* DartBot simgesi (Demir 10.11): renk noktası yerine oyuncunun renginde robot */
+.bot-av { display: inline-grid !important; place-items: center; border-radius: 50%; color: var(--pc, #e3b866); background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--pc, #e3b866) 30%, #1a1a1f), #121216 75%); box-shadow: 0 0 0 1.5px var(--pc, #e3b866), 0 0 10px color-mix(in srgb, var(--pc, #e3b866) 45%, transparent); vertical-align: middle; flex: none; }
+.bot-av svg { width: 64%; height: 64%; display: block; }
+.bot-prow { width: 34px; height: 34px; }
+.dx-acilir .ac-bot { width: 24px; height: 24px; }
+.ad-av.bot-av { vertical-align: middle; }
+.turn .who .bot-av { grid-row: 1 / span 2; }
+:root[data-tema="acik"] .bot-av { background: radial-gradient(circle at 35% 30%, #fff, color-mix(in srgb, var(--pc, #e3b866) 18%, #fff) 75%); }
+/* DartBot seviye simgeleri (Demir 10.11): yazının solunda, seviyenin renginde */
+.bot-sv { display: flex !important; align-items: center; justify-content: center; gap: 10px; }
+.bot-sv .bsv-yazi { display: grid; gap: 2px; text-align: left; }
+.bot-sv .bsv-ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: rgb(var(--bt)); background: rgb(var(--bt) / .16); box-shadow: inset 0 0 0 1.5px rgb(var(--bt) / .55), 0 0 12px rgb(var(--bt) / .25); }
+.bot-kolay { --bt: 47 179 109; } .bot-orta { --bt: 227 184 102; } .bot-zor { --bt: 245 130 32; } .bot-usta { --bt: 233 75 60; }
+@media (max-width: 520px) { .bot-sv { flex-direction: column; gap: 4px; } .bot-sv .bsv-yazi { text-align: center; } .bot-sv .bsv-ic { width: 30px; height: 30px; } .bot-sv .bsv-ic svg { width: 18px; height: 18px; } }

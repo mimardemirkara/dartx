@@ -5,7 +5,7 @@ import { botAt, botHedef, BOT_SEVIYE } from './bot.js';
 import { data, player } from './store.js';
 import { GAMES, GAME_LIST, CATS } from './games/index.js';
 import * as E from './engine.js';
-import { dartLabel, dartValue, esc, fmt1, pct, adAvatar, adResim } from './util.js';
+import { dartLabel, dartValue, esc, fmt1, pct, adAvatar, adResim, botMu, botAvatar } from './util.js';
 import { playerStats } from './stats.js';
 import { IMPOSSIBLE } from './games/x01.js';
 import { ikon } from './icons.js';
@@ -602,13 +602,29 @@ function defaultSetup(game) {
 
 // Oyuncu seçimi (Demir 08.11: "listede 20 oyuncu olursa uzayıp gitmesin"): telefonun kendi çoklu seçicisi —
 // iPhone'da işaretli liste, Android'de onay kutulu pencere. Seçilenler yukarıdaki sıraya eklenir, kaldırılanlar çıkar.
+// Demir 10.11: oyuncu seçme listesinde DartBot'lar her zaman var; seçilince oyuncusu yoksa oluşturulur
+function botOyuncu(sv) {
+  const ad = 'DartBot ' + t(BOT_SEVIYE[sv].ad);
+  let p = data().players.find(x => x.bot === sv) || data().players.find(x => x.name === ad);
+  if (!p) { p = store.addPlayer(ad); store.updatePlayer(p.id, { bot: sv }); }
+  else if (!p.bot) store.updatePlayer(p.id, { bot: sv });
+  return p.id;
+}
+function secilebilir(pids) {
+  const ps = data().players;
+  const insan = ps.filter(p => !p.bot && !botMu(p.name) && !pids.includes(p.id)).map(p => ({ v: p.id, l: p.name, renk: p.color }));
+  const botlar = Object.keys(BOT_SEVIYE).map(sv => ({ sv, p: ps.find(x => x.bot === sv) })).filter(x => !x.p || !pids.includes(x.p.id))
+    .map(({ sv, p }) => ({ v: 'bot:' + sv, l: 'DartBot ' + t(BOT_SEVIYE[sv].ad), renk: p ? p.color : '#e3b866', bot: BOT_IC }));
+  return [...insan, ...botlar];
+}
+const secimId = v => String(v).startsWith('bot:') ? botOyuncu(String(v).slice(4)) : v;
 function oyuncuSecici(all, pids) {
   const sec = pids.length;
   return `<span class="secici oyuncu-secici" data-act="oyuncusecac" role="button" tabindex="0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 21a8 8 0 0 1 13.292-6"/><circle cx="10" cy="8" r="5"/><path d="M19 16v6"/><path d="M22 19h-6"/></svg>
       <span>${t('Oyuncu seç')}</span><small>${t('{0} / {1}', sec, all.length)}</small>
       <select multiple data-act="oyuncusec" aria-label="${t('Oyuncu seç')}">
-        ${all.filter(p => !pids.includes(p.id)).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}
+        ${secilebilir(pids).map(x => `<option value="${x.v}">${x.bot ? '🤖 ' : ''}${esc(x.l)}</option>`).join('')}
       </select></span>`;
 }
 function secenekYaz(k, raw) {
@@ -711,7 +727,7 @@ function viewSetup() {
     <div class="kur-izgara"><section class="kur-panel kur-sol"><h2 class="kp-bas">${KURAL_IKON.nisan}<span>${t('Ayarlar')}</span></h2>${opts}${legs}${input}</section><section class="kur-panel kur-sag">
     <h2 class="kp-bas">${alanIkon('players')}<span>${t('Oyuncular')}</span><small class="kp-sayi">${n}</small><span class="kp-araclar">${n > 1 ? `<button class="kp-ic" data-act="shuffle" aria-label="${t('Sırayı karıştır')}" title="${t('Sırayı karıştır')}">${KARISTIR_IC}</button>` : ''}</span></h2>
       ${n ? `<div class="sira-liste">${sira}</div>` : `<p class="muted sira-bos">${t('Aşağıdan oyuncu seç — oynama sırası buraya gelir')}</p>`}
-      <div class="ekle-satir">${all.length ? oyuncuSecici(all, st.pids) : ''}<form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form></div>
+      <div class="ekle-satir">${oyuncuSecici(all, st.pids)}<form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form></div>
     ${g.teams ? `<div class="field ayar-satir mod-satir"><label>${alanIkon('teams')}${t('Mod')}</label>${chips('teams', [['0', 'Tekli', TEK_IC], ['1', 'Takım (2 takım)', KURAL_IKON.kisiler]], teamsOn ? '1' : '0', 'teams')}${!teamsOk ? `<small class="muted">${t('Takım için en az 4 oyuncu seç')}</small>` : ''}${teamPrev}</div>` : ''}
     </section></div>
     <div class="kur-alt">
@@ -795,7 +811,7 @@ const ozelResim = adResim;
 // Kendimizi şımartalım (Demir 09.11): Oyuncular listesinde Demir ve Kenan'ın altın çerçeveli avatarı + unvanı
 const UNVAN = ad => { const k = String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr');
   return k === 'demir' ? `<small class="unvan">${t("DartX'in yaratıcısı")}</small>` : k === 'kenan' ? `<small class="unvan">${t('Siyah okların ustası')}</small>` : ''; };
-const avatarIc = (ad, yedek) => { const r = ozelResim(ad); return r ? `<img class="oz-av" src="${r}" alt="">` : yedek; };
+const avatarIc = (ad, yedek) => { if (botMu(ad)) return botAvatar('oz-av'); const r = ozelResim(ad); return r ? `<img class="oz-av" src="${r}" alt="">` : yedek; };
 
 // Oyun ekranı
 function viewPlay() {
@@ -889,6 +905,13 @@ app.addEventListener('pointerdown', e => {
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(uzunT)));
 app.addEventListener('contextmenu', e => { if (e.target.closest('[data-act="undo"]')) e.preventDefault(); });
 // ---- DartBot sırası (Demir 10.11): sıra bota gelince okları kendisi atar; seçim sorulursa en anlamlısını seçer
+// Seviye simgeleri (Demir 10.11): Kolay filiz, Orta hedef, Zor alev, Usta taç
+const BOT_SV_IC = {
+  kolay: LUCIDE('<path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>', 22, 2),
+  orta: LUCIDE('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', 22, 2),
+  zor: LUCIDE('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>', 22, 2),
+  usta: LUCIDE('<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>', 22, 2),
+};
 const BOT_IC = LUCIDE('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>', 22, 2);
 let botT = null;
 function botKontrol() {
@@ -902,7 +925,7 @@ function botKontrol() {
     if (!m2 || m2 !== m || m2.done || S.view !== 'play' || S.modal) return;
     if (player(E.currentPid(m2)).id !== p.id) return;
     const gg = GAMES[m2.gameId];
-    const ok = botAt(botHedef(gg, m2), p.bot);
+    const ok = botAt(botHedef(gg, m2, p.bot), p.bot);
     if (gg.secenekler) { const sec = gg.secenekler(m2, m2.g, ok); if (sec) { const iyi = sec.find(x => !x.etkisiz && x.e && x.e.tur !== 'bos') || sec.find(x => !x.etkisiz) || sec[0]; ok.sec = iyi.v; } }
     S.sonOk = ok;
     afterThrow(E.throwDart(m2, ok));
@@ -1056,7 +1079,7 @@ function viewPlayers() {
   const list = data().players.map(p => `
     <div class="prow" style="--pc:${p.color}" data-sira="${p.id}" data-ad="${esc(p.name.toLocaleLowerCase('tr'))}" ${q && !p.name.toLocaleLowerCase('tr').includes(q) ? 'hidden' : ''}>
       <span class="prow-tut" aria-label="${t('Sürükle')}" title="${t('Sürükle')}">${TUTAMAK}</span>
-      ${ozelResim(p.name) ? `<img class="oz-av prow-av" src="${ozelResim(p.name)}" alt="">` : '<span class="dot"></span>'}<b>${esc(p.name)}${UNVAN(p.name)}</b>
+      ${botMu(p.name) ? botAvatar('bot-prow') : ozelResim(p.name) ? `<img class="oz-av prow-av" src="${ozelResim(p.name)}" alt="">` : '<span class="dot"></span>'}<b>${esc(p.name)}${UNVAN(p.name)}</b>
       <button class="prow-ic" data-act="pstats" data-id="${p.id}" aria-label="${t('İstatistik')}" title="${t('İstatistik')}">${GRAFIK}</button>
       <button class="prow-ic" data-act="pedit" data-id="${p.id}" aria-label="${t('Düzenle')}" title="${t('Düzenle')}">${KALEM}</button>
       <button class="prow-sil" data-act="pdel" data-id="${p.id}" aria-label="${t('Oyuncuyu sil')}" title="${t('Oyuncuyu sil')}">${COP}</button>
@@ -1068,7 +1091,7 @@ function viewPlayers() {
     <div class="prow-liste">${list}</div>
     <form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form>
     <div class="bot-ekle glass"><div class="bot-bas">${BOT_IC}<b>DartBot</b><small>${t('Bilgisayara karşı oyna — seviye seç')}</small></div>
-      <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv" data-act="botekle" data-v="${k}"><b>${t(v.ad)}</b><small>${t('~{0} ort.', v.ort)}</small></button>`).join('')}</div></div>
+      <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv bot-${k}" data-act="botekle" data-v="${k}"><span class="bsv-ic">${BOT_SV_IC[k]}</span><span class="bsv-yazi"><b>${t(v.ad)}</b><small>${t('~{0} ort.', v.ort)}</small></span></button>`).join('')}</div></div>
   </main>`;
 }
 
@@ -1523,8 +1546,8 @@ app.addEventListener('click', e => {
       // dokunmatikte üstteki <select multiple> (telefonun seçicisi) zaten açılır; fareyle cam menü
       if (dokunmatik()) break;
       // Demir 08.11: listede yalnız henüz seçilmemişler; en üstte arama. Seçilen sıraya eklenir ve listeden düşer
-      acilirAc(el, () => data().players.filter(p => !S.setup.pids.includes(p.id)).map(p => ({ v: p.id, l: p.name, on: false, renk: p.color })), id => {
-        if (!S.setup.pids.includes(id)) S.setup.pids.push(id); vib(6); render();
+      acilirAc(el, () => secilebilir(S.setup.pids).map(x => ({ ...x, on: false })), v => {
+        const id = secimId(v); if (!S.setup.pids.includes(id)) S.setup.pids.push(id); vib(6); render();
       }, { coklu: true, baslik: t('Oyuncu seç'), ara: true, araYazi: t('Ara…'), sonucYok: t('Sonuç yok'), bos: t('Bütün oyuncular seçildi') });
       break;
     }
@@ -1816,7 +1839,7 @@ app.addEventListener('change', e => {
   if (el.dataset.act === 'oyuncusec') {
     // listede yalnız seçilmemişler var: işaretlenenler sıranın sonuna eklenir (çıkarmak satırdaki ✕ ile)
     const a = S.setup.pids;
-    [...el.selectedOptions].forEach(o => { if (!a.includes(o.value)) a.push(o.value); });
+    [...el.selectedOptions].forEach(o => { const id = secimId(o.value); if (!a.includes(id)) a.push(id); });
     S.setup.pids = a; vib(8); render(); return;
   }
   if (el.dataset.act === 'optsec') { vib(8); secenekYaz(el.dataset.k, el.value); return; }
