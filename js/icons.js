@@ -289,6 +289,15 @@ C.settings = {
     <circle cx="50" cy="50" r="7" fill="#2b2f38"/>`,
 };
 
+C.kamera = {
+  // Kamera (Beta, Demir 10.11): eski çizgi kamera aynen; Ayarlar karosu gibi gri zemin, gümüş çizgi
+  z: ['#6f7684', '#262a33'],
+  g: k => `<defs><linearGradient id="${k}gv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9a9b4"/></linearGradient></defs>
+    <g filter="url(#${k}s)" transform="translate(14 14) scale(3)" fill="none" stroke="url(#${k}gv)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>
+    </g>`,
+};
+
 // ── Grup (klasör) simgeleri: Ana Maçlar / Grup Oyunları / Antrenman
 const kisi = (k, x, y, s, renk, renk2) => `<g filter="url(#${k}s)">
     <path d="M${x - 13 * s} ${y + 16 * s} C${x - 13 * s} ${y + 4 * s} ${x - 7 * s} ${y} ${x} ${y} C${x + 7 * s} ${y} ${x + 13 * s} ${y + 4 * s} ${x + 13 * s} ${y + 16 * s} Z" fill="${renk2}"/>

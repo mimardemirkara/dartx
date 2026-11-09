@@ -4,7 +4,7 @@
 //     Okuma bu parçaların art arda çalınmasıyla kurulur: "Sıradaki oyuncu" + "Tuncay" + "Kalan" + "kırk" + "Double yirmi".
 //  2) Kaydı olmayan bir şey (bilinmeyen ad, İngilizce dil, kayıtlar yüklenemezse) telefonun okuma sesine düşer.
 // Bilinmeyen oyuncu adı okunmaz, yalnız "Sıradaki oyuncu" denir (Demir'in seçimi: ses tek ve tutarlı kalsın).
-import { data } from './store.js';
+import { data, player } from './store.js';
 import { dil } from './i18n.js';
 import { checkout } from './checkout.js';
 
@@ -157,6 +157,21 @@ function durumParca(m, g) {
   return p;
 }
 
+// Maç cümleleri (Demir 10.11): kayıt varsa çalınır, yoksa sessizce atlanır (eski okuma sürer)
+const varsa = (...ids) => ids.filter(id => id && kayitVar(id));
+function birini(on, adet) { const l = varsa(...Array.from({ length: adet }, (_, i) => on + (i + 1))); return l.length ? [l[Math.floor(Math.random() * l.length)]] : []; }
+const kazananId = ad => adId(ad).replace(/^sira_/, 'kazanan_');
+function kazananAd(m, i) {
+  const sd = m && m.sides && m.sides[i]; if (!sd) return null;
+  if (sd.members && sd.members.length === 1) { const p = player(sd.members[0]); return p && p.name; }
+  return null; // takımın adı için kayıt yok
+}
+const toplamParca = top => (kayitVar('toplam_' + top) ? ['toplam_' + top] : sayiParca(top));
+/** Maç başladı (ilk atış ekranı kapanınca): "Maç başlıyor, bol şans!" */
+export function macBasladi() { if (acikMi()) { kayitlariYukle().then(() => { const p = birini('mac_bas_', 4); if (p.length) seslendir(p, ''); }); } }
+/** Yeni leg başladı */
+export function legBasladi() { if (acikMi()) { kayitlariYukle().then(() => { const p = birini('leg_bas_', 2); if (p.length) seslendir(p, ''); }); } }
+
 /** Atıştan sonra (app.js afterThrow): ne olduysa onu söyler. g: oyunun tanımı (GAMES[m.gameId]) */
 export function atisOku(m, res, ad, g) {
   if (!acikMi() || !m || !res) { onceIsaret = isaretler(m); return; }
@@ -170,13 +185,17 @@ export function atisOku(m, res, ad, g) {
   if (ok && enAz('normal')) kapanan.forEach(x => { const hp = hedefParca(x.h); if (x.tek) seslendir(['tekok'], ''); else if (hp) seslendir([hp, 'k_kapandi'], ''); });
   if (res.event === 'dart') return;
   if (res.event === 'bust') { seslendir(['bust'], k.bust); if (ad) seslendir(siraParca(ad), `${k.sira} ${ad}`); return; }
-  if (res.event === 'match') { seslendir(['gameshot_mac'], k.oyun); return; }
-  if (res.event === 'leg' || res.event === 'set') { seslendir(['gameshot'], k.oyun); return; }
+  if (res.event === 'match' || res.event === 'leg' || res.event === 'set') {
+    const kad = res.winner >= 0 ? kazananAd(m, res.winner) : null;
+    const mac = res.event === 'match';
+    seslendir([mac ? 'gameshot_mac' : 'gameshot', ...(kad ? varsa(kazananId(kad)) : []), ...(mac ? birini('mac_son_', 3) : [])], k.oyun);
+    return;
+  }
   if (res.event !== 'turn') return;
   if (x01Mi(m) && enAz('normal')) {
     const l = m.log && m.log[m.log.length - 1];
     const top = l ? l.points : null;
-    if (top != null) seslendir(top === 180 ? ['yuzseksen'] : sayiParca(top), top === 180 ? k.yuzseksen : String(top));
+    if (top != null) seslendir(top === 180 ? ['yuzseksen', ...(Math.random() < .6 ? birini('ek180_', 2) : [])] : toplamParca(top), top === 180 ? k.yuzseksen : String(top));
   }
   // sıradaki oyuncu; koç seviyesinde ardından durum ve öneri (X01: kalan + bitiriş; kriket: puan farkı + ipucu)
   const durum = enAz('koc') || x01Mi(m) && enAz('normal') ? durumParca(m, g) : [];

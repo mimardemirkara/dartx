@@ -4,6 +4,10 @@
 import { algilayici, ayarOku, kameraAc, kameraKapat } from './algila.js';
 import { kalibre } from './tahta.js';
 import { tabletBaslat, qrSvg, qrOku } from './baglanti.js';
+import { IC } from './ekran.js';
+// Pencere başlığı: üstte altın çerçeveli simge + başlık (Demir 10.11)
+const SVG = p => `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const baslik = (ic, metin) => `<span class="kam-kart-ic">${SVG(ic)}</span><h3>${metin}</h3>`;
 
 let atisCb = () => {}, durumCb = () => {};
 let yerel = null;   // { video, alg, kutu }
@@ -83,7 +87,7 @@ export async function eslestir(t = s => s) {
   } catch (e) { pencere(`<p>${t('Bağlantı kurulamadı')}: ${e.message}</p><button class="btn" data-kam="kapat">${t('Kapat')}</button>`); return; }
   uzak = { baglanti: b, durum: 'bekliyor' };
   const svg = await qrSvg(b.qr);
-  pencere(`<h3>${t('Kamerayı telefondan al')}</h3>
+  pencere(`${baslik(IC.tablet, t('Kamerayı telefondan al'))}
     <ol class="kam-adimlar"><li>${t('İki cihaz aynı Wi-Fi’ye (ya da telefonun hotspot’una) bağlı olsun. İnternet gerekmez.')}</li>
     <li>${t('Telefonda DartX → Ayarlar → Kamera → <b>Bu cihaz kamera</b>, sonra <b>Tablete bağlan</b>; bu kodu telefonla okut.')}</li></ol>
     <div class="kam-qr">${svg}</div>
@@ -93,7 +97,7 @@ export async function eslestir(t = s => s) {
 }
 
 async function cevapOkut(b, t) {
-  pencere(`<h3>${t('Telefonun kodunu okut')}</h3><p>${t('Telefon ekranındaki kodu bu cihazın kamerasına göster.')}</p>
+  pencere(`${baslik(IC.kamera, t('Telefonun kodunu okut'))}<p>${t('Telefon ekranındaki kodu bu cihazın kamerasına göster.')}</p>
     <div class="kam-tara"><span class="kam-cerceve"></span></div><p class="kam-hata"></p><button class="btn" data-kam="kapat">${t('Vazgeç')}</button>`);
   try {
     taramaVideo = await kameraAc('user');

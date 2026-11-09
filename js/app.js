@@ -17,6 +17,8 @@ import { acilisGoster } from './acilis.js';
 import { dartVurusSesi } from './acilis-ses.js';
 import * as okuma from './okuma.js';
 import * as kam from './kamera/oyun.js';
+import * as kamEkran from './kamera/ekran.js';
+import { kenarKaydirKur } from './kenar-kaydir.js';
 import './kaydir.js'; // kayan listelerde "devamı var" işareti (kenar solması + ok)
 import { yedekAl, yedekYukle } from './yedek.js';
 import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
@@ -84,6 +86,8 @@ const UYARI_IC = {
   kisi: UI('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
   geri: UI('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>'),
   bot: UI('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
+  kamera: UI('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
+  tablet: UI('<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>'),
   simsek: UI('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>'),
 };
 // Uyarı metni → simge, animasyon (a-*), renk türü, ses. Kalıplar her iki dilde çalışsın diye t() ile kurulur.
@@ -328,7 +332,14 @@ async function keepAwake(on) {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.view === 'play') keepAwake(true); });
 
+// Kenardan kaydırma ile geri / ileri (Demir 10.11): geri dönülen ekranlar "ileri" yığınında durur;
+// başka bir yere gidilince (sekme, oyun vb.) yığın temizlenir — tarayıcıdaki gibi.
+const ILERI_OLUR = ['players', 'stats', 'settings', 'kamera', 'about', 'online', 'nasil', 'nasiloyna'];
+const ileriYigin = [];
+let gezinme = null; // 'geri' | 'ileri' — go() yığını temizlemesin
 function go(view, extra = {}) {
+  if (!gezinme) ileriYigin.length = 0;
+  gezinme = null;
   Object.assign(S, { view, modal: null }, extra);
   keepAwake(view === 'play');
   render();
@@ -426,6 +437,7 @@ function render() {
   else if (v === 'players') html = viewPlayers();
   else if (v === 'stats') html = viewStats();
   else if (v === 'settings') html = viewSettings();
+  else if (v === 'kamera') html = viewKamera();
   else if (v === 'about') html = viewAbout();
   else if (v === 'online') html = viewOnline();
   else if (v === 'nasil') html = nasilListe(header(t('Nasıl Oynanır')));
@@ -440,6 +452,7 @@ function render() {
   // cam yüzeyler, kenar ışıkları, üst çubuk yerinde kalır. Tablo ölçüsü ekrana yansımadan önce uygulanır.
   if (v === 'play' && app.dataset.view === 'play') yamala(app, yeniHtml);
   else app.innerHTML = yeniHtml;
+  if (v === 'kamera') kamEkran.yerlestir(document.getElementById('kam-yer')); else kamEkran.ayril(); // kamera ekranı kalıcı öğe
   if (S.view === 'play') tabloSigdir();
   if (v === 'nasiloyna') nasilBaslat(S.nasilId); else nasilDurdur();
   app.dataset.view = v;
@@ -487,7 +500,7 @@ function header(title, back) {
   const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), online: ikon('grp-online'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
   return `<header class="kurulum-ust">
       <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
-      <h1>${simge ? `<span class="app-ico simge">${simge}</span>` : ''}<span class="b-ad">${title}</span></h1>
+      <h1>${S.view === 'kamera' ? `<span class="kam-kart-ic kam-baslik-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span>` : simge ? `<span class="app-ico simge">${simge}</span>` : ''}<span class="b-ad">${title}</span></h1>
       <span></span>
     </header>`;
 }
@@ -1218,7 +1231,7 @@ const AY = {
   veri: LUCIDE('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>', 17),
   sil: LUCIDE('<path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>', 17),
   ok: LUCIDE('<path d="m9 18 6-6-6-6"/>', 16),
-  yildiz: LUCIDE('<path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/>'),
+  yildiz: LUCIDE('<path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/>', 17), // boyut yoktu: kutuyu dolduruyordu (Demir 10.11)
   kisi: LUCIDE('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 17),
   etiket: LUCIDE('<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>', 17),
   hediye: LUCIDE('<path d="M12 7v14"/><path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5"/><rect x="3" y="7" width="18" height="4" rx="1"/>', 17),
@@ -1300,6 +1313,10 @@ function viewOnline() {
   </main>`;
 }
 
+// Kamera (Beta) ekranı: içeriği js/kamera/ekran.js kurar (kalıcı öğe, her çizimde #kam-yer'e takılır)
+function viewKamera() {
+  return `<main class="page kamera-sayfa">${header(t('Kamera') + ' <span class="beta-rozet">BETA</span>', 'kamgeri')}<div id="kam-yer"></div></main>`;
+}
 function viewSettings() {
   const s = data().settings;
   const seg = (act, list, cur) => `<div class="ay-seg">${list.map(([v, l]) => `<button class="${String(cur) === String(v) ? 'on' : ''}" data-act="${act}" data-v="${v}">${t(l)}</button>`).join('')}</div>`;
@@ -1876,9 +1893,9 @@ app.addEventListener('click', e => {
       setTimeout(konfeti, 120);
       go('end'); break;
     }
-    case 'legdevam': S.modal = null; render(); if (data().current) siraGoster(data().current, 150); break;
-    case 'ilkbasla': S.modal = null; vib(8); ses.tus(); render(); break;
-    case 'bg': if (S.modal && S.modal.type === 'ilksira') { S.modal = null; vib(8); render(); break; }
+    case 'legdevam': S.modal = null; render(); okuma.legBasladi(); if (data().current) siraGoster(data().current, 150); break;
+    case 'ilkbasla': S.modal = null; vib(8); ses.tus(); render(); okuma.macBasladi(); break;
+    case 'bg': if (S.modal && S.modal.type === 'ilksira') { S.modal = null; vib(8); render(); okuma.macBasladi(); break; }
       if (e.target === el && !(S.modal && S.modal.type === 'baslayan')) { S.modal = null; render(); } break; // başlama atışı boşluğa dokunarak geçilmez
 
     case 'rematch': {
@@ -1914,13 +1931,14 @@ app.addEventListener('click', e => {
       break;
 
     case 'export': exportBackup(); break;
-    case 'kamsayfa': kam.yerelKapat(); location.href = 'kamera.html'; break;
+    case 'kamsayfa': kam.yerelKapat(); go('kamera'); break;
+    case 'kamgeri': go('settings'); break;
     case 'kameslestir': kam.eslestir(t); break;
     case 'kamera': { // oyunda kamera düğmesi
       const d = kam.durum();
       if (d === 'uzak') { toast(t('Kamera: telefon bağlı'), ''); break; }
       if (d === 'yerel') { kam.yerelKapat(); toast(t('Kamera kapandı'), ''); break; }
-      if (d === 'ayarsiz') { location.href = 'kamera.html'; break; }
+      if (d === 'ayarsiz') { go('kamera'); break; }
       kam.yerelAc().then(ok => { if (ok) toast(t('Kamera açık: atışlar kendiliğinden yazılır'), ''); })
         .catch(e => toast(t('Kamera açılamadı') + (e && e.name === 'NotAllowedError' ? ': ' + t('izin verilmedi') : ''), 'bad'));
       break;
@@ -2050,6 +2068,23 @@ hesapKur({
   },
   titret: () => vib(6),
 });
+// Geri tuşu (dokunarak ya da kenardan kaydırarak): bulunulan ekran "ileri" için saklanır
+app.addEventListener('click', e => {
+  if (!e.target.closest('.kurulum-ust .geri-dugme')) return;
+  if (ILERI_OLUR.includes(S.view)) { ileriYigin.push({ view: S.view, nasilId: S.nasilId }); if (ileriYigin.length > 10) ileriYigin.shift(); }
+  gezinme = 'geri';
+  setTimeout(() => { if (gezinme === 'geri') gezinme = null; }, 0); // geri tuşu go() çağırmadıysa bayrak kalmasın
+}, true);
+kenarKaydirKur({
+  geriVar: () => !S.modal && S.view !== 'play' && S.view !== 'home' && !!app.querySelector('.kurulum-ust .geri-dugme'),
+  ileriVar: () => !S.modal && S.view !== 'play' && ileriYigin.length > 0,
+  geri: () => { const b = app.querySelector('.kurulum-ust .geri-dugme'); if (b) b.click(); },
+  ileri: () => { const h = ileriYigin.pop(); if (!h) return; gezinme = 'ileri'; go(h.view, h.view === 'nasiloyna' ? { nasilId: h.nasilId } : {}); },
+  sayfa: () => app.querySelector('main.page, .page') || app.lastElementChild,
+  engel: el => !!(el.closest && el.closest('.kam-tuval, input, textarea, select, .modal-bg, .kam-perde, .dx-acilir, .spot-perde')) || !!document.querySelector('.kam-perde, .modal-bg'),
+});
+kamEkran.kur({ bildir: (m, ic) => toast(m, '', { tur: { ic: ic || 'kamera', a: ic === 'dikkat' ? 'a-sal' : 'a-zipla', k: ic === 'dikkat' ? 'bad' : '' } }) });
+if (location.hash === '#kamera') { S.view = 'kamera'; history.replaceState(null, '', location.pathname + location.search); } // eski kamera.html bağlantısı
 acilisGoster(data().settings.acilis !== false); // demirkara.com açılışı: yıldız küresi patlar, dart işaretleriyle döner, DartX logosuna akar
 document.documentElement.lang = dil();
 if (data().current && data().current.done) { store.finishCurrent(); }
