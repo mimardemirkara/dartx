@@ -1273,7 +1273,7 @@ function modal() {
         // D-Bull'a basıldıysa (Demir 09.11) kutucuk tuşla aynı kırmızı, adı D-Bull; tekli Bull yeşil
         const bullKutu = x.v === 'n' && md.ok.n === 25 ? (md.ok.m === 2 ? 'dbull' : 'bull25') : '';
         if (bullKutu === 'dbull') ad = 'D-Bull';
-        return `<button class="btn hedef-sec hs-${x.v === 'n' ? 'sayi' : x.v} ${bullKutu ? 'hs-' + bullKutu : ''}" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span>${x.e && x.e.metin ? `<span class="hs-etki e-${x.e.tur}">${esc(kelimeBuyuk(x.e.metin))}</span>` : ''}</button>`;
+        return `<button class="btn hedef-sec hs-${x.v === 'n' ? 'sayi' : x.v} ${bullKutu ? 'hs-' + bullKutu : ''} ${x.etkisiz ? 'etkisiz' : ''}" data-act="hedefsec" data-v="${x.v}"><span class="hs-ic">${ic}</span><span class="hs-ad">${esc(ad)}</span><span class="hs-not">${esc(not)}</span>${x.e && x.e.metin ? `<span class="hs-etki e-${x.e.tur}">${esc(kelimeBuyuk(x.e.metin))}</span>` : ''}</button>`;
       }).join('')}</div>
       <button class="btn hs-vazgec" data-act="close">${HS_CARPI}${t('Vazgeç')}</button>`;
   } else if (md.type === 'ilksira') {

@@ -2561,3 +2561,6 @@ a.ay-satir { text-decoration: none; color: inherit; }
   .hm-tus { aspect-ratio: 1.15; min-height: 0 !important; font-size: 30px !important; border-radius: 22px !important; }
 }
 @media (min-width: 700px) and (orientation: landscape) { .hm-panel { width: min(520px, 46vw) !important; } .hm-tus { aspect-ratio: 1.4; } }
+
+/* Etkisiz seçenek (Demir 10.11 "her zaman sor"): görünür ama soluk */
+.hs-izgara .hedef-sec.etkisiz { opacity: .5; filter: saturate(.3); }

@@ -113,19 +113,22 @@ function make(id) {
     return me.k[hedef] < 3 || (puanli(m) && others.some(o => o.k[hedef] < 3));
   };
   const sayiDegeri = n => (n === 25 ? 25 : n);
-  function secimListesi(m, g, d) {
+  // tumu: Demir 10.11 "her zaman sor" — işe yaramayan seçenekler de listede (etkisiz diye işaretli), oyuncu görür
+  function secimListesi(m, g, d, tumu = false) {
     const liste = [];
     const tablo = d.n > 0 && hedefler(g).includes(d.n);
     if (!tablo) return liste;
     const adet = d.m;
-    if (faydali(m, g, d.n)) liste.push({ v: 'n', l: tr('{0} · {1} işaret', hedefAd(d.n), adet) });
-    if (d.m === 2 && faydali(m, g, 'D')) liste.push({ v: 'D', l: tr('Double · 1 işaret') });
-    if (d.m === 3 && faydali(m, g, 'T')) liste.push({ v: 'T', l: tr('Triple · 1 işaret') });
+    const ekle = (v, l, hedef) => { const f = faydali(m, g, hedef); if (f || tumu) liste.push({ v, l, etkisiz: !f }); };
+    ekle('n', tr('{0} · {1} işaret', hedefAd(d.n), adet), d.n);
+    if (d.m === 2 && hedefler(g).includes('D')) ekle('D', tr('Double · 1 işaret'), 'D');
+    if (d.m === 3 && hedefler(g).includes('T')) ekle('T', tr('Triple · 1 işaret'), 'T');
     const td = m.turnDarts || [];
     const onceki = td[td.length - 1] === d ? td.slice(0, -1) : td; // ok henüz eklenmemiş ya da eklenmiş olabilir
-    if (onceki.length === 2 && onceki.every(x => x.n === d.n) && faydali(m, g, 'H')) liste.push({ v: 'H', l: tr('House · 1 işaret') });
+    if (onceki.length === 2 && onceki.every(x => x.n === d.n) && hedefler(g).includes('H')) ekle('H', tr('House · 1 işaret'), 'H');
+    if (!tumu) return liste.map(x => (x.e = onizle(m, g, d, x.v, onceki), x));
     // Anlık hesap (Demir 09.11: "şu kadar puan / ceza gibi anlık hesaplarsan daha teşvik edici olur")
-    liste.forEach(x => { x.e = onizle(m, g, d, x.v, onceki); });
+    liste.forEach(x => { x.e = x.etkisiz ? { tur: 'bos', metin: tr('Kapalı · etkisi yok') } : onizle(m, g, d, x.v, onceki); });
     return liste;
   }
   // Bu seçenek yazılırsa ne olur: kaç puan (ya da rakibe ceza), hangi hedef kapanır
@@ -164,7 +167,8 @@ function make(id) {
     if (!g.turBasi || g.turBasi.tur !== m.round || g.turBasi.cur !== m.cur || (m.turnDarts || []).length === 1)
       g.turBasi = { tur: m.round, cur: m.cur, s: JSON.parse(JSON.stringify(g.s)) };
     const liste = secimListesi(m, g, d);
-    const sec = d.sec && liste.some(x => x.v === d.sec) ? d.sec : (liste[0] ? liste[0].v : null);
+    const tum = secimListesi(m, g, d, true);
+    const sec = d.sec && tum.some(x => x.v === d.sec) ? d.sec : (liste[0] ? liste[0].v : null);
     if (sec === 'H') {
       // House: bu elin üç oku tek bir H işareti olur — önceki iki okun yazdıkları geri alınır
       g.s = JSON.parse(JSON.stringify(g.turBasi.s));
@@ -223,8 +227,9 @@ function make(id) {
     // Seçimli oyun (Cezalı Kriket): bu ok için olası yazımlar; birden fazlaysa uygulama oyuncuya sorar
     secenekler(m, g, d) {
       if (!T.secimli) return null;
-      const sec = secimListesi(m, g, d);
-      return sec.length > 1 ? sec : null;
+      // Demir 10.11 "her zaman sor": double / triple / House'ta her zaman sorulur; etkisiz seçenekler soluk görünür
+      const sec = secimListesi(m, g, d, true);
+      return sec.length > 1 || (sec.length && (d.m > 1 || sec.some(x => x.v === 'H'))) ? sec : null;
     },
 
     dart(m, g, d, rec) {
