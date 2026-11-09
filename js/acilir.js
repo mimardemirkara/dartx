@@ -19,7 +19,7 @@ export function acilirKapat() {
  * capa: menünün altında açılacağı öğe. liste(): [{ v, l, on, renk? }] (her açılışta ve her seçimde yeniden okunur).
  * sec(v): seçilince. coklu: true → menü açık kalır, işaretler değişir (oyuncu seçimi).
  */
-export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = false, bos = '', araYazi = 'Ara…', sonucYok = 'Sonuç yok' } = {}) {
+export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = false, bos = '', araYazi = 'Ara…', sonucYok = 'Sonuç yok', en = 280 } = {}) {
   acilirKapat();
   const el = document.createElement('div');
   el.className = 'acilir dx-acilir';
@@ -35,7 +35,7 @@ export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = f
     const gorunen = q ? hepsi.filter(x => String(x.l).toLocaleLowerCase('tr').includes(q)) : hepsi;
     kutu.innerHTML = gorunen.map(x =>
       `<button type="button" role="option" aria-selected="${x.on}" data-v="${esc(String(x.v))}" class="${x.on ? 'secili' : ''}">
-        ${x.bot ? `<span class="bot-av ac-bot" style="--pc:${x.renk}">${x.bot}</span>` : x.renk ? `<span class="ac-nokta" style="--pc:${x.renk}"></span>` : ''}<span class="ac-ad">${esc(x.l)}</span><span class="ac-tik">${x.on ? TIK : ''}</span></button>`).join('')
+        ${x.ic ? `<span class="ac-ic">${x.ic}</span>` : x.bot ? `<span class="bot-av ac-bot" style="--pc:${x.renk}">${x.bot}</span>` : x.renk ? `<span class="ac-nokta" style="--pc:${x.renk}"></span>` : ''}<span class="ac-ad">${esc(x.l)}</span><span class="ac-tik">${x.on ? TIK : ''}</span></button>`).join('')
       || `<p class="ac-bos">${esc(hepsi.length ? sonucYok : bos || sonucYok)}</p>`;
   };
   ciz();
@@ -43,7 +43,7 @@ export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = f
   document.body.appendChild(el);
   // konum: çapanın altında, ortalı; ekrana sığmazsa üstünde
   const r = capa.getBoundingClientRect();
-  const w = Math.max(r.width, Math.min(280, innerWidth - 16));
+  const w = Math.max(r.width, Math.min(en, innerWidth - 16));
   el.style.width = w + 'px';
   el.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
   const asagi = innerHeight - r.bottom - 12, yukari = r.top - 12;

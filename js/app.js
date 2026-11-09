@@ -890,6 +890,8 @@ const SESSIZ_IC = LUCIDE('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.5
 // Sesli okuma simgesi (Demir 09.11: "hoparlör değil, sesli okumayla ilgili"): konuşan kişi (lucide speech); kapalıyken üstü çizili
 const OKUMA_IC = LUCIDE('<path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/>', 22, 2);
 const OKUMA_KAPALI_IC = LUCIDE('<path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="m16 8 6 6"/><path d="m22 8-6 6"/>', 22, 2);
+const TUS_SES_IC = LUCIDE('<path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/>', 22, 2);
+const EFEKT_IC = LUCIDE('<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>', 22, 2);
 const DURAKLAT_IC = LUCIDE('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>', 24, 2);
 // Sayfa geri düğmesi (Demir 09.11): ok simgesi tam ortada; tablette yanında "Geri" yazısı
 const GERI_OK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
@@ -1721,10 +1723,10 @@ app.addEventListener('click', e => {
       // Demir 09.11: üst çubukta ses menüsü — bütün sesler, sesli okuma, tuş sesi, oyun efektleri
       const st = data().settings;
       const liste = () => [
-        { v: 'sessiz', l: t('Bütün sesler'), on: st.sessiz !== true },
-        ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true && st.sessiz !== true }] : []),
-        { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false && st.sessiz !== true },
-        { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false && st.sessiz !== true },
+        { v: 'sessiz', l: t('Bütün sesler'), on: st.sessiz !== true, ic: st.sessiz ? SESSIZ_IC : SESLI_IC },
+        ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true && st.sessiz !== true, ic: OKUMA_IC }] : []),
+        { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false && st.sessiz !== true, ic: TUS_SES_IC },
+        { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false && st.sessiz !== true, ic: EFEKT_IC },
       ];
       acilirAc(el, liste, v => {
         if (v === 'sessiz') { st.sessiz = !st.sessiz; if (st.sessiz) okuma.sustur(); }
@@ -1740,7 +1742,7 @@ app.addEventListener('click', e => {
         document.querySelectorAll('.mc-ses').forEach(b => { b.classList.toggle('kapali', !!st.sessiz); b.innerHTML = st.sessiz ? SESSIZ_IC : SESLI_IC; });
         const ok = okuma.acikMi();
         document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', ok); b.innerHTML = ok ? OKUMA_IC : OKUMA_KAPALI_IC; });
-      }, { coklu: true, baslik: t('Sesler') });
+      }, { coklu: true, baslik: t('Sesler'), en: 220 });
       break;
     }
     case 'sesliokuma': {

@@ -2841,3 +2841,8 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 /* Üst çubukta ses tuşu (Demir 09.11): bütün sesler kapalıyken üstü çizili ve soluk */
 .menu-cubugu .mc-ses svg { width: 19px; height: 19px; }
 .menu-cubugu .mc-ses.kapali { opacity: .6; color: rgb(233 75 60); }
+
+/* Açılır menü satır simgesi (Demir 09.11: ses menüsü) */
+.dx-acilir .ac-ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: var(--brand); background: rgb(227 184 102 / .14); }
+.dx-acilir .ac-ic svg { width: 18px; height: 18px; }
+.dx-acilir button:not(.secili) .ac-ic { color: var(--mut); background: rgb(255 255 255 / .06); }
