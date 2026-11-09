@@ -1723,20 +1723,24 @@ app.addEventListener('click', e => {
       if (acilirAcik()) { acilirKapat(); break; } // Demir 09.11: bastığımda açılsın, bir daha bastığımda kapansın
       // Demir 09.11: üst çubukta ses menüsü — bütün sesler, sesli okuma, tuş sesi, oyun efektleri
       const st = data().settings;
-      const liste = () => [
-        { v: 'sessiz', l: t('Bütün sesler'), on: st.sessiz !== true, ic: st.sessiz ? SESSIZ_IC : SESLI_IC },
-        ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true && st.sessiz !== true, ic: OKUMA_IC }] : []),
-        { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false && st.sessiz !== true, ic: TUS_SES_IC },
-        { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false && st.sessiz !== true, ic: EFEKT_IC },
-      ];
+      // Demir 09.11 ("mantığa al"): üç ses ayrı ayrı açılıp kapanır; altta ayrı "Sessize al" hepsini susturur, ayarlar korunur
+      const liste = () => {
+        const sz = st.sessiz === true;
+        return [
+          ...(okuma.destekli() ? [{ v: 'sesliOkuma', l: t('Sesli okuma'), on: st.sesliOkuma === true, ic: OKUMA_IC, soluk: sz }] : []),
+          { v: 'tusSes', l: t('Tuş sesi'), on: st.tusSes !== false, ic: TUS_SES_IC, soluk: sz },
+          { v: 'oyunSes', l: t('Oyun efektleri'), on: st.oyunSes !== false, ic: EFEKT_IC, soluk: sz },
+          { v: 'sessiz', l: t('Sessize al'), on: sz, ic: SESSIZ_IC, ayir: true },
+        ];
+      };
       acilirAc(el, liste, v => {
         if (v === 'sessiz') { st.sessiz = !st.sessiz; if (st.sessiz) okuma.sustur(); }
         else {
-          // tek bir ses açılırsa "bütün sesler kapalı" kalkar
-          const acik = v === 'sesliOkuma' ? st.sesliOkuma === true : st[v] !== false;
-          if (st.sessiz) { st.sessiz = false; st[v] = true; } else st[v] = v === 'sesliOkuma' ? !acik : !acik;
-          if (v === 'sesliOkuma' && st.sesliOkuma) okuma.oku(t('Sesli okuma açık'));
-          if (v === 'sesliOkuma' && !st.sesliOkuma) okuma.sustur();
+          // sessizdeyken bir sese dokunulursa sessizlik kalkar ve o ses açılır
+          if (st.sessiz) { st.sessiz = false; st[v] = true; }
+          else if (v === 'sesliOkuma') st.sesliOkuma = !st.sesliOkuma;
+          else st[v] = st[v] === false;
+          if (v === 'sesliOkuma') { if (okuma.acikMi()) okuma.oku(t('Sesli okuma açık')); else okuma.sustur(); }
           if (v === 'tusSes' && st.tusSes) ses.tus();
         }
         store.save(); vib(6);

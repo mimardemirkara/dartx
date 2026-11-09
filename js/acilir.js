@@ -34,7 +34,7 @@ export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = f
     const hepsi = liste();
     const gorunen = q ? hepsi.filter(x => String(x.l).toLocaleLowerCase('tr').includes(q)) : hepsi;
     kutu.innerHTML = gorunen.map(x =>
-      `<button type="button" role="option" aria-selected="${x.on}" data-v="${esc(String(x.v))}" class="${x.on ? 'secili' : ''}">
+      `<button type="button" role="option" aria-selected="${x.on}" data-v="${esc(String(x.v))}" class="${x.on ? 'secili' : ''} ${x.ayir ? 'ac-ayir' : ''} ${x.soluk ? 'ac-soluk' : ''}">
         ${x.ic ? `<span class="ac-ic">${x.ic}</span>` : x.bot ? `<span class="bot-av ac-bot" style="--pc:${x.renk}">${x.bot}</span>` : x.renk ? `<span class="ac-nokta" style="--pc:${x.renk}"></span>` : ''}<span class="ac-ad">${esc(x.l)}</span><span class="ac-tik">${x.on ? TIK : ''}</span></button>`).join('')
       || `<p class="ac-bos">${esc(hepsi.length ? sonucYok : bos || sonucYok)}</p>`;
   };
