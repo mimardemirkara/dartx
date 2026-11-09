@@ -87,8 +87,12 @@ export function acilisGoster(acik = true) {
       { opacity: 1, offset: 0.15 },
       { transform: 'translate(0px, 0px) scale(1)', opacity: 1 },
     ], { duration: DART.ucus * 1000, easing: 'cubic-bezier(.45,0,.9,.6)', fill: 'forwards' });
-    uc.onfinish = () => {
-      if (A.cikis !== null) return;
+    // Demir 09.11 ("tablette saplanma sesi yok"): animasyonun bitiş olayı bazı durumlarda hiç gelmiyordu;
+    // saplanma anı uçuş süresine bağlı zamanlayıcıyla kesin tetiklenir
+    let vurdu = false;
+    const vur = () => {
+      if (vurdu || A.cikis !== null) return; vurdu = true;
+      try { uc.finish(); } catch (e) { /* yok say */ }
       dartVurusSesi();
       // saplanma: küçük geri tepme, halka dalgası, kıvılcım; logo sarsılır
       const tep = 6 * s * 10;
@@ -104,6 +108,8 @@ export function acilisGoster(acik = true) {
       setTimeout(() => d.classList.add('git'), 1300);
       setTimeout(() => d.remove(), 1800);
     };
+    setTimeout(vur, DART.ucus * 1000);
+    uc.onfinish = vur;
   }
 
   new Image().src = DART_IMG.src; // uçan dart resmi önceden yüklensin
