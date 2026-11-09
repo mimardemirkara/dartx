@@ -2874,3 +2874,8 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 @keyframes kdNabiz { 0%, 100% { opacity: .85; translate: 0 0; } 50% { opacity: 1; translate: 0 2px; } }
 .kd-ok.kd-ust { animation-name: kdNabizUst; }
 @keyframes kdNabizUst { 0%, 100% { opacity: .85; translate: 0 0; } 50% { opacity: 1; translate: 0 -2px; } }
+/* Tablodan yazarken basma efekti (Demir 09.11): hücre küçülmez (kart çizgileri kopmasın), yalnız içi renklenir */
+:root .ctable.kartli td.tikla:active { transform: none !important; filter: none !important; }
+:root .ctable.kartli td.oy.tikla:active { background: linear-gradient(color-mix(in srgb, var(--pc) 42%, rgb(var(--cam-rgb) / .6)), color-mix(in srgb, var(--pc) 34%, rgb(var(--cam-rgb) / .5))) !important; }
+:root .ctable.kartli td.num.tikla:active { color: #fff; background: rgb(227 184 102 / .38) !important; }
+:root .ctable.kartli td.tikla { transition: background .12s ease; }
