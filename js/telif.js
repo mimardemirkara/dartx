@@ -27,7 +27,7 @@ const METIN = {
     giris: 'DartX\'teki yazılım, tasarım, görsel ve metinler; özgün emeğin ürünüdür ve kanunla korunur. Yazılı izin olmadan kullanmak suçtur. Tespit edilen ihlallerde hukuki ve cezai yollara başvurulur.',
     bolumler: [
       ['kalkan', 'Neler Korunuyor', [
-        'Aksi belirtilmedikçe DartX\'in bütün içeriği Demir Kara\'ya aittir:',
+        'Aksi belirtilmedikçe DartX\'in bütün içeriği ve hakları DK Design Consulting Technology LLC\'ye (Albuquerque, New Mexico, ABD) aittir. Eser sahibi ve geliştirici Demir Kara\'dır:',
         ['kod', 'Yazılım, kaynak kodu ve oyun kuralı motoru'],
         ['kopya', 'Arayüz tasarımı, simgeler, ekranlar ve metinler'],
         ['kalkan', 'DartX adı, logosu, bakır X amblemi ve Demir Kara imzası'],
@@ -71,7 +71,7 @@ const METIN = {
     giris: 'The software, design, graphics and texts in DartX are the result of original work and are protected by law. Using them without written permission is an offence. Legal and criminal action is taken against infringements.',
     bolumler: [
       ['kalkan', 'What Is Protected', [
-        'Unless stated otherwise, all content of DartX belongs to Demir Kara:',
+        'Unless stated otherwise, all content of DartX and all rights in it belong to DK Design Consulting Technology LLC (Albuquerque, New Mexico, USA). Author and developer: Demir Kara:',
         ['kod', 'The software, source code and game rules engine'],
         ['kopya', 'The interface design, icons, screens and texts'],
         ['kalkan', 'The DartX name, logo, copper X emblem and Demir Kara\'s signature'],
@@ -137,7 +137,7 @@ export function telifUyari() {
   k.innerHTML = `<div class="telif-kart" role="alertdialog" aria-modal="true" aria-label="${esc(M.uyariBaslik)}">
       <button type="button" class="telif-kapat telif-kapat-kart" data-tl="kapat" aria-label="Kapat">${S.x}</button>
       <img class="telif-muhur" src="img/telif-muhur.webp" alt="" draggable="false">
-      <h2>${esc(M.uyariBaslik)}</h2><p>${esc(M.uyari)}</p><small>© ${new Date().getFullYear()} Demir Kara</small>
+      <h2>${esc(M.uyariBaslik)}</h2><p>${esc(M.uyari)}</p><small>© ${new Date().getFullYear()} DK Design Consulting Technology LLC</small>
       <div class="telif-dugmeler"><button type="button" class="pill" data-tl="yasa">${S.tokmak} ${esc(M.dugmeYasa)}</button><button type="button" class="pill gold" data-tl="kapat">${esc(M.dugmeTamam)}</button></div>
     </div>`;
   k.addEventListener('click', e => {

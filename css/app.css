@@ -2479,3 +2479,44 @@ html:root body .pill.gold.ara-devam { color: #241d15 !important; text-shadow: no
 :root[data-tema="acik"] .bitis { background: rgb(255 255 255 / .45); border-color: rgb(138 93 20 / .35); } :root[data-tema="acik"] .bitis-oklar b { color: #241d15; background: rgb(255 255 255 / .6); }
 .board .side:not(.active) .bitis { opacity: .55; }
 @media (max-width: 699px) { .board.x01 .bitis { display: none; } .board.x01 .side-sub { font-size: 13px; } }
+/* ==== Ana ekran araçları (Demir 10.11, iPad ana ekranı gibi) ==== */
+.araclar { display: grid; gap: 16px; width: 100%; box-sizing: border-box; }
+.arac { border-radius: 26px; padding: 14px; box-sizing: border-box; min-width: 0; }
+.saat-arac { display: none; }
+@media (min-width: 720px) {
+  .araclar { grid-template-columns: 230px minmax(0, 480px); justify-content: center; align-items: stretch; margin: 6px auto 10px; }
+  .araclar.tek { grid-template-columns: 230px; }
+  .saat-arac { display: grid; place-items: center; gap: 6px; padding: 16px; }
+}
+.saat-svg { width: 100%; max-width: 190px; }
+.saat-yuz { fill: rgb(255 255 255 / .92); stroke: rgb(227 184 102 / .8); stroke-width: 3; }
+.dk-cizgi { stroke: #8a8a8a; stroke-width: 1; } .sa-cizgi { stroke: #222; stroke-width: 3; stroke-linecap: round; }
+.saat-no { font: 800 17px system-ui, sans-serif; fill: #1a1a1a; text-anchor: middle; }
+.ibre-sa { stroke: #1a1a1a; stroke-width: 6; stroke-linecap: round; } .ibre-dk { stroke: #1a1a1a; stroke-width: 4; stroke-linecap: round; }
+.ibre-sn { stroke: #e0662d; stroke-width: 2; stroke-linecap: round; } .ibre-orta { fill: #e0662d; }
+.saat-tarih { font-size: 15px; font-weight: 800; color: var(--brand); letter-spacing: .04em; }
+/* Yarım maçlar aracı: içinde yatay kaydırma */
+.arac-bas { display: flex; align-items: center; gap: 8px; margin: 0 4px 10px; font-size: 14px; font-weight: 800; color: var(--brand); }
+.arac-bas svg { width: 16px; height: 16px; }
+.arac-bas small { margin-left: auto; min-width: 24px; height: 22px; display: inline-grid; place-items: center; padding: 0 7px; border-radius: 99px; background: rgb(0 0 0 / .3); font-size: 12px; }
+.ym-kaydir { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 20px; }
+.ym-kaydir::-webkit-scrollbar { display: none; }
+.ym-sayfa { flex: 0 0 100%; scroll-snap-align: start; display: grid; gap: 12px; align-content: start; padding: 4px 4px 2px; box-sizing: border-box; }
+.ym-ust { display: flex; align-items: center; gap: 12px; }
+.ym-ic { width: 60px; height: 60px; border-radius: 16px; overflow: hidden; flex: none; } .ym-ic svg { width: 100%; height: 100%; display: block; }
+.ym-ad { flex: 1; min-width: 0; display: grid; } .ym-ad small { font-size: 13px; font-weight: 700; color: var(--brand); } .ym-ad b { font-size: 22px; line-height: 1.15; }
+.ym-kisiler { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
+.ym-kisiler .pc-av { width: 32px; height: 32px; font-size: 13px; opacity: 1; margin-left: -8px; } .ym-kisiler .pc-av:first-child { margin-left: 0; }
+.ym-sira { display: flex; align-items: center; gap: 6px; font-size: 15px; } .ym-sira svg { width: 15px; height: 15px; color: var(--brand); } .ym-sira i { font-style: normal; opacity: .75; } .ym-sira b { font-size: 20px; }
+.ym-devam { min-height: 52px; font-size: 18px; font-weight: 800; width: 100%; }
+html:root body .pill.gold.ym-devam { color: #241d15 !important; text-shadow: none !important; }
+.ym-noktalar { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
+.ym-noktalar i { width: 7px; height: 7px; border-radius: 50%; background: rgb(255 255 255 / .3); transition: background .2s, transform .2s; }
+.ym-noktalar i.on { background: var(--brand); transform: scale(1.25); }
+:root[data-tema="acik"] .ym-noktalar i { background: rgb(0 0 0 / .2); } :root[data-tema="acik"] .ym-noktalar i.on { background: #8a5d14; }
+:root[data-tema="acik"] .arac-bas small { background: rgb(138 93 20 / .9); color: #fff; }
+/* iPad gibi simge ızgarası: tablette büyük simgeler, geniş aralık */
+@media (min-width: 720px) { .home .apps.ana { grid-template-columns: repeat(6, minmax(0, 110px)) !important; gap: 30px 46px !important; margin-top: 18px; } .home .apps.ana .app-ico { max-width: 96px; } }
+a.ay-satir { text-decoration: none; color: inherit; }
+.ay-link { display: inline-flex; align-items: center; gap: 6px; color: var(--brand) !important; }
+.ay-link svg { opacity: .8; }

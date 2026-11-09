@@ -2,6 +2,11 @@
 # DartX web yayınını günceller: ../DartX'teki dosyaları kopyalar, commit + push (GitHub Pages)
 set -e
 Y="$(cd "$(dirname "$0")" && pwd)"; K="$Y/../DartX"
+# Demir 10.11: her yayında derleme numarası 1 artar (uygulamada "1.1 Beta · Derleme N"), sw.js sürümü de ona uyar
+N=$(( $(grep -o '[0-9]\+' "$K/js/derleme.js" | tail -1) + 1 ))
+sed -i "s/export const DERLEME = [0-9]*;/export const DERLEME = $N;/" "$K/js/derleme.js"
+sed -i "s/const VERSION = 'dartx-[^']*';/const VERSION = 'dartx-b$N';/" "$K/sw.js"
+echo "Derleme $N"
 rm -rf "$Y/css" "$Y/js" "$Y/img" "$Y/icons" "$Y/ses"
 cp -r "$K"/{index.html,manifest.webmanifest,sw.js,css,js,img,icons,ses} "$Y/"
 rm -rf "$Y/img/karakter/kaynak"; find "$Y" -name "*.md" ! -name README.md -delete

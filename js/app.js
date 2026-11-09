@@ -1,5 +1,6 @@
 // DartX — arayüz
 import * as store from './store.js';
+import { DERLEME } from './derleme.js';
 import { data, player } from './store.js';
 import { GAMES, GAME_LIST, CATS } from './games/index.js';
 import * as E from './engine.js';
@@ -534,20 +535,28 @@ function viewHome() {
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge yakinda">${ikon('grp-online')}<i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Online')}</span></button>`
     + `<button class="app" data-act="tab" data-v="about"><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="app-ad">${t('Hakkında')}</span></button>`;
   // Ara verilmiş diğer maçlar (Demir 10.11): büyük kartın altında küçük satırlar — Devam ve Sil
-  // Demir 10.11 ("tek liste yap"): bütün yarım maçlar tek listede — en son oynanan en üstte ve büyük
+  // Demir 10.11: iPad ana ekranı gibi — tablette solda analog saat aracı, yanında "Yarım Maçlar" aracı;
+  // maçlar aracın içinde sağa-sola kaydırılarak gezilir (alt alta değil). Telefonda saat yok.
   const yarim = [cur, ...(data().ara || [])].filter(Boolean);
-  const satir = (am, ilk) => { const ag = GAMES[am.gameId]; if (!ag) return '';
-    const adlar = am.sides.map((_, i) => E.sideName(am, i, player)).join(' · ');
+  const kayit = (am, ilk) => { const ag = GAMES[am.gameId]; if (!ag) return '';
+    const rozet = am.sides.slice(0, 5).map((sd, i) => { const ad = E.sideName(am, i, player); return `<span class="pc-av" style="--pc:${player(sd.members[0]).color}">${avatarIc(ad, esc(basHarf(ad)))}</span>`; }).join('');
     const sirada = !am.done ? E.sideName(am, am.cur, player) : '';
-    return `<div class="ara-satir ${ilk ? 'ilk' : ''}"><span class="app-ico simge ara-ic">${ikon(ag.id)}</span>
-      <span class="ara-govde"><b>${esc(gt(ag, 'name'))}</b><small>${esc(adlar)} · ${t('Tur {0}', am.round)}</small>${ilk && sirada ? `<small class="ara-sira">${KURAL_IKON.oynat}${t('Sırada')} <b>${esc(sirada)}</b></small>` : ''}</span>
-      <button class="ara-sil" data-act="arasil" data-id="${am.id}" aria-label="${t('Sil')}">${CARPI}</button>
-      <button class="pill gold ara-devam" data-act="${ilk ? 'resume' : 'aradevam'}" data-id="${am.id}">${t('Devam')}</button></div>`; };
-  const araListe = yarim.length ? `<div class="ara-liste glass">
-      <div class="ara-bas">${DURAKLAT_IC}<span>${t('Yarım Maçlar')}</span><small>${yarim.length}</small></div>
-      ${yarim.map((am, i) => satir(am, i === 0)).join('')}
+    return `<div class="ym-sayfa">
+      <div class="ym-ust"><span class="app-ico simge ym-ic">${ikon(ag.id)}</span>
+        <span class="ym-ad"><small>${t('Tur {0}', am.round)}${ilk ? ' · ' + t('Son oynanan') : ''}</small><b>${esc(gt(ag, 'name'))}</b></span>
+        <button class="ara-sil" data-act="arasil" data-id="${am.id}" aria-label="${t('Sil')}">${CARPI}</button></div>
+      <div class="ym-kisiler"><span class="dv-rozetler">${rozet}</span><span>${t('{0} oyuncu', am.sides.length)}</span></div>
+      ${sirada ? `<div class="ym-sira">${KURAL_IKON.oynat}<i>${t('Sırada')}</i><b>${esc(sirada)}</b></div>` : ''}
+      <button class="pill gold ym-devam" data-act="${ilk ? 'resume' : 'aradevam'}" data-id="${am.id}">${t('Devam et →')}</button>
+    </div>`; };
+  const ymArac = yarim.length ? `<div class="arac ym-arac glass">
+      <div class="arac-bas">${DURAKLAT_IC}<span>${t('Yarım Maçlar')}</span><small>${yarim.length}</small></div>
+      <div class="ym-kaydir">${yarim.map((am, i) => kayit(am, i === 0)).join('')}</div>
+      ${yarim.length > 1 ? `<div class="ym-noktalar">${yarim.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}
     </div>` : '';
-  widget = '';
+  const saatArac = `<div class="arac saat-arac glass" aria-hidden="true">${SAAT_SVG}<div class="saat-tarih" data-saat="tarih">${saatYaz().tarih || ''}</div></div>`;
+  const araListe = `<div class="araclar ${yarim.length ? '' : 'tek'}">${saatArac}${ymArac}</div>`;
+  widget = ''; queueMicrotask(saatIbre);
   return `<main class="page home">${header('')}${ara}${widget}${araListe}<div class="apps ana">${klasorler}${menu}</div></main>`;
 }
 
@@ -844,6 +853,22 @@ const IPUCU_IC = LUCIDE('<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.
 const KARISTIR_IC = LUCIDE('<path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/>', 18, 2);
 // Sıradaki Oyuncu simgesi (lucide skip-forward)
 const SIRADAKI_IC = LUCIDE('<path d="M21 4v16"/><path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/>', 20, 2.2);
+// Analog saat aracı (tablet ana ekranı)
+const SAAT_SVG = `<svg class="saat-svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="94" class="saat-yuz"/>${Array.from({ length: 60 }, (_, i) => { const a = i * 6 * Math.PI / 180, r1 = i % 5 ? 86 : 80; return `<line x1="${(100 + r1 * Math.sin(a)).toFixed(1)}" y1="${(100 - r1 * Math.cos(a)).toFixed(1)}" x2="${(100 + 90 * Math.sin(a)).toFixed(1)}" y2="${(100 - 90 * Math.cos(a)).toFixed(1)}" class="${i % 5 ? 'dk-cizgi' : 'sa-cizgi'}"/>`; }).join('')}${[12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n, i) => { const a = i * 30 * Math.PI / 180; return `<text x="${(100 + 66 * Math.sin(a)).toFixed(1)}" y="${(100 - 66 * Math.cos(a) + 7).toFixed(1)}" class="saat-no">${n}</text>`; }).join('')}<line x1="100" y1="100" x2="100" y2="52" class="ibre-sa"/><line x1="100" y1="100" x2="100" y2="30" class="ibre-dk"/><line x1="100" y1="114" x2="100" y2="24" class="ibre-sn"/><circle cx="100" cy="100" r="5" class="ibre-orta"/></svg>`;
+function saatIbre() {
+  const s = document.querySelector('.saat-svg'); if (!s) return;
+  const d = new Date(), sn = d.getSeconds(), dk = d.getMinutes() + sn / 60, sa = (d.getHours() % 12) + dk / 60;
+  s.querySelector('.ibre-sa').setAttribute('transform', `rotate(${sa * 30} 100 100)`);
+  s.querySelector('.ibre-dk').setAttribute('transform', `rotate(${dk * 6} 100 100)`);
+  s.querySelector('.ibre-sn').setAttribute('transform', `rotate(${sn * 6} 100 100)`);
+}
+setInterval(saatIbre, 1000);
+// Yarım maç aracı: kaydırınca alttaki noktalar
+addEventListener('scroll', e => {
+  const k = e.target; if (!k.classList || !k.classList.contains('ym-kaydir')) return;
+  const i = Math.round(k.scrollLeft / k.clientWidth);
+  k.parentElement.querySelectorAll('.ym-noktalar i').forEach((n, j) => n.classList.toggle('on', i === j));
+}, true);
 function keypad(m, g) {
   const hl = new Set((g.highlight ? g.highlight(m, m.g) : []).map(d => d.n));
   const mod = S.mod;
@@ -1009,6 +1034,9 @@ function viewStats() {
 // Ayarlar
 // Ayarlar (iPhone Ayarlar uygulaması gibi gruplu cam liste). Satır simgeleri lucide-react 1.26.0 — demirkara.com ile aynı set.
 const AY = {
+  sirket: LUCIDE('<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>', 18),
+  insta: LUCIDE('<rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>', 18),
+  disari: LUCIDE('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"/>', 14),
   dil: LUCIDE('<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>', 17),
   tema: LUCIDE('<path d="M12 2v2"/><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"/><path d="M16 12a4 4 0 0 0-4-4"/><path d="m19 5-1.256 1.256"/><path d="M20 12h2"/>', 17),
   tusSes: LUCIDE('<path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/>', 17),
@@ -1029,7 +1057,7 @@ const AY = {
   kure: LUCIDE('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>', 17),
 };
 // Hakkında: yazan, neden yazıldı, telif
-const SURUM = '1.0 Beta';
+const SURUM = `1.1 Beta · ${t('Derleme')} ${DERLEME}`;
 // Kart: başlığı kartın içinde, simgeli (Demir 08.11: dışarıda asılı başlık sırıtıyordu)
 const kart = (ic, baslik, ic2, ek = '') => `<section class="ay-grup ${ek}"><div class="kart-bas">${ic}<span>${baslik}</span></div>${ic2}</section>`;
 const ikonKutu = ic => `<span class="ay-ikon">${ic}</span>`;
@@ -1055,12 +1083,14 @@ function viewAbout() {
       ${bilgi(AY.kisi, t('Geliştirici'), 'Demir Kara')}
       ${bilgi(AY.etiket, t('Sürüm'), SURUM)}
       ${bilgi(AY.hediye, t('Fiyat'), t('Ücretsiz'))}
-      ${bilgi(AY.kure, 'Web', 'demirkara.com')}`)}
+      ${bilgi(AY.sirket, t('Şirket'), 'DK Design Consulting Technology LLC')}
+      <a class="ay-satir tikla" href="https://demirkara.com" target="_blank" rel="noopener">${ikonKutu(AY.kure)}<span class="ay-ad">Web</span><span class="ay-deger ay-link">demirkara.com ${AY.disari}</span></a>
+      <a class="ay-satir tikla" href="https://www.instagram.com/mimardemirkara/" target="_blank" rel="noopener">${ikonKutu(AY.insta)}<span class="ay-ad">Instagram</span><span class="ay-deger ay-link">@mimardemirkara ${AY.disari}</span></a>`)}
     ${kart(AY.tokmak, t('Telif'), `<div class="hk-metin hk-telif tikla" data-act="telif" role="button">
-      <p><b>© ${yil} Demir Kara. ${t('Tüm hakları saklıdır.')}</b></p>
-      <p>${t('DartX adı, logosu, tasarımı ve yazılımı Demir Kara\'ya aittir. Uygulama kişisel kullanım için ücretsizdir; izinsiz kopyalanması, değiştirilerek dağıtılması veya satılması yasaktır.')}</p></div>
+      <p><b>© ${yil} DK Design Consulting Technology LLC. ${t('Tüm hakları saklıdır.')}</b></p>
+      <p>${t('DartX adı, logosu, tasarımı ve yazılımı ABD\'deki şirketim DK Design Consulting Technology LLC\'ye (Albuquerque, New Mexico) aittir; geliştirici Demir Kara\'dır. Uygulama kişisel kullanım için ücretsizdir; izinsiz kopyalanması, değiştirilerek dağıtılması veya satılması yasaktır.')}</p></div>
       <button class="ay-satir tikla" data-act="telif">${ikonKutu(AY.tokmak)}<span class="ay-ad">${t('Telif Hakları')}</span><span class="ay-ok">${AY.ok}</span></button>`)}
-    <p class="ay-surum"><img src="img/logo-x.webp" alt=""> DartX ${SURUM} · © ${yil} Demir Kara</p>
+    <p class="ay-surum"><img src="img/logo-x.webp" alt=""> DartX ${SURUM} · © ${yil} DK Design Consulting Technology LLC</p>
   </main>`;
 }
 
