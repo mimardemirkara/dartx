@@ -77,6 +77,7 @@ const UYARI_IC = {
     <g class="dt-tahta"><circle cx="32" cy="32" r="27" fill="rgb(0 0 0 / .35)" stroke="currentColor" stroke-width="2.4"/><circle cx="32" cy="32" r="19" stroke="#4fd08a" stroke-width="3"/><circle cx="32" cy="32" r="11" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="5" fill="#f0715f"/><circle cx="32" cy="32" r="2" fill="#4fd08a"/></g>
     ${OK_DEFS('ud')}<g class="dt-ok"><g transform="translate(32 32) rotate(-42) scale(.78)">${OK_CIZ('ud')}</g></g></svg>`,
   kisi: UI('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  bot: UI('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
   simsek: UI('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>'),
 };
 // Uyarı metni → simge, animasyon (a-*), renk türü, ses. Kalıplar her iki dilde çalışsın diye t() ile kurulur.
@@ -150,9 +151,12 @@ function siraGoster(m, gecikme) {
   siraKilit = Date.now() + (gecikme || 0) + 1500;
   const pid = E.currentPid(m); const p = player(pid); if (!p || m.done) return;
   const takim = m.sides[m.cur].members.length > 1 ? E.sideName(m, m.cur, player) : '';
-  const yazi = (dil() === 'tr' ? `Sıra <b>${esc(p.name)}</b>${bulunmaEki(p.name)}` : `<b>${esc(p.name)}</b>'s turn`) + (takim ? `<small>${esc(takim)}</small>` : '');
+  // Bot elini bitirdiyse attıkları da yazılır (Demir 10.11: "botun attıkları görünmüyor")
+  const bo = S.botOzet; S.botOzet = null;
+  if (bo) gecikme = (gecikme || 0) + 500;
+  const yazi = (bo ? `<span class="bot-ozet"><b>${esc(bo.ad)}</b>${bo.oklar.map(x => `<i>${esc(x)}</i>`).join('')}</span>` : '') + (dil() === 'tr' ? `Sıra <b>${esc(p.name)}</b>${bulunmaEki(p.name)}` : `<b>${esc(p.name)}</b>'s turn`) + (takim ? `<small>${esc(takim)}</small>` : '');
   siraT1 = setTimeout(() => {
-    toast(yazi, 'sira', { tur: { ic: adResim(p.name) ? 'resim:' + adResim(p.name) : 'kisi', a: 'a-gec', k: 'sira' }, renk: p.color });
+    toast(yazi, 'sira', { tur: { ic: botMu(p.name) ? 'bot' : adResim(p.name) ? 'resim:' + adResim(p.name) : 'kisi', a: 'a-gec', k: 'sira' }, renk: p.color });
     ses.oyun('sira');
   }, gecikme);
 }
@@ -359,10 +363,11 @@ function tabloSigdir() {
   if (satirlar && alan.scrollHeight > alan.clientHeight + 1) {
     tablo.classList.add('olcekli'); // sıkı satır aralığıyla ölç
     const bas = tablo.tHead ? tablo.tHead.getBoundingClientRect().height : 0;
-    y = Math.max(16, Math.floor((alan.clientHeight - bas - (satirlar + 2) * 2 - 6) / satirlar));
+    const enAz = innerHeight < 760 ? 12 : 16; // kısa ekran (iPhone SE, iPhone Duo kapalı): satır 12 px'e kadar incelir
+    y = Math.max(enAz, Math.floor((alan.clientHeight - bas - (satirlar + 2) * 2 - 6) / satirlar));
     uygula(y);
     // yazı / işaret yüzünden birkaç piksel taşarsa incelt (yalnız ilk ölçümde, en çok birkaç adım)
-    while (alan.scrollHeight > alan.clientHeight + 1 && y > 16) { y--; uygula(y); }
+    while (alan.scrollHeight > alan.clientHeight + 1 && y > enAz) { y--; uygula(y); }
   }
   tabloOlcu = { anahtar, y };
 }
@@ -913,7 +918,7 @@ const BOT_SV_IC = {
   usta: LUCIDE('<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>', 22, 2),
 };
 const BOT_IC = LUCIDE('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>', 22, 2);
-let botT = null;
+let botT = null, botEl = [];
 function botKontrol() {
   clearTimeout(botT);
   const m = data().current;
@@ -928,7 +933,11 @@ function botKontrol() {
     const ok = botAt(botHedef(gg, m2, p.bot), p.bot);
     if (gg.secenekler) { const sec = gg.secenekler(m2, m2.g, ok); if (sec) { const iyi = sec.find(x => !x.etkisiz && x.e && x.e.tur !== 'bos') || sec.find(x => !x.etkisiz) || sec[0]; ok.sec = iyi.v; } }
     S.sonOk = ok;
-    afterThrow(E.throwDart(m2, ok));
+    if (ilk) botEl = [];
+    botEl.push(ok.n === 0 ? t('Iska') : dartLabel(ok));
+    const res = E.throwDart(m2, ok);
+    if (res && ['turn', 'bust', 'leg', 'set'].includes(res.event)) S.botOzet = { ad: p.name, oklar: botEl.slice() };
+    afterThrow(res);
   }, ilk ? 2100 : 850);
 }
 
@@ -1791,7 +1800,7 @@ function submitTotal(tot) {
 const ISIM_MIN = 2, ISIM_MAX = 14;
 // Demir 08.11: isim nasıl yazılırsa yazılsın yalnız baş harfler büyük (Türkçe kurallı: i → İ, I → ı); kesme / tire sonrası da
 const basHarfBuyuk = s => s.toLocaleLowerCase('tr').replace(/(^|[\s'\-.])(\p{L})/gu, (_, on, h) => on + h.toLocaleUpperCase('tr'));
-const isimTemizle = s => basHarfBuyuk(String(s || '').replace(/\s+/g, ' ').trim()).slice(0, ISIM_MAX);
+const isimTemizle = s => basHarfBuyuk(String(s || '').replace(/\s+/g, ' ').trim()).replace(/^Dartbot(?=\s|$)/u, 'DartBot').slice(0, ISIM_MAX); // DartBot yazımı korunur
 const isimGecerli = s => s.length >= ISIM_MIN && s.length <= ISIM_MAX && /^[\p{L}\p{N} .'\-]+$/u.test(s);
 const basHarf = s => (String(s).trim()[0] || '?').toLocaleUpperCase('tr');
 

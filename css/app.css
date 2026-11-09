@@ -2651,3 +2651,48 @@ a.ay-satir { text-decoration: none; color: inherit; }
 /* X01 kart (Demir 10.11): Ort / Son / ok satırı sayıdan uzak, kartın alt kısmında */
 .board.x01 .side-sub { margin-top: auto; margin-bottom: 12px; padding-top: 10px; }
 @media (min-width: 700px) { .board.x01 .side-sub { margin-bottom: 22px; } }
+/* Botun eli bittiğinde sıra uyarısında attıkları (Demir 10.11) */
+.bot-ozet { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; font-size: 14px; font-weight: 600; opacity: .9; }
+.bot-ozet b { font-weight: 700; margin-right: 2px; }
+.bot-ozet i { font-style: normal; font-weight: 800; padding: 2px 9px; border-radius: 99px; background: rgb(255 255 255 / .14); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .2); }
+
+/* ═══ Telefon / iPhone Duo yükseklik uyumu (Demir 10.11: "Hızlı tuşlar tahtayı yiyor") ═══
+   Hızlı tuşların yüksekliği ekran yüksekliğine bağlı; sıra paneli kısa ekranda sıkılaşır; tahta kalan alanı doldurur */
+@media (max-width: 699px) {
+  :root .play .keypad.hizli .nums .k3 { min-height: clamp(62px, 9.2vh, 104px) !important; }
+  :root .play .keypad .k3-alt button { min-height: 0 !important; }
+  :root .play .keypad.hizli .nums { gap: 6px; }
+}
+@media (max-width: 699px) and (max-height: 940px) {
+  .play .turn { margin: 4px 10px; padding: 6px 10px 6px 12px; }
+  .play .turn .who .ad-av { width: 38px; height: 38px; }
+  .play .turn .ipucu { margin-top: 2px; font-size: 12.5px; }
+  .play .turn .durum-satir { margin-top: 3px; }
+}
+@media (max-width: 699px) and (max-height: 940px) {
+  :root .play .keypad.hizli .nums .k3 { min-height: clamp(60px, 8.6vh, 104px) !important; }
+  /* iki oyunculu kriket başlığı: isim ve puan tek satırda, kart daha kısa */
+  .play .board.cricket.orta-sayi .ctable th .cn { display: inline-flex; vertical-align: middle; }
+  .play .board.cricket.orta-sayi .ctable th .cp { display: inline-block; vertical-align: middle; margin: 0 0 0 10px; font-size: 26px; line-height: 1; }
+}
+@media (max-width: 699px) and (max-height: 940px) {
+  :root .play .keypad.hizli .nums .k3 { min-height: clamp(58px, 8vh, 104px) !important; }
+  .play .turn .slot { height: 32px; }
+  .play .turn .who .ad-av { width: 34px; height: 34px; }
+}
+/* Kısa ekran (iPhone SE, iPhone Duo kapalı 466×678): ipucu satırı gizlenir, tuşlar ve tahta satırları sıkılaşır */
+@media (max-width: 699px) and (max-height: 760px) {
+  .play .turn .ipucu { display: none; }
+  .play .turn { margin: 3px 10px; padding: 4px 10px 4px 10px; }
+  .play .turn .slot { height: 28px; width: 44px; }
+  :root .play .keypad.hizli .nums .k3 { min-height: clamp(50px, 7.6vh, 104px) !important; }
+  :root .play .keypad.hizli .nums { gap: 4px; }
+  .play .keypad .mods > .k { min-height: 38px !important; }
+}
+/* Kısa ekranda üst satır ve kriket başlığı da sıkılaşır (tablo satırları en az 12 px — app.js tabloSigdir) */
+@media (max-width: 699px) and (max-height: 760px) {
+  .play .play-top { margin-bottom: -4px; }
+  .play .play-top .menu-btn, .play .play-top > button { transform: scale(.88); }
+  .play .board.cricket .ctable th .cn { padding: 1px 0; min-height: 0; }
+  .play .board.cricket .ctable th .cn .ad-av { width: 1.6em; height: 1.6em; }
+}
