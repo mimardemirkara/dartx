@@ -3122,3 +3122,6 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .kam-oneri, .kam-yonerge, .kam-kalip, .kam-aci, .kam-flas:not(.on) { background: rgb(26 21 16 / .86); }
 :root[data-tema="acik"] .kam-oneri, :root[data-tema="acik"] .kam-yonerge, :root[data-tema="acik"] .kam-kalip, :root[data-tema="acik"] .kam-aci { background: rgb(40 32 24 / .86); }
 .kam-onizleme { background: #140f0b; }
+/* Kalıp şeridi kartın içinde: kartla aynı sıcak cam, ince altın kenar */
+.kam-kalip { background: linear-gradient(180deg, rgb(255 255 255 / .05), rgb(255 255 255 / .02)), rgb(30 24 18 / .55); border-color: rgb(240 207 134 / .28); }
+.kam-yon { background: rgb(0 0 0 / .25); }
