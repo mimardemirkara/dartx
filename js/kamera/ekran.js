@@ -408,17 +408,26 @@ function ciz() {
     DILIM.forEach((n, i) => { const a = (90 - i * 18) * Math.PI / 180, q = T(Math.cos(a) * 186, Math.sin(a) * 186); cx.fillText(n, q.x, q.y); });
     cx.shadowBlur = 0;
   }
+  // Ayar noktaları (Demir 10.11 "kaba"): küçük kırmızı nokta + üstünde küçük etiket; tutma alanı aynı (28 px)
   S.noktalar.forEach((q, i) => {
-    cx.beginPath(); cx.arc(q.x, q.y, 13 * o, 0, Math.PI * 2);
-    cx.fillStyle = 'rgb(233 75 60 / .92)'; cx.fill(); cx.lineWidth = 2 * o; cx.strokeStyle = '#fff'; cx.stroke();
-    cx.fillStyle = '#fff'; cx.font = `800 ${Math.round(8 * o)}px system-ui`; cx.textAlign = 'center'; cx.textBaseline = 'middle';
-    cx.fillText(AYAR_YAZI[i], q.x, q.y);
+    cx.save(); cx.shadowColor = 'rgb(0 0 0 / .6)'; cx.shadowBlur = 4 * o;
+    cx.beginPath(); cx.arc(q.x, q.y, 6.5 * o, 0, Math.PI * 2); cx.fillStyle = 'rgb(233 75 60 / .95)'; cx.fill();
+    cx.lineWidth = 1.6 * o; cx.strokeStyle = '#fff'; cx.stroke(); cx.restore();
+    cx.beginPath(); cx.arc(q.x, q.y, 1.6 * o, 0, Math.PI * 2); cx.fillStyle = '#fff'; cx.fill();
+    const yz = AYAR_YAZI[i]; cx.font = `700 ${Math.round(10 * o)}px system-ui`; const gw = cx.measureText(yz).width + 10 * o, gh = 15 * o, gy = q.y - 12 * o - gh;
+    cx.fillStyle = 'rgb(26 21 16 / .82)'; cx.beginPath(); cx.roundRect ? cx.roundRect(q.x - gw / 2, gy, gw, gh, gh / 2) : cx.rect(q.x - gw / 2, gy, gw, gh); cx.fill();
+    cx.fillStyle = '#f3d48f'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(yz, q.x, gy + gh / 2 + .5 * o);
   });
   if (S.kutu) { cx.lineWidth = lw; cx.strokeStyle = 'rgb(61 139 253 / .9)'; cx.setLineDash([6 * o, 4 * o]); cx.strokeRect(S.kutu.x, S.kutu.y, S.kutu.w, S.kutu.h); cx.setLineDash([]); }
+  // Vuruş işareti (Demir 10.11 "kaba"): ince halka + merkez nokta + dışta 4 kısa çizgi (uç görünür kalsın);
+  // ekrana dokunma denemesi altın, kameranın bulduğu ok yeşil
   if (S.oneri) {
-    const r = 14 * o;
-    cx.lineWidth = 3 * o; cx.strokeStyle = '#2fb36d';
-    cx.beginPath(); cx.arc(S.oneri.x, S.oneri.y, r, 0, Math.PI * 2); cx.stroke();
-    cx.beginPath(); cx.moveTo(S.oneri.x - r * 1.6, S.oneri.y); cx.lineTo(S.oneri.x + r * 1.6, S.oneri.y); cx.moveTo(S.oneri.x, S.oneri.y - r * 1.6); cx.lineTo(S.oneri.x, S.oneri.y + r * 1.6); cx.stroke();
+    const { x, y } = S.oneri, r = 9 * o, renk = S.oneri.deneme ? '#f3d48f' : '#3ddc84';
+    cx.save(); cx.shadowColor = 'rgb(0 0 0 / .7)'; cx.shadowBlur = 4 * o; cx.strokeStyle = renk; cx.fillStyle = renk; cx.lineWidth = 1.6 * o; cx.lineCap = 'round';
+    cx.beginPath(); cx.arc(x, y, r, 0, Math.PI * 2); cx.stroke();
+    cx.beginPath(); cx.arc(x, y, 1.8 * o, 0, Math.PI * 2); cx.fill();
+    cx.beginPath();
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { cx.moveTo(x + dx * (r + 3 * o), y + dy * (r + 3 * o)); cx.lineTo(x + dx * (r + 8 * o), y + dy * (r + 8 * o)); }
+    cx.stroke(); cx.restore();
   }
 }
