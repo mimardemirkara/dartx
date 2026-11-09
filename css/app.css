@@ -2388,7 +2388,9 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
 :root[data-tema="acik"] .keypad .k.mod.house-tus:disabled { opacity: .4; }
 :root[data-tema="acik"] .play-top .geri-al:disabled { opacity: .65; }
 /* Duvar kâğıdı: dikey tablette geniş resim aşırı büyüyüp bulanıklaşıyordu — dikeyde uzun resim */
-@media (min-width: 720px) and (orientation: portrait) { body::before { background-image: var(--duvar); } }
+/* Dikey tablet: en çok pikselli resim — geniş resmin 90° döndürülmüşü (1182×2560); açılış da aynı resmi kullanır */
+@media (min-width: 720px) and (orientation: portrait) { body::before { background-image: url('../img/duvar-koyu-dikey.webp'); } .acilis-zemin { background-image: url(../img/duvar-koyu-dikey.webp) !important; } }
+@media (min-width: 720px) and (orientation: portrait) { :root[data-tema="acik"] body::before { background-image: url('../img/duvar-acik-dikey.webp'); } }
 /* Sırası gelenin başlığı: oyuncunun renginde daha canlı, daha opak cam + parlak kenar ve ışık (Demir 09.11) */
 :root .ctable th.active, :root .board .side.active { border: 1px solid transparent !important;
   background: var(--sivi-isik) padding-box,
@@ -2520,3 +2522,42 @@ html:root body .pill.gold.ym-devam { color: #241d15 !important; text-shadow: non
 a.ay-satir { text-decoration: none; color: inherit; }
 .ay-link { display: inline-flex; align-items: center; gap: 6px; color: var(--brand) !important; }
 .ay-link svg { opacity: .8; }
+/* Dijital saat aracı (Demir 10.11): büyük saat, altında gün, tam tarih, hava */
+.saat-arac { align-content: center; justify-items: center; text-align: center; gap: 2px !important; }
+.ds-saat { font-size: 64px; font-weight: 800; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--fg); }
+.ds-gun { margin-top: 10px; font-size: 17px; font-weight: 800; color: var(--brand); text-transform: capitalize; }
+.ds-tarih { font-size: 15px; font-weight: 600; opacity: .85; }
+.ds-hava { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; background: rgb(0 0 0 / .25); font-size: 16px; font-weight: 800; }
+.ds-hava svg { width: 20px; height: 20px; color: #f3c35a; } .ds-hava small { font-size: 13px; font-weight: 600; opacity: .8; }
+:root[data-tema="acik"] .ds-hava { background: rgb(255 255 255 / .5); }
+/* Telefonda araç ile simgeler arası boşluk */
+.araclar { margin-bottom: 18px; }
+/* Responsive ana ekran: ekran yüksekliğine göre logo, araçlar ve simgeler küçülür — kaydırmadan sığar */
+@media (min-width: 720px) {
+  .home .araclar { grid-template-columns: clamp(190px, 22vw, 240px) minmax(0, 480px); }
+  .home .ym-sayfa { gap: clamp(6px, 1.4vh, 12px); }
+  .home .ym-devam { min-height: clamp(42px, 5.5vh, 52px); }
+  .home .ym-ic { width: clamp(44px, 6vh, 60px); height: clamp(44px, 6vh, 60px); }
+  .ds-saat { font-size: clamp(44px, 7vh, 72px); }
+  .home .apps.ana { gap: clamp(14px, 2.6vh, 30px) clamp(24px, 4vw, 46px) !important; margin-top: clamp(4px, 1.5vh, 18px); }
+  .home .apps.ana .app-ico { max-width: clamp(60px, 9.5vh, 96px); }
+}
+@media (min-width: 720px) and (max-height: 860px) { .home .logo, .home .ana-logo, .home .top img { max-height: 54px; } .home .ara-hap { min-height: 44px; } }
+/* Dikey tablet (Demir 10.11 "board çok sıkışıyor"): tuş takımı ve oyuncu kartı daha kısa, tabloya yer kalır */
+@media (min-width: 700px) and (orientation: portrait) {
+  .play .keypad.hizli .nums .k3 { min-height: clamp(84px, 9vh, 112px) !important; }
+  .play .keypad .k3-alt button { min-height: clamp(38px, 4.2vh, 50px) !important; }
+  .play .keypad .k { min-height: clamp(48px, 5.5vh, 64px); }
+  .play .keypad .mods > .k { min-height: clamp(48px, 5.5vh, 64px) !important; }
+  .play .turn { padding-top: 8px !important; padding-bottom: 8px !important; }
+  .play .turn .who .ad-av { width: 48px; height: 48px; }
+  .play.kriket .turn .hint { display: none; } /* "Açık" listesi tabloda zaten görünüyor */
+  .play .ctable td { height: auto; }
+}
+/* Hesap makinesi (Demir 10.11 "enine dar"): tablette panel geniş, tuşlar kareye yakın; ekran ortada kalır, uzamaz */
+@media (min-width: 700px) {
+  .hm-panel { width: min(560px, 62vw) !important; justify-content: center; }
+  .hm-tuslar { flex: none !important; grid-template-rows: repeat(5, auto) !important; gap: 12px !important; max-height: none !important; }
+  .hm-tus { aspect-ratio: 1.15; min-height: 0 !important; font-size: 30px !important; border-radius: 22px !important; }
+}
+@media (min-width: 700px) and (orientation: landscape) { .hm-panel { width: min(520px, 46vw) !important; } .hm-tus { aspect-ratio: 1.4; } }

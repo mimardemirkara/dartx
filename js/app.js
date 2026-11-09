@@ -250,13 +250,15 @@ const saatYaz = () => {
   return {
     kisa: d.toLocaleTimeString(yerel(), { hour: '2-digit', minute: '2-digit' }),
     tarih: d.toLocaleDateString(yerel(), { day: 'numeric', month: 'short' }),
+    gun: d.toLocaleDateString(yerel(), { weekday: 'long' }),
+    tamTarih: d.toLocaleDateString(yerel(), { day: 'numeric', month: 'long', year: 'numeric' }),
     uzun: `${d.toLocaleDateString(yerel(), { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString(yerel(), { month: 'short' })} ${d.toLocaleTimeString(yerel(), { hour: '2-digit', minute: '2-digit' })}`,
   };
 };
 setInterval(() => {
   const s = saatYaz();
   document.querySelectorAll('[data-saat]').forEach(e => (e.textContent = s[e.dataset.saat]));
-}, 15000);
+}, 5000);
 
 function topbar() {
   const s = saatYaz();
@@ -554,9 +556,15 @@ function viewHome() {
       <div class="ym-kaydir">${yarim.map((am, i) => kayit(am, i === 0)).join('')}</div>
       ${yarim.length > 1 ? `<div class="ym-noktalar">${yarim.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}
     </div>` : '';
-  const saatArac = `<div class="arac saat-arac glass" aria-hidden="true">${SAAT_SVG}<div class="saat-tarih" data-saat="tarih">${saatYaz().tarih || ''}</div></div>`;
+  // Demir 10.11: dijital saat (Apple gibi) — altında gün, tarih (yıllı) ve hava durumu
+  const sy = saatYaz();
+  const saatArac = `<div class="arac saat-arac glass" aria-hidden="true">
+      <div class="ds-saat" data-saat="kisa">${sy.kisa}</div>
+      <div class="ds-gun" data-saat="gun">${esc(sy.gun)}</div>
+      <div class="ds-tarih" data-saat="tamTarih">${esc(sy.tamTarih)}</div>
+      <div class="ds-hava" data-hava="uzun" ${hava ? '' : 'hidden'}>${havaYaz(true)}</div></div>`;
   const araListe = `<div class="araclar ${yarim.length ? '' : 'tek'}">${saatArac}${ymArac}</div>`;
-  widget = ''; queueMicrotask(saatIbre);
+  widget = '';
   return `<main class="page home">${header('')}${ara}${widget}${araListe}<div class="apps ana">${klasorler}${menu}</div></main>`;
 }
 
