@@ -77,6 +77,7 @@ const UYARI_IC = {
     <g class="dt-tahta"><circle cx="32" cy="32" r="27" fill="rgb(0 0 0 / .35)" stroke="currentColor" stroke-width="2.4"/><circle cx="32" cy="32" r="19" stroke="#4fd08a" stroke-width="3"/><circle cx="32" cy="32" r="11" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="5" fill="#f0715f"/><circle cx="32" cy="32" r="2" fill="#4fd08a"/></g>
     ${OK_DEFS('ud')}<g class="dt-ok"><g transform="translate(32 32) rotate(-42) scale(.78)">${OK_CIZ('ud')}</g></g></svg>`,
   kisi: UI('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  geri: UI('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>'),
   bot: UI('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
   simsek: UI('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>'),
 };
@@ -1710,7 +1711,15 @@ app.addEventListener('click', e => {
     }
     case 'undo':
       if (uzunBasildi) { uzunBasildi = false; break; }
-      if (E.undo(m)) { S.mod = 1; S.totalBuf = ''; if (S.modal && S.modal.type === 'legbitti') S.modal = null; store.setCurrent(m); vib(20); ses.oyun('geri'); render(); }
+      // Demir 10.11: açıklaması sığmayan ince düğmede, ilk geri almada bir kez ipucu (çizimden önce bakılır)
+      const aciklamaGorunur = !!el.querySelector('.geri-not')?.offsetParent;
+      if (E.undo(m)) { S.mod = 1; S.totalBuf = ''; if (S.modal && S.modal.type === 'legbitti') S.modal = null; store.setCurrent(m); vib(20); ses.oyun('geri'); render();
+        const st = data().settings;
+        if (!st.geriIpucu && !aciklamaGorunur) {
+          st.geriIpucu = true; store.save();
+          setTimeout(() => toast(t("İpucu: Atışı Geri Al'a basılı tutarsan son 10 atıştan istediğine dönebilirsin"), '', { tur: { ic: 'geri', a: 'a-don', k: '' } }), 400);
+        }
+      }
       break;
     case 'np': {
       const v = el.dataset.v;
