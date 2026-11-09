@@ -469,6 +469,7 @@ function header(title, back) {
 
 // Ana sayfa
 function viewHome() {
+  store.araYukari();
   const cur = data().current;
   const d = data();
   const now = new Date();
@@ -532,7 +533,17 @@ function viewHome() {
     + `<button class="app" data-act="tab" data-v="nasil"><span class="app-ico simge">${ikon('nasil')}</span><span class="app-ad">${t('Nasıl Oynanır')}</span></button>`
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge yakinda">${ikon('grp-online')}<i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Online')}</span></button>`
     + `<button class="app" data-act="tab" data-v="about"><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="app-ad">${t('Hakkında')}</span></button>`;
-  return `<main class="page home">${header('')}${ara}${widget}<div class="apps ana">${klasorler}${menu}</div></main>`;
+  // Ara verilmiş diğer maçlar (Demir 10.11): büyük kartın altında küçük satırlar — Devam ve Sil
+  const araListe = (data().ara || []).length ? `<div class="ara-liste glass">
+      <div class="ara-bas">${DURAKLAT_IC}<span>${t('Ara verilen maçlar')}</span><small>${data().ara.length}</small></div>
+      ${data().ara.map(am => { const ag = GAMES[am.gameId]; if (!ag) return '';
+        const adlar = am.sides.map((_, i) => E.sideName(am, i, player)).join(' · ');
+        return `<div class="ara-satir"><span class="app-ico simge ara-ic">${ikon(ag.id)}</span>
+          <span class="ara-govde"><b>${esc(gt(ag, 'name'))}</b><small>${esc(adlar)} · ${t('Tur {0}', am.round)}</small></span>
+          <button class="ara-sil" data-act="arasil" data-id="${am.id}" aria-label="${t('Sil')}">${CARPI}</button>
+          <button class="pill gold ara-devam" data-act="aradevam" data-id="${am.id}">${t('Devam')}</button></div>`; }).join('')}
+    </div>` : '';
+  return `<main class="page home">${header('')}${ara}${widget}${araListe}<div class="apps ana">${klasorler}${menu}</div></main>`;
 }
 
 // Klasör açılınca: buzlu perde üstünde grubun oyunları (iPhone klasörü gibi)
@@ -1433,7 +1444,21 @@ app.addEventListener('click', e => {
       render();
       break;
     }
-    case 'start': startMatch(); break;
+    case 'start': {
+      // Demir 10.11: 5 yarım maç doluysa en eskisi silinmeden önce sorulur
+      const eski = store.silinecekAra();
+      if (!eski) { startMatch(); break; }
+      onayla({ baslik: t('Yarım maç silinecek'), metin: t('En fazla {0} yarım maç saklanır. Yeni maç başlarsa en eskisi ({1}) silinir.', store.ARA_SINIR, gt(GAMES[eski.gameId], 'name')), evet: t('Başla'), tehlike: true })
+        .then(ok => { if (ok) { store.araSil(eski.id); startMatch(); } });
+      break;
+    }
+    case 'aradevam': { E.clearUndo(); const am = store.araDevam(el.dataset.id); if (am) { go('play'); if (!am.done) siraGoster(am, 350); } break; }
+    case 'arasil': {
+      const am = data().ara.find(x => x.id === el.dataset.id); if (!am) break;
+      onayla({ baslik: t('Yarım maç silinsin mi?'), metin: t('{0} maçı kaydedilmeden silinir.', gt(GAMES[am.gameId], 'name')), evet: t('Sil'), tehlike: true })
+        .then(ok => { if (ok) { store.araSil(am.id); render(); } });
+      break;
+    }
 
     // House modu (Demir 09.11): ayrı pencere yok — basınca sayı tuşları turkuaza döner, sayıya dokununca 3 ok o sayıya
     case 'housemod': {

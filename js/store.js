@@ -10,6 +10,7 @@ function blank() {
     players: [],      // {id, name, color, created}
     history: [],      // biten maçlar
     current: null,    // devam eden maç
+    ara: [],          // ara verilmiş maçlar (en yeni başta; current ile birlikte en fazla 5)
     settings: { vibrate: true, keepAwake: true, x01Input: 'darts', theme: 'auto' },
     lastSetup: {},    // oyun başına son ayarlar
   };
@@ -92,7 +93,32 @@ export const player = id => db.players.find(p => p.id === id) || { id, name: 'Si
 export const COLOR_LIST = COLORS;
 
 // ---- Maç
-export function setCurrent(match) { db.current = match; save(); }
+// Demir 10.11: en fazla 5 yarım maç — biri "current", diğerleri "ara" listesinde (en yeni başta)
+export const ARA_SINIR = 5;
+if (!Array.isArray(db.ara)) db.ara = [];
+function parkla(m) {
+  if (!m || m.done) return;
+  db.ara = [m, ...db.ara.filter(x => x.id !== m.id)].slice(0, ARA_SINIR - 1);
+}
+export function setCurrent(match) {
+  if (match && db.current && db.current.id !== match.id) parkla(db.current);
+  db.current = match; save();
+}
+/** Yeni maç başlarsa silinecek en eski yarım maç (yoksa null) */
+export function silinecekAra() {
+  return db.current && !db.current.done && db.ara.length >= ARA_SINIR - 1 ? db.ara[db.ara.length - 1] : null;
+}
+/** Listeden bir maça dön: o maç current olur, şimdiki listeye girer */
+export function araDevam(id) {
+  const m = db.ara.find(x => x.id === id); if (!m) return null;
+  db.ara = db.ara.filter(x => x.id !== id);
+  parkla(db.current); db.current = m; save(); return m;
+}
+export function araSil(id) { db.ara = db.ara.filter(x => x.id !== id); save(); }
+/** current boşsa listedeki en yeni maç büyük karta çıkar */
+export function araYukari() {
+  if (!db.current && db.ara.length) { db.current = db.ara.shift(); save(); }
+}
 export function finishCurrent() {
   if (db.current) {
     delete db.current.hesap; // maçın hesap makineleri maçla biter
