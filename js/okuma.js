@@ -22,15 +22,31 @@ function sesSec() {
 }
 if (destekli()) speechSynthesis.addEventListener?.('voiceschanged', () => { sesler = speechSynthesis.getVoices(); });
 
-/** Metni okur; kes=true ise önceki okumayı keser (hızlı ok girişinde sıra birikmesin) */
-export function oku(metin, kes = false) {
-  if (!acikMi() || !destekli() || !metin) return;
-  if (kes) speechSynthesis.cancel();
+// Okuma kuyruğu (Demir 09.11 "hızlı basınca geç geliyor"): o an konuşulan kesilmez; henüz başlamamış eski ok
+// okuması yeni ok gelince atlanır (en son basılan okunur); el özeti ("81. Sıra Tuncay") hiç atlanmaz.
+const kuyruk = [];
+let suan = null, suanT = null;
+function pompala() {
+  if (suan || !kuyruk.length) return;
+  const { metin } = kuyruk.shift();
   const u = new SpeechSynthesisUtterance(metin);
   u.lang = dil() === 'en' ? 'en-GB' : 'tr-TR';
   const v = sesSec(); if (v) u.voice = v;
-  u.rate = 1.05; u.pitch = 1; u.volume = 1;
+  u.rate = 1.25; u.pitch = 1; u.volume = 1;
+  const bitti = () => { if (suan !== u) return; clearTimeout(suanT); suan = null; pompala(); };
+  u.onend = bitti; u.onerror = bitti;
+  suan = u; // referans tutulur (bazı tarayıcılarda bitiş olayı kaybolmasın)
+  // güvenlik: bitiş olayı hiç gelmezse (iOS) tahmini süre sonra sıradakine geç
+  suanT = setTimeout(bitti, 900 + metin.length * 110);
   speechSynthesis.speak(u);
+}
+/** Metni sıraya koyar. ok=true: tek ok okuması (yeni ok gelince başlamamış eskisi atlanır) */
+export function oku(metin, kes = false, ok = false, atlanir = ok) {
+  if (!acikMi() || !destekli() || !metin) return;
+  if (kes) { kuyruk.length = 0; speechSynthesis.cancel(); suan = null; clearTimeout(suanT); }
+  if (ok) for (let i = kuyruk.length - 1; i >= 0; i--) if (kuyruk[i].atlanir) kuyruk.splice(i, 1);
+  kuyruk.push({ metin, atlanir });
+  pompala();
 }
 
 /** Tek ok: "Tripıl 20", "Dabıl 16", "Bul", "Dabıl bul", "Iska" */
@@ -52,7 +68,7 @@ export function atisOku(m, res, ad) {
   const son = (m.adimlar || [])[(m.adimlar || []).length - 1];
   const ok = son && son.t === 'd' ? son.d : null;
   // Demir 09.11: her ok basıldığı anda okunur, hiçbiri kesilmez (elin son oku dahil); özet okların arkasından gelir
-  if (ok) oku(okSozu(ok));
+  if (ok) oku(okSozu(ok), false, true, res.event === 'dart'); // elin son oku atlanmaz
   if (res.event === 'dart') return;
   if (res.event === 'bust') { oku(k.bust); if (ad) oku(`${k.sira} ${ad}`); return; }
   if (res.event === 'leg' || res.event === 'set' || res.event === 'match') { oku(k.oyun); return; }
@@ -76,4 +92,4 @@ export function bitince(cb, enCok = 4500) {
   const bak = () => { if (!speechSynthesis.speaking && !speechSynthesis.pending) cb(); else if (Date.now() - bas > enCok) cb(); else setTimeout(bak, 120); };
   setTimeout(bak, 150);
 }
-export function sustur() { if (destekli()) speechSynthesis.cancel(); }
+export function sustur() { kuyruk.length = 0; suan = null; clearTimeout(suanT); if (destekli()) speechSynthesis.cancel(); }

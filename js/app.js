@@ -162,7 +162,7 @@ function siraGoster(m, gecikme) {
     if (!okuma.acikMi()) ses.oyun('sira'); // Demir 09.11: sesli okuma "Sıra …" diyor, efekt çakışmasın
   };
   // sesli okuma açıksa uyarı okuma bitince gelir (görüntü ve ses üst üste binmesin)
-  siraT1 = setTimeout(() => (okuma.acikMi() ? okuma.bitince(goster) : goster()), gecikme);
+  siraT1 = setTimeout(goster, gecikme); // Demir 09.11: uyarı okumayı beklemez (hızlı basışta geç geliyordu)
 }
 
 // Sevinç anı (Demir 09.11): uyarının çevresinden altın / yeşil / beyaz konfeti ve yıldız patlar

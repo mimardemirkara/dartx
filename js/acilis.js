@@ -3,7 +3,7 @@
 // dart işaretleri / simgeleri / yazıları; sonra yıldızlar akıp DartX logosunun noktalarına dizilir, gerçek logo netleşir.
 // Logo netleşince sitedeki gibi "Kaydır ya da dokun" yazar ve bekler; kaydırınca / dokununca logo küçülüp
 // yıldızlar dağılır, uygulama arkadan açılır.
-import { patlamaSesi, donmeSesi, logoSesi, dartUcusSesi, dartVurusSesi } from './acilis-ses.js';
+import { patlamaSesi, donmeSesi, logoSesi, dartUcusSesi, dartVurusSesi, sesiAc } from './acilis-ses.js';
 import { t } from './i18n.js';
 
 // Dart simgeleri: 24×24 çizgi çizimleri (lucide target / crosshair / trophy / medal / award + dart, tahta, çetele)
@@ -115,6 +115,8 @@ export function acilisGoster(acik = true) {
   new Image().src = DART_IMG.src; // uçan dart resmi önceden yüklensin
   const kapat = () => {
     if (A.cikis !== null) return;
+    // Demir 09.11: dart logoya saplanana kadar dokunuş introyu kapatmaz, yalnız sesi açar (efekt kesilmesin)
+    if ((performance.now() - A.t0) / 1000 < DART.vurus + 0.15) { sesiAc(); return; }
     A.cikis = performance.now();
     kat.classList.add('cikis');
     // Kapatan dokunuş alttaki düğmeye / kutuya düşmesin: katman 0,8 sn daha dokunuşları tutar (görünmez olsa da),
