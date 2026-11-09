@@ -1,13 +1,8 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b154';
+const VERSION = 'dartx-b155';
 const FILES = [
   'ses/spiker/liste.json',
-  'ses/spiker/ad_dartbot.mp3',
-  'ses/spiker/ad_demir.mp3',
-  'ses/spiker/ad_hediye.mp3',
-  'ses/spiker/ad_kenan.mp3',
-  'ses/spiker/ad_tuncay.mp3',
   'ses/spiker/bull.mp3',
   'ses/spiker/bust.mp3',
   'ses/spiker/d1.mp3',
@@ -217,6 +212,11 @@ const FILES = [
   'ses/spiker/n97.mp3',
   'ses/spiker/n98.mp3',
   'ses/spiker/n99.mp3',
+  'ses/spiker/sira_dartbot.mp3',
+  'ses/spiker/sira_demir.mp3',
+  'ses/spiker/sira_hediye.mp3',
+  'ses/spiker/sira_kenan.mp3',
+  'ses/spiker/sira_tuncay.mp3',
   'ses/spiker/siradaki.mp3',
   'ses/spiker/t1.mp3',
   'ses/spiker/t10.mp3',

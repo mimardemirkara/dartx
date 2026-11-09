@@ -37,7 +37,7 @@ export function kayitlariYukle() {
   return yukleniyor;
 }
 const kayitVar = id => !!tampon[id];
-const adId = ad => 'ad_' + String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr')
+const adId = ad => 'sira_' + String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr')
   .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]/g, '');
 
 let sesler = [];
@@ -105,8 +105,9 @@ function okParca(d) {
   return [(d.m === 3 ? 't' : d.m === 2 ? 'd' : 'n') + d.n];
 }
 const sayiParca = n => (n >= 0 && n <= 180 ? ['n' + n] : null);
-// "Sıradaki oyuncu" + adı (kaydı varsa); bilinmeyen ad kayıtla okunmaz
-function siraParca(ad) { const id = adId(ad); return kayitVar(id) ? ['siradaki', id] : ['siradaki']; }
+// Karakterlerin adı Türkçe okunsun diye tam cümle kaydı var: "Sıradaki oyuncu, Demir." (Demir 09.11: tek kelime İngilizce gibi okunuyordu)
+// Bilinmeyen ad kayıtla okunmaz, yalnız "Sıradaki oyuncu" denir
+function siraParca(ad) { const id = adId(ad); return kayitVar(id) ? [id] : ['siradaki']; }
 
 const x01Mi = m => !!(m && m.g && m.g.s && m.g.s[0] && typeof m.g.s[0].score === 'number' && m.opts && m.opts.out);
 
