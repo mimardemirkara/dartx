@@ -3884,3 +3884,29 @@ a.ay-satir { color: inherit; text-decoration: none; }
 /* Fitil tablette köşelerde kesilmesin (Demir 11.11): dönen ışık katmanı kare ve kartın en geniş kenarının 3 katı —
    geniş kartta da her açıda dört köşeyi kaplar */
 .cam-fitil { width: 300% !important; height: auto !important; aspect-ratio: 1 / 1; }
+
+/* Arkadaş satırı (Demir 11.11 "kaymalar var"): fotoğraf + ad dokunulabilir düğme, düğmeler sağda */
+.on-ark { display: flex; align-items: center; gap: 10px; }
+.on-ark .on-kisi { display: flex; align-items: center; gap: 12px; flex: 1 1 auto; min-width: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.on-ark .on-kisi .ay-ad { display: grid; min-width: 0; line-height: 1.25; }
+.on-ark .on-kisi .ay-ad small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.on-ark .on-av-yer { flex: none; }
+.on-ark .on-tuslar { margin-left: auto; flex: none; display: flex; gap: 8px; align-items: center; }
+/* Kodum satırı: QR düğmeleri; telefonda kodun altında iki eşit düğme */
+.on-kodum { flex-wrap: wrap; }
+@media (max-width: 560px) {
+  .on-qr-tuslar { flex: 1 1 100%; margin-left: 0; display: grid; grid-template-columns: 1fr 1fr; }
+  .on-qr-btn { justify-content: center; }
+}
+
+/* Arkadaş profili: arkadaşlıktan çıkar / şikayet et / engelle (Demir 11.11) */
+.ark-guvenlik { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding-top: 10px; margin-top: 2px; border-top: 1px solid var(--cizgi, rgba(255,255,255,.08)); }
+.ark-guvenlik button { padding: 6px 10px; border: 0; border-radius: 99px; background: none; color: var(--mut); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.ark-guvenlik button:hover { background: rgba(255,255,255,.06); color: var(--fg); }
+.ark-guvenlik button.tehlike { color: #f87171; }
+
+/* Ana sayfa, tablet (Demir 11.11 "araları az açsak, ama kaydırma oluşmasın"): kutular ile simgeler ve iki simge satırı
+   arasındaki boşluk ekran yüksekliğine göre büyür; üst sınır olduğu için sayfa ekrandan taşmaz */
+@media (min-width: 700px) and (min-height: 700px) {
+  .home .apps.ana { margin-top: clamp(12px, 4vh, 40px) !important; row-gap: clamp(21px, 5.5vh, 52px) !important; }
+}

@@ -158,15 +158,44 @@ function arkadasProfil(u) {
       <small class="on-durum ${vd.tur}">${esc(vd.yazi)}</small>${p.kod ? `<small class="ark-kod">${esc(p.kod)}</small>` : ''}</div>
     <div class="uy-alt-bas">${ok}<span>${t('Ok seti')}</span></div>
     <p class="ark-ok">${oz ? esc(oz) : `<span class="soluk">${t('Henüz eklememiş')}</span>`}</p>
-    <div class="uy-soru-dugmeler"><button type="button" class="btn" data-h="kapat">${t('Kapat')}</button><button type="button" class="btn primary" data-h="davet">${t('Maça davet et')}</button></div></div>`;
+    <div class="uy-soru-dugmeler"><button type="button" class="btn" data-h="kapat">${t('Kapat')}</button><button type="button" class="btn primary" data-h="davet">${t('Maça davet et')}</button></div>
+    <div class="ark-guvenlik"><button type="button" data-h="cikar">${t('Arkadaşlıktan çıkar')}</button><button type="button" data-h="sikayet">${t('Şikayet et')}</button><button type="button" class="tehlike" data-h="engelle">${t('Engelle')}</button></div></div>`;
   document.body.appendChild(pd);
   const kapat = () => { pd.classList.add('kapan'); setTimeout(() => pd.remove(), 200); };
   pd.addEventListener('click', e => {
     if (e.target === pd || e.target.closest('[data-h="kapat"]')) return kapat();
     if (e.target.closest('[data-h="davet"]')) { kapat(); const b = document.querySelector(`[data-act="on-davet"][data-u="${u}"]`); if (b) b.click(); }
+    const ad = (durum.profil[u] || {}).ad || '';
+    if (e.target.closest('[data-h="cikar"]')) { kapat(); (async () => { if (!(await C.onayla({ baslik: t('{0} arkadaşlıktan çıkarılsın mı?', ad), metin: t('Birbirinizi listede görmezsiniz; istersen sonra yeniden ekleyebilirsin.'), evet: t('Çıkar'), tehlike: true }))) return; try { await arkadasCikar(u); C.toast(t('Arkadaşlıktan çıkarıldı'), 'ok'); } catch (er) { C.toast(hata(er), 'bad'); } })(); }
+    if (e.target.closest('[data-h="engelle"]')) { kapat(); (async () => { if (!(await C.onayla({ baslik: t('{0} engellensin mi?', ad), metin: t('Arkadaşlığınız biter; sana istek ya da maç daveti gönderemez, çevrimiçi durumunu göremez. Engeli Hesabım → Engellediklerim’den kaldırabilirsin.'), evet: t('Engelle'), tehlike: true }))) return; try { await engelle(u); C.toast(t('{0} engellendi', ad), 'ok'); } catch (er) { C.toast(hata(er), 'bad'); } })(); }
+    if (e.target.closest('[data-h="sikayet"]')) { const b = e.target.closest('[data-h="sikayet"]'); (async () => { const v = await C.secim(b, t('Neden şikayet ediyorsun?'), SIKAYET.map(([k, y]) => [k, t(y)]), null); if (!v) return; kapat(); try { await sikayetEt(u, v); C.toast(t('Şikayetin alındı. İnceleyeceğiz; istersen bu kişiyi engelleyebilirsin.'), 'ok', { sure: 4000 }); } catch (er) { C.toast(hata(er), 'bad'); } })(); }
   });
   pd.addEventListener('keydown', e => { if (e.key === 'Escape') kapat(); });
 }
+
+// ---- engelle / şikayet et / arkadaşlıktan çıkar (Demir 11.11)
+const ciftId = (a, b) => [a, b].sort().join('_');
+export async function arkadasCikar(u) {
+  const { db, F } = await bulut(); const ben = benUid();
+  await F.deleteDoc(F.doc(db, 'arkadaslik', ciftId(ben, u)));
+}
+export async function engelle(u) {
+  const { db, F } = await bulut(); const ben = benUid();
+  await F.setDoc(F.doc(db, 'engeller', ben + '_' + u), { eden: ben, edilen: u, ad: (durum.profil[u] || {}).ad || '', zaman: F.serverTimestamp() });
+  await F.deleteDoc(F.doc(db, 'arkadaslik', ciftId(ben, u))).catch(() => {});
+  for (const d of durum.maclar.filter(m => m.uids.includes(u))) await F.deleteDoc(F.doc(db, 'online', d.id)).catch(() => {});
+}
+export async function engelKaldir(u) { const { db, F } = await bulut(); await F.deleteDoc(F.doc(db, 'engeller', benUid() + '_' + u)); }
+export async function engellenenler() {
+  const { db, F } = await bulut();
+  const s = await F.getDocs(F.query(F.collection(db, 'engeller'), F.where('eden', '==', benUid())));
+  return s.docs.map(d => d.data());
+}
+export async function sikayetEt(u, neden) {
+  const { db, F } = await bulut(); const p = durum.profil[u] || {};
+  await F.addDoc(F.collection(db, 'sikayetler'), { eden: benUid(), edilen: u, neden, ad: p.ad || '', lakap: p.lakap || '', foto: !!p.foto, zaman: F.serverTimestamp() });
+}
+const SIKAYET = [['ad', 'Uygunsuz ad ya da lakap'], ['foto', 'Uygunsuz fotoğraf'], ['hile', 'Hile / yanlış skor girişi'], ['taciz', 'Taciz ya da hakaret'], ['diger', 'Diğer']];
 
 // ---- QR ile gelen arkadaş kodu: giriş yapılınca istek gönderilir, Online ekranı açılır
 async function qrBekleyenGonder() {

@@ -10,7 +10,7 @@ import { ILCELER } from './ilce.js';
 import { MARKALAR, TUNGSTEN, UCLAR, GOVDELER, KANATLAR, secenekAd, secenekler, modeller, markaRozet } from './okset.js';
 import { esc, adResim } from '../util.js';
 import { ikon } from '../icons.js';
-import { bekleyenSayi, varlikTazele } from './online.js';
+import { bekleyenSayi, varlikTazele, engellenenler, engelKaldir } from './online.js';
 import { zeminKontrol } from './zemin.js';
 import { saatKontrol } from './saat.js';
 
@@ -446,6 +446,7 @@ function viewProfil() {
     <section class="ay-grup uy-kart">
       <div class="kart-bas">${IC.kilit}<span>${t('Hesap')}</span></div>
       ${(n => satir('uy-arkadaslar', IC.arkadas, t('Arkadaşlarım'), n ? `<i class="uy-satir-sayi">${n}</i>` : ''))(bekleyenSayi())}
+      ${satir('uy-engeller', IC.sil, t('Engellediklerim'))}
       ${satir('uy-durumgizle', IC.nokta, t('Çevrimiçi durumumu göster'), `<span class="uy-anahtar ${p.durumGizli ? '' : 'acik'}" role="switch" aria-checked="${p.durumGizli ? 'false' : 'true'}"><i></i></span>`)}
       ${satir('uy-yedekle', IC.bulut, t('Bulut yedeği'), zaman)}
       ${satir('uy-buluttanal', IC.geri, t('Buluttaki yedeği bu cihaza yükle'))}
@@ -609,6 +610,15 @@ async function tikla(e) {
       const y = await formSor(t('Lakap'), IC.lakap, [{ ad: 'lakap', etiket: t('Lakabın'), deger: (H.uye().profil || {}).lakap || '', max: 16 }], t('Profesyonel dartçılar gibi sahne adın; en çok 16 karakter. Boş bırakırsan kaldırılır.'));
       if (!y) break; const l = y.lakap.trim().replace(/\s+/g, ' ');
       await is(() => H.profilKaydet({ lakap: l || null }), t('Kaydedildi')); break;
+    }
+    case 'uy-engeller': {
+      const liste = await engellenenler().catch(() => []);
+      if (!liste.length) { C.bilgi(t('Engellediklerim'), t('Engellediğin kimse yok.')); break; }
+      const v = await listeSec({ baslik: t('Engellediklerim'), ikon: IC.sil, ogeler: liste.map(e => ({ deger: e.edilen, ad: e.ad || '—' })), secili: '', kaldir: false });
+      if (!v) break;
+      const kisi = liste.find(e => e.edilen === v);
+      if (!(await C.onayla({ baslik: t('{0} için engel kaldırılsın mı?', (kisi && kisi.ad) || ''), metin: t('Sana yeniden arkadaşlık isteği gönderebilir.'), evet: t('Engeli kaldır') }))) break;
+      await is(() => engelKaldir(v), t('Engel kaldırıldı')); break;
     }
     case 'uy-arkadaslar': C.go('online'); break; // Demir 11.11: Hesabım'dan arkadaş listesine kısayol
     case 'uy-telefon': {
