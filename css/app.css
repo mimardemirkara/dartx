@@ -3132,3 +3132,14 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .kam-oneri.deneme .kam-deneme-yazi { display: inline; }
 .kam-oneri.deneme .btn, .kam-oneri.deneme .kam-gitti { display: none !important; }
 .kam-oneri.deneme .kam-oneri-puan { font-size: 20px; min-width: 0; }
+/* Kriket başlığı (Demir 11.11 "rakamlar kayıyor"): isim + puan tek satırda SABİT; uzun isim … ile kısalır, puan alta inmez */
+.ctable th .cn-ad { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 699px) and (max-height: 940px), (min-width: 700px) and (max-height: 700px) {
+  .play .board.cricket.orta-sayi .ctable th { white-space: nowrap; }
+  .play .board.cricket.orta-sayi .ctable th .cn { max-width: calc(100% - 3.4em); min-width: 0; overflow: hidden; }
+}
+@media (max-width: 699px) and (max-height: 940px), (min-width: 700px) and (max-height: 700px) {
+  .play .board.cricket.orta-sayi .ctable th .cn { max-width: calc(100% - 60px); gap: 5px; }
+  .play .board.cricket.orta-sayi .ctable th .cn .ad-av { width: 28px; height: 28px; }
+  .play .board.cricket.orta-sayi .ctable th .cp { margin-left: 8px; }
+}

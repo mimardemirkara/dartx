@@ -12,10 +12,11 @@ const TR = { house: 'Haus', triple: 'Tripıl', double: 'Dabıl', bull: 'Bul', db
 const EN = { house: 'House', triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next up,' };
 const S = () => (dil() === 'en' ? EN : TR);
 
-export const acikMi = () => data().settings.sesliOkuma === true && data().settings.sessiz !== true;
+export const acikMi = () => dil() !== 'en' && data().settings.sesliOkuma === true && data().settings.sessiz !== true;
 const ttsVar = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 const sesVar = () => typeof window !== 'undefined' && !!(window.AudioContext || window.webkitAudioContext);
-export const destekli = () => ttsVar() || sesVar();
+// Demir 11.11: İngilizce seçiliyken sesli okuma yok (spiker kayıtları Türkçe) — düğmeler, menü ve ayar gizlenir
+export const destekli = () => dil() !== 'en' && (ttsVar() || sesVar());
 
 // ---- spiker kayıtları (Web Audio): ilk açılışta indirilip çözülür, sonra anında çalar
 const KAYIT = 'ses/spiker/';
