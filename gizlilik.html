@@ -20,7 +20,10 @@
     section { background: rgb(26 21 16 / .82); border: 1px solid rgb(240 207 134 / .22); border-radius: 22px; padding: 20px 22px; margin-bottom: 22px; }
     a { color: var(--altin); }
     nav { text-align: center; margin-bottom: 18px; } nav a { margin: 0 8px; }
+    /* uygulama içinde (?app=1): üst logo ve gezinti gizli, zemin saydam */
+    :root.app { background: transparent; color-scheme: dark; } .app body { background: transparent; } .app section { background: rgb(26 21 16 / .55); } .app header, .app nav { display: none; } .app main { padding-top: 8px; }
   </style>
+  <script>if (/[?&]app=1/.test(location.search)) document.documentElement.className = 'app';</script>
 </head>
 <body>
 <main>
@@ -43,8 +46,8 @@
     <p>Bu veriler sunucularımıza gönderilmez. Uygulamayı silerseniz ya da cihaz verilerini temizlerseniz silinir. Ayarlar → Yedek al ile kendi yedeğinizi alabilirsiniz.</p>
     <h2>Kamera (isteğe bağlı)</h2>
     <p>Kamera özelliğini açarsanız görüntü, oku tanımak için <b>yalnızca cihazınızda</b> işlenir; kaydedilmez ve hiçbir yere gönderilmez. Tablet–telefon eşleştirmesinde yalnızca atış sonucu (ör. "T20") aynı yerel ağdaki iki cihazınız arasında doğrudan iletilir.</p>
-    <h2>Konum ve hava durumu (isteğe bağlı)</h2>
-    <p>Ana ekrandaki hava durumu için izin verirseniz yaklaşık konumunuz (şehir düzeyinde, yuvarlanmış koordinat) hava bilgisi almak üzere <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> ve şehir adı için <a href="https://www.bigdatacloud.com" target="_blank" rel="noopener">BigDataCloud</a> hizmetlerine gönderilir. Konum bizde saklanmaz. İzin vermezseniz hava durumu gösterilmez, uygulamanın geri kalanı aynen çalışır.</p>
+    <h2>Konum ve internet</h2>
+    <p>DartX konumunuzu kullanmaz ve hiçbir veriyi internete göndermez. İlk açılıştan sonra tamamen internetsiz çalışır.</p>
     <h2>Çocuklar</h2>
     <p>DartX çocuklardan bilerek kişisel veri toplamaz.</p>
     <h2>İletişim</h2>
@@ -63,8 +66,8 @@
     <p>This data is not sent to our servers. It is deleted if you delete the app or clear its data. You can make your own backup in Settings → Back up.</p>
     <h2>Camera (optional)</h2>
     <p>If you turn on the camera feature, the image is processed <b>only on your device</b> to recognise darts; it is not recorded or sent anywhere. When pairing a tablet and a phone, only the throw result (e.g. "T20") is sent directly between your two devices on the same local network.</p>
-    <h2>Location and weather (optional)</h2>
-    <p>If you allow it for the home-screen weather, your approximate location (city level, rounded coordinates) is sent to <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> for the weather and to <a href="https://www.bigdatacloud.com" target="_blank" rel="noopener">BigDataCloud</a> for the city name. We do not store your location. If you decline, the weather is simply not shown and the rest of the app works the same.</p>
+    <h2>Location and internet</h2>
+    <p>DartX does not use your location and sends no data over the internet. After the first launch it works completely offline.</p>
     <h2>Children</h2>
     <p>DartX does not knowingly collect personal data from children.</p>
     <h2>Contact</h2>

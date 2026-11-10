@@ -19,13 +19,13 @@ export function acilirKapat() {
  * capa: menünün altında açılacağı öğe. liste(): [{ v, l, on, renk? }] (her açılışta ve her seçimde yeniden okunur).
  * sec(v): seçilince. coklu: true → menü açık kalır, işaretler değişir (oyuncu seçimi).
  */
-export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', ara = false, bos = '', araYazi = 'Ara…', sonucYok = 'Sonuç yok', en = 280 } = {}) {
+export function acilirAc(capa, liste, sec, { coklu = false, baslik = '', baslikIc = '', ara = false, bos = '', araYazi = 'Ara…', sonucYok = 'Sonuç yok', en = 280 } = {}) {
   acilirKapat();
   const el = document.createElement('div');
   el.className = 'acilir dx-acilir';
   el.setAttribute('role', 'listbox');
   // demirkara.com SelectMenu gibi: uzun listede en üstte arama kutusu (yazdıkça süzer); liste kutusu ayrı kayar
-  el.innerHTML = (baslik ? `<div class="ac-baslik">${esc(baslik)}</div>` : '')
+  el.innerHTML = (baslik ? `<div class="ac-baslik">${baslikIc ? `<span class="ac-baslik-ic">${baslikIc}</span>` : ''}${esc(baslik)}</div>` : '')
     + (ara ? `<div class="ac-ara"><input type="search" placeholder="${esc(araYazi)}" autocomplete="off" enterkeyhint="search"></div>` : '')
     + '<div class="ac-liste"></div>';
   const kutu = el.querySelector('.ac-liste'), giris = el.querySelector('.ac-ara input');

@@ -221,8 +221,7 @@ const IC = {
   ara: LUCIDE('<path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/>', 15),
   kitap: LUCIDE('<path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/>', 16),
 };
-// ---------- hava durumu (Demir 08.11 geri istedi): telefonun konumu (izin) + Open-Meteo (ücretsiz, anahtarsız);
-// şehir adı BigDataCloud (ücretsiz). Yarım saatte bir yenilenir, önbellekte durur; izin yoksa / internetsizse gizli.
+// ---------- hava durumu: 11.11'de kaldırıldı (konum yok, ağ isteği yok); simge tablosu yalnız eski çağrılar için
 const HV = (d) => LUCIDE(d, 15, 2);
 const HAVA_IC = {
   gunes: HV('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'),
@@ -235,40 +234,15 @@ const HAVA_IC = {
 const havaSimge = k => HAVA_IC[k === 0 ? 'gunes' : k <= 3 ? 'parcali' : k <= 48 ? 'sis' : k <= 67 || (k >= 80 && k <= 82) ? 'yagmur' : k <= 77 || k === 85 || k === 86 ? 'kar' : 'firtina'];
 let hava = null;
 const HAVA_ANAHTAR = 'dartx.hava';
-function konumAl() {
-  return new Promise((coz, red) => {
-    try {
-      const c = JSON.parse(localStorage.getItem('dartx.konum') || 'null');
-      if (c && Date.now() - c.t < 6 * 3600e3) return coz(c);
-    } catch (e) { /* yoksay */ }
-    if (!navigator.geolocation) return red(new Error('konum yok'));
-    navigator.geolocation.getCurrentPosition(p => {
-      const c = { lat: +p.coords.latitude.toFixed(3), lon: +p.coords.longitude.toFixed(3), t: Date.now() };
-      localStorage.setItem('dartx.konum', JSON.stringify(c)); coz(c);
-    }, red, { enableHighAccuracy: false, timeout: 15000, maximumAge: 6 * 3600e3 });
-  });
-}
-async function havaGetir(zorla = false) {
-  try {
-    const c = JSON.parse(localStorage.getItem(HAVA_ANAHTAR) || 'null');
-    if (c && c.h) { hava = c.h; if (!zorla && Date.now() - c.t < 30 * 60000 && c.dil === dil()) { havaCiz(); return; } }
-    const k = await konumAl();
-    const [r, sh] = await Promise.all([
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${k.lat}&longitude=${k.lon}&current=temperature_2m,weather_code&timezone=auto`).then(x => x.json()),
-      fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${k.lat}&longitude=${k.lon}&localityLanguage=${dil()}`).then(x => x.json()).catch(() => null),
-    ]);
-    hava = { s: Math.round(r.current.temperature_2m), k: r.current.weather_code, sehir: sh ? (sh.city || sh.locality || sh.principalSubdivision || '') : '' };
-    localStorage.setItem(HAVA_ANAHTAR, JSON.stringify({ t: Date.now(), h: hava, dil: dil() }));
-    havaCiz();
-  } catch (e) { /* izin yok / internetsiz: önbellektekini göster ya da gizli kal */ havaCiz(); }
-}
+// Demir 11.11: hava durumu ve konum kaldırıldı — uygulama hiçbir veriyi dışarı göndermez ("Veri toplanmıyor").
+// Daha önce saklanan konum / hava kayıtları bir kez silinir.
+function havaGetir() { try { localStorage.removeItem('dartx.konum'); localStorage.removeItem(HAVA_ANAHTAR); } catch (e) { /* yok say */ } }
 function havaYaz(sehirli) {
   if (!hava) return '';
   return `${havaSimge(hava.k)}<span>${hava.s}°</span>${sehirli && hava.sehir ? `<small>${esc(hava.sehir)}</small>` : ''}`;
 }
 // Tüm ekranı yeniden çizmeden yalnız hava alanlarını güncelle
 function havaCiz() { document.querySelectorAll('[data-hava]').forEach(e => { e.innerHTML = havaYaz(e.dataset.hava === 'uzun'); e.hidden = !hava; }); }
-setInterval(() => havaGetir(), 30 * 60000);
 const saatYaz = () => {
   const d = new Date();
   return {
@@ -460,6 +434,7 @@ function render() {
   else if (v === 'kamera') html = viewKamera();
   else if (v === 'about') html = viewAbout();
   else if (v === 'yardim') html = viewYardim();
+  else if (v === 'gizlilik') html = `<main class="page gizlilik-sayfa">${header(t('Gizlilik politikası'), 'yardimgeri')}<iframe class="gz-cerceve" src="gizlilik.html?app=1#${dil() === 'en' ? 'en' : 'tr'}" title="${t('Gizlilik politikası')}"></iframe></main>`; // Demir 11.11: uygulama içinde açılır
   else if (v === 'online') html = viewOnline();
   else if (v === 'nasil') html = nasilListe(header(t('Nasıl Oynanır')));
   else if (v === 'nasiloyna') html = nasilSahne(S.nasilId, header(S.nasilId === 'tarih' ? t('Dartın Tarihi') : esc(gt(GAMES[S.nasilId], 'name')), 'nasilliste'));
@@ -518,7 +493,7 @@ function tabbar() {
 function header(title, back) {
   // Ana ekranda logo. Alt sayfalarda: solda geri, ortada küçük simge + başlık (Demir 08.11: simge başlığın başında, üst taraf sade)
   if (!title) return '<header class="top"><button class="logo-dugme" data-act="home" aria-label="DartX"><img class="logo" src="img/logo-dartx.webp" alt="DartX"></button></header>';
-  const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), yardim: ikon('yardim'), online: ikon('grp-online'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
+  const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), yardim: ikon('yardim'), gizlilik: ikon('yardim'), online: ikon('grp-online'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
   return `<header class="kurulum-ust">
       <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1>${S.view === 'kamera' ? `<span class="kam-kart-ic kam-baslik-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span>` : simge ? `<span class="app-ico simge">${simge}</span>` : ''}<span class="b-ad">${title}</span></h1>
@@ -1011,7 +986,7 @@ app.addEventListener('pointerdown', e => {
   clearTimeout(svT);
   svT = setTimeout(() => {
     svUzun = true; vib(20); ses.tus();
-    acilirAc(b, () => SEVIYELER.map(([v, l]) => ({ v, l: t(l), on: okuma.seviye() === v, ic: OKUMA_IC })), v => seviyeKoy(v), { baslik: t('Konuşma'), en: 250 });
+    acilirAc(b, () => SEVIYELER.map(([v, l]) => ({ v, l: t(l), on: okuma.seviye() === v, ic: OKUMA_IC })), v => seviyeKoy(v), { baslik: t('Konuşma'), baslikIc: OKUMA_IC, en: 250 });
   }, 500);
 });
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(svT)));
@@ -1390,7 +1365,7 @@ function viewYardim() {
       <button class="btn sm" data-act="tab" data-v="kamera">${AY.kamera}<span>${t('Kamerayı aç')}</span></button>`),
     konu(AY.veri, t('İstatistik ve yedek'), `<p>${t('Her oyuncunun maçları, ortalamaları ve rekorları İstatistik’te gün gün durur. Veriler yalnız bu cihazda; telefon değiştirirken Ayarlar → Yedek al / Yedeği yükle kullan.')}</p>`),
     konu(AY.bilgi, t('Sık sorulanlar'), `<dl class="yd-sss">
-      <dt>${t('İnternet gerekir mi?')}</dt><dd>${t('Hayır. İlk açılıştan sonra internetsiz çalışır; yalnız hava durumu internet kullanır.')}</dd>
+      <dt>${t('İnternet gerekir mi?')}</dt><dd>${t('Hayır. İlk açılıştan sonra tamamen internetsiz çalışır.')}</dd>
       <dt>${t('Yanlış atış girdim, ne yapayım?')}</dt><dd>${t('Atışı Geri Al’a bas. Daha eskiye gitmek için basılı tut ve listeden seç.')}</dd>
       <dt>${t('Maçı yarıda bırakırsam?')}</dt><dd>${t('Kaydedilir. Ana ekrandaki Yarım Maçlar’dan devam edersin.')}</dd>
       <dt>${t('Oyuncuyu sildim, istatistikleri gitti mi?')}</dt><dd>${t('Hayır. Aynı adla yeniden eklersen maçları ve istatistikleri geri gelir.')}</dd></dl>`),
@@ -1403,7 +1378,7 @@ function viewYardim() {
         ${kart(AY.bilgi, t('Oyunlar'), satir('data-act="tab" data-v="nasil"', AY.etiket, t('Nasıl Oynanır'), t('Her oyunun kuralları, canlı gösterimle')))}
         ${kart(AY.destek, t('Destek'), satir('data-act="hatabildir"', AY.destek, t('Hata bildir'), hataSayisi() ? t('{0} kayıtlı hata e-postaya eklenir', hataSayisi()) : t('Sorunu yaz, e-postayla bize gönder'))
           + `<a class="ay-satir tikla" href="mailto:dartx@demirkara.com?subject=DartX">${ikonKutu(AY.kure)}<span class="ay-ad">${t('Bize yaz')}<small>dartx@demirkara.com</small></span><span class="ay-ok">${AY.ok}</span></a>`
-          + `<a class="ay-satir tikla" href="gizlilik.html" target="_blank" rel="noopener">${ikonKutu(AY.kalkan)}<span class="ay-ad">${t('Gizlilik politikası')}</span><span class="ay-ok">${AY.ok}</span></a>`)}
+          + satir('data-act="tab" data-v="gizlilik"', AY.kalkan, t('Gizlilik politikası'), ''))}
         ${kart(AY.bilgi, t('Uygulama'), satir('data-act="tab" data-v="about"', AY.bilgi, t('Hakkında'), SURUM))}
       </div>
     </div>
@@ -1989,7 +1964,7 @@ app.addEventListener('click', e => {
         document.querySelectorAll('.mc-ses').forEach(b => { b.classList.toggle('kapali', !!st.sessiz); b.innerHTML = st.sessiz ? SESSIZ_IC : SESLI_IC; });
         const ok = okuma.acikMi();
         document.querySelectorAll('.pt-ses').forEach(b => { b.classList.toggle('acik', ok); b.innerHTML = ok ? OKUMA_IC : OKUMA_KAPALI_IC; });
-      }, { coklu: true, baslik: t('Sesler'), en: 250 }); // Demir 10.11: "Konuşma: Normal" sığsın
+      }, { coklu: true, baslik: t('Sesler'), baslikIc: SESLI_IC, en: 250 }); // Demir 10.11: "Konuşma: Normal" sığsın
       break;
     }
     case 'sesliokuma': {
@@ -2094,6 +2069,7 @@ app.addEventListener('click', e => {
 
     case 'export': exportBackup(); break;
     case 'hatabildir': hataPencere(); break;
+    case 'yardimgeri': go('yardim'); break;
     case 'kamsayfa': kam.yerelKapat(); go('kamera'); break;
     case 'kamgeri': { // oyundan gelindiyse oyuna döner; tahta ayarlandıysa kamera kendiliğinden açılır
       const don = S.kamDonus === 'play' && data().current ? 'play' : 'home';
@@ -2112,8 +2088,10 @@ app.addEventListener('click', e => {
       break;
     }
     case 'reset':
-      onayla({ baslik: t('Tüm veriler silinsin mi?'), metin: t('TÜM oyuncular ve maçlar silinecek. Bu işlem geri alınamaz.'), evet: t('Tümünü sil'), tehlike: true })
-        .then(ok => { if (ok) { store.resetAll(); go('home'); } });
+      // Demir 11.11: iki aşamalı onay — önce uyarı (yedek önerisi), sonra son onay
+      onayla({ baslik: t('Tüm veriler silinsin mi?'), metin: t('TÜM oyuncular, maçlar ve istatistikler silinecek. Bu işlem geri alınamaz. Önce Yedek al ile yedeklemeni öneririz.'), evet: t('Devam et'), tehlike: true })
+        .then(ok => ok && onayla({ baslik: t('Son onay'), metin: t('{0} oyuncu ve {1} maç kalıcı olarak silinecek.', data().players.length, data().history.length), evet: t('Tümünü sil'), tehlike: true }))
+        .then(ok => { if (ok) { store.resetAll(); go('home'); toast(t('Tüm veriler silindi'), '', { tur: { ic: 'carpi', a: 'a-dus', k: 'bad' } }); } });
       break;
   }
 });
@@ -2271,7 +2249,7 @@ acilisGoster(data().settings.acilis !== false); // demirkara.com açılışı: y
 document.documentElement.lang = dil();
 if (data().current && data().current.done) { store.finishCurrent(); }
 render();
-havaGetir(); // hava durumu (Demir 08.11 geri istedi)
+havaGetir(); // eski hava/konum kayıtlarını temizler (hava durumu 11.11'de kaldırıldı)
 
 // Geliştirirken (localhost) önbellek kapalı; yayında açık
 const isDev = ['localhost', '127.0.0.1'].includes(location.hostname);

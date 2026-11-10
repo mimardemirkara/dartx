@@ -3265,3 +3265,15 @@ a.ay-satir { color: inherit; text-decoration: none; }
 :root .page.ayarlar.yardim { max-width: 1100px; }
 :root .yardim .yd-duzen { width: 100%; box-sizing: border-box; }
 :root .page.ayarlar.yardim { column-count: auto; columns: auto; } /* Ayarlar sayfasının iki sütunlu düzeni Yardım'a uygulanmasın */
+/* Gizlilik politikası uygulama içinde (Demir 11.11) */
+.gizlilik-sayfa { max-width: 860px; display: flex; flex-direction: column; min-height: calc(100dvh - var(--safe-t, 0px) - 60px); padding-bottom: calc(16px + var(--safe-b)); }
+.gz-cerceve { flex: 1; width: 100%; min-height: 70dvh; border: 0; border-radius: 22px; background: transparent; color-scheme: dark; }
+/* Tehlikeli onay: kırmızı cam çöp kutusu simgesi, hafif sallanır (Demir 11.11) */
+.onay-ic { width: 60px; height: 60px; margin: 0 auto 10px; border-radius: 18px; display: grid; place-items: center; }
+.onay-ic svg { width: 30px; height: 30px; }
+.tehlike-ic { color: #ff7a6b; background: rgb(233 75 60 / .16); border: 1px solid rgb(233 75 60 / .5); box-shadow: 0 8px 24px -10px rgb(233 75 60 / .6); animation: onaySal .6s ease-out .15s; }
+@keyframes onaySal { 20% { transform: rotate(-9deg); } 45% { transform: rotate(7deg); } 70% { transform: rotate(-4deg); } 100% { transform: rotate(0); } }
+/* Açılır menü başlığında simge (Demir 11.11: Sesler) */
+.ac-baslik { display: flex; align-items: center; gap: 8px; }
+.ac-baslik-ic { display: inline-grid; place-items: center; width: 18px; height: 18px; color: var(--brand); }
+.ac-baslik-ic svg { width: 18px; height: 18px; }
