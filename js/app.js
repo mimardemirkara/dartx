@@ -336,20 +336,32 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 // Safari'de iPhone/iPad'in kendi kenar kaydırması, Android'de geri tuşu/hareketi çalışır; ana ekrana eklenmiş
 // uygulamada (iOS orada hareket vermez) kenar-kaydir.js aynı işi simgesiz yapar. Oyun içi geçişler (kurulum → oyun → bitiş) yeni kayıt açmaz.
 const OYUN_ICI = new Set(['setup', 'play', 'end']);
-let gIdx = 0, gMax = 0, gecmisAtla = false;
+let gIdx = 0, gMax = 0, gEski = 0, gecmisAtla = false;
 function gecmisYaz(view) {
   const st = { v: view, n: S.nasilId || null, i: gIdx };
   const eski = history.state && history.state.v;
   if (!eski || eski === view || (OYUN_ICI.has(eski) && OYUN_ICI.has(view))) { history.replaceState(st, ''); return; }
-  gIdx++; gMax = gIdx; st.i = gIdx; history.pushState(st, '');
+  gIdx++; gMax = gIdx; gEski = gIdx; st.i = gIdx; history.pushState(st, '');
+}
+// Ekran geçişi kayarak (Demir 11.11: fareyle Geri / oklara basınca da "kaydırmış gibi" — ekran değiştiği anlaşılsın).
+// Geri: yeni sayfa soldan gelir; ileri / yeni ekran: sağdan. Parmakla kaydırmada sayfa zaten kaydığı için atlanır.
+let gecisYon = 0, parmakGecis = false;
+function gecisOynat() {
+  const yon = gecisYon; gecisYon = 0;
+  if (!yon || parmakGecis) { parmakGecis = false; return; }
+  const el = app.querySelector('main.page, .play'); if (!el || !el.animate) return;
+  el.animate([{ transform: `translateX(${yon * 28}%)`, opacity: .35 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 280, easing: 'cubic-bezier(.2,.8,.3,1)' });
 }
 function go(view, extra = {}) {
   const yaz = !gecmisAtla; gecmisAtla = false;
+  const onceki = S.view;
   Object.assign(S, { view, modal: null }, extra);
   if (yaz) gecmisYaz(view);
+  if (yaz && view !== onceki && !gecisYon) gecisYon = 1; // yeni ekran: sağdan
   keepAwake(view === 'play');
   render();
   window.scrollTo(0, 0);
+  gecisOynat();
 }
 
 const matchCtx = m => ({
@@ -2114,6 +2126,7 @@ addEventListener('popstate', e => {
   if (v === 'play' && !data().current) v = 'home';
   if (v === 'end' && !S.lastMatch) v = 'home';
   gecmisAtla = true; S.modal = null;
+  gecisYon = (st.i || 0) < gEski ? -1 : 1; gEski = st.i || 0; // geri: soldan, ileri: sağdan
   go(v, v === 'nasiloyna' && st.n ? { nasilId: st.n } : {});
 });
 // Ekrandaki Geri tuşu da geçmişte geri gider (sonra sağ kenardan ileri dönülebilsin)
@@ -2127,8 +2140,8 @@ const tekBasina = matchMedia('(display-mode: standalone)').matches || navigator.
 if (tekBasina) kenarKaydirKur({
   geriVar: () => !S.modal && S.view !== 'play' && gIdx > 0,
   ileriVar: () => !S.modal && S.view !== 'play' && gIdx < gMax,
-  geri: () => history.back(),
-  ileri: () => history.forward(),
+  geri: () => { parmakGecis = true; history.back(); },
+  ileri: () => { parmakGecis = true; history.forward(); },
   sayfa: () => app.querySelector('main.page, .page') || app.lastElementChild,
   engel: el => !!(el.closest && el.closest('.kam-tuval, input, textarea, select, .modal-bg, .kam-perde, .dx-acilir, .spot-perde')) || !!document.querySelector('.kam-perde, .modal-bg'),
 });
