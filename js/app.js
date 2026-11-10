@@ -502,7 +502,8 @@ function tabbar() {
 
 function header(title, back) {
   // Ana ekranda logo. Alt sayfalarda: solda geri, ortada küçük simge + başlık (Demir 08.11: simge başlığın başında, üst taraf sade)
-  if (!title) return '<header class="top"><button class="logo-dugme" data-act="home" aria-label="DartX"><img class="logo" src="img/logo-dartx.webp" alt="DartX"></button></header>';
+  // Demir 11.11: ana sayfadaki büyük logoya basınca Hakkında açılır
+  if (!title) return `<header class="top"><button class="logo-dugme" data-act="tab" data-v="about" aria-label="${t('Hakkında')}"><img class="logo" src="img/logo-dartx.webp" alt="DartX"></button></header>`;
   const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), yardim: ikon('yardim'), gizlilik: ikon('yardim'), online: ikon('grp-online'), uye: ikon('hesap'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
   return `<header class="kurulum-ust">
       <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
@@ -1449,7 +1450,7 @@ function viewAbout() {
       <p><b>© ${yil} DK Design Consulting Technology LLC. ${t('Tüm hakları saklıdır.')}</b></p>
       <p>${t('DartX adı, logosu, tasarımı ve yazılımı ABD\'deki şirketim DK Design Consulting Technology LLC\'ye (Albuquerque, New Mexico) aittir; geliştirici Demir Kara\'dır. Uygulama kişisel kullanım için ücretsizdir; izinsiz kopyalanması, değiştirilerek dağıtılması veya satılması yasaktır.')}</p></div>
       <button class="ay-satir tikla" data-act="telif">${ikonKutu(AY.tokmak)}<span class="ay-ad">${t('Telif Hakları')}</span><span class="ay-ok">${AY.ok}</span></button>`)}
-    <p class="ay-surum"><img src="img/logo-x.webp" alt=""> DartX ${SURUM} · © ${yil} DK Design Consulting Technology LLC</p>
+    <p class="ay-surum"><img class="ay-surum-logo" src="img/logo-dartx.webp" alt="DartX"> ${SURUM} · © ${yil} DK Design Consulting Technology LLC</p>
   </main>`;
 }
 
@@ -1485,7 +1486,7 @@ function viewOnline() {
       ${oz(ON.duyuru, 'Duyurular', 'Turnuva tarihleri, kulüp akşamları ve haberler.')}
       ${oz(ON.sira, 'Sıralamalar', 'Ortalama, checkout ve 180\'lerle genel sıralama.')}
       ${oz(ON.sponsor, 'Sponsorlar', 'Dart kulüpleri ve ekipman markalarıyla iş birlikleri.')}`)}
-    <p class="ay-surum"><img src="img/logo-x.webp" alt=""> DartX ${SURUM}</p>
+    <button type="button" class="ay-surum ay-surum-dugme" data-act="tab" data-v="about" aria-label="${t('Hakkında')}"><img class="ay-surum-logo" src="img/logo-dartx.webp" alt="DartX"> ${SURUM}</button>
   </main>`;
 }
 
@@ -1516,7 +1517,7 @@ function viewSettings() {
     ${kart(AY.veri, t('Veri'), `
       ${satir(AY.veri, t('Kayıtlı'), `<span class="ay-deger">${t('{0} oyuncu · {1} maç', data().players.length, data().history.length)}</span>`)}
       <button class="ay-satir tikla tehlike" data-act="reset">${ikonKutu(AY.sil)}<span class="ay-ad">${t('Tüm verileri sil')}</span></button>`)}
-    <p class="ay-surum"><img src="img/logo-x.webp" alt=""> DartX ${SURUM}</p>
+    <button type="button" class="ay-surum ay-surum-dugme" data-act="tab" data-v="about" aria-label="${t('Hakkında')}"><img class="ay-surum-logo" src="img/logo-dartx.webp" alt="DartX"> ${SURUM}</button>
   </main>`;
 }
 

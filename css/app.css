@@ -3910,3 +3910,8 @@ a.ay-satir { color: inherit; text-decoration: none; }
 @media (min-width: 700px) and (min-height: 700px) {
   .home .apps.ana { margin-top: clamp(12px, 4vh, 40px) !important; row-gap: clamp(21px, 5.5vh, 52px) !important; }
 }
+/* Sürüm satırında DartX'in kendi logosu (Demir 11.11) */
+.ay-surum img.ay-surum-logo { height: 22px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
+/* Sürüm satırı düğme: basınca Hakkında (Demir 11.11) */
+.ay-surum-dugme { width: 100%; background: none; border: 0; font: inherit; cursor: pointer; }
+.ay-surum-dugme:hover { color: var(--fg); }
