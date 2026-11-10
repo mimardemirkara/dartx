@@ -281,8 +281,7 @@ function topbar() {
       <span class="mc-durum-tarih" data-saat="tarih">${s.tarih}</span>
       <span class="mc-hava mc-hava-kisa" data-hava="kisa" ${hava ? '' : 'hidden'}>${havaYaz(false)}</span>
       <button class="mc-dugme dk" data-act="home" aria-label="DartX"><img src="img/logo-x.webp" alt=""></button>
-      <b class="mc-uygulama">${esc(aktif)}</b>
-      <span class="mc-menuler">${menu}</span>
+      <!-- Demir 11.11: tablette sayfa adı ve Oyunlar/Oyuncular/İstatistik/Ayarlar menüleri kaldırıldı (gerek yok, sade çubuk) -->
     </div>
     <div class="mc-sag">
       <button class="mc-dugme mc-ses ${data().settings.sessiz ? 'kapali' : ''}" data-act="sesmenu" aria-label="${t('Sesler')}" title="${t('Sesler')}">${data().settings.sessiz ? SESSIZ_IC : SESLI_IC}</button>
@@ -1428,7 +1427,7 @@ function viewAbout() {
   const yil = new Date().getFullYear();
   return `<main class="page ayarlar hakkinda">
     <header class="kurulum-ust">
-      <button class="geri-dugme" data-act="tab" data-v="yardim" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
+      ${(d => d === 'home' || !d ? `<button class="geri-dugme" data-act="home" aria-label="${t('Geri')}">` : `<button class="geri-dugme" data-act="tab" data-v="${d}" aria-label="${t('Geri')}">`)(S.hakkindaDonus === 'about' ? 'yardim' : S.hakkindaDonus)}${GERI_OK}<span>${t('Geri')}</span></button>
       <h1><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="b-ad">${t('Hakkında')}</span></h1>
       <span></span>
     </header>
@@ -1444,7 +1443,9 @@ function viewAbout() {
       ${bilgi(AY.etiket, t('Sürüm'), SURUM)}
       ${bilgi(AY.hediye, t('Fiyat'), t('Ücretsiz'))}
       ${bilgi(AY.sirket, t('Şirket'), 'DK Design Consulting Technology LLC')}
-      <a class="ay-satir tikla" href="https://demirkara.com" target="_blank" rel="noopener">${ikonKutu(AY.kure)}<span class="ay-ad">Web</span><span class="ay-deger ay-link">demirkara.com ${AY.disari}</span></a>
+      <div class="ay-satir hk-web">${ikonKutu(AY.kure)}<span class="ay-ad">Web</span><span class="ay-deger hk-web-linkler">
+        <a class="ay-link" href="https://dartx.net" target="_blank" rel="noopener">dartx.net ${AY.disari}</a>
+        <a class="ay-link" href="https://demirkara.com" target="_blank" rel="noopener">demirkara.com ${AY.disari}</a></span></div>
       <a class="ay-satir tikla" href="https://www.instagram.com/mimardemirkara/" target="_blank" rel="noopener">${ikonKutu(AY.insta)}<span class="ay-ad">Instagram</span><span class="ay-deger ay-link">@mimardemirkara ${AY.disari}</span></a>`)}
     ${kart(AY.tokmak, t('Telif'), `<div class="hk-metin hk-telif tikla" data-act="telif" role="button">
       <p><b>© ${yil} DK Design Consulting Technology LLC. ${t('Tüm hakları saklıdır.')}</b></p>
@@ -1517,6 +1518,7 @@ function viewSettings() {
     ${kart(AY.veri, t('Veri'), `
       ${satir(AY.veri, t('Kayıtlı'), `<span class="ay-deger">${t('{0} oyuncu · {1} maç', data().players.length, data().history.length)}</span>`)}
       <button class="ay-satir tikla tehlike" data-act="reset">${ikonKutu(AY.sil)}<span class="ay-ad">${t('Tüm verileri sil')}</span></button>`)}
+    ${kart(AY.bilgi, t('Uygulama'), `<button class="ay-satir tikla" data-act="tab" data-v="about">${ikonKutu(AY.bilgi)}<span class="ay-ad">${t('Hakkında')}</span><span class="ay-deger">${SURUM}</span><span class="ay-ok">${AY.ok}</span></button>`)}
     <button type="button" class="ay-surum ay-surum-dugme" data-act="tab" data-v="about" aria-label="${t('Hakkında')}"><img class="ay-surum-logo" src="img/logo-dartx.webp" alt="DartX"> ${SURUM}</button>
   </main>`;
 }
@@ -1803,7 +1805,7 @@ app.addEventListener('click', e => {
   if ((act === 'undo' || act === 'gerilist') && m && m.online && !onlineGeriAl(m)) { vib(6); toast(t('Yalnız kendi atışını geri alabilirsin'), 'bad'); return; }
 
   switch (act) {
-    case 'tab': go(el.dataset.v); break;
+    case 'tab': if (el.dataset.v === 'about' && S.view !== 'about') S.hakkindaDonus = S.view; go(el.dataset.v); break;
     case 'nasilliste': go('nasil'); break;
     case 'nasiloyna': go('nasiloyna', { nasilId: el.dataset.id }); break;
     case 'nsoynat': case 'nsgeri': case 'nsileri': case 'nsadim': case 'nsses': nasilKontrol(el.dataset.act, el); vib(6); break;

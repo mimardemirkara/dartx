@@ -40,6 +40,7 @@ export function uyelikKur(ctx) {
     hedefUc: L('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', 17),
     govde: L('<path d="M5 19 19 5"/><path d="m8 16 2 2"/><path d="m14 10 2 2"/>', 17),
     kanat: L('<path d="M12 2 4 10l8 4 8-4Z"/><path d="M12 14v8"/>', 17),
+    bilgi: L('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', 17),
     kure: L('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>', 17),
     ara: L('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>', 17),
     konum: L('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>', 17),
@@ -483,7 +484,7 @@ function menuAc(dugme) {
   let ic;
   if (!H.girisli()) {
     ic = `<div class="uy-m-bas">${avatarIc('uy-m-av')}<div><b>${t('Misafir')}</b><small>${t('Veriler yalnız bu cihazda')}</small></div></div><span class="cizgi"></span>
-      ${satir('uy-m-giris', IC.giris, t('Giriş yap'))}${satir('uy-m-uyeol', IC.uyeol, t('Üye ol'))}`;
+      ${satir('uy-m-giris', IC.giris, t('Giriş yap'))}${satir('uy-m-uyeol', IC.uyeol, t('Üye ol'))}<span class="cizgi"></span>${satir('uy-m-hakkinda', IC.bilgi, t('Hakkında'))}`;
   } else {
     const n = bekleyenSayi();
     const zaman = data().bulutZaman ? new Date(data().bulutZaman).toLocaleTimeString(document.documentElement.lang || 'tr', { hour: '2-digit', minute: '2-digit' }) : t('Henüz yok');
@@ -492,6 +493,7 @@ function menuAc(dugme) {
       ${satir('uy-ac', IC.kisi, t('Profilim'))}
       ${satir('uy-m-online', IC.arkadas, t('Arkadaşlar ve online maçlar'), n ? `<i class="uy-m-sayi">${n}</i>` : '')}
       ${satir('uy-yedekle', IC.bulut, t('Bulut yedeği'), zaman)}
+      ${satir('uy-m-hakkinda', IC.bilgi, t('Hakkında'))}
       <span class="cizgi"></span>
       ${satir('uy-cikis', IC.cikis, t('Çıkış yap'))}`;
   }
@@ -543,6 +545,7 @@ async function tikla(e) {
     case 'uy-misafir': { const d = !S.uyeIlk && S.uyeDonus && S.uyeDonus !== 'uye' ? S.uyeDonus : 'home'; S.uyeIlk = false; C.go(d); break; }
     case 'uy-menu': menuAc(el); return;
     case 'uy-hakkinda': hakkindaAc(); return;
+    case 'uy-m-hakkinda': if (C.S.view !== 'about') C.S.hakkindaDonus = C.S.view; C.go('about'); return;
     case 'uy-secim': await secimPencere(el); return;
     case 'uy-eylembitir': { const q = new URLSearchParams(location.search); ['eylem', 'kod', 'lang'].forEach(k => q.delete(k)); location.replace(location.pathname + (q.toString() ? '?' + q : '')); return; }
     case 'uy-m-giris': C.go('uye', { uyeDonus: S.view === 'uye' ? S.uyeDonus : S.view, uyeMod: 'giris' }); break;
