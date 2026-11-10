@@ -24,6 +24,7 @@ import { yedekAl, yedekYukle } from './yedek.js';
 import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
 import { acilirAc, acilirKapat, acilirAcik, dokunmatik } from './acilir.js';
 import * as ses from './ses.js';
+import { hataKur, hataKaydet, hataSayisi, raporMetni } from './hata.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
 const app = document.getElementById('app');
@@ -446,7 +447,7 @@ function render() {
     // Güvenlik ağı: kayıtlı maç açılamazsa uygulama donmasın — ana ekrana dön, uygulama içi pencereyle sor
     try { html = viewPlay(); }
     catch (e) {
-      console.error(e); S.view = 'home'; html = viewHome();
+      console.error(e); hataKaydet('ekran', e && e.message, 'viewPlay'); S.view = 'home'; html = viewHome();
       setTimeout(async () => {
         if (await onayla({ baslik: t('Maç açılamadı'), metin: t('Bu maç eski bir sürümde kaydedilmiş ve açılamıyor. Maçı bitirip geçmişe kaydedelim mi?'), evet: t('Maçı bitir'), hayir: t('Vazgeç') })) { store.finishCurrent(); render(); }
       }, 0);
@@ -458,6 +459,7 @@ function render() {
   else if (v === 'settings') html = viewSettings();
   else if (v === 'kamera') html = viewKamera();
   else if (v === 'about') html = viewAbout();
+  else if (v === 'yardim') html = viewYardim();
   else if (v === 'online') html = viewOnline();
   else if (v === 'nasil') html = nasilListe(header(t('Nasıl Oynanır')));
   else if (v === 'nasiloyna') html = nasilSahne(S.nasilId, header(S.nasilId === 'tarih' ? t('Dartın Tarihi') : esc(gt(GAMES[S.nasilId], 'name')), 'nasilliste'));
@@ -516,7 +518,7 @@ function tabbar() {
 function header(title, back) {
   // Ana ekranda logo. Alt sayfalarda: solda geri, ortada küçük simge + başlık (Demir 08.11: simge başlığın başında, üst taraf sade)
   if (!title) return '<header class="top"><button class="logo-dugme" data-act="home" aria-label="DartX"><img class="logo" src="img/logo-dartx.webp" alt="DartX"></button></header>';
-  const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), online: ikon('grp-online'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
+  const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), yardim: ikon('yardim'), online: ikon('grp-online'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
   return `<header class="kurulum-ust">
       <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1>${S.view === 'kamera' ? `<span class="kam-kart-ic kam-baslik-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span>` : simge ? `<span class="app-ico simge">${simge}</span>` : ''}<span class="b-ad">${title}</span></h1>
@@ -590,7 +592,7 @@ function viewHome() {
     + `<button class="app" data-act="tab" data-v="nasil"><span class="app-ico simge">${ikon('nasil')}</span><span class="app-ad">${t('Nasıl Oynanır')}</span></button>`
     + `<button class="app" data-act="tab" data-v="kamera"><span class="app-ico kam-ana"><span class="kam-kart-ic kam-ana-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span><i class="rozet-yakinda rozet-beta">BETA</i></span><span class="app-ad">${t('Kamera')}</span></button>`
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge yakinda">${ikon('grp-online')}<i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Online')}</span></button>`
-    + `<button class="app" data-act="tab" data-v="about"><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="app-ad">${t('Hakkında')}</span></button>`;
+    + `<button class="app" data-act="tab" data-v="yardim"><span class="app-ico simge">${ikon('yardim')}</span><span class="app-ad">${t('Yardım')}</span></button>`;
   // Ara verilmiş diğer maçlar (Demir 10.11): büyük kartın altında küçük satırlar — Devam ve Sil
   // Demir 10.11: iPad ana ekranı gibi — tablette solda analog saat aracı, yanında "Yarım Maçlar" aracı;
   // maçlar aracın içinde sağa-sola kaydırılarak gezilir (alt alta değil). Telefonda saat yok.
@@ -1021,6 +1023,27 @@ function kamDugme(useTotal) {
   if (useTotal) return ''; // ayar yoksa da görünür: basınca kamera ekranı açılır (Demir 10.11)
   return `<button class="icon-btn pt-kam" data-d="${d}" data-act="kamera" aria-label="${t('Kamera')}" title="${t('Kamera')}">${KAM_IC}</button>`;
 }
+// Hata bildir (Demir 11.11): kullanıcı sorunu yazar; cihaz bilgisi ve son hatalar eklenmiş e-posta açılır.
+// Hiçbir şey kendiliğinden gönderilmez; e-postayı kullanıcı kendi uygulamasından yollar.
+function hataPencere() {
+  const p = document.createElement('div');
+  p.className = 'kam-perde hata-perde';
+  p.innerHTML = `<div class="kam-kart hata-kart"><span class="kam-kart-ic">${AY.destek}</span>
+    <h3>${t('Hata bildir')}</h3><p>${t('Ne oldu? Hangi ekranda, ne yaparken? Kısaca yaz.')}</p>
+    <textarea rows="4" placeholder="${t('Örnek: Kriket oyununda Geri Al’a basınca puan yanlış gitti')}"></textarea>
+    <small class="hata-not">${t('Cihaz bilgisi ve son hata kayıtları e-postaya eklenir. Kişisel veri, oyuncu adı ya da istatistik gönderilmez.')}</small>
+    <div class="hata-dugmeler"><button class="btn" data-h="vazgec">${t('Vazgeç')}</button><button class="btn primary" data-h="gonder">${t('E-postayı hazırla')}</button></div></div>`;
+  document.body.appendChild(p);
+  const kapat = () => { p.classList.add('kapan'); setTimeout(() => p.remove(), 200); };
+  p.addEventListener('click', e => { if (e.target === p || e.target.closest('[data-h="vazgec"]')) kapat(); });
+  p.querySelector('[data-h="gonder"]').onclick = () => {
+    const govde = raporMetni(p.querySelector('textarea').value);
+    location.href = `mailto:dartx@demirkara.com?subject=${encodeURIComponent(`DartX hata bildirimi (Derleme ${DERLEME})`)}&body=${encodeURIComponent(govde)}`;
+    try { navigator.clipboard && navigator.clipboard.writeText(govde); } catch (e) { /* yok say */ }
+    kapat(); toast(t('E-posta hazırlandı. Gönder’e basman yeterli; metin panoya da kopyalandı.'), '', { tur: { ic: 'arti', a: 'a-zipla', k: 'good' } });
+  };
+  setTimeout(() => p.querySelector('textarea').focus(), 100);
+}
 // Oyunda kamera düğmesi, tahta ayarlanmamışken (Demir 10.11): ekranda kalan uyarı, baş harfler büyük,
 // altında Tamam; herhangi bir yere dokununca kapanır ve kamera ayar ekranında kalınır
 function kamAyarUyari() {
@@ -1312,6 +1335,8 @@ function viewStats() {
 // Ayarlar
 // Ayarlar (iPhone Ayarlar uygulaması gibi gruplu cam liste). Satır simgeleri lucide-react 1.26.0 — demirkara.com ile aynı set.
 const AY = {
+  destek: LUCIDE('<path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/>', 17),
+  kalkan: LUCIDE('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>', 17),
   kamera: LUCIDE('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>', 17),
   telefon: LUCIDE('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>', 17),
   sirket: LUCIDE('<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>', 18),
@@ -1342,12 +1367,55 @@ const SURUM = `1.1 Beta · ${t('Derleme')} ${DERLEME}`;
 const kart = (ic, baslik, ic2, ek = '') => `<section class="ay-grup ${ek}"><div class="kart-bas">${ic}<span>${baslik}</span></div>${ic2}</section>`;
 const ikonKutu = ic => `<span class="ay-ikon">${ic}</span>`;
 
+
+// ---------- Yardım (Demir 11.11): kullanım rehberi + Nasıl Oynanır + destek (hata bildir, bize yaz, gizlilik) + Hakkında ----------
+function viewYardim() {
+  const konu = (ic, baslik, govde, acik = false) => `<details class="yd-konu" ${acik ? 'open' : ''}><summary>${ikonKutu(ic)}<span>${baslik}</span><i class="yd-ok">${AY.ok}</i></summary><div class="yd-govde">${govde}</div></details>`;
+  const tus = (sinif, ad, ne) => `<li><span class="yd-tus ${sinif}">${ad}</span><span>${ne}</span></li>`;
+  const rehber = [
+    konu(AY.yildiz, t('Hızlı başlangıç'), `<ol class="yd-adim">
+      <li>${t('Ana ekrandan bir klasör aç (Ana Maçlar, Kriket Oyunları…) ve oyunu seç.')}</li>
+      <li>${t('Oyuncuları seç ya da yeni oyuncu ekle. Bilgisayara karşı oynamak için DartBot seç.')}</li>
+      <li>${t('Ayarları seç (ör. 501, Double çıkış), Başla’ya bas; ilk atışı kimin yapacağını belirle.')}</li>
+      <li>${t('Her oku atınca tuşuna bas. Üç ok bitince sıra kendiliğinden geçer.')}</li></ol>`, true),
+    konu(AY.tusSes, t('Oyun ekranı ve tuşlar'), `<ul class="yd-tuslar">
+      ${tus('d', 'D', t('Double: sayının iki katı'))}${tus('t', 'T', t('Triple: sayının üç katı'))}
+      ${tus('h', 'House', t('Elin üç oku da aynı sayıya (kriket ailesinde)'))}${tus('b', 'Bull', t('Dış bull: 25'))}
+      ${tus('db', 'D-Bull', t('İç bull: 50'))}${tus('i', 'Iska', t('Tahtayı ıskaladın'))}
+      ${tus('g', t('Geri Al'), t('Son oku geri alır; basılı tutunca tüm atış listesi açılır'))}${tus('s', t('Sıradaki'), t('Eli erken bitirir, sırayı geçirir'))}</ul>
+      <p>${t('Kriket tablosunda bir hücreye dokunarak da yazabilirsin. Üstteki ☰ menüsünden maçı duraklatabilir ya da bitirebilirsin.')}</p>`),
+    konu(AY.oyunSes, t('Sesli okuma'), `<p>${t('Oyun ekranının üstündeki konuşan kişi düğmesi sesli okumayı açar. Basılı tutunca seviye seçilir: Sade (yalnız atışlar), Standart (+ toplam, kalan), Koç (+ tavsiye). Şimdilik yalnız Türkçe.')}</p>`),
+    konu(AY.kisi, t('DartBot'), `<p>${t('Oyuncu seçerken DartBot Kolay, Orta, Zor ya da Usta’yı ekle. Bot kendi sırasında kendisi atar; attığı oklar ekranda gösterilir.')}</p>`),
+    konu(AY.kamera, t('Kamera (Beta)'), `<p>${t('Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte sabitle. Kamera ekranında altın kalıba tahtayı oturt, Oturdu’ya bas, sonra Otomatik algıla. Tablet + telefon için aynı Wi-Fi’de QR ile eşleştir.')}</p>
+      <button class="btn sm" data-act="tab" data-v="kamera">${AY.kamera}<span>${t('Kamerayı aç')}</span></button>`),
+    konu(AY.veri, t('İstatistik ve yedek'), `<p>${t('Her oyuncunun maçları, ortalamaları ve rekorları İstatistik’te gün gün durur. Veriler yalnız bu cihazda; telefon değiştirirken Ayarlar → Yedek al / Yedeği yükle kullan.')}</p>`),
+    konu(AY.bilgi, t('Sık sorulanlar'), `<dl class="yd-sss">
+      <dt>${t('İnternet gerekir mi?')}</dt><dd>${t('Hayır. İlk açılıştan sonra internetsiz çalışır; yalnız hava durumu internet kullanır.')}</dd>
+      <dt>${t('Yanlış atış girdim, ne yapayım?')}</dt><dd>${t('Atışı Geri Al’a bas. Daha eskiye gitmek için basılı tut ve listeden seç.')}</dd>
+      <dt>${t('Maçı yarıda bırakırsam?')}</dt><dd>${t('Kaydedilir. Ana ekrandaki Yarım Maçlar’dan devam edersin.')}</dd>
+      <dt>${t('Oyuncuyu sildim, istatistikleri gitti mi?')}</dt><dd>${t('Hayır. Aynı adla yeniden eklersen maçları ve istatistikleri geri gelir.')}</dd></dl>`),
+  ].join('');
+  const satir = (act, ic, ad, alt, ek = '') => `<button class="ay-satir tikla" ${act}>${ikonKutu(ic)}<span class="ay-ad">${ad}${alt ? `<small>${alt}</small>` : ''}</span><span class="ay-ok">${AY.ok}</span>${ek}</button>`;
+  return `<main class="page ayarlar yardim">${header(t('Yardım'))}
+    <div class="yd-duzen">
+      <div>${kart(AY.yildiz, t('Kullanım rehberi'), rehber, 'yd-rehber')}</div>
+      <div>
+        ${kart(AY.bilgi, t('Oyunlar'), satir('data-act="tab" data-v="nasil"', AY.etiket, t('Nasıl Oynanır'), t('Her oyunun kuralları, canlı gösterimle')))}
+        ${kart(AY.destek, t('Destek'), satir('data-act="hatabildir"', AY.destek, t('Hata bildir'), hataSayisi() ? t('{0} kayıtlı hata e-postaya eklenir', hataSayisi()) : t('Sorunu yaz, e-postayla bize gönder'))
+          + `<a class="ay-satir tikla" href="mailto:dartx@demirkara.com?subject=DartX">${ikonKutu(AY.kure)}<span class="ay-ad">${t('Bize yaz')}<small>dartx@demirkara.com</small></span><span class="ay-ok">${AY.ok}</span></a>`
+          + `<a class="ay-satir tikla" href="gizlilik.html" target="_blank" rel="noopener">${ikonKutu(AY.kalkan)}<span class="ay-ad">${t('Gizlilik politikası')}</span><span class="ay-ok">${AY.ok}</span></a>`)}
+        ${kart(AY.bilgi, t('Uygulama'), satir('data-act="tab" data-v="about"', AY.bilgi, t('Hakkında'), SURUM))}
+      </div>
+    </div>
+  </main>`;
+}
+
 function viewAbout() {
   const bilgi = (ic, ad, deger) => `<div class="ay-satir">${ikonKutu(ic)}<span class="ay-ad">${ad}</span><span class="ay-deger">${deger}</span></div>`;
   const yil = new Date().getFullYear();
   return `<main class="page ayarlar hakkinda">
     <header class="kurulum-ust">
-      <button class="geri-dugme" data-act="home" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
+      <button class="geri-dugme" data-act="tab" data-v="yardim" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1><span class="app-ico simge resimli"><img src="icons/icon-192.png" alt=""></span><span class="b-ad">${t('Hakkında')}</span></h1>
       <span></span>
     </header>
@@ -2025,6 +2093,7 @@ app.addEventListener('click', e => {
       break;
 
     case 'export': exportBackup(); break;
+    case 'hatabildir': hataPencere(); break;
     case 'kamsayfa': kam.yerelKapat(); go('kamera'); break;
     case 'kamgeri': { // oyundan gelindiyse oyuna döner; tahta ayarlandıysa kamera kendiliğinden açılır
       const don = S.kamDonus === 'play' && data().current ? 'play' : 'home';
@@ -2194,6 +2263,7 @@ if (tekBasina) kenarKaydirKur({
   sayfa: () => app.querySelector('main.page, .page') || app.lastElementChild,
   engel: el => !!(el.closest && el.closest('.kam-tuval, input, textarea, select, .modal-bg, .kam-perde, .dx-acilir, .spot-perde')) || !!document.querySelector('.kam-perde, .modal-bg'),
 });
+hataKur(() => S.view);
 kamEkran.kur({ eslestir: () => kam.eslestir(t), uzakMi: () => kam.durum() === 'uzak', bildir: (m, ic) => toast(m, '', { tur: { ic: ic || 'kamera', a: ic === 'dikkat' ? 'a-sal' : 'a-zipla', k: ic === 'dikkat' ? 'bad' : '' } }) });
 if (location.hash === '#kamera') { S.view = 'kamera'; history.replaceState(null, '', location.pathname + location.search); } // eski kamera.html bağlantısı
 history.replaceState({ v: S.view, n: null, i: 0 }, '');

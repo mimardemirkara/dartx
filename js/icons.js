@@ -280,6 +280,18 @@ C.stats = {
     <polyline points="31,50 45,40 59,27 72,35" fill="none" stroke="#ff6a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
     ${[[31, 50], [45, 40], [59, 27], [72, 35]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#fff" stroke="#ff6a00" stroke-width="1.8"/>`).join('')}`,
 };
+C.yardim = {
+  // Yardım (Demir 11.11): can simidi — rehber, destek, hata bildir tek yerde
+  z: ['#6fe3b0', '#13804f'],
+  g: k => `<g filter="url(#${k}s)">
+      <circle cx="50" cy="50" r="31" fill="#fff"/>
+      <circle cx="50" cy="50" r="14" fill="#13804f"/>
+    </g>
+    ${[0, 90, 180, 270].map(a => `<path d="M50 50 L${50 + 33 * Math.cos((a - 20) * Math.PI / 180)} ${50 + 33 * Math.sin((a - 20) * Math.PI / 180)} A33 33 0 0 1 ${50 + 33 * Math.cos((a + 20) * Math.PI / 180)} ${50 + 33 * Math.sin((a + 20) * Math.PI / 180)} Z" fill="#ff5a4a" opacity=".95"/>`).join('')}
+    <circle cx="50" cy="50" r="14.5" fill="#1a9a62"/>
+    <circle cx="50" cy="50" r="31" fill="none" stroke="rgb(0 0 0 / .12)" stroke-width="1.5"/>
+    <circle cx="50" cy="50" r="14.5" fill="none" stroke="rgb(0 0 0 / .18)" stroke-width="1.5"/>`,
+};
 C.settings = {
   z: ['#6f7684', '#262a33'],
   g: k => `<defs><linearGradient id="${k}d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9a9b4"/></linearGradient></defs>

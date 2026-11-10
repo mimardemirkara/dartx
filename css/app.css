@@ -3229,3 +3229,39 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .ist-pano .tiles { max-width: none; margin-left: 0; margin-right: 0; }
 .ist-pano h2.sec { text-align: left; margin-left: 6px; }
 .board.x01.n1 .side-big { margin-top: auto; margin-bottom: auto; } /* Demir 11.11: tek oyuncu (Bob's 27 vb.) puan kartın ortasında */
+
+/* Hata bildir penceresi (Demir 11.11) */
+.hata-kart { text-align: left; }
+.hata-kart h3, .hata-kart > p { text-align: center; }
+.hata-kart textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 96px; padding: 12px 14px; border-radius: 16px; border: 1px solid rgb(255 255 255 / .16);
+  background: rgb(0 0 0 / .25); color: var(--fg); font: inherit; font-size: 15px; outline: none; }
+.hata-kart textarea:focus { border-color: rgb(240 207 134 / .6); }
+.hata-not { color: var(--mut); font-size: 12.5px; line-height: 1.4; }
+.hata-dugmeler { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+.hata-kart .kam-kart-ic svg { width: 28px; height: 28px; }
+.hata-perde.kapan { opacity: 0; transition: opacity .2s; }
+
+/* ==== Yardım ekranı (Demir 11.11): rehber açılır konular + destek; tablette iki blok ==== */
+.yardim { max-width: 1100px; }
+.yd-duzen { display: grid; gap: 16px; }
+@media (min-width: 900px) { .yd-duzen { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; } }
+.yd-duzen > div > .ay-grup + .ay-grup { margin-top: 16px; }
+.yd-konu { border-top: 1px solid var(--cizgi); }
+.yd-konu summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; font-weight: 600; }
+.yd-konu summary::-webkit-details-marker { display: none; }
+.yd-konu summary > span:not(.ay-ikon) { flex: 1; }
+.yd-ok { display: grid; transition: transform .2s; opacity: .6; } .yd-konu[open] .yd-ok { transform: rotate(90deg); }
+.yd-govde { padding: 0 16px 14px 58px; color: var(--fg); font-size: 14.5px; line-height: 1.5; }
+.yd-govde p { margin: 0 0 10px; opacity: .9; }
+.yd-adim { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.yd-tuslar { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 7px; }
+.yd-tuslar li { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; }
+.yd-tus { text-align: center; padding: 4px 6px; border-radius: 9px; font-weight: 800; font-size: 13px; color: #fff; }
+.yd-tus.d { background: #2f6fdb; } .yd-tus.t { background: #7b3fd1; } .yd-tus.h { background: #17a89a; } .yd-tus.b { background: #1d9a4a; }
+.yd-tus.db { background: #c8262d; } .yd-tus.i { background: #6b7480; } .yd-tus.g { background: #e47a1c; } .yd-tus.s { background: #4f52d8; }
+.yd-sss { margin: 0; } .yd-sss dt { font-weight: 700; margin-top: 8px; } .yd-sss dd { margin: 2px 0 0; opacity: .85; }
+.yd-govde .btn { gap: 6px; }
+a.ay-satir { color: inherit; text-decoration: none; }
+:root .page.ayarlar.yardim { max-width: 1100px; }
+:root .yardim .yd-duzen { width: 100%; box-sizing: border-box; }
+:root .page.ayarlar.yardim { column-count: auto; columns: auto; } /* Ayarlar sayfasının iki sütunlu düzeni Yardım'a uygulanmasın */
