@@ -30,7 +30,7 @@ if (!db.gocTurk) {
 // Demir 09.11: uygulama hep koyu temada açılsın, sistem teması değil — eski "Otomatik" ayarı bir kez koyuya çevrilir
 if (!db.gocKoyu) {
   db.settings = db.settings || {};
-  if (!db.settings.theme || db.settings.theme === 'auto') db.settings.theme = 'koyu';
+  if (!db.settings.theme) db.settings.theme = 'koyu'; // Demir 11.11: varsayılan koyu; kişinin seçtiği (Otomatik dahil) korunur
   db.gocKoyu = 1;
   try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* sessiz */ }
 }

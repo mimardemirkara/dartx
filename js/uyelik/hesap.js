@@ -140,6 +140,8 @@ export async function epostaGiris(eposta, sifre, hatirla = true) {
   await A.setPersistence(auth, hatirla ? A.indexedDBLocalPersistence : A.browserSessionPersistence).catch(() => {});
   return A.signInWithEmailAndPassword(auth, eposta.trim(), sifre);
 }
+/** Giriş hatasında: e-posta kayıtlı mı? → true / false (sunucuya ulaşılamazsa hata) */
+export async function epostaKayitliMi(eposta) { const r = await sunucuyaSor('/kayitli', { eposta: String(eposta || '').trim() }); return !!r.kayitli; }
 export async function sifreSifirla(eposta) {
   const { auth, A } = await fb(); await ayarDil();
   try { await sunucuyaSor('/sifre', { eposta: eposta.trim() }); return; } catch (e) { if (e.sik) throw e; }

@@ -258,7 +258,7 @@ const logo = () => `<div class="uy-kapak"><button type="button" class="uy-logo-d
 const FITIL = '<span class="cam-fitil-hale" aria-hidden="true"><span class="cam-fitil-halka"><span class="cam-fitil"></span></span></span>';
 const kartAc = () => `<div class="uy-cerceve">${FITIL}<section class="ay-grup uy-kart">`;
 const kartKapa = () => `<span class="cam-fitil-cizgi" aria-hidden="true"><span class="cam-fitil"></span></span>
-  <div class="uy-alt"><button type="button" class="uy-alt-telif" data-act="uy-hakkinda">© ${new Date().getFullYear()} DartX · ${t('Tüm hakları saklıdır.')}</button><div class="uy-alt-dugmeler">${C.altDugmeler()}</div></div>
+  <div class="uy-alt"><div class="uy-alt-dugmeler">${C.altDugmeler()}</div><button type="button" class="uy-alt-telif" data-act="uy-hakkinda">© ${new Date().getFullYear()} DartX · ${t('Tüm hakları saklıdır.')}</button></div>
   </section></div>`;
 /** Ekran çizildikten sonra: giriş ekranlarında yıldız küresi ve cam saat */
 // Demir 11.11: doğrulama ekranındayken birkaç saniyede bir sessizce bakılır; bağlantıya dokunulunca kendiliğinden geçer
@@ -750,7 +750,19 @@ async function gonder(e) {
       const hat = !!(f.elements.hatirla && f.elements.hatirla.checked);
       localStorage.setItem('dartx.hatirla', hat ? '1' : '0');
       if (hat) localStorage.setItem('dartx.sonEposta', v.eposta.trim()); else localStorage.removeItem('dartx.sonEposta');
-      await is(() => H.epostaGiris(v.eposta, f.elements.sifre.value, hat));
+      // Demir 11.11: "e-posta kayıtlı değil" ile "şifre yanlış" ayrı söylenir; uyarı ekranda daha uzun kalır
+      C.S.uyeMesgul = true; C.render();
+      try { await H.epostaGiris(v.eposta, f.elements.sifre.value, hat); }
+      catch (err) {
+        console.warn(err);
+        const kod = err && err.code;
+        if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found', 'auth/invalid-login-credentials'].includes(kod)) {
+          const kayitli = await H.epostaKayitliMi(v.eposta).catch(() => null);
+          if (kayitli === false) C.toast(t('Bu e-posta kayıtlı değil. Üye ol sekmesinden hesap açabilirsin.'), 'bad', { sure: 5000 });
+          else if (kayitli === true) C.toast(t('Şifre yanlış. Tekrar dene ya da “Şifremi unuttum?”a dokun.'), 'bad', { sure: 5000 });
+          else C.toast(t('E-posta ya da şifre hatalı'), 'bad', { sure: 5000 });
+        } else C.toast(H.hataMetni(err), 'bad', { sure: 5000 });
+      } finally { C.S.uyeMesgul = false; C.render(); }
     }
   } else if (act === 'uy-tamamla') {
     const hata = isimHatasi(v); if (hata) { C.toast(hata, 'bad', { sure: 2800 }); return; }
