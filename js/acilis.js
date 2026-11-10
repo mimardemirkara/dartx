@@ -7,7 +7,7 @@ import { patlamaSesi, donmeSesi, logoSesi, dartUcusSesi, dartVurusSesi, sesiAc }
 import { t } from './i18n.js';
 
 // Dart simgeleri: 24×24 çizgi çizimleri (lucide target / crosshair / trophy / medal / award + dart, tahta, çetele)
-const IKONLAR = [
+export const IKONLAR = [
   'M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0 M6 12a6 6 0 1 0 12 0a6 6 0 1 0 -12 0 M10 12a2 2 0 1 0 4 0a2 2 0 1 0 -4 0', // hedef (lucide target)
   'M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0 M22 12h-4 M6 12H2 M12 6V2 M12 22v-4', // nişangâh (lucide crosshair)
   'M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978 M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978 M18 9h1.5a1 1 0 0 0 0-5H18 M4 22h16 M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z M6 9H4.5a1 1 0 0 1 0-5H6', // kupa (lucide trophy)
@@ -22,7 +22,7 @@ const IKONLAR = [
 
 // Dart dili: skorlar, bitirişler, terimler, oyun adları — ISARETLER (sitedeki gibi oyun adları iki kez, daha sık görünsün)
 const OYUNLAR = ['501', '301', 'Cricket', 'Kriket', 'Türk Kriketi', 'Minnesota', 'Killer', 'Shanghai', 'Halve-It', 'Baseball', 'Count-Up', 'Gotcha', "Bob's 27", 'Full Board', 'Cut-Throat', 'Tactics', 'Mickey Mouse', 'Around the Clock'];
-const ISARETLER = [
+export const ISARETLER = [
   '180', '180!', 'ONE HUNDRED AND EIGHTY', '171', '177', '140', '100', '60', '45', '26',
   'T20', 'T19', 'T18', 'T17', 'D20', 'D16', 'D8', 'D1', 'Bull', 'Bullseye', '25', '50', 'Double Bull',
   '170', '167', '164', '161', '160', '121', '81', '40', '32', '36', 'T20 T20 Bull', 'T20 T19 D12',
@@ -31,7 +31,7 @@ const ISARETLER = [
   'House', 'D T B H', '20–10', '3 in a bed', 'Robin Hood', 'Bed', 'Treble',
   ...OYUNLAR, ...OYUNLAR,
 ];
-const MARKA = ['DartX', 'DartX 1.0', 'Demir Kara'];
+export const MARKA = ['DartX', 'DartX 1.0', 'Demir Kara'];
 
 const ease = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const kenet = x => Math.min(1, Math.max(0, x));

@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b179';
+const VERSION = 'dartx-b180';
 const FILES = [
   'ses/spiker/liste.json',
   'ses/spiker/bull.mp3',
@@ -984,7 +984,7 @@ const FILES = [
   'css/app.css',
   'js/app.js',
   'js/derleme.js',
-  'js/bot.js', 'js/okuma.js', 'js/tts-yerel.js', 'js/kaydir.js', 'js/kenar-kaydir.js', 'js/hata.js', 'gizlilik.html', 'destek.html',
+  'js/bot.js', 'js/okuma.js', 'js/tts-yerel.js', 'js/uyelik/ekran.js', 'js/uyelik/hesap.js', 'js/uyelik/bulut.js', 'js/uyelik/online.js', 'js/uyelik/yer.js', 'js/uyelik/meslek.js', 'js/uyelik/okset.js', 'js/uyelik/qr.js', 'js/uyelik/ilce.js', 'js/telefon/telefon.mjs', 'js/qr/qrcode.mjs', 'js/uyelik/zemin.js', 'js/uyelik/saat.js', 'js/firebase/firebase-app.js', 'js/firebase/firebase-auth.js', 'js/firebase/firebase-firestore.js', 'js/kaydir.js', 'js/kenar-kaydir.js', 'js/hata.js', 'gizlilik.html', 'destek.html',
   'kamera.html', 'js/kamera/tahta.js', 'js/kamera/algila.js', 'js/kamera/baglanti.js', 'js/kamera/oyun.js', 'js/kamera/ekran.js', 'js/vendor/qrcode.js', 'js/vendor/jsQR.js',
   'js/store.js',
   'js/engine.js',

@@ -146,6 +146,7 @@ export function finishCurrent() {
     db.history.unshift(db.current);
     db.current = null;
     save();
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('dartx-mac-bitti')); // üyeyse bulut yedeği
   }
 }
 export function removeHistory(id) {

@@ -292,6 +292,18 @@ C.yardim = {
     <circle cx="50" cy="50" r="31" fill="none" stroke="rgb(0 0 0 / .12)" stroke-width="1.5"/>
     <circle cx="50" cy="50" r="14.5" fill="none" stroke="rgb(0 0 0 / .18)" stroke-width="1.5"/>`,
 };
+// Hesabım (Demir 11.11, seçilen: Kart)
+C.hesap = {
+  // Oyuncu kartı: bakır zemin, beyaz üyelik kartı, avatar, DX şeridi, karta saplanmış dart
+  z: ['#ffb37a', '#b4501a'],
+  g: k => `${bar(k)}<g filter="url(#${k}s)"><rect x="15" y="26" width="70" height="50" rx="8" fill="#fff"/></g>
+    <rect x="15" y="64" width="70" height="12" rx="0" fill="#f3d79b"/><rect x="15" y="68" width="70" height="8" rx="8" fill="#f3d79b"/>
+    <circle cx="35" cy="45" r="11" fill="#f4e6d2"/>
+    <circle cx="35" cy="42" r="4.6" fill="#c8642a"/><path d="M27.5 53 C28 47.5 31 46 35 46 C39 46 42 47.5 42.5 53 Z" fill="#c8642a"/>
+    <rect x="51" y="37" width="25" height="5" rx="2.5" fill="#d8c8b2"/><rect x="51" y="46" width="17" height="4" rx="2" fill="#e8ddcd"/>
+    ${yazi(50, 74, 'DX', 8, '#8a4a12')}
+    ${ok(k, 74, 30, -35, .55, '#d8262c')}`,
+};
 C.settings = {
   z: ['#6f7684', '#262a33'],
   g: k => `<defs><linearGradient id="${k}d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9a9b4"/></linearGradient></defs>

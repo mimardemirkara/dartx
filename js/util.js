@@ -21,7 +21,10 @@ export const fmt1 = n => (Number.isFinite(n) ? ondalik(n) : '–');
 export const pct = (a, b) => (b ? yuzde(Math.round((a / b) * 100)) : '–');
 
 // Demir ve Kenan istisnası (Demir 09.11): adı (ilk kelimesi) Demir / Kenan olan oyuncunun yanında kendi avatarı
+let fotoBul = () => '';
+export const fotoBulKur = f => { fotoBul = f; };
 export function adResim(ad) {
+  const f = fotoBul(ad); if (f) return f; // üyenin profil fotoğrafı
   const k = String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr');
   return k === 'demir' || k === 'kenan' || k === 'tuncay' ? `img/karakter/${k}-avatar.webp` : '';
 }

@@ -17,6 +17,13 @@
     section { background: rgb(26 21 16 / .82); border: 1px solid rgb(240 207 134 / .22); border-radius: 22px; padding: 20px 22px; margin-bottom: 22px; }
     a { color: var(--altin); } small { color: var(--soluk); }
     .eposta { display: inline-block; margin-top: 6px; padding: 10px 18px; border-radius: 99px; background: linear-gradient(180deg, #f0cf86, #b98a35); color: #1d160a; font-weight: 800; text-decoration: none; }
+    /* Başlıklarda simge (Demir 11.11) */
+    h2 { display: flex; align-items: center; gap: 9px; } .h-ic { flex: none; color: var(--altin); }
+    /* İnce, temaya uygun kaydırma çubuğu (Demir 11.11) */
+    html { scrollbar-width: thin; scrollbar-color: rgb(227 184 102 / .45) transparent; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgb(227 184 102 / .45); border-radius: 99px; } ::-webkit-scrollbar-thumb:hover { background: rgb(227 184 102 / .7); }
+    ::-webkit-scrollbar-button { display: none; height: 0; }
   </style>
 </head>
 <body>
@@ -28,14 +35,14 @@
   </header>
 
   <section>
-    <h2>Bize yazın · Contact us</h2>
+    <h2><svg class="h-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Bize yazın · Contact us</h2>
     <p>Soru, öneri ya da hata bildirimi için / For questions, ideas or bug reports:</p>
     <a class="eposta" href="mailto:dartx@demirkara.com?subject=DartX">dartx@demirkara.com</a>
     <p><small>DK Design Consulting Technology LLC · Albuquerque, NM, USA</small></p>
   </section>
 
   <section>
-    <h2>Sık sorulanlar</h2>
+    <h2><svg class="h-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Sık sorulanlar</h2>
     <p><b>Verilerim nerede?</b> Oyuncular, maçlar ve istatistikler yalnız cihazınızda. Telefon değiştirirken Ayarlar → Yedek al / Yedeği yükle kullanın.</p>
     <p><b>İnternet gerekir mi?</b> Hayır. İlk açılıştan sonra uygulama tamamen internetsiz çalışır.</p>
     <p><b>Kamera nasıl kurulur?</b> Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte (bull'un yüksekliği) olacak şekilde sabitleyin. Kamera ekranındaki altın kalıba tahtayı oturtup "Oturdu"ya basın.</p>
@@ -43,7 +50,7 @@
   </section>
 
   <section>
-    <h2>FAQ</h2>
+    <h2><svg class="h-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>FAQ</h2>
     <p><b>Where is my data?</b> Players, matches and stats stay on your device. When switching phones use Settings → Back up / Restore.</p>
     <p><b>Do I need internet?</b> No. After the first launch the app works completely offline.</p>
     <p><b>How do I set up the camera?</b> Mount the phone about 1 m in front of the board, 30–40° to the side, with the camera 173 cm above the floor (bullseye height). Fit the board to the gold template on the camera screen and tap "It fits".</p>

@@ -111,7 +111,7 @@ function snapshot(m) {
 function yenidenKur(m, kac) {
   const adim = m.adimlar.slice(0, kac);
   const b = m.adimlar.find(a => a.t === 'b');
-  const hesap = m.hesap;
+  const hesap = m.hesap, online = m.online; // online maç bilgisi yeniden kurulumda kaybolmasın
   oynatiliyor = true;
   let y;
   try {
@@ -131,6 +131,7 @@ function yenidenKur(m, kac) {
   for (const k of Object.keys(m)) delete m[k];
   Object.assign(m, y);
   if (hesap) m.hesap = hesap;
+  if (online) m.online = online;
   return true;
 }
 /** Son 'n' hamleyi geri al (n=1: son ok). Kayıtlı maçta oyunun başına kadar gider. */
@@ -143,6 +144,12 @@ export function geriAl(m, n = 1) {
   let kalan = n, son = m.adimlar.length;
   while (kalan > 0 && son > 0) { son--; if (m.adimlar[son].t !== 'b') kalan--; }
   return yenidenKur(m, son);
+}
+/** Online maç (Demir 11.11): karşı telefondan gelen hamle listesiyle maçı baştan aynen kurar */
+export function hamlelerleKur(m, adimlar) {
+  if (!(m && m.bas)) return false;
+  m.adimlar = clone(adimlar || []);
+  return yenidenKur(m, m.adimlar.length);
 }
 /** Geri al listesi için son hamleler (en yenisi başta) */
 export function sonHamleler(m, adet = 10) {
