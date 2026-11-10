@@ -3228,3 +3228,4 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 }
 .ist-pano .tiles { max-width: none; margin-left: 0; margin-right: 0; }
 .ist-pano h2.sec { text-align: left; margin-left: 6px; }
+.board.x01.n1 .side-big { margin-top: auto; margin-bottom: auto; } /* Demir 11.11: tek oyuncu (Bob's 27 vb.) puan kartın ortasında */

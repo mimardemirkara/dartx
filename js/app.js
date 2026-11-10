@@ -985,12 +985,15 @@ document.addEventListener('click', e => {
   const i = [...n.parentElement.children].indexOf(n), once = ymSira(k);
   if (i === once) return;
   // Demir 11.11 "değişimi anlamıyorum": yeni maç kartı, kaydırmış gibi yandan kayarak ve belirerek gelir
-  // yakalama (snap) programlı kaydırmayı yarıda bırakmasın: kapat, git, sonra aç
-  k.style.scrollSnapType = 'none';
-  k.scrollLeft = k.children[i].offsetLeft - k.children[0].offsetLeft; vib(6);
-  requestAnimationFrame(() => requestAnimationFrame(() => { k.style.scrollSnapType = ''; }));
-  const yon = i > once ? 1 : -1;
-  if (k.animate) k.animate([{ transform: `translateX(${yon * 18}%)`, opacity: .2 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2,.8,.3,1)' });
+  // Parmakla kaydırmanın aynısı (Demir 11.11 "çok hızlı ve hatalı"): kartlar yana yumuşakça kayar (~0,5 sn).
+  // Yakalama (snap) kayma bitene kadar kapalı, sonra açılır.
+  vib(6);
+  const bas = k.scrollLeft, hedef = k.children[i].offsetLeft - k.children[0].offsetLeft, sure = 480, t0 = performance.now();
+  const yumusak = x => 1 - Math.pow(1 - x, 3);
+  k.style.scrollSnapType = 'none'; clearTimeout(k._snapT); clearTimeout(k._kayT);
+  const adim = now => { const x = Math.min(1, (now - t0) / sure); k.scrollLeft = bas + (hedef - bas) * yumusak(x);
+    if (x < 1) k._kayT = setTimeout(() => adim(performance.now()), 16); else k._snapT = setTimeout(() => { k.style.scrollSnapType = ''; }, 30); };
+  k._kayT = setTimeout(() => adim(performance.now()), 16);
   n.parentElement.querySelectorAll('i').forEach((x, j) => x.classList.toggle('on', i === j));
 });
 // Konuşma seviyesi (Demir 10.11): Sade = atışlar + sıra · Standart = + toplam, kalan, kapanan · Koç = + durum ve tavsiye
