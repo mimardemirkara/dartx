@@ -3965,3 +3965,7 @@ a.ay-satir { color: inherit; text-decoration: none; }
   :root[data-tema="acik"] .isi-ilk > span { background: rgba(29,27,32,.05); }
 }
 .ist-yeni h2.sec.ist-bas { font-size: 16px; }
+
+/* Hesabım: Ok setim ayrı kart; sağ sütunda Ok setim + Hesap alt alta (Demir 11.11) */
+.uy-sag-sutun { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.uy-sag-sutun > .uy-kart { margin: 0 !important; }

@@ -149,7 +149,7 @@ async function profilAl(uid) {
 function arkadasProfil(u) {
   const p = durum.profil[u] || {}; const vd = varlikDurum(u); const en = dil() === 'en';
   const oz = en ? (p.okOzetEn || p.okOzet) : p.okOzet;
-  const ok = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 16.5 7.5"/><path d="m16.5 7.5-2 .6-.6 2 1.5 1.5 2-.6.6-2Z"/><path d="M14 10 6.5 17.5"/><path d="M6.5 17.5 3 16l1.6 2.4L3 21l2.6-1.6L8 21l-1.5-3.5Z"/></svg>';
+  const ok = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 19 5"/><path d="m19.8 6.6-2.4-2.4-4.2 4.2 2.4 2.4Z"/><path d="m16.2 6.4 1.4 1.4"/><path d="M14.4 9.6 9 15"/><path d="M9 15 2 16l2.8 3.2L8 22Z"/></svg>';
   const kisi = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru';
   pd.innerHTML = `<div class="modal glass uy-soru-kart ark-profil" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${kisi}<span>${t('Arkadaş')}</span></h3>

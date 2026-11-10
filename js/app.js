@@ -439,6 +439,7 @@ function render() {
   else if (v === 'kamera') html = viewKamera();
   else if (v === 'about') html = viewAbout();
   else if (v === 'yardim') html = viewYardim();
+  else if (v === 'kosullar') html = `<main class="page gizlilik-sayfa">${header(t('Kullanım şartları'), 'yardimgeri')}<iframe class="gz-cerceve" src="kosullar.html?app=1#${dil() === 'en' ? 'en' : 'tr'}" title="${t('Kullanım şartları')}"></iframe></main>`; // Demir 11.11
   else if (v === 'gizlilik') html = `<main class="page gizlilik-sayfa">${header(t('Gizlilik politikası'), 'yardimgeri')}<iframe class="gz-cerceve" src="gizlilik.html?app=1#${dil() === 'en' ? 'en' : 'tr'}" title="${t('Gizlilik politikası')}"></iframe></main>`; // Demir 11.11: uygulama içinde açılır
   else if (v === 'online') html = viewOnline();
   else if (v === 'uye') html = viewUye();
@@ -503,7 +504,7 @@ function header(title, back) {
   // Ana ekranda logo. Alt sayfalarda: solda geri, ortada küçük simge + başlık (Demir 08.11: simge başlığın başında, üst taraf sade)
   // Demir 11.11: ana sayfadaki büyük logoya basınca Hakkında açılır
   if (!title) return `<header class="top"><button class="logo-dugme" data-act="tab" data-v="about" aria-label="${t('Hakkında')}"><img class="logo" src="img/logo-dartx.webp" alt="DartX"></button></header>`;
-  const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), yardim: ikon('yardim'), gizlilik: ikon('yardim'), online: ikon('grp-online'), uye: ikon('hesap'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
+  const simge = { players: ikon('players'), stats: ikon('stats'), settings: ikon('settings'), yardim: ikon('yardim'), gizlilik: ikon('yardim'), kosullar: ikon('yardim'), online: ikon('grp-online'), uye: ikon('hesap'), nasil: ikon('nasil'), nasiloyna: S.nasilId ? (S.nasilId === 'tarih' ? ikon('nasil') : ikon(S.nasilId)) : '' }[S.view];
   return `<header class="kurulum-ust">
       <button class="geri-dugme" data-act="${back || 'home'}" aria-label="${t('Geri')}">${GERI_OK}<span>${t('Geri')}</span></button>
       <h1>${S.view === 'kamera' ? `<span class="kam-kart-ic kam-baslik-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span>` : simge ? `<span class="app-ico simge">${simge}</span>` : ''}<span class="b-ad">${title}</span></h1>
@@ -1428,7 +1429,7 @@ function viewYardim() {
         ${kart(AY.destek, t('Destek'), satir('data-act="hatabildir"', AY.destek, t('Hata bildir'), hataSayisi() ? t('{0} kayıtlı hata e-postaya eklenir', hataSayisi()) : t('Sorunu yaz, e-postayla bize gönder'))
           + `<a class="ay-satir tikla" href="mailto:dartx@demirkara.com?subject=DartX">${ikonKutu(AY.kure)}<span class="ay-ad">${t('Bize yaz')}<small>dartx@demirkara.com</small></span><span class="ay-ok">${AY.ok}</span></a>`
           + satir('data-act="tab" data-v="gizlilik"', AY.kalkan, t('Gizlilik politikası'), ''))}
-        ${kart(AY.bilgi, t('Uygulama'), (uyelikHazir() ? satir('data-act="uy-ac"', AY.kisi, t('Hesabım'), t('Üyelik, profil, bulut yedeği')) : '') + satir('data-act="tab" data-v="about"', AY.bilgi, t('Hakkında'), SURUM))}
+        ${kart(AY.bilgi, t('Uygulama'), (uyelikHazir() ? satir('data-act="uy-ac"', AY.kisi, t('Hesabım'), t('Üyelik, profil, bulut yedeği')) : '') + satir('data-act="tab" data-v="about"', AY.bilgi, t('Hakkında'), SURUM) + satir('data-act="tab" data-v="kosullar"', AY.bilgi, t('Kullanım şartları'), ''))}
       </div>
     </div>
   </main>`;

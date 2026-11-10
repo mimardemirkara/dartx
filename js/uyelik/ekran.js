@@ -32,7 +32,7 @@ export function uyelikKur(ctx) {
     madalya: L('<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/>', 17),
     lakap: L('<path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>', 17),
     // Demir 11.11: ok ağırlığı = dart oku simgesi (terazi değil): uç, gövde, kanatlar
-    terazi: L('<path d="M21 3 16.5 7.5"/><path d="m16.5 7.5-2 .6-.6 2 1.5 1.5 2-.6.6-2Z"/><path d="M14 10 6.5 17.5"/><path d="M6.5 17.5 3 16l1.6 2.4L3 21l2.6-1.6L8 21l-1.5-3.5Z"/>', 17),
+    terazi: L('<path d="M22 2 19 5"/><path d="m19.8 6.6-2.4-2.4-4.2 4.2 2.4 2.4Z"/><path d="m16.2 6.4 1.4 1.4"/><path d="M14.4 9.6 9 15"/><path d="M9 15 2 16l2.8 3.2L8 22Z"/>', 17),
     yildiz: L('<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>', 17),
     arkadas: L('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>', 17),
     nokta: L('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>', 17),
@@ -324,7 +324,7 @@ export function viewUye() {
             <p class="uy-ipucu uy-eslesme" hidden></p>
             ${kurallarHtml()}
             <label class="uy-onay"><input type="checkbox" name="yas" ${C.S.uyeTaslak?.yas ? 'checked' : ''}><span>${t('13 yaşından büyüğüm')}</span></label>
-            <label class="uy-onay"><input type="checkbox" name="sozlesme" ${C.S.uyeTaslak?.sozlesme ? 'checked' : ''}><span>${t('Kullanım şartlarını ve {0} okudum', `<a href="#" data-act="uy-gizlilik">${t('gizlilik politikasını')}</a>`)}</span></label>
+            <label class="uy-onay"><input type="checkbox" name="sozlesme" ${C.S.uyeTaslak?.sozlesme ? 'checked' : ''}><span>${t('{0} ve {1} okudum', `<a href="#" data-act="uy-kosullar">${t('Kullanım şartlarını')}</a>`, `<a href="#" data-act="uy-gizlilik">${t('gizlilik politikasını')}</a>`)}</span></label>
           </div>
           </div>
           <p class="uy-ipucu uy-dogrula-not">${t('Üye olduktan sonra e-postana gelen bağlantıyla hesabını doğrulaman gerekir.')}</p>
@@ -374,7 +374,7 @@ export function viewUye() {
           <p class="uy-ipucu uy-ad-durum" hidden></p>
           <p class="uy-ipucu">${t('En çok {1} karakter ve bir boşluk; eşsiz olmalı. Arkadaşların ve skor tablosu bu adı görür.', SINIR.gorunen[0], SINIR.gorunen[1])}</p>
           <label class="uy-onay"><input type="checkbox" name="yas" ${C.S.uyeTaslak?.yas ? 'checked' : ''}><span>${t('13 yaşından büyüğüm')}</span></label>
-          <label class="uy-onay"><input type="checkbox" name="sozlesme" ${C.S.uyeTaslak?.sozlesme ? 'checked' : ''}><span>${t('Kullanım şartlarını ve {0} okudum', `<a href="#" data-act="uy-gizlilik">${t('gizlilik politikasını')}</a>`)}</span></label>
+          <label class="uy-onay"><input type="checkbox" name="sozlesme" ${C.S.uyeTaslak?.sozlesme ? 'checked' : ''}><span>${t('{0} ve {1} okudum', `<a href="#" data-act="uy-kosullar">${t('Kullanım şartlarını')}</a>`, `<a href="#" data-act="uy-gizlilik">${t('gizlilik politikasını')}</a>`)}</span></label>
           <button type="submit" class="btn primary uy-btn" ${mesgul() ? 'disabled' : ''}>${t('Devam et')}</button>
         </form>
       </section></div>`);
@@ -433,7 +433,10 @@ function viewProfil() {
       ${secSatir('uy-sehir', IC.konum, t('Şehir'), p.sehir ? esc(p.sehir) : '', secimListe('uy-sehir', p), p.sehir, true)}
       ${(p.ulke || 'tr') === 'tr' && p.sehir ? secSatir('uy-ilce', IC.konum, t('İlçe'), p.ilce ? esc(p.ilce) : '', secimListe('uy-ilce', p), p.ilce, true) : ''}
       ${satir('uy-telefon', IC.telefon, t('Cep telefonu'), p.telefonGorunen ? esc(p.telefonGorunen) : `<span class="soluk">${t('Ekle (isteğe bağlı)')}</span>`)}
-      <div class="kart-bas uy-ic-bas">${IC.terazi}<span>${t('Ok setim')}</span></div>
+    </section>
+    <div class="uy-sag-sutun">
+    <section class="ay-grup uy-kart uy-okset">
+      <div class="kart-bas">${IC.terazi}<span>${t('Ok setim')}</span></div>
       ${(() => { const sec = v => v || `<span class="soluk">${t('Seç')}</span>`; const dl = dil();
         return secSatir('uy-okmarka', IC.yildiz, t('Marka'), p.okMarka ? `<span class="yer-deger">${markaRozet(p.okMarka)}${esc(p.okMarka)}</span>` : '', secimListe('uy-okmarka', p), p.okMarka, true)
           // Demir 11.11: model her zaman seçici; markanın listesi yoksa "Listede yok, yaz" ile yazılır
@@ -460,7 +463,7 @@ function viewProfil() {
       ${satir('uy-cikis', IC.cikis, t('Çıkış yap'))}
       ${satir('uy-hesapsil', IC.sil, t('Hesabımı sil'), '', 'uy-tehlike')}
       <p class="uy-not sol">${t('Hesabını silince buluttaki her şey kalıcı olarak gider. Bu cihazdaki maçlar kalır.')}</p>
-    </section></div>`, 'profil');
+    </section></div></div>`, 'profil');
 }
 
 // ---- Üst çubukta hesap düğmesi + ArchX logo menüsü gibi açılır menü (Demir 11.11); ana ekranda "Hesabım" simgesi
@@ -538,7 +541,7 @@ async function tikla(e) {
   const el = e.target.closest('[data-act^="uy-"]'); if (!el || el.disabled) return;
   const act = el.dataset.act, S = C.S;
   if (el.tagName === 'INPUT' || el.tagName === 'FORM') return;
-  if (act !== 'uy-gizlilik' && el.tagName === 'A') e.preventDefault();
+  if (act !== 'uy-gizlilik' && act !== 'uy-kosullar' && el.tagName === 'A') e.preventDefault();
   C.vib && C.vib(6);
   switch (act) {
     case 'uy-ac': C.go('uye', { uyeDonus: S.view === 'uye' ? S.uyeDonus : S.view, uyeAdim: null }); break;
@@ -556,6 +559,7 @@ async function tikla(e) {
     case 'uy-girisgeri': S.uyeAdim = 'giris'; C.render(); break;
     case 'uy-mod': { const f = el.closest('form'); if (f) tasla(f); S.uyeMod = el.dataset.v; C.render(); break; }
     case 'uy-gizlilik': e.preventDefault(); { const f = el.closest('form'); if (f) tasla(f); } C.go('gizlilik', { gizlilikDonus: 'uye' }); break;
+    case 'uy-kosullar': e.preventDefault(); { const f = el.closest('form'); if (f) tasla(f); } C.go('kosullar', { gizlilikDonus: 'uye' }); break;
     case 'uy-google': await is(() => H.googleGiris()); break;
     case 'uy-apple': await is(() => H.appleGiris()); break;
     case 'uy-sifreunut': {
