@@ -1273,22 +1273,34 @@ function viewPlayers() {
 }
 
 // İstatistik
+// Demir 11.11: istatistik bölüm başlıkları simgeli ve kart başlığı büyüklüğünde
+const IST_IC = {
+  genel: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  x01: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  kriket: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>',
+  rekor: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  isi: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  maclar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+};
+const istBas = (ic, yazi) => `<h2 class="sec ist-bas"><span class="ist-bas-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IST_IC[ic]}</svg></span><span>${yazi}</span></h2>`;
 function viewStats() {
   const players = data().players;
   if (!players.length) return `<main class="page">${header(t('İstatistik'))}<p class="muted center">${t('Önce oyuncu ekle.')}</p></main>`;
-  const pid = S.statPid && players.some(p => p.id === S.statPid) ? S.statPid : players[0].id;
+  // Demir 11.11: istatistikte DartBot'lar listelenmez; yalnız gerçek oyuncular
+  const insanlar = players.filter(p => !p.bot);
+  if (!insanlar.length) return `<main class="page">${header(t('İstatistik'))}<p class="muted center">${t('Önce oyuncu ekle.')}</p></main>`;
+  const pid = S.statPid && insanlar.some(p => p.id === S.statPid) ? S.statPid : insanlar[0].id;
   const st = playerStats(pid);
   // Demir 11.11: oyuncu çoğalınca da düzenli — tablette solda aranabilir liste, telefonda kayan avatar şeridi;
   // en çok oynayan üstte, DartBot'lar en altta ayrı grupta
   const ozet = players.map(p => { const s2 = playerStats(p.id); return { p, n: s2.played, w: s2.wins }; });
   const insan = ozet.filter(o => !o.p.bot).sort((a, b) => b.n - a.n || a.p.name.localeCompare(b.p.name, 'tr'));
-  const botlar = ozet.filter(o => o.p.bot).sort((a, b) => b.n - a.n);
   const satir = o => `<button class="ist-oy ${o.p.id === pid ? 'on' : ''}" style="--pc:${o.p.color}" data-act="statp" data-id="${o.p.id}" data-ad="${esc(o.p.name.toLocaleLowerCase('tr'))}">
       <span class="pc-av">${avatarIc(o.p.name, esc(basHarf(o.p.name)))}</span><span class="ist-oy-ad"><b>${esc(o.p.name)}</b><small>${o.n ? t('{0} maç', o.n) + ' · ' + pct(o.w, o.n) : t('Maç yok')}</small></span></button>`;
   const sel = `<aside class="ist-liste glass">
       <label class="ist-ara">${IC.ara}<input type="search" placeholder="${t('Oyuncu ara')}" data-ist-ara></label>
       <div class="ist-oylar">${insan.map(satir).join('')}
-        ${botlar.length ? `<div class="ist-grup">${t('DartBot')}</div>${botlar.map(satir).join('')}` : ''}</div></aside>`;
+</div></aside>`;
   const tile = (v, l) => `<div class="tile"><b>${v}</b><span>${t(l)}</span></div>`;
   const x = st.x01;
   const c = st.cricket;
@@ -1316,14 +1328,14 @@ function viewStats() {
       <div><h2>${esc(sp.name)}</h2><small>${st.son ? t('Son oynama: {0}', gunAd(st.son)) : t('Henüz maç oynamadı')}</small></div></section>`;
   return `<main class="page istatistik ist-yeni">${header(t('İstatistik'))}<div class="ist-duzen">${sel}<div class="ist-pano">${kahraman}
     <div class="tiles">${tile(st.played, 'Maç')}${tile(st.wins, 'Galibiyet')}${tile(pct(st.wins, st.played), 'Kazanma')}</div>
-    ${x ? `<h2 class="sec">X01</h2><div class="tiles">
+    ${x ? `${istBas('x01', 'X01')}<div class="tiles">
       ${tile(fmt1(x.avg), '3 ok ort.')}${tile(fmt1(x.first9), 'İlk 9 ort.')}${tile(Number.isFinite(x.checkout) ? yuzde(Math.round(x.checkout * 100)) : '–', t('Checkout ({0}/{1})', x.coHits, x.coAtt))}
       ${tile(x.hiCo || '–', 'En yüksek bitiriş')}${tile(x.bestLeg || '–', 'En kısa leg (ok)')}${tile(x.hiTurn || '–', 'En yüksek tur')}
       ${tile(x.t100, '100+')}${tile(x.t140, '140+')}${tile(x.t180, '180')}</div>` : ''}
-    ${c ? `<h2 class="sec">${t('Kriket')}</h2><div class="tiles">${tile(Number.isFinite(c.mpr) ? ondalik(c.mpr, 2) : '–', 'MPR')}${tile(c.bestTurn, 'En iyi tur (işaret)')}${tile(c.darts, 'Ok')}</div>` : ''}
-    ${st.records.length ? `<h2 class="sec">${t('Rekorlar')}</h2><div class="tiles">${st.records.map(r => tile(r.best + (r.unit ? ' ' + t(r.unit) : ''), `${esc(gt(GAMES[r.id], 'name'))} · ${t('{0} kez', r.n)}`)).join('')}</div>` : ''}
-    ${st.isi && st.isi.n ? `<h2 class="sec">${t('Isı haritası')}</h2><div class="isi-kutu glass">${isiTahta(st.isi)}<p class="muted isi-not">${t('{0} ok · koyu kırmızı = en çok isabet', st.isi.n)}</p></div>` : ''}
-    <h2 class="sec">${t('Maçlar')}</h2>${maclar || `<div class="ist-bos glass"><span class="kam-kart-ic">${YILDIZ_IC}</span><p>${t('Bu oyuncu henüz maç oynamadı. Oynadıkça istatistikleri ve maçları burada görünecek.')}</p></div>`}
+    ${c ? `${istBas('kriket', t('Kriket'))}<div class="tiles">${tile(Number.isFinite(c.mpr) ? ondalik(c.mpr, 2) : '–', 'MPR')}${tile(c.bestTurn, 'En iyi tur (işaret)')}${tile(c.darts, 'Ok')}</div>` : ''}
+    ${st.records.length ? `${istBas('rekor', t('Rekorlar'))}<div class="tiles">${st.records.map(r => tile(r.best + (r.unit ? ' ' + t(r.unit) : ''), `${esc(gt(GAMES[r.id], 'name'))} · ${t('{0} kez', r.n)}`)).join('')}</div>` : ''}
+    ${st.isi && st.isi.n ? `${istBas('isi', t('Isı haritası'))}<div class="isi-kutu glass">${isiTahta(st.isi)}<p class="muted isi-not">${t('{0} ok · koyu kırmızı = en çok isabet', st.isi.n)}</p></div>` : ''}
+    ${istBas('maclar', t('Maçlar'))}${maclar || `<div class="ist-bos glass"><span class="kam-kart-ic">${YILDIZ_IC}</span><p>${t('Bu oyuncu henüz maç oynamadı. Oynadıkça istatistikleri ve maçları burada görünecek.')}</p></div>`}
     </div></div></main>`;
 }
 

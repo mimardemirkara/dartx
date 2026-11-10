@@ -3944,3 +3944,24 @@ a.ay-satir { color: inherit; text-decoration: none; }
 :root[data-tema="acik"] .ark-kod { color: #8a6418; }
 :root[data-tema="acik"] .ark-guvenlik button { color: rgba(29,27,32,.65); }
 :root[data-tema="acik"] .ark-guvenlik button.tehlike { color: #b91c1c; }
+/* İstatistik, telefon (Demir 11.11 "kayıyor"): kayan oyuncu şeridi sayfayı genişletmesin; her şey ekran içinde kalır */
+.ist-duzen > * { min-width: 0; max-width: 100%; }
+.ist-liste { min-width: 0; overflow: hidden; }
+
+/* İstatistik bölüm başlıkları (Demir 11.11): simge + altın, büyük; altında boydan boya ince çizgi; kutular tam genişlik */
+.ist-yeni h2.sec.ist-bas { display: flex; align-items: center; gap: 10px; margin: 22px 0 12px; padding: 0 2px 10px; font-size: 15px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--brand, #e3b866); border-bottom: 1px solid var(--cizgi, rgba(255,255,255,.08)); }
+.ist-bas-ic { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 10px; color: #e3b866; background: rgba(227,184,102,.12); box-shadow: inset 0 0 0 1px rgba(227,184,102,.28); }
+.ist-bas-ic svg { width: 18px; height: 18px; }
+:root[data-tema="acik"] .ist-yeni h2.sec.ist-bas { color: #7a5410; border-bottom-color: rgba(29,27,32,.1); }
+:root[data-tema="acik"] .ist-bas-ic { color: #8a6418; background: rgba(185,138,53,.14); box-shadow: inset 0 0 0 1px rgba(138,100,24,.3); }
+.ist-yeni .ist-gun { font-size: 14px; font-weight: 800; }
+/* İstatistik (Demir 11.11): tablette kutular tam genişlik; ısı haritası listesi telefonda düzenli 3 sütun, sayı + yüzde yan yana */
+@media (min-width: 700px) { .istatistik.ist-yeni .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; justify-content: stretch; } }
+.isi-ilk > span { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+.isi-ilk > span b { min-width: 0 !important; }
+@media (max-width: 560px) {
+  .isi-ilk { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; justify-content: stretch !important; gap: 8px 10px; width: 100%; font-size: 14px; }
+  .isi-ilk > span { justify-content: center; padding: 6px 4px; border-radius: 10px; background: rgba(255,255,255,.05); }
+  :root[data-tema="acik"] .isi-ilk > span { background: rgba(29,27,32,.05); }
+}
+.ist-yeni h2.sec.ist-bas { font-size: 16px; }
