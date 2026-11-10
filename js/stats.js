@@ -13,6 +13,9 @@ export function playerStats(pid) {
     x01: null,
     cricket: null,
     recent: hist.slice(0, 15),
+    // Demir 11.11: bütün maçlar tarih tarih, en yeni üstte (istatistik ekranında gün gün listelenir)
+    tum: hist.slice().sort((a, b) => (b.ended || b.started || 0) - (a.ended || a.started || 0)),
+    son: hist.reduce((en, m) => Math.max(en, m.ended || m.started || 0), 0) || null,
   };
   hist.forEach(m => {
     const b = (res.byGame[m.gameId] = res.byGame[m.gameId] || { played: 0, wins: 0 });

@@ -3183,3 +3183,48 @@ body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
 .ym-noktalar { gap: 0; }
 .ym-noktalar i { position: relative; margin: 0 4px; cursor: pointer; }
 .ym-noktalar i::after { content: ''; position: absolute; inset: -10px -6px; }
+
+/* ==== İstatistik ekranı (Demir 11.11): tablette solda oyuncu listesi + sağda pano; telefonda kayan avatar şeridi ==== */
+.ist-yeni { max-width: 1200px; }
+.ist-duzen { display: grid; gap: 16px; }
+.ist-liste { border-radius: 22px; padding: 10px; }
+.ist-ara { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 40px; border-radius: 99px; background: rgb(0 0 0 / .22); margin-bottom: 8px; }
+.ist-ara svg { width: 16px; height: 16px; opacity: .7; flex: none; }
+.ist-ara input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--fg); font: inherit; font-size: 15px; }
+.ist-oylar { display: grid; gap: 4px; }
+.ist-oy { appearance: none; border: 0; background: none; color: var(--fg); font: inherit; display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 14px; cursor: pointer; text-align: left; min-width: 0; }
+.ist-oy[hidden], .ist-grup[hidden] { display: none; }
+.ist-oy .pc-av { width: 38px; height: 38px; flex: none; opacity: 1; }
+.ist-oy-ad { display: grid; min-width: 0; } .ist-oy-ad b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ist-oy-ad small { font-size: 12px; color: var(--mut); }
+.ist-oy.on { background: color-mix(in srgb, var(--pc) 22%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pc) 70%, transparent); }
+.ist-grup { margin: 10px 10px 2px; font-size: 11.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.ist-kahraman { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-radius: 22px; box-shadow: inset 4px 0 0 var(--pc); }
+.ist-kahraman h2 { margin: 0; font-size: 26px; } .ist-kahraman small { color: var(--mut); font-size: 14px; }
+.ist-buyuk-av { width: 64px !important; height: 64px !important; opacity: 1 !important; font-size: 24px; flex: none; }
+.ist-gun { margin: 16px 6px 6px; font-size: 13px; font-weight: 800; color: var(--brand); text-transform: capitalize; }
+.ist-mac { display: grid; grid-template-columns: 30px 40px 1fr auto; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 16px; background: rgb(255 255 255 / .04); margin-bottom: 6px; }
+.ist-sonuc { width: 28px; height: 28px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: rgb(255 255 255 / .1); }
+.ist-sonuc.w { background: rgb(79 208 138 / .85); color: #062; } .ist-sonuc.l { background: rgb(240 113 95 / .3); color: #ffb3a8; }
+.ist-mac-ic { width: 40px !important; height: 40px; max-width: 40px; border-radius: 11px; overflow: hidden; } .ist-mac-ic svg { width: 100%; height: 100%; display: block; }
+.ist-mac-ad { display: grid; min-width: 0; } .ist-mac-ad b { font-size: 15px; } .ist-mac-ad small { font-size: 12.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ist-mac time { font-size: 13px; color: var(--mut); font-variant-numeric: tabular-nums; }
+.ist-daha { width: 100%; margin-top: 6px; }
+.ist-bos { display: grid; justify-items: center; gap: 10px; padding: 22px; border-radius: 22px; text-align: center; color: var(--mut); }
+.ist-bos .kam-kart-ic svg { width: 26px; height: 26px; }
+.ist-pano > .tiles, .ist-pano > h2 { margin-top: 14px; }
+@media (min-width: 900px) {
+  .ist-duzen { grid-template-columns: 290px minmax(0, 1fr); align-items: start; }
+  .ist-liste { position: sticky; top: calc(var(--safe-t, 0px) + var(--ust, 40px) + 10px); max-height: calc(100dvh - var(--safe-t, 0px) - 150px); display: flex; flex-direction: column; }
+  .ist-oylar { overflow-y: auto; scrollbar-width: none; }
+}
+@media (max-width: 899px) {
+  .ist-liste { padding: 8px; }
+  .ist-oylar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; padding-bottom: 2px; }
+  .ist-oylar::-webkit-scrollbar { display: none; }
+  .ist-oy { flex: none; flex-direction: column; gap: 4px; width: 78px; padding: 6px 4px; text-align: center; scroll-snap-align: start; }
+  .ist-oy .pc-av { width: 46px; height: 46px; }
+  .ist-oy-ad b { font-size: 12.5px; } .ist-oy-ad small { font-size: 10.5px; }
+  .ist-grup { writing-mode: vertical-rl; transform: rotate(180deg); margin: 0 2px; align-self: center; font-size: 10px; }
+}
+.ist-pano .tiles { max-width: none; margin-left: 0; margin-right: 0; }
+.ist-pano h2.sec { text-align: left; margin-left: 6px; }
