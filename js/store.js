@@ -76,8 +76,18 @@ export function uid() {
 }
 
 // ---- Oyuncular
+// Demir 11.11: silinen oyuncu arşivde kalır (maç geçmişi zaten silinmez); aynı adla yeniden eklenince
+// eski kimliğiyle geri gelir → istatistikleri ve geçmiş maçları yine onun olur
+const adAnahtar = n => String(n || '').trim().toLocaleLowerCase('tr');
 export function addPlayer(name) {
   const used = new Set(db.players.map(p => p.color));
+  const arsiv = (db.silinen || []).find(p => adAnahtar(p.name) === adAnahtar(name));
+  if (arsiv) {
+    db.silinen = db.silinen.filter(p => p !== arsiv);
+    const geri = { ...arsiv, name: name.trim(), color: used.has(arsiv.color) ? (COLORS.find(c => !used.has(c)) || arsiv.color) : arsiv.color };
+    delete geri.silindi;
+    db.players.push(geri); save(); return geri;
+  }
   const color = COLORS.find(c => !used.has(c)) || COLORS[db.players.length % COLORS.length];
   const p = { id: uid(), name: name.trim(), color, created: Date.now() };
   db.players.push(p);
@@ -95,10 +105,12 @@ export function updatePlayer(id, patch) {
   save();
 }
 export function removePlayer(id) {
+  const p = db.players.find(x => x.id === id);
+  if (p) { db.silinen = (db.silinen || []).filter(x => x.id !== id && adAnahtar(x.name) !== adAnahtar(p.name)); db.silinen.push({ ...p, silindi: Date.now() }); }
   db.players = db.players.filter(p => p.id !== id);
   save();
 }
-export const player = id => db.players.find(p => p.id === id) || { id, name: 'Silinmiş', color: '#777' };
+export const player = id => db.players.find(p => p.id === id) || (db.silinen || []).find(p => p.id === id) || { id, name: 'Silinmiş', color: '#777' };
 export const COLOR_LIST = COLORS;
 
 // ---- Maç
