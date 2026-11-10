@@ -35,7 +35,7 @@ export const GAMES = Object.fromEntries(LIST.map(g => [g.id, g]));
 export const GAME_LIST = LIST;
 export const CATS = [
   ['main', 'Ana Maçlar'],
-  ['cricket', 'Kriket'],
+  ['cricket', 'Kriket Oyunları'], // Demir 11.11: içinin dolu olduğu anlaşılsın
   ['party', 'Grup Oyunları'],
-  ['practice', 'Antrenman'],
+  ['practice', 'Antrenmanlar'],
 ];

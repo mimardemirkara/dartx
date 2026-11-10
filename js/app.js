@@ -569,7 +569,7 @@ function viewHome() {
   // Oyunlar 3 klasörde (iPhone klasörü gibi: içindeki oyunların minik simgeleri) + Oyuncular / İstatistik / Ayarlar
   const klasorler = CATS.map(([cat, label]) => `
       <button class="app" data-act="klasor" data-v="${cat}">
-        <span class="app-ico simge">${ikon('grp-' + cat)}</span>
+        <span class="app-ico simge yakinda">${ikon('grp-' + cat)}<i class="klasor-sayi" aria-label="${t('{0} oyun', GAME_LIST.filter(g => g.cat === cat && !g.soon).length)}">${GAME_LIST.filter(g => g.cat === cat && !g.soon).length}</i></span>
         <span class="app-ad">${t(label)}</span>
       </button>`).join('');
   const menu = [['players', 'Oyuncular'], ['stats', 'İstatistik'], ['settings', 'Ayarlar']].map(([v, l]) => `
@@ -596,7 +596,7 @@ function viewHome() {
   const ymArac = yarim.length ? `<div class="arac ym-arac glass">
       <div class="arac-bas">${DURAKLAT_IC}<span>${t('Yarım Maçlar')}</span><small>${yarim.length}</small></div>
       <div class="ym-kaydir">${yarim.map((am, i) => kayit(am, i === 0)).join('')}</div>
-      ${yarim.length > 1 ? `<div class="ym-noktalar">${yarim.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}
+      ${yarim.length > 1 ? `<div class="ym-noktalar">${yarim.map((_, i) => `<i class="${i ? '' : 'on'}" role="button" aria-label="${t('{0}. yarım maç', i + 1)}"></i>`).join('')}</div>` : ''}
     </div>` : '';
   // Demir 10.11: dijital saat (Apple gibi) — altında gün, tarih (yıllı) ve hava durumu
   const sy = saatYaz();
@@ -605,7 +605,17 @@ function viewHome() {
       <div class="ds-gun" data-saat="gun">${esc(sy.gun)}</div>
       <div class="ds-tarih" data-saat="tamTarih">${esc(sy.tamTarih)}</div>
       <div class="ds-hava" data-hava="uzun" ${hava ? '' : 'hidden'}>${havaYaz(true)}</div></div>`;
-  const araListe = `<div class="araclar ${yarim.length ? '' : 'tek'}">${saatArac}${ymArac}</div>`;
+  // Sık Oynananlar (Demir 11.11, yalnız tablette): geçmişten en çok oynanan 4 oyun; geçmiş azsa popüler oyunlarla tamamlanır.
+  // Dokununca o oyunun kurulumu son oyuncular ve ayarlarla açılır.
+  const sayac = {};
+  (d.history || []).forEach(h => { if (GAMES[h.gameId]) sayac[h.gameId] = (sayac[h.gameId] || 0) + 1; });
+  const sik = Object.keys(sayac).sort((a, b) => sayac[b] - sayac[a]);
+  ['x01', 'cricket', 'turk', 'killer'].forEach(id => { if (GAMES[id] && !sik.includes(id)) sik.push(id); });
+  const sikArac = `<div class="arac sik-arac glass">
+      <div class="arac-bas">${YILDIZ_IC}<span>${t('Sık Oynananlar')}</span></div>
+      <div class="sik-izgara">${sik.filter(id => !GAMES[id].soon).slice(0, 4).map(id => { const g = GAMES[id]; return `<button class="sik-oyun" data-act="pick" data-id="${id}">
+        <span class="app-ico simge">${ikon(id).replaceAll('dx' + id, 'dxsik' + id)}</span><b>${esc(gt(g, 'name'))}</b>${sayac[id] ? `<small>${t('{0} maç', sayac[id])}</small>` : ''}</button>`; }).join('')}</div></div>`;
+  const araListe = `<div class="araclar ${yarim.length ? '' : 'tek'}">${saatArac}${sikArac}${ymArac}</div>`;
   widget = '';
   return `<main class="page home">${header('')}${ara}${widget}${araListe}<div class="apps ana">${klasorler}${menu}</div></main>`;
 }
@@ -946,6 +956,14 @@ addEventListener('scroll', e => {
   const i = Math.round(k.scrollLeft / k.clientWidth);
   k.parentElement.querySelectorAll('.ym-noktalar i').forEach((n, j) => n.classList.toggle('on', i === j));
 }, true);
+// Noktaya dokununca o yarım maça kayarak geçer (Demir 11.11)
+document.addEventListener('click', e => {
+  const n = e.target.closest('.ym-noktalar i'); if (!n) return;
+  const kutu = n.closest('.ym-arac'), k = kutu && kutu.querySelector('.ym-kaydir'); if (!k) return;
+  const i = [...n.parentElement.children].indexOf(n);
+  k.scrollTo({ left: i * k.clientWidth, behavior: 'smooth' }); vib(6);
+  n.parentElement.querySelectorAll('i').forEach((x, j) => x.classList.toggle('on', i === j));
+});
 // Konuşma seviyesi (Demir 10.11): Sade = atışlar + sıra · Standart = + toplam, kalan, kapanan · Koç = + durum ve tavsiye
 const SEVIYELER = [['kisa', 'Sade · yalnız atışlar'], ['normal', 'Standart · + toplam, kalan'], ['koc', 'Koç · + tavsiye']];
 function seviyeKoy(sv) {
@@ -964,6 +982,7 @@ app.addEventListener('pointerdown', e => {
 });
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(svT)));
 // ---------- Kamera (Beta): telefonun kendi kamerası ya da eşleşmiş telefondan gelen atış ----------
+const YILDIZ_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>';
 const KAM_IC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
 function kamDugme(useTotal) {
   const d = kam.durum();
