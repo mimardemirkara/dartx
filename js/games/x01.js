@@ -1,5 +1,5 @@
 // X01: 301 / 501 / 701
-import { dartValue, dartLabel, esc, adAvatar } from '../util.js';
+import { dartValue, dartLabel, esc, adAvatar, ondalik } from '../util.js';
 import { checkout } from '../checkout.js';
 // lucide crosshair (hedef) — bitiriş önerisi simgesi
 const BITIS_IC = '<svg class="bitis-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>';
@@ -116,7 +116,7 @@ export default {
       const turns = m.log.filter(t => t.side === i && t.leg === m.legNo);
       const pts = turns.reduce((a, t) => a + (t.points || 0), 0);
       const nd = turns.reduce((a, t) => a + (t.nd ?? t.darts.length), 0);
-      const avg = nd ? ((pts / nd) * 3).toFixed(1) : '–';
+      const avg = nd ? ondalik((pts / nd) * 3) : '–';
       const last = turns.length ? turns[turns.length - 1] : null;
       const lastTxt = last ? (last.bust ? 'Bust' : last.points) : '–';
       return `<div class="side ${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}">
@@ -146,8 +146,8 @@ export default {
     const legI = {}; let f9p = 0, f9d = 0;
     t.forEach(x => { const i = (legI[x.leg] = (legI[x.leg] || 0) + 1); if (i <= 3) { f9p += x.points || 0; f9d += x.nd ?? x.darts.length; } });
     return [
-      ['Ortalama', nd ? ((pts / nd) * 3).toFixed(1) : '–'],
-      ['İlk 9 ort.', f9d ? ((f9p / f9d) * 3).toFixed(1) : '–'],
+      ['Ortalama', nd ? ondalik((pts / nd) * 3) : '–'],
+      ['İlk 9 ort.', f9d ? ondalik((f9p / f9d) * 3) : '–'],
       ['180', t.filter(x => x.points === 180).length],
       ['140+', t.filter(x => x.points >= 140).length],
       ['En yüksek bitiriş', co.length ? Math.max(...co.map(x => x.checkout)) : '–'],

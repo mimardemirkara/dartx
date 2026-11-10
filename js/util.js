@@ -13,8 +13,12 @@ export function esc(s) {
 }
 
 export const sum = a => a.reduce((x, y) => x + y, 0);
-export const fmt1 = n => (Number.isFinite(n) ? n.toFixed(1) : '–');
-export const pct = (a, b) => (b ? Math.round((a / b) * 100) + '%' : '–');
+// Demir 11.11: Türkçede yüzde başta (%27), ondalık virgülle (58,6); İngilizcede 27% ve 58.6
+const trMi = () => (document.documentElement.lang || 'tr').startsWith('tr');
+export const ondalik = (n, b = 1) => { const s = Number(n).toFixed(b); return trMi() ? s.replace('.', ',') : s; };
+export const yuzde = n => (trMi() ? '%' + n : n + '%');
+export const fmt1 = n => (Number.isFinite(n) ? ondalik(n) : '–');
+export const pct = (a, b) => (b ? yuzde(Math.round((a / b) * 100)) : '–');
 
 // Demir ve Kenan istisnası (Demir 09.11): adı (ilk kelimesi) Demir / Kenan olan oyuncunun yanında kendi avatarı
 export function adResim(ad) {

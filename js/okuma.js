@@ -4,6 +4,7 @@
 //     Okuma bu parçaların art arda çalınmasıyla kurulur: "Sıradaki oyuncu" + "Tuncay" + "Kalan" + "kırk" + "Double yirmi".
 //  2) Kaydı olmayan bir şey (bilinmeyen ad, İngilizce dil, kayıtlar yüklenemezse) telefonun okuma sesine düşer.
 // Bilinmeyen oyuncu adı okunmaz, yalnız "Sıradaki oyuncu" denir (Demir'in seçimi: ses tek ve tutarlı kalsın).
+import './tts-yerel.js'; // Android uygulamasında telefonun okuyucusu
 import { data, player } from './store.js';
 import { dil } from './i18n.js';
 import { checkout } from './checkout.js';
@@ -12,11 +13,12 @@ const TR = { house: 'Haus', triple: 'Tripıl', double: 'Dabıl', bull: 'Bul', db
 const EN = { house: 'House', triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next up,' };
 const S = () => (dil() === 'en' ? EN : TR);
 
-export const acikMi = () => dil() !== 'en' && data().settings.sesliOkuma === true && data().settings.sessiz !== true;
+export const acikMi = () => data().settings.sesliOkuma === true && data().settings.sessiz !== true && destekli();
 const ttsVar = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 const sesVar = () => typeof window !== 'undefined' && !!(window.AudioContext || window.webkitAudioContext);
-// Demir 11.11: İngilizce seçiliyken sesli okuma yok (spiker kayıtları Türkçe) — düğmeler, menü ve ayar gizlenir
-export const destekli = () => dil() !== 'en' && (ttsVar() || sesVar());
+// Demir 11.11: İngilizcede spiker kaydı yok → telefonun kendi okuyucusu (iOS/Android sesi) okur
+const enMi = () => dil() === 'en';
+export const destekli = () => (enMi() ? ttsVar() : ttsVar() || sesVar());
 
 // ---- spiker kayıtları (Web Audio): ilk açılışta indirilip çözülür, sonra anında çalar
 const KAYIT = 'ses/spiker/';
@@ -28,6 +30,7 @@ function sesBaglam() {
   return ctx;
 }
 export function kayitlariYukle() {
+  if (enMi()) return Promise.resolve(); // İngilizcede Türkçe kayıtlar indirilmez
   if (yukleniyor || !sesVar()) return yukleniyor;
   yukleniyor = fetch(KAYIT + 'liste.json').then(r => r.json()).then(async ids => {
     liste = new Set(ids);
@@ -59,7 +62,7 @@ function pompala() {
   if (suan || !kuyruk.length) return;
   const o = kuyruk.shift(); suan = o;
   const c = sesBaglam();
-  const kayitla = dil() !== 'en' && c && o.parca && o.parca.length && o.parca.every(kayitVar);
+  const kayitla = !enMi() && c && o.parca && o.parca.length && o.parca.every(kayitVar);
   if (kayitla) {
     // parçalar art arda, aralarında 50 ms
     let t = c.currentTime + 0.02;
@@ -67,16 +70,34 @@ function pompala() {
     suanT = setTimeout(() => bitir(o), (t - c.currentTime) * 1000 + 30);
     return;
   }
-  if (!ttsVar() || !o.metin) { suan = null; pompala(); return; }
-  const u = new SpeechSynthesisUtterance(o.metin);
+  const metin = enMi() && o.parca ? enMetin(o.parca) || o.metin : o.metin;
+  if (!ttsVar() || !metin) { suan = null; pompala(); return; }
+  const u = new SpeechSynthesisUtterance(metin);
   u.lang = dil() === 'en' ? 'en-GB' : 'tr-TR';
   const v = sesSec(); if (v) u.voice = v;
-  u.rate = 1.25; u.pitch = 1; u.volume = 1;
+  u.rate = enMi() ? 1.1 : 1.25; u.pitch = 1; u.volume = 1;
   u.onend = u.onerror = () => bitir(o);
   o.u = u; // referans tutulur (bazı tarayıcılarda bitiş olayı kaybolmasın)
-  suanT = setTimeout(() => bitir(o), 900 + o.metin.length * 110); // bitiş olayı hiç gelmezse (iOS)
+  suanT = setTimeout(() => bitir(o), 900 + metin.length * 110); // bitiş olayı hiç gelmezse (iOS)
   speechSynthesis.speak(u);
 }
+// İngilizce: kayıt parçaları telefonun okuyacağı cümleye çevrilir. '@…' = olduğu gibi okunur (ad, koç cümlesi)
+const EN_SOZ = { iska: 'Miss', bull: 'Bull', dbull: 'Bullseye', bust: 'Bust!', house: 'House', yuzseksen: 'One hundred and eighty!',
+  gameshot: 'Game shot!', gameshot_mac: 'Game shot, and the match!', siradaki: 'Next up', kalan: 'you require', tekok: 'Closed in one dart!',
+  k_kapandi: 'closed', k_double_ac: 'You need a double to start', okuma_acik: 'Voice caller on', okuma_kapali: 'Voice caller off' };
+function enMetin(parca) {
+  const s = [];
+  for (const id of parca) {
+    if (id.startsWith('@')) { s.push(id.slice(1)); continue; }
+    let m;
+    if ((m = /^n(\d+)$/.exec(id))) s.push(m[1]);
+    else if ((m = /^t(\d+)$/.exec(id))) s.push('Treble ' + m[1]);
+    else if ((m = /^d(\d+)$/.exec(id))) s.push('Double ' + m[1]);
+    else if (EN_SOZ[id]) s.push(EN_SOZ[id]);
+  }
+  return s.join(', ').replace(/you require, /g, 'you require ');
+}
+
 /** Sıraya koyar. parca: kayıt id'leri; metin: kayıt yoksa telefonun okuyacağı yazı. ok=true: tek ok (eski başlamamış ok atlanır) */
 function seslendir(parca, metin, ok = false, atlanir = ok) {
   if (!acikMi() || !destekli()) return;
@@ -91,7 +112,7 @@ export async function duyur(acik) {
   await kayitlariYukle();
   const id = acik ? 'okuma_acik' : 'okuma_kapali', c = sesBaglam();
   if (c && tampon[id]) { const k = c.createBufferSource(); k.buffer = tampon[id]; k.connect(c.destination); k.start(); kaynaklar.push(k); return; }
-  if (ttsVar()) { const u = new SpeechSynthesisUtterance(acik ? 'Sesli okuma açık' : 'Sesli okuma kapalı'); u.lang = 'tr-TR'; speechSynthesis.speak(u); }
+  if (ttsVar()) { const u = new SpeechSynthesisUtterance(enMi() ? (acik ? 'Voice caller on' : 'Voice caller off') : (acik ? 'Sesli okuma açık' : 'Sesli okuma kapalı')); u.lang = enMi() ? 'en-GB' : 'tr-TR'; const v = sesSec(); if (v) u.voice = v; speechSynthesis.speak(u); }
 }
 /** Serbest metin — telefonun sesiyle */
 export function oku(metin, kes = false) {
@@ -118,7 +139,7 @@ const sayiParca = n => (n >= 0 && n <= 180 ? ['n' + n] : null);
 const kalanParca = n => (kayitVar('kalan_' + n) ? ['kalan_' + n] : ['kalan', 'n' + n]);
 // Karakterlerin adı Türkçe okunsun diye tam cümle kaydı var: "Sıradaki oyuncu, Demir." (Demir 09.11: tek kelime İngilizce gibi okunuyordu)
 // Bilinmeyen ad kayıtla okunmaz, yalnız "Sıradaki oyuncu" denir
-function siraParca(ad) { const id = adId(ad); return kayitVar(id) ? [id] : ['siradaki']; }
+function siraParca(ad) { if (enMi()) return ['siradaki', ...(ad ? ['@' + ad] : [])]; const id = adId(ad); return kayitVar(id) ? [id] : ['siradaki']; }
 
 const x01Mi = m => !!(m && m.g && m.g.s && m.g.s[0] && typeof m.g.s[0].score === 'number' && m.opts && m.opts.out);
 
@@ -153,8 +174,10 @@ function durumParca(m, g) {
     return [];
   }
   const p = [];
-  try { const d = g.durum && g.durum(m, m.g); if (d && d.ses) p.push(...d.ses); } catch (e) { /* yok say */ }
-  try { const ip = g.ipucu && g.ipucu(m, m.g); if (ip && ip.ses) p.push(...ip.ses); } catch (e) { /* yok say */ }
+  // İngilizcede koç cümlesi ekrandaki (çevrilmiş) yazıyla okunur
+  const al = x => { if (!x) return; if (enMi()) { if (x.metin) p.push('@' + String(x.metin).replace(/<[^>]+>/g, '').replace(/·/g, ',')); } else if (x.ses) p.push(...x.ses); };
+  try { al(g.durum && g.durum(m, m.g)); } catch (e) { /* yok say */ }
+  try { al(g.ipucu && g.ipucu(m, m.g)); } catch (e) { /* yok say */ }
   return p;
 }
 
@@ -169,9 +192,9 @@ function kazananAd(m, i) {
 }
 const toplamParca = top => (kayitVar('toplam_' + top) ? ['toplam_' + top] : sayiParca(top));
 /** Maç başladı (ilk atış ekranı kapanınca): "Maç başlıyor, bol şans!" */
-export function macBasladi() { if (acikMi()) { kayitlariYukle().then(() => { const p = birini('mac_bas_', 4); if (p.length) seslendir(p, ''); }); } }
+export function macBasladi() { if (acikMi() && enMi()) { seslendir(['@Game on!'], ''); return; } if (acikMi()) { kayitlariYukle().then(() => { const p = birini('mac_bas_', 4); if (p.length) seslendir(p, ''); }); } }
 /** Yeni leg başladı */
-export function legBasladi() { if (acikMi()) { kayitlariYukle().then(() => { const p = birini('leg_bas_', 2); if (p.length) seslendir(p, ''); }); } }
+export function legBasladi() { if (acikMi() && enMi()) { seslendir(['@Game on!'], ''); return; } if (acikMi()) { kayitlariYukle().then(() => { const p = birini('leg_bas_', 2); if (p.length) seslendir(p, ''); }); } }
 
 /** Atıştan sonra (app.js afterThrow): ne olduysa onu söyler. g: oyunun tanımı (GAMES[m.gameId]) */
 export function atisOku(m, res, ad, g) {
@@ -189,7 +212,7 @@ export function atisOku(m, res, ad, g) {
   if (res.event === 'match' || res.event === 'leg' || res.event === 'set') {
     const kad = res.winner >= 0 ? kazananAd(m, res.winner) : null;
     const mac = res.event === 'match';
-    seslendir([mac ? 'gameshot_mac' : 'gameshot', ...(kad ? varsa(kazananId(kad)) : []), ...(mac ? birini('mac_son_', 3) : [])], k.oyun);
+    seslendir([mac ? 'gameshot_mac' : 'gameshot', ...(kad ? (enMi() ? ['@' + kad] : varsa(kazananId(kad))) : []), ...(mac ? birini('mac_son_', 3) : [])], k.oyun);
     return;
   }
   if (res.event !== 'turn') return;

@@ -5,7 +5,7 @@ import { botAt, botHedef, BOT_SEVIYE } from './bot.js';
 import { data, player } from './store.js';
 import { GAMES, GAME_LIST, CATS } from './games/index.js';
 import * as E from './engine.js';
-import { dartLabel, dartValue, esc, fmt1, pct, adAvatar, adResim, botMu, botAvatar } from './util.js';
+import { dartLabel, dartValue, esc, fmt1, pct, yuzde, ondalik, adAvatar, adResim, botMu, botAvatar } from './util.js';
 import { playerStats } from './stats.js';
 import { IMPOSSIBLE } from './games/x01.js';
 import { ikon } from './icons.js';
@@ -1297,10 +1297,10 @@ function viewStats() {
   return `<main class="page istatistik ist-yeni">${header(t('İstatistik'))}<div class="ist-duzen">${sel}<div class="ist-pano">${kahraman}
     <div class="tiles">${tile(st.played, 'Maç')}${tile(st.wins, 'Galibiyet')}${tile(pct(st.wins, st.played), 'Kazanma')}</div>
     ${x ? `<h2 class="sec">X01</h2><div class="tiles">
-      ${tile(fmt1(x.avg), '3 ok ort.')}${tile(fmt1(x.first9), 'İlk 9 ort.')}${tile(Number.isFinite(x.checkout) ? Math.round(x.checkout * 100) + '%' : '–', t('Checkout ({0}/{1})', x.coHits, x.coAtt))}
+      ${tile(fmt1(x.avg), '3 ok ort.')}${tile(fmt1(x.first9), 'İlk 9 ort.')}${tile(Number.isFinite(x.checkout) ? yuzde(Math.round(x.checkout * 100)) : '–', t('Checkout ({0}/{1})', x.coHits, x.coAtt))}
       ${tile(x.hiCo || '–', 'En yüksek bitiriş')}${tile(x.bestLeg || '–', 'En kısa leg (ok)')}${tile(x.hiTurn || '–', 'En yüksek tur')}
       ${tile(x.t100, '100+')}${tile(x.t140, '140+')}${tile(x.t180, '180')}</div>` : ''}
-    ${c ? `<h2 class="sec">${t('Kriket')}</h2><div class="tiles">${tile(Number.isFinite(c.mpr) ? c.mpr.toFixed(2) : '–', 'MPR')}${tile(c.bestTurn, 'En iyi tur (işaret)')}${tile(c.darts, 'Ok')}</div>` : ''}
+    ${c ? `<h2 class="sec">${t('Kriket')}</h2><div class="tiles">${tile(Number.isFinite(c.mpr) ? ondalik(c.mpr, 2) : '–', 'MPR')}${tile(c.bestTurn, 'En iyi tur (işaret)')}${tile(c.darts, 'Ok')}</div>` : ''}
     ${st.records.length ? `<h2 class="sec">${t('Rekorlar')}</h2><div class="tiles">${st.records.map(r => tile(r.best + (r.unit ? ' ' + t(r.unit) : ''), `${esc(gt(GAMES[r.id], 'name'))} · ${t('{0} kez', r.n)}`)).join('')}</div>` : ''}
     ${st.isi && st.isi.n ? `<h2 class="sec">${t('Isı haritası')}</h2><div class="isi-kutu glass">${isiTahta(st.isi)}<p class="muted isi-not">${t('{0} ok · koyu kırmızı = en çok isabet', st.isi.n)}</p></div>` : ''}
     <h2 class="sec">${t('Maçlar')}</h2>${maclar || `<div class="ist-bos glass"><span class="kam-kart-ic">${YILDIZ_IC}</span><p>${t('Bu oyuncu henüz maç oynamadı. Oynadıkça istatistikleri ve maçları burada görünecek.')}</p></div>`}
@@ -1359,7 +1359,7 @@ function viewYardim() {
       ${tus('db', 'D-Bull', t('İç bull: 50'))}${tus('i', 'Iska', t('Tahtayı ıskaladın'))}
       ${tus('g', t('Geri Al'), t('Son oku geri alır; basılı tutunca tüm atış listesi açılır'))}${tus('s', t('Sıradaki'), t('Eli erken bitirir, sırayı geçirir'))}</ul>
       <p>${t('Kriket tablosunda bir hücreye dokunarak da yazabilirsin. Üstteki ☰ menüsünden maçı duraklatabilir ya da bitirebilirsin.')}</p>`),
-    konu(AY.oyunSes, t('Sesli okuma'), `<p>${t('Oyun ekranının üstündeki konuşan kişi düğmesi sesli okumayı açar. Basılı tutunca seviye seçilir: Sade (yalnız atışlar), Standart (+ toplam, kalan), Koç (+ tavsiye). Şimdilik yalnız Türkçe.')}</p>`),
+    konu(AY.oyunSes, t('Sesli okuma'), `<p>${t('Oyun ekranının üstündeki konuşan kişi düğmesi sesli okumayı açar. Basılı tutunca seviye seçilir: Sade (yalnız atışlar), Standart (+ toplam, kalan), Koç (+ tavsiye). Türkçede spiker sesi, İngilizcede telefonun kendi sesi okur.')}</p>`),
     konu(AY.kisi, t('DartBot'), `<p>${t('Oyuncu seçerken DartBot Kolay, Orta, Zor ya da Usta’yı ekle. Bot kendi sırasında kendisi atar; attığı oklar ekranda gösterilir.')}</p>`),
     konu(AY.kamera, t('Kamera (Beta)'), `<p>${t('Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte sabitle. Kamera ekranında altın kalıba tahtayı oturt, Oturdu’ya bas, sonra Otomatik algıla. Tablet + telefon için aynı Wi-Fi’de QR ile eşleştir.')}</p>
       <button class="btn sm" data-act="tab" data-v="kamera">${AY.kamera}<span>${t('Kamerayı aç')}</span></button>`),

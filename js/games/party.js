@@ -1,5 +1,5 @@
 // Grup oyunları: Shanghai, Halve-It, Around the Clock, Baseball, Count-Up, Gotcha
-import { dartValue } from '../util.js';
+import { dartValue, ondalik } from '../util.js';
 import { cards, best, roundLimit, label, playerTurns, sumRec, dartsOf, roundsOpt } from './common.js';
 import { t as tr } from '../i18n.js';
 
@@ -198,7 +198,7 @@ function totalFactory({ id, name, cat, short, rules, rounds, def, valueOf, statR
     view(m, g, ctx) {
       return cards(m, ctx, i => {
         const t = m.log.filter(x => x.side === i), d = dartsOf(t);
-        return { big: g.s[i].pts, sub: [d ? tr('Ort {0}', ((scoreSum(m, i) / d) * 3).toFixed(1)) : tr('Ort –'), tr('{0} ok', d)] };
+        return { big: g.s[i].pts, sub: [d ? tr('Ort {0}', ondalik((scoreSum(m, i) / d) * 3, 1)) : tr('Ort –'), tr('{0} ok', d)] };
       });
     },
     summary: statRows,
@@ -211,7 +211,7 @@ export const countup = totalFactory({
   short: 'Belirli tur sayısında en yüksek toplam',
   rules: 'Her okun değeri toplanır (T20 = 60, Bull = 50). Turlar bitince en yüksek toplam kazanır. Yeni başlayanlar için ideal.',
   rounds: [5, 8, 10, 15], def: 8, valueOf: dartValue,
-  statRows(m, pid) { const t = playerTurns(m, pid), d = dartsOf(t), p = sumRec(t, 'points'); return [['Toplam', p], ['Ortalama', d ? ((p / d) * 3).toFixed(1) : '–'], ['En iyi tur', Math.max(0, ...t.map(x => x.points || 0))]]; },
+  statRows(m, pid) { const t = playerTurns(m, pid), d = dartsOf(t), p = sumRec(t, 'points'); return [['Toplam', p], ['Ortalama', d ? ondalik((p / d) * 3, 1) : '–'], ['En iyi tur', Math.max(0, ...t.map(x => x.points || 0))]]; },
 });
 
 export const scoring = totalFactory({
@@ -221,7 +221,7 @@ export const scoring = totalFactory({
   rounds: [10, 20, 30], def: 10, valueOf: dartValue, target: 'T20',
   statRows(m, pid) {
     const t = playerTurns(m, pid), d = dartsOf(t), p = sumRec(t, 'points');
-    return [['Ortalama', d ? ((p / d) * 3).toFixed(1) : '–'], ['100+', t.filter(x => x.points >= 100).length], ['140+', t.filter(x => x.points >= 140).length], ['180', t.filter(x => x.points === 180).length]];
+    return [['Ortalama', d ? ondalik((p / d) * 3, 1) : '–'], ['100+', t.filter(x => x.points >= 100).length], ['140+', t.filter(x => x.points >= 140).length], ['180', t.filter(x => x.points === 180).length]];
   },
 });
 

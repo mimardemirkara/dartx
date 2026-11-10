@@ -1,6 +1,6 @@
 // Cricket ailesi: Standart, Cut-Throat, Full Board, Tactics, Mickey Mouse, Hidden, Crazy (+ Cricket antrenmanı)
 // Hedef: sayı (1–20), 25 = Bull, 'D' = herhangi double, 'T' = herhangi triple.
-import { esc, dartValue, adAvatar } from '../util.js';
+import { esc, dartValue, adAvatar, ondalik } from '../util.js';
 import { t as tr } from '../i18n.js';
 
 // Demir 09.11 (jargon): sayı TEK OKTA kapandıysa (ör. triple ile 0 → 3) halkanın içinde X yerine nokta
@@ -442,7 +442,7 @@ function make(id) {
       const marks = t.reduce((a, x) => a + (x.marks || 0), 0);
       const nd = t.reduce((a, x) => a + x.darts.length, 0);
       return [
-        ['MPR (tur başı işaret)', nd ? ((marks / nd) * 3).toFixed(2) : '–'],
+        ['MPR (tur başı işaret)', nd ? ondalik((marks / nd) * 3, 2) : '–'],
         ['Toplam işaret', marks],
         ['Ok', nd],
       ];
@@ -487,12 +487,12 @@ Turlar bitince toplam işaretin ve <b>MPR</b>'ın (tur başına işaret) görün
   view(m, g, ctx) {
     return `<div class="board x01 n${m.sides.length}">` + m.sides.map((_, i) => {
       const t = m.log.filter(x => x.side === i); const d = t.reduce((a, x) => a + x.darts.length, 0);
-      return `<div class="side ${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="side-name">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="side-big">${g.s[i].mk}</div><div class="side-sub"><span>MPR ${d ? ((g.s[i].mk / d) * 3).toFixed(2) : '–'}</span><span>${tr('Tur {0}/{1}', Math.min(m.round, m.opts.rounds), m.opts.rounds)}</span></div></div>`;
+      return `<div class="side ${ctx.active(i) ? 'active' : ''}" style="--pc:${ctx.color(i)}"><div class="side-name">${adAvatar(ctx.name(i))}${esc(ctx.name(i))}</div>${ctx.uyeler ? ctx.uyeler(i) : ''}<div class="side-big">${g.s[i].mk}</div><div class="side-sub"><span>MPR ${d ? ondalik((g.s[i].mk / d) * 3, 2) : '–'}</span><span>${tr('Tur {0}/{1}', Math.min(m.round, m.opts.rounds), m.opts.rounds)}</span></div></div>`;
     }).join('') + '</div>';
   },
   summary(m, pid) {
     const t = m.log.filter(x => x.pid === pid); const mk = t.reduce((a, x) => a + (x.marks || 0), 0); const d = t.reduce((a, x) => a + x.darts.length, 0);
-    return [['MPR (tur başı işaret)', d ? ((mk / d) * 3).toFixed(2) : '–'], ['Toplam işaret', mk]];
+    return [['MPR (tur başı işaret)', d ? ondalik((mk / d) * 3, 2) : '–'], ['Toplam işaret', mk]];
   },
   score: (m, pid) => m.log.filter(x => x.pid === pid).reduce((a, x) => a + (x.marks || 0), 0),
 };
