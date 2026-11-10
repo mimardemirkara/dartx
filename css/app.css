@@ -2724,7 +2724,9 @@ a.ay-satir { text-decoration: none; color: inherit; }
 
 /* Alttaki siyah bant (Demir 10.11, iPhone): duvar kâğıdı büyük ekran yüksekliği (araç çubukları gizliyken) kadar uzar */
 body::before { bottom: auto; height: 100vh; height: 100lvh; min-height: 100%; }
-
+/* Ana ekrana ekli uygulama (iPhone, Demir 11.11): iOS orada 100lvh'yi çentik + alt çubuk payı kadar kısa veriyor, kâğıt altta bitiyordu.
+   Kâğıdı güvenli alanlar + pay kadar uzat; fazlası ekran dışında kalır, kaydırma oluşturmaz. */
+body::before { height: calc(100lvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px) + 60px); }
 /* Kenar okları (hesap makinesi) telefonda tuşların üstüne binmesin: daha ince, tahta hizasında (Demir 10.11) */
 @media (max-width: 699px) {
   [data-view="play"] .ev-ipucu { width: 12px; height: 120px; margin-top: -60px; top: 30%; }
