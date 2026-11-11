@@ -4130,3 +4130,18 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .uy-hk-linkler { display: flex; justify-content: center; gap: 8px; }
 .uy-hk .uy-hk-telif { text-align: center; }
 :root[data-tema="acik"] .uy-hk-kunye a, :root[data-tema="acik"] .uy-hk-linkler a { color: #7a5410; }
+/* Ana sayfa simgeleri (Demir 12.11, Honor 90): X-Eye karosu diğerlerinden 4 px büyüktü, o satırda simge ve yazı kayıyordu → hepsi aynı ölçü */
+.app-ico.kam-ana { max-width: 64px; }
+@media (min-width: 700px) { .app-ico.kam-ana { max-width: 76px; } }
+/* sütunlar eşit kalsın: uzun bir ad sütunu genişletip sırayı kaydırmasın */
+@media (max-width: 699px) { .apps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Kamera değiştir (Demir 12.11): X-Eye sahnesinde flaşın solunda; QR okutma penceresinde ayrı düğme */
+.kam-flas.kam-cevir { right: auto; left: 10px; }
+.kam-cevir svg, .kam-cevir-dugme svg { width: 18px; height: 18px; flex: none; }
+.kam-cevir-dugme { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* X-Eye (Demir 12.11): yazılar görüntünün üstünü kapatmasın — yönerge sahnenin üstünde, "Dokunduğun yer" kutusu altında; telefonda sahne tam boy, sayfa aşağı uzar */
+.kam-sol > .kam-yonerge { position: static; transform: none; width: auto; max-width: none; margin: 0 0 8px; text-align: center; }
+.kam-sol > .kam-oneri { position: static; transform: none; width: fit-content; max-width: 100%; margin: 8px auto 0; flex-wrap: wrap; justify-content: center; }
+@media (max-width: 979px) { .kam-sahne { max-height: none; } }

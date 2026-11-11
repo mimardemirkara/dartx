@@ -147,9 +147,17 @@ export function ayarOku(w, h) {
 export function ayarYaz(w, h, noktalar) { localStorage.setItem(ANAHTAR, JSON.stringify({ w, h, noktalar })); }
 
 // ---------- arka kamerayı aç ----------
-export async function kameraAc(yon = 'environment') {
-  const akis = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: yon }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } }); // Autodarts: 720p 30 kare yeterli
+// Demir 12.11: tablette "arka" istenince ön kamera açılıyordu (ideal yalnız tercih) → önce kesin (exact) denenir, olmazsa tercih.
+// amac verilirse (ör. 'xeye', 'qr') kullanıcının son seçtiği taraf hatırlanır; Kamera değiştir düğmesi kameraCevir() ile çalışır.
+const TARAF_ANAHTAR = 'dartx.kamera.taraf.';
+export async function kameraAc(yon = 'environment', amac = '') {
+  if (amac) { try { const k = localStorage.getItem(TARAF_ANAHTAR + amac); if (k === 'user' || k === 'environment') yon = k; } catch (e) { /* yok say */ } }
+  const iste = fm => navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: fm, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } }); // Autodarts: 720p 30 kare yeterli
+  let akis;
+  try { akis = await iste({ exact: yon }); }
+  catch (e) { if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) throw e; akis = await iste({ ideal: yon }); }
   const v = document.createElement('video');
+  v.dataset.yon = yon; v.dataset.amac = amac;
   v.playsInline = true; v.muted = true; v.setAttribute('playsinline', ''); v.srcObject = akis;
   v.play().catch(() => {});
   if (!v.videoWidth) await new Promise(r => { v.onloadedmetadata = r; });
@@ -165,5 +173,12 @@ export async function flasKoy(v, acik, kaydet = true) {
   try { await tr.applyConstraints({ advanced: [{ torch: !!acik }] }); } catch (e) { return false; }
   if (kaydet) try { localStorage.setItem(FLAS_ANAHTAR, acik ? '1' : '0'); } catch (e) { /* yok say */ }
   return true;
+}
+/** Ön ↔ arka: eski akış kapatılır (telefonda iki kamera aynı anda açılamaz), öbür taraf açılır; seçim hatırlanır */
+export async function kameraCevir(v) {
+  const yeni = v && v.dataset.yon === 'user' ? 'environment' : 'user', amac = (v && v.dataset.amac) || '';
+  if (v) kameraKapat(v);
+  if (amac) { try { localStorage.setItem(TARAF_ANAHTAR + amac, yeni); } catch (e) { /* yok say */ } }
+  return kameraAc(yeni, amac);
 }
 export function kameraKapat(v) { try { v.srcObject && v.srcObject.getTracks().forEach(t => t.stop()); } catch (e) { /* yok say */ } }

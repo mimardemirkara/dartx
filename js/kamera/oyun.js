@@ -1,7 +1,7 @@
 // DartX kamera (Beta) — uygulamanın içi:
 //  · Yalnız telefon: bu cihazın kamerası oyunda açılır, saplanan ok kendiliğinden yazılır (köşede küçük önizleme)
 //  · Tablet + telefon: telefon kamera.html'de algılar, sonucu QR ile eşleşmiş tablete gönderir
-import { algilayici, ayarOku, kameraAc, kameraKapat, flasVar, flasKoy, flasTercih } from './algila.js';
+import { algilayici, ayarOku, kameraAc, kameraKapat, kameraCevir, flasVar, flasKoy, flasTercih } from './algila.js';
 import { kalibre } from './tahta.js';
 import { tabletBaslat, qrSvg, qrOku } from './baglanti.js';
 import { IC } from './ekran.js';
@@ -76,7 +76,7 @@ export async function eslestir(t = s => s) {
   if (uzak) { try { uzak.baglanti.kapat(); } catch (e) { /* yok say */ } uzak = null; durumCb(); }
   pencere(`<p class="kam-adim">${t('Hazırlanıyor…')}</p>`);
   // iPad/iPhone Safari, kamera izni olmayan sayfanın yerel ağ adresini paylaşmaz: önce kamera açılır (QR okumada da bu kamera kullanılır)
-  if (!taramaVideo) { try { taramaVideo = await kameraAc('user'); } catch (e) { /* izin yoksa yine dene */ } }
+  if (!taramaVideo) { try { taramaVideo = await kameraAc('user', 'qr'); } catch (e) { /* izin yoksa yine dene */ } }
   let b;
   try {
     b = await tabletBaslat({
@@ -101,15 +101,27 @@ export async function eslestir(t = s => s) {
 
 async function cevapOkut(b, t) {
   pencere(`${baslik(IC.kamera, t('Telefonun kodunu okut'))}<p>${t('Telefon ekranındaki kodu bu cihazın kamerasına göster.')}</p>
-    <div class="kam-tara"><span class="kam-cerceve"></span></div><p class="kam-hata"></p><button class="btn" data-kam="kapat">${t('Vazgeç')}</button>`);
+    <div class="kam-tara"><span class="kam-cerceve"></span></div><p class="kam-hata"></p>
+    <button class="btn kam-cevir-dugme" data-kam="cevir"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/><path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5"/><circle cx="12" cy="12" r="3"/><path d="m18 22-3-3 3-3"/><path d="m6 2 3 3-3 3"/></svg><span>${t('Kamera değiştir')}</span></button><button class="btn" data-kam="kapat">${t('Vazgeç')}</button>`);
   try {
-    if (!taramaVideo) taramaVideo = await kameraAc('user');
+    if (!taramaVideo) taramaVideo = await kameraAc('user', 'qr');
   } catch (e) { document.querySelector('.kam-hata').textContent = t('Kamera açılamadı'); return; }
-  document.querySelector('.kam-tara').prepend(taramaVideo);
-  taramaDur = qrOku(taramaVideo, async kod => {
-    kameraKapat(taramaVideo); taramaVideo = null;
-    try { await b.tamamla(kod); pencere(`<p class="kam-adim">${t('Bağlanıyor…')}</p>`); }
-    catch (e) { pencere(`<p>${e.message}</p><button class="btn" data-kam="kapat">${t('Kapat')}</button>`); }
-  });
+  const tara = () => {
+    document.querySelector('.kam-tara').prepend(taramaVideo);
+    taramaDur = qrOku(taramaVideo, async kod => {
+      kameraKapat(taramaVideo); taramaVideo = null;
+      try { await b.tamamla(kod); pencere(`<p class="kam-adim">${t('Bağlanıyor…')}</p>`); }
+      catch (e) { pencere(`<p>${e.message}</p><button class="btn" data-kam="kapat">${t('Kapat')}</button>`); }
+    });
+  };
+  tara();
+  // Demir 12.11: ön ↔ arka kamera (tablette arka kamerayla okutmak isteyenler için)
+  const cevir = document.querySelector('[data-kam="cevir"]');
+  if (cevir) cevir.onclick = async () => {
+    if (!taramaVideo) return; cevir.disabled = true;
+    try { if (taramaDur) taramaDur.dur(); taramaDur = null; const eski = taramaVideo; eski.remove(); taramaVideo = await kameraCevir(eski); tara(); document.querySelector('.kam-hata').textContent = ''; }
+    catch (e) { taramaVideo = null; document.querySelector('.kam-hata').textContent = t('Kamera açılamadı'); }
+    cevir.disabled = false;
+  };
 }
 export function uzakKes() { if (uzak) { try { uzak.baglanti.kapat(); } catch (e) { /* yok say */ } uzak = null; durumCb(); } }

@@ -2,7 +2,7 @@
 // Kalıcı bir kök öğe kurulur; uygulama her çizimde onu yerine takar (kamera görüntüsü ve ayar kaybolmaz).
 // Telefon tahtaya bakar; tahta 4 noktayla ayarlanır; ok algılanır; puan önerilir ya da eşleşmiş tablete gider.
 import { HALKA, DILIM, ANA_YONLER, AYAR_NOKTALARI, puan, kalibre, uygula, homografi } from './tahta.js';
-import { algilayici, ayarOku, ayarYaz, kameraAc, kameraKapat, flasVar, flasKoy, flasTercih } from './algila.js';
+import { algilayici, ayarOku, ayarYaz, kameraAc, kameraKapat, kameraCevir, flasVar, flasKoy, flasTercih } from './algila.js';
 import { telefonBagla, qrSvg, qrOku } from './baglanti.js';
 import { t } from '../i18n.js';
 
@@ -48,6 +48,7 @@ function kokKur() {
   kok.className = 'kam-duzen';
   kok.innerHTML = `
   <section class="ay-grup kam-sol">
+    <div class="kam-yonerge" hidden></div>
     <div class="kam-sahne">
       <canvas class="kam-tuval" width="16" height="9"></canvas>
       <div class="kam-bos">
@@ -58,12 +59,12 @@ function kokKur() {
         <label class="btn sm kam-foto-yukle">${L(IC.resim, 15)}<span>${t('Fotoğraf yükle')}</span><input type="file" accept="image/*" hidden data-k="foto"></label>
       </div>
       <div class="kam-aci" hidden></div>
+      <button class="kam-flas kam-cevir" data-k="cevir" hidden aria-label="${t('Kamera değiştir')}" title="${t('Kamera değiştir')}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/><path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5"/><circle cx="12" cy="12" r="3"/><path d="m18 22-3-3 3-3"/><path d="m6 2 3 3-3 3"/></svg><span>${t('Kamera değiştir')}</span></button>
       <button class="kam-flas" data-k="flas" hidden aria-label="${t('Flaş')}">${L(IC.flas, 20)}<span>${t('Flaş')}</span></button>
-      <div class="kam-yonerge" hidden></div>
-      <div class="kam-oneri"><em class="kam-deneme-yazi">${t('Dokunduğun yer:')}</em><strong class="kam-oneri-puan">T20</strong>
+    </div>
+    <div class="kam-oneri"><em class="kam-deneme-yazi">${t('Dokunduğun yer:')}</em><strong class="kam-oneri-puan">T20</strong>
         <button class="btn sm primary" data-k="onayla">${L(IC.onay, 18)}${t('Onayla')}</button>
         <button class="btn sm" data-k="duzelt">${L(IC.kalem, 16)}${t('Düzelt')}</button><em class="kam-gitti">${t('tablete gitti')}</em></div>
-    </div>
     <div class="kam-kalip" hidden>
         <div class="kam-yon"><button data-yon="sol">${t('Kamera tahtanın solunda')}</button><button data-yon="sag">${t('Kamera tahtanın sağında')}</button></div>
         <button class="btn sm primary" data-k="oturdu">${L(IC.onay, 18)}<span>${t('Oturdu')}</span></button>
@@ -100,6 +101,12 @@ function kokKur() {
   </div>`;
   tuval = $('.kam-tuval'); cx = tuval.getContext('2d');
   $('[data-k="ac"]').onclick = kameraBaslat;
+  // Demir 12.11: ön ↔ arka kamera
+  $('[data-k="cevir"]').onclick = async () => {
+    if (!S.video || !S.kaynak) return;
+    try { if (S.algila) algilamaAc(false); const v = await kameraCevir(S.kaynak); S.kaynak = null; kaynakKoy(v, v.videoWidth, v.videoHeight, true); $('[data-k="cevir"]').hidden = false; }
+    catch (e) { bildir(t('Kamera açılamadı'), 'dikkat'); }
+  };
   $('[data-k="foto"]').onchange = e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
     const img = new Image(); img.onload = () => kaynakKoy(img, img.naturalWidth, img.naturalHeight, false); img.src = URL.createObjectURL(f);
@@ -143,7 +150,7 @@ export function ayril() {
 
 // ---------- kaynak ----------
 async function kameraBaslat() {
-  try { const v = await kameraAc(); kaynakKoy(v, v.videoWidth, v.videoHeight, true); bildir(t('Kamera açık'), 'kamera'); }
+  try { const v = await kameraAc('environment', 'xeye'); kaynakKoy(v, v.videoWidth, v.videoHeight, true); $('[data-k="cevir"]').hidden = false; bildir(t('Kamera açık'), 'kamera'); }
   catch (e) { bildir(t('Kamera açılamadı') + (e && e.name === 'NotAllowedError' ? ': ' + t('izin verilmedi') : ''), 'dikkat'); }
 }
 function flasDugme() {
