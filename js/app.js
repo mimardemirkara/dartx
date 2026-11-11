@@ -25,6 +25,7 @@ import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
 import { acilirAc, acilirKapat, acilirAcik, dokunmatik } from './acilir.js';
 import * as ses from './ses.js';
 import { hataKur, hataKaydet, hataSayisi, raporMetni } from './hata.js';
+import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu } from './uyelik/hesap.js';
 import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ekranSonra, girisEkrani, eylemBaslat, viewEylem } from './uyelik/ekran.js';
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
@@ -336,6 +337,7 @@ function gecisOynat() {
   el.animate([{ transform: `translateX(${yon * 28}%)`, opacity: .35 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 280, easing: 'cubic-bezier(.2,.8,.3,1)' });
 }
 function go(view, extra = {}) {
+  if (view === 'kamera' && !kameraAcik()) { toast(t('Kamera yakında'), '', { tur: { ic: 'kamera', a: 'a-zipla', k: '' } }); if (S.view === 'kamera') view = 'home'; else return; } // Demir 12.11
   const yaz = !gecmisAtla; gecmisAtla = false;
   const onceki = S.view;
   Object.assign(S, { view, modal: null }, extra);
@@ -579,7 +581,7 @@ function viewHome() {
   const menu = [['players', 'Oyuncular'], ['stats', 'İstatistik'], ['settings', 'Ayarlar']].map(([v, l]) => `
       <button class="app" data-act="tab" data-v="${v}"><span class="app-ico simge">${ikon(v)}</span><span class="app-ad">${t(l)}</span></button>`).join('')
     + `<button class="app" data-act="tab" data-v="nasil"><span class="app-ico simge">${ikon('nasil')}</span><span class="app-ad">${t('Nasıl Oynanır')}</span></button>`
-    + `<button class="app" data-act="tab" data-v="kamera"><span class="app-ico kam-ana"><span class="kam-kart-ic kam-ana-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span><i class="rozet-yakinda rozet-beta">BETA</i></span><span class="app-ad">${t('Kamera')}</span></button>`
+    + `<button class="app" data-act="tab" data-v="kamera"><span class="app-ico kam-ana"><span class="kam-kart-ic kam-ana-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span><i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Kamera')}</span></button>`
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge ${uyelikHazir() ? '' : 'yakinda'}">${ikon('grp-online')}${uyelikHazir() ? '' : `<i class="rozet-yakinda">${t('Yakında')}</i>`}</span><span class="app-ad">${t('Online')}</span></button>`
     + `<button class="app" data-act="tab" data-v="yardim"><span class="app-ico simge">${ikon('yardim')}</span><span class="app-ad">${t('Yardım')}</span></button>`
     + hesapKaro();
@@ -1013,12 +1015,19 @@ app.addEventListener('pointerdown', e => {
   }, 500);
 });
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => app.addEventListener(ev, () => clearTimeout(svT)));
-// ---------- Kamera (Beta): telefonun kendi kamerası ya da eşleşmiş telefondan gelen atış ----------
+// ---------- Kamera: telefonun kendi kamerası ya da eşleşmiş telefondan gelen atış ----------
+// Demir 12.11: kamera henüz hazır değil — herkese "Yakında"; yalnız Demir ve Tuncay'ın hesabında açılır, misafire asla
+const KAMERA_IZINLI = ['tuncaycihan18@gmail.com'];
+function kameraAcik() {
+  const u = hesapUye().user; if (!u || !hesapDogrulandi()) return false;
+  const e = String(u.email || '').trim().toLowerCase();
+  return kurucuMu(e) || KAMERA_IZINLI.includes(e);
+}
 const YILDIZ_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>';
 const KAM_IC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
 function kamDugme(useTotal) {
   const d = kam.durum();
-  if (useTotal) return ''; // ayar yoksa da görünür: basınca kamera ekranı açılır (Demir 10.11)
+  if (useTotal || !kameraAcik()) return ''; // ayar yoksa da görünür: basınca kamera ekranı açılır (Demir 10.11); izinli değilse hiç yok (12.11)
   return `<button class="icon-btn pt-kam" data-d="${d}" data-act="kamera" aria-label="${t('Kamera')}" title="${t('Kamera')}">${KAM_IC}</button>`;
 }
 // Hata bildir (Demir 11.11): kullanıcı sorunu yazar; cihaz bilgisi ve son hatalar eklenmiş e-posta açılır.
@@ -1399,8 +1408,8 @@ function viewYardim() {
       <p>${t('Kriket tablosunda bir hücreye dokunarak da yazabilirsin. Üstteki ☰ menüsünden maçı duraklatabilir ya da bitirebilirsin.')}</p>`),
     konu(AY.oyunSes, t('Sesli okuma'), `<p>${t('Oyun ekranının üstündeki konuşan kişi düğmesi sesli okumayı açar. Basılı tutunca seviye seçilir: Sade (yalnız atışlar), Standart (+ toplam, kalan), Koç (+ tavsiye). Türkçede spiker sesi, İngilizcede telefonun kendi sesi okur.')}</p>`),
     konu(AY.kisi, t('DartBot'), `<p>${t('Oyuncu seçerken DartBot Kolay, Orta, Zor ya da Usta’yı ekle. Bot kendi sırasında kendisi atar; attığı oklar ekranda gösterilir.')}</p>`),
-    konu(AY.kamera, t('Kamera (Beta)'), `<p>${t('Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte sabitle. Kamera ekranında altın kalıba tahtayı oturt, Oturdu’ya bas, sonra Otomatik algıla. Tablet + telefon için aynı Wi-Fi’de QR ile eşleştir.')}</p>
-      <button class="btn sm" data-act="tab" data-v="kamera">${AY.kamera}<span>${t('Kamerayı aç')}</span></button>`),
+    (!kameraAcik() ? '' : konu(AY.kamera, t('Kamera'), `<p>${t('Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte sabitle. Kamera ekranında altın kalıba tahtayı oturt, Oturdu’ya bas, sonra Otomatik algıla. Tablet + telefon için aynı Wi-Fi’de QR ile eşleştir.')}</p>
+      <button class="btn sm" data-act="tab" data-v="kamera">${AY.kamera}<span>${t('Kamerayı aç')}</span></button>`)),
     konu(AY.kisi, t('Hesap ve üyelik'), `<p>${t('DartX’i üye olmadan (misafir) kullanabilirsin. Üye olunca maçların ve istatistiklerin buluta yedeklenir, her cihazında seninle olur; arkadaş ekleyip online maç yapabilirsin.')}</p>
       <ol class="yd-adim">
         <li>${t('Ana ekrandaki Hesabım simgesine ya da üst çubuktaki yuvarlak hesap düğmesine dokun.')}</li>
@@ -1509,7 +1518,7 @@ function viewOnline() {
 
 // Kamera (Beta) ekranı: içeriği js/kamera/ekran.js kurar (kalıcı öğe, her çizimde #kam-yer'e takılır)
 function viewKamera() {
-  return `<main class="page kamera-sayfa">${header(t('Kamera') + ' <span class="beta-rozet">BETA</span>', 'kamgeri')}<div id="kam-yer"></div></main>`;
+  return `<main class="page kamera-sayfa">${header(t('Kamera') + ` <span class="beta-rozet">${t('Yakında')}</span>`, 'kamgeri')}<div id="kam-yer"></div></main>`;
 }
 function viewSettings() {
   const s = data().settings;
@@ -2320,7 +2329,7 @@ if (tekBasina) kenarKaydirKur({
 });
 hataKur(() => S.view);
 kamEkran.kur({ eslestir: () => kam.eslestir(t), uzakMi: () => kam.durum() === 'uzak', bildir: (m, ic) => toast(m, '', { tur: { ic: ic || 'kamera', a: ic === 'dikkat' ? 'a-sal' : 'a-zipla', k: ic === 'dikkat' ? 'bad' : '' } }) });
-if (location.hash === '#kamera') { S.view = 'kamera'; history.replaceState(null, '', location.pathname + location.search); } // eski kamera.html bağlantısı
+if (location.hash === '#kamera') { history.replaceState(null, '', location.pathname + location.search); } // eski kamera.html bağlantısı
 // Üyelik (Demir 11.11): misafir + üye; ekranlar js/uyelik/ekran.js
 uyelikKur({ S, render, go, toast, onayla, bilgi, header, kart, ikonKutu, AY, LUCIDE, vib, surum: SURUM,
   // giriş kartının altındaki tema ve dil düğmeleri (ArchX giriş ekranı gibi)
