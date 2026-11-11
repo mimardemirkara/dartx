@@ -58,10 +58,10 @@ function kokKur() {
         <span class="kam-foto-yazi">${t('Kamera yoksa fotoğrafla dene')}</span>
         <label class="btn sm kam-foto-yukle">${L(IC.resim, 15)}<span>${t('Fotoğraf yükle')}</span><input type="file" accept="image/*" hidden data-k="foto"></label>
       </div>
-      <div class="kam-aci" hidden></div>
       <button class="kam-flas kam-cevir" data-k="cevir" hidden aria-label="${t('Kamera değiştir')}" title="${t('Kamera değiştir')}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/><path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5"/><circle cx="12" cy="12" r="3"/><path d="m18 22-3-3 3-3"/><path d="m6 2 3 3-3 3"/></svg><span>${t('Kamera değiştir')}</span></button>
       <button class="kam-flas" data-k="flas" hidden aria-label="${t('Flaş')}">${L(IC.flas, 20)}<span>${t('Flaş')}</span></button>
     </div>
+    <div class="kam-aci" hidden></div>
     <div class="kam-oneri"><em class="kam-deneme-yazi">${t('Dokunduğun yer:')}</em><strong class="kam-oneri-puan">T20</strong>
         <button class="btn sm primary" data-k="onayla">${L(IC.onay, 18)}${t('Onayla')}</button>
         <button class="btn sm" data-k="duzelt">${L(IC.kalem, 16)}${t('Düzelt')}</button><em class="kam-gitti">${t('tablete gitti')}</em></div>
