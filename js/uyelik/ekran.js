@@ -92,7 +92,7 @@ function adim() {
   const u = H.uye(), S = C.S;
   if (!H.girisli()) return 'eposta'; // Demir 11.11: girişte doğrudan form gelir
   if (!H.dogrulandi()) return 'dogrula';
-  if (!u.profil) return u.profilBakildi === false ? 'yukleniyor' : 'tamamla'; // Demir 12.11: girişten hemen sonra profil buluttan gelirken bekleme ekranı
+  if (!u.profil) return u.profilDurum === 'yok' ? 'tamamla' : 'yukleniyor'; // Demir 12.11: girişten hemen sonra profil buluttan gelirken bekleme ekranı
   if (u.profil.oyuncuId == null && !u.profil.eslesmeAtlandi && data().players.some(p => !p.silindi)) return 'eslestir';
   return 'profil';
 }
@@ -379,7 +379,7 @@ export function viewUye() {
         </div>
       </section></div>`);
   // Demir 12.11: giriş yapılırken ve profil buluttan gelirken logolu "Giriş yapılıyor" ekranı (form yanıp sönmez)
-  if (C.S.uyeGiriyor || a === 'yukleniyor') return sayfa(`<div class="uy-duzen tek uy-yuk" role="status" aria-live="polite"><div class="uy-yuk-logo"><img src="img/logo-dartx.webp" alt="DartX"><span class="uy-yuk-parilti" aria-hidden="true"></span></div><div class="uy-yuk-cubuk" aria-hidden="true"><i></i></div><p class="uy-yuk-yazi">${IC.giris}<span>${t('Giriş yapılıyor…')}</span></p></div>`, 'yukleme');
+  if (C.S.uyeGiriyor || a === 'yukleniyor') return sayfa(`<div class="uy-duzen tek uy-yuk" role="status" aria-live="polite"><div class="uy-yuk-logo"><img src="img/logo-dartx.webp" alt="DartX"><span class="uy-yuk-parilti" aria-hidden="true"></span></div><div class="uy-yuk-cubuk" aria-hidden="true"><i></i></div>${!C.S.uyeGiriyor && H.uye().profilDurum === 'hata' ? `<p class="uy-yuk-yazi">${IC.bilgi}<span>${t('Sunucuya bağlanılamadı')}</span></p><button type="button" class="btn primary uy-yuk-tekrar" data-act="uy-proftekrar">${t('Tekrar dene')}</button><button type="button" class="uy-misafir soluk" data-act="uy-cikis">${t('Başka bir hesapla giriş yap')}</button>` : `<p class="uy-yuk-yazi">${IC.giris}<span>${t('Giriş yapılıyor…')}</span></p>`}</div>`, 'yukleme');
   if (a === 'tamamla') { try { const ts = JSON.parse(localStorage.getItem('dartx.uyeTaslak') || 'null'); if (ts && !C.S.uyeTaslak) C.S.uyeTaslak = ts; } catch (_) { /* yok */ } }
   if (a === 'tamamla') return sayfa(`<div class="uy-duzen tek">
       <section class="ay-grup uy-kart">
@@ -565,6 +565,7 @@ async function tikla(e) {
   C.vib && C.vib(6);
   switch (act) {
     case 'uy-ac': C.go('uye', { uyeDonus: S.view === 'uye' ? S.uyeDonus : S.view, uyeAdim: null }); break;
+    case 'uy-proftekrar': H.profilTekrar(); break;
     case 'uy-karsila-giris': S.uyeKarsila = false; S.uyeMod = 'giris'; C.render(); break;
     case 'uy-karsila-geri': S.uyeKarsila = true; C.render(); break;
     case 'uy-misafir': { const d = !S.uyeIlk && S.uyeDonus && S.uyeDonus !== 'uye' ? S.uyeDonus : 'home'; S.uyeIlk = false; C.go(d); break; }

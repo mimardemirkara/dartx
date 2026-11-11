@@ -76,10 +76,11 @@ export function baslat(zorla = false) {
     const { auth, A } = await bulut();
     A.onAuthStateChanged(auth, async u => {
       durum.user = u; durum.hazir = true;
-      durum.profilBakildi = !u; // Demir 12.11: profil gelene kadar "Profilini tamamla" formu gösterilmez
+      // Demir 12.11: "Profilini tamamla" formu yalnız sunucu "profil yok" derse çıkar; sorgu sürerken / hata verirken çıkmaz
+      durum.profilDurum = u ? 'bekliyor' : null;
       data().settings.uyeOturum = !!u; save();
-      durum.profil = u ? await profilGetir().catch(() => durum.profil) : null;
-      durum.profilBakildi = true;
+      durum.profil = u ? await profilYukle(u) : null;
+      if (durum.user !== u) return; // bu arada başka bir oturum değişikliği geldi
       // e-posta değişikliği onaylanıp yeni adresle girildiyse "onay bekliyor" kaydı silinir
       if (u && durum.profil && durum.profil.epostaBekleyen && String(u.email || '').toLowerCase() === durum.profil.epostaBekleyen) profilKaydet({ epostaBekleyen: null }).catch(() => {});
       // tekillik kuralından önce kaydedilmiş numara bir kez bu hesaba ayrılır (Demir 11.11)
@@ -227,6 +228,16 @@ async function adAyir(yeni, eski) {
 const KOD_HARF = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // karışan harfler yok (0/O, 1/I)
 const SABIT_KOD = { 'demirkaramimar@gmail.com': 'DX-0001' }; // Demir (kurucu) her zaman DX-0001
 const kodUret = () => 'DX-' + Array.from({ length: 4 }, () => KOD_HARF[Math.floor(Math.random() * KOD_HARF.length)]).join('');
+/** Profil sorgusu: hata verirse birkaç kez yeniden dener; sonuç profilDurum = var | yok | hata */
+async function profilYukle(u) {
+  for (let i = 0; i < 5; i++) {
+    try { const p = await profilGetir(); if (durum.user !== u) return durum.profil; durum.profilDurum = p ? 'var' : 'yok'; return p; }
+    catch (e) { console.warn('profil', e && e.code); await new Promise(r => setTimeout(r, 500 + i * 700)); if (durum.user !== u) return durum.profil; }
+  }
+  durum.profilDurum = 'hata'; return durum.profil;
+}
+/** Bekleme ekranındaki "Tekrar dene" */
+export async function profilTekrar() { const u = durum.user; if (!u) return; durum.profilDurum = 'bekliyor'; haber(); durum.profil = await profilYukle(u); haber(); }
 export async function profilGetir() {
   const { db, F } = await bulut(); const u = durum.user; if (!u) return null;
   const s = await F.getDoc(F.doc(db, 'users', u.uid));
@@ -237,7 +248,7 @@ export async function profilOlustur({ ad, isim, soyisim, yasOnay, sozlesmeOnay }
   const { db, F } = await fb(); const u = durum.user;
   const ref = F.doc(db, 'users', u.uid);
   const var_ = await F.getDoc(ref);
-  if (var_.exists()) { durum.profil = var_.data(); haber(); return durum.profil; }
+  if (var_.exists()) { durum.profil = var_.data(); durum.profilDurum = 'var'; haber(); return durum.profil; }
   const temizAd = (ad || u.displayName || '').trim().replace(/\s+/g, ' ').slice(0, 12);
   const adK = await adAyir(temizAd, null); // önce ad: alınmışsa profil hiç açılmaz
   let kod = null;
@@ -267,7 +278,7 @@ export async function profilOlustur({ ad, isim, soyisim, yasOnay, sozlesmeOnay }
   await genelYaz({ ad: profil.ad, adAnahtar: adK, foto: null, kod });
   // Demir 11.11: tek seferlik hoş geldin e-postası (sunucu ikinci kez göndermez); beklenmez, hata yok sayılır
   u.getIdToken().then(j => sunucuyaSor('/hosgeldin', {}, j)).catch(() => {});
-  durum.profil = { ...profil, olusturma: Date.now() }; haber();
+  durum.profil = { ...profil, olusturma: Date.now() }; durum.profilDurum = 'var'; haber();
   return durum.profil;
 }
 // Demir 11.11: bir telefon numarası yalnız bir hesapta. telefonlar/{özet} → uid (numara açık yazılmaz, SHA-256 özeti)
