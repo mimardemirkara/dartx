@@ -18,6 +18,37 @@ const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: 
 const goruldu = new Set();
 const araGordum = new Map(); // maç id → rakip ara verdi mi (son görülen)
 const clone = o => JSON.parse(JSON.stringify(o));
+
+// ---- Uygulama içi bildirim (Demir 12.11): üst çubuktan aşağı inen şerit; birkaç saniye sonra geri çıkar, dokununca ilgili yere gider
+const BILDIRIM_IC = {
+  acik: '<circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="9"/>',
+  ara: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  don: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  iptal: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  davet: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  tamam: '<path d="M20 6 9 17l-5-5"/>',
+  kisi: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+};
+const bildirimKuyruk = []; let bildirimAcik = false;
+/** yazi: HTML (adlar esc'li gelir) · tur: BILDIRIM_IC anahtarı · renk: iyi | kotu | '' · git: dokununca çalışır */
+function bildir(yazi, { tur = 'acik', renk = '', foto = '', ad = '', git = null, sure = 3800 } = {}) {
+  bildirimKuyruk.push({ yazi, tur, renk, foto, ad, git, sure });
+  if (!bildirimAcik) bildirimGoster();
+}
+function bildirimGoster() {
+  const b = bildirimKuyruk.shift(); if (!b) { bildirimAcik = false; return; }
+  bildirimAcik = true;
+  const el = document.createElement('button');
+  el.type = 'button'; el.className = 'dx-bildirim ' + b.renk; el.setAttribute('role', 'status');
+  el.innerHTML = `${b.ad || b.foto ? avatar(b.ad, b.foto, 'uy-av kucuk dxb-av') : ''}<span class="dxb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BILDIRIM_IC[b.tur] || BILDIRIM_IC.acik}</svg></span><span class="dxb-yazi">${b.yazi}</span>`;
+  document.body.appendChild(el);
+  let bitti = false;
+  const kapat = () => { if (bitti) return; bitti = true; el.classList.remove('gor'); setTimeout(() => { el.remove(); bildirimGoster(); }, 320); };
+  el.addEventListener('click', () => { kapat(); if (b.git) { try { b.git(); } catch (_) { /* yok say */ } } });
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('gor')));
+  if (C && C.vib) C.vib(10);
+  setTimeout(kapat, b.sure);
+}
 const benUid = () => (H.uye().user ? H.uye().user.uid : null);
 /** Bekleyen: gelen arkadaşlık istekleri + gelen maç davetleri (rozet sayısı) */
 export const bekleyenSayi = () => { const ben = benUid(); if (!ben) return 0;
@@ -81,7 +112,14 @@ export const varlikTazele = () => varlikYaz(document.visibilityState !== 'visibl
 async function varlikIzle(arkadaslar) {
   const { db, F } = await bulut();
   for (const u of arkadaslar) if (!durum.varlikDinle[u]) {
-    durum.varlikDinle[u] = F.onSnapshot(F.doc(db, 'varlik', u), s => { durum.varlik[u] = s.exists() ? s.data() : null; tazele(); }, () => {});
+    durum.varlikDinle[u] = F.onSnapshot(F.doc(db, 'varlik', u), s => {
+      const ilk = !(u in durum.varlik), once = ilk ? null : varlikDurum(u).tur;
+      durum.varlik[u] = s.exists() ? s.data() : null;
+      const simdi = varlikDurum(u).tur;
+      // Demir 12.11: arkadaş çevrimdışıyken çevrimiçi olduysa şerit bildirimi (ilk yüklemede değil)
+      if (!ilk && once === 'kapali' && simdi !== 'kapali') profilAl(u).then(p => bildir(t('{0} çevrimiçi oldu', `<b>${esc(p.ad || '')}</b>`), { tur: 'acik', renk: 'iyi', ad: p.ad, foto: p.foto, git: () => C.go('online') }));
+      tazele();
+    }, () => {});
   }
   for (const u of Object.keys(durum.varlikDinle)) if (!arkadaslar.includes(u)) { durum.varlikDinle[u](); delete durum.varlikDinle[u]; delete durum.varlik[u]; }
 }
@@ -111,7 +149,7 @@ async function dinle() {
     s.docChanges().forEach(c => {
       const d = c.doc.data();
       if (c.type === 'added' && d.durum === 'bekliyor' && d.isteyen !== ben && !goruldu.has('a' + c.doc.id)) {
-        goruldu.add('a' + c.doc.id); profilAl(d.isteyen).then(p => C.toast(t('{0} seni arkadaş olarak ekledi', esc(p.ad)), '', { sure: 3000 }));
+        goruldu.add('a' + c.doc.id); profilAl(d.isteyen).then(p => bildir(t('{0} seni arkadaş olarak ekledi', `<b>${esc(p.ad)}</b>`), { tur: 'kisi', ad: p.ad, foto: p.foto, git: () => C.go('online') }));
       }
     });
     durum.arkadaslik.forEach(a => a.uids.forEach(u => { if (u !== ben) profilAl(u); }));
@@ -124,11 +162,11 @@ async function dinle() {
       const d = { id: c.doc.id, ...c.doc.data() }; const karsi = d.uids.find(u => u !== ben);
       const ad = (d.adlar && d.adlar[karsi]) || '';
       if (d.durum === 'davet' && d.davetEden !== ben && !goruldu.has('d' + d.id)) {
-        goruldu.add('d' + d.id); C.toast(t('{0} seni {1} maçına çağırıyor', esc(ad), esc(oyunAd(d.gameId, d.opts))), '', { sure: 3500 });
+        goruldu.add('d' + d.id); bildir(t('{0} seni {1} maçına çağırıyor', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => C.go('online'), sure: 6000 });
       }
       if (d.durum === 'oyunda' && d.davetEden === ben && !goruldu.has('k' + d.id) && !(data().current && data().current.online && data().current.online.id === d.id)) {
         goruldu.add('k' + d.id);
-        C.toast(t('{0} davetini kabul etti', esc(ad)), 'ok', { sure: 2500 });
+        bildir(t('{0} davetini kabul etti', `<b>${esc(ad)}</b>`), { tur: 'tamam', renk: 'iyi', ad, foto: d.fotolar && d.fotolar[karsi] });
         if (C.S.view !== 'play') macaGir(d);
       }
       // Demir 12.11: rakip maçı iptal etti → uyarı, maç bu telefondan da kalkar
@@ -137,17 +175,17 @@ async function dinle() {
         const cur = data().current;
         if (cur && cur.online && cur.online.id === d.id) { data().current = null; save(); E.clearUndo(); if (C.S.view === 'play') C.go('home'); }
         else { const p = (data().ara || []).find(x => x.online && x.online.id === d.id); if (p) araSil(p.id); }
-        C.toast(t('{0} maçı iptal etti', esc(ad)), 'bad', { sure: 3500, tur: { ic: 'carpi', a: 'a-sal', k: 'bad', ses: 'hata' } });
+        bildir(t('{0} maçı iptal etti', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], sure: 4500 });
       }
       // Demir 12.11: rakip maça ara verdi / döndü
       if (d.durum === 'oyunda') {
         const araK = !!(d.ara && d.ara[karsi]), once = araGordum.get(d.id);
         if (once !== undefined && once !== araK) {
-          C.toast(araK ? t('{0} maça ara verdi', esc(ad)) : t('{0} maça döndü', esc(ad)), araK ? 'bad' : 'good', { sure: 3000, tur: araK ? { ic: 'duraklat', a: 'a-sal', k: 'bad', ses: 'hata' } : { ic: 'oynat', a: 'a-zipla', k: 'good', ses: 'sira' } });
+          bildir(araK ? t('{0} maça ara verdi', `<b>${esc(ad)}</b>`) : t('{0} maça döndü', `<b>${esc(ad)}</b>`), { tur: araK ? 'ara' : 'don', renk: araK ? 'kotu' : 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: araK ? null : () => macaGir(d) });
         }
         araGordum.set(d.id, araK);
       }
-      if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); C.toast(t('{0} daveti kabul etmedi', esc(ad)), 'bad', { sure: 2500 }); }
+      if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi] }); }
       const m = data().current;
       if (m && m.online && m.online.id === d.id) uygula(d);
     });
@@ -528,3 +566,5 @@ export async function onlineGonder(f) {
 const HATA = { 'kod-gecersiz': 'Kod DX- ile başlayan 4 harf/rakam olmalı', 'kod-yok': 'Bu kodla bir üye bulunamadı', 'kod-senin': 'Bu senin kendi kodun',
   'zaten-arkadas': 'Zaten arkadaşsınız', 'istek-var': 'İsteğin zaten gönderildi' };
 const hata = e => (HATA[e && e.code] ? t(HATA[e.code]) : H.hataMetni(e));
+
+export { bildir }; // şerit bildirimi (başka modüller de kullanabilir)
