@@ -138,8 +138,11 @@ const secSatir = (act, ic, ad, sag, ogeler, secili, serbest = false) => {
     + ogeler.map(o => `<option value="${esc(o.deger)}" ${String(o.deger) === s ? 'selected' : ''}>${esc(o.ad)}</option>`).join('')
     + (serbest ? `<option value="__yaz__">✎ ${t('Diğer (elle yaz)')}</option>` : '')
     + (s ? `<option value="__sil__">✕ ${t('Kaldır')}</option>` : '');
+  // Demir 12.11: uzun listeler (ülke, il, ilçe, meslek) ve elle yazılabilenler (marka, model) telefonun seçicisinde açılmıyordu:
+  // bunlar dokunmatikte de DartX'in aramalı penceresinde açılır; kısa listeler telefonun kendi seçicisinde kalır
+  const yerel = !serbest && ogeler.length <= 40;
   return `<div role="button" tabindex="0" class="ay-satir tikla secim-satir" data-act="uy-secim" data-s="${act}" data-serbest="${serbest ? 1 : ''}" data-ad="${esc(String(ad).replace(/<[^>]+>/g, ''))}">${C.ikonKutu(ic)}<span class="ay-ad">${ad}</span><span class="ay-deger">${sag || `<span class="soluk">${t('Seç')}</span>`}</span><span class="ay-ok">${C.AY.ok}</span>
-    <select class="secim-gizli" data-secim="${act}" aria-label="${esc(String(ad).replace(/<[^>]+>/g, ''))}">${sec}</select></div>`;
+    ${yerel ? `<select class="secim-gizli" data-secim="${act}" aria-label="${esc(String(ad).replace(/<[^>]+>/g, ''))}">${sec}</select>` : ''}</div>`;
 };
 function secimListe(act, p) {
   const dl = dil();
@@ -168,9 +171,9 @@ const SECIM_ALAN = { 'uy-el': 'el', 'uy-seviye': 'seviye', 'uy-meslek': 'meslek'
 const dokunmatik = () => matchMedia('(pointer: coarse)').matches;
 async function secimDegisti(sel) { return secimKaydet(sel.dataset.secim, sel.value, sel.getAttribute('aria-label') || ''); }
 async function secimPencere(el) {
-  if (dokunmatik() || document.querySelector('.uy-liste-kart')) return; // dokunmatikte <select> zaten açıldı
+  if ((dokunmatik() && el.querySelector('select.secim-gizli')) || document.querySelector('.uy-liste-kart')) return; // dokunmatikte <select> zaten açıldı
   const act = el.dataset.s, p = H.uye().profil || {}, alan = SECIM_ALAN[act];
-  const ogeler = [{ deger: BELIRTME, ad: t('Belirtmek istemiyorum') }, ...secimListe(act, p)].map(o => ({ ...o, on: act === 'uy-ulke' ? bayrak(o.deger) : act === 'uy-okmarka' ? markaRozet(o.deger) : '', ad: act === 'uy-ulke' ? o.ad.replace(/^\S+\s/, '') : o.ad }));
+  const ogeler = [{ deger: BELIRTME, ad: t('Belirtmek istemiyorum') }, ...secimListe(act, p)].map(o => ({ ...o, on: act === 'uy-ulke' ? bayrak(o.deger) : act === 'uy-okmarka' && o.deger !== BELIRTME ? markaRozet(o.deger) : '', ad: act === 'uy-ulke' ? o.ad.replace(/^\S+\s/, '') : o.ad }));
   if (el.dataset.serbest) ogeler.push({ deger: '__yaz__', ad: '✎ ' + t('Diğer (elle yaz)') }); // Demir 11.11: listede yoksa elle yazılır
   const v = await listeSec({ baslik: el.dataset.ad, ikon: el.querySelector('.ay-ikon') ? el.querySelector('.ay-ikon').innerHTML : '', ogeler, secili: p[alan] == null ? '' : String(p[alan]), serbest: !!el.dataset.serbest });
   if (v == null) return;
