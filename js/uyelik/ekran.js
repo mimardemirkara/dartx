@@ -300,7 +300,7 @@ export function viewUye() {
           <div class="uy-hosgeldin"><h2><span class="uy-baslik-ic">${IC.selam}</span>${t('Hoş geldin')}</h2><p>${t('Skoru DartX tutsun, sen atışına odaklan. 20’den fazla oyun, sesli skor okuma ve ayrıntılı istatistikler seni bekliyor.')}</p></div>
           <button type="button" class="btn primary uy-karsila-btn uy-karsila-oyna" data-act="uy-misafir"><span class="uy-karsila-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.52.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5Z"/></svg></span><span class="uy-karsila-yazi"><b>${t('Hemen Oyna')}</b><small>${t('Üyelik gerekmez')}</small></span></button>
           <button type="button" class="btn uy-karsila-btn uy-karsila-giris" data-act="uy-karsila-giris"><span class="uy-karsila-ic">${IC.giris}</span><span class="uy-karsila-yazi"><b>${t('Giriş Yap – Üye Ol')}</b><small>E-posta · Google · Apple</small></span><span class="uy-karsila-rozet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>${t('Ücretsiz')}</span><span class="uy-karsila-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></button>
-          <div class="uy-karsila-fayda"><span class="uy-karsila-fayda-bas">${t('Üye olunca')}</span><ul><li>${IC.bulut}<span>${t('Maçların bulutta saklanır')}</span></li><li>${IC.telefon}<span>${t('Her cihazında seninle')}</span></li><li>${IC.arkadas}<span>${t('Arkadaşlarınla online maç')}</span></li></ul></div>
+          <div class="uy-karsila-fayda"><span class="uy-karsila-fayda-bas">${IC.uyeol}<span>${t('Üye olunca')}</span></span><ul><li>${IC.bulut}<span>${t('Maçların bulutta saklanır')}</span></li><li>${IC.telefon}<span>${t('Her cihazında seninle')}</span></li><li>${IC.arkadas}<span>${t('Arkadaşlarınla online maç')}</span></li></ul></div>
         </div>
       ${kartKapa()}</div>`, 'karsila');
   if (a === 'giris') return sayfa(`<div class="uy-duzen">
@@ -855,16 +855,12 @@ function hakkindaAc() {
   p.innerHTML = `<div class="uy-hk" role="dialog" aria-modal="true" aria-labelledby="uy-hk-baslik">
     <button type="button" class="uy-hk-kapat" aria-label="${t('Kapat')}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <h2 id="uy-hk-baslik" class="uy-hk-baslik"><span class="uy-baslik-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>${t('DartX Hakkında')}</h2>
-    <img class="uy-hk-logo" src="img/logo-dartx.webp" alt="DartX">
-    <p class="uy-hk-metin">${t('Dart maçlarının skorunu tutan, istatistiklerini saklayan ve arkadaşlarınla online oynamanı sağlayan uygulama. Sesli spiker, DartBot ve 30’a yakın oyunla.')}</p>
-    <div class="uy-hk-bilgi">
-      ${satir(t('Sürüm'), esc(C.surum || ''))}
-      ${satir(t('Geliştirici'), 'Demir Kara')}
-      ${satir(t('Şirket'), 'DK Design Consulting Technology LLC')}
-      ${satir('Web', '<a href="https://dartx.net" target="_blank" rel="noopener">dartx.net</a>')}
-    </div>
+    <div class="uy-hk-yazar"><img src="img/demir-kara.webp" alt="Demir Kara"><div><b>Demir Kara</b><small>${t('Mimar · DartX\'in geliştiricisi')}</small></div><img class="uy-hk-yazar-logo" src="img/logo-dartx.webp" alt="DartX"></div>
+    <div class="uy-hk-hikaye"><p>${t('Asıl mesleğim mimarlık; günlerim çizim masasında ve şantiyede geçiyor. Bilgisayara olan merakım ise beni yıllar önce ilk işime taşımıştı; dart da yıllardır en sevdiğim hobim. Tahtanın başında geçen akşamlar, dostlarla atılan oklar, her atışta biraz daha iyi olma isteği… Bugün kendimi iyi bir dart oyuncusu olarak görüyorsam, bunda bu sevginin payı büyük.')}</p><p>${t('Bir gün bu merakları birleştirip DartX\'i yazdım. Skor için kâğıt kalem aramayın, antrenmanlarınızı kaydedin, maçlarınızı dostlarınızla daha keyifli oynayın diye.')}</p><p>${t('DartX\'i bu oyunu sevenler için ücretsiz yaptım. Çizdiğim her çizginin, attığım her okun, yazdığım her satırın arkasındayım. İyi oyunlar, bol 180\'ler!')}</p></div>
+    <div class="hk-imza uy-hk-imza"><img class="imza-beyaz" src="img/imza-beyaz.png" alt="Demir Kara"><img class="imza-siyah" src="img/imza-siyah.png" alt="" aria-hidden="true"></div>
+    <p class="uy-hk-kunye">${esc(C.surum || '')} · <a href="https://dartx.net" target="_blank" rel="noopener">dartx.net</a></p>
     <p class="uy-hk-telif">© ${yil} DK Design Consulting Technology LLC. ${t('Tüm hakları saklıdır.')}</p>
-    <a class="uy-hk-gizlilik" href="gizlilik.html#${(document.documentElement.lang || 'tr').startsWith('en') ? 'en' : 'tr'}" target="_blank" rel="noopener">${t('Gizlilik politikası')}</a>
+    <p class="uy-hk-linkler"><a href="kosullar.html#${(document.documentElement.lang || 'tr').startsWith('en') ? 'en' : 'tr'}" target="_blank" rel="noopener">${t('Kullanım şartları')}</a><span>·</span><a href="gizlilik.html#${(document.documentElement.lang || 'tr').startsWith('en') ? 'en' : 'tr'}" target="_blank" rel="noopener">${t('Gizlilik politikası')}</a></p>
   </div>`;
   document.body.appendChild(p);
   const kapat = () => { p.classList.add('kapan'); document.removeEventListener('keydown', tus); setTimeout(() => p.remove(), 200); };
