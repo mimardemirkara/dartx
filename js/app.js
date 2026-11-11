@@ -30,7 +30,7 @@ import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ek
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
 import { kurulumArkadaslar, kurulumDavet, onlineDestekli } from './uyelik/online.js';
-import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal } from './uyelik/online.js';
+import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal, rovans as onlineRovans } from './uyelik/online.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
 const app = document.getElementById('app');
@@ -1251,9 +1251,10 @@ function viewEnd() {
     <p class="center muted">${esc(gt(g, 'name'))} · ${t('{0} dk', Math.max(1, Math.round((m.ended - m.started) / 60000)))}</p>
     ${legs}
     ${rows ? `<div class="tablewrap"><table class="sum"><thead><tr><th></th>${pids.map(pid => `<th style="color:${player(pid).color}">${esc(player(pid).name)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>` : ''}
-    <button class="btn primary big" data-act="rematch">${t('Rövanş')}</button>
+    ${m.cekildi != null ? `<p class="center muted">${t('{0} maçtan çekildi', esc(ctx.name(m.cekildi)))}</p>` : ''}
+    <button class="btn primary big" data-act="rematch">${m.online ? t('Tekrar Oyna') : t('Rövanş')}</button>
     <div class="row">
-      <button class="btn" data-act="undoend" ${E.canUndo(m) ? '' : 'disabled'}>${t('↶ Son oku geri al')}</button>
+      <button class="btn" data-act="undoend" ${E.canUndo(m) && m.cekildi == null ? '' : 'disabled'}>${t('↶ Son oku geri al')}</button>
       <button class="btn" data-act="home">${t('Ana sayfa')}</button>
     </div>
   </main>`;
@@ -1644,7 +1645,7 @@ function modal() {
         ${kutu('close', KURAL_IKON.oynat, t('Oyuna Dön'), '', 'mk-altin')}
         ${kutu('rulesplay', IC.kitap, t('Kurallar'), '', 'mk-mavi')}
         ${kutu('home', DURAKLAT_IC, t('Maça Ara Ver'), t('Maç Kayıtlı Kalır'), 'mk-celik')}
-        ${kutu('abort', KURAL_IKON.bust, t('Maçı İptal Et'), '', 'mk-kirmizi')}
+        ${m && m.online ? kutu('abort', KURAL_IKON.bust, t('Maçtan Çekil'), t('Rakibin Kazanır'), 'mk-kirmizi') : kutu('abort', KURAL_IKON.bust, t('Maçı İptal Et'), '', 'mk-kirmizi')}
       </div>
       ${okuma.destekli() ? `<button class="btn menu-okuma ${okuma.acikMi() ? 'acik' : ''}" data-act="sesliokuma">${OKUMA_IC}<span>${t('Sesli Okuma')}</span><b>${okuma.acikMi() ? t('Açık') : t('Kapalı')}</b></button>` : ''}`;
   } else if (md.type === 'hedefsec') {
@@ -2102,6 +2103,17 @@ app.addEventListener('click', e => {
 
     case 'menu': S.modal = { type: 'menu' }; render(); break;
     case 'abort':
+      // Demir 12.11: online maçta iptal yok, çekilme var — maç rakibin galibiyeti olarak kaydedilir (hiç ok atılmadıysa eskisi gibi iptal)
+      if (m && m.online && (m.adimlar || []).some(a => a.t === 'd' || a.t === 'p' || a.t === 'T')) {
+        onayla({ baslik: t('Maçtan çekilmek istiyor musun?'), metin: t('Maç biter ve rakibinin galibiyeti olarak kaydedilir.'), evet: t('Çekil'), tehlike: true })
+          .then(ok => {
+            if (!ok) return; const om = data().current; if (!om || !om.online) return;
+            const taraf = om.sides.findIndex(sd => sd.members.includes(om.online.ben));
+            E.cekil(om, taraf < 0 ? 0 : taraf); onlineEsitle(om);
+            store.finishCurrent(); S.lastMatch = om; E.clearUndo(); S.modal = null; go('end');
+          });
+        break;
+      }
       onayla({ baslik: t('Maç iptal edilsin mi?'), metin: t('Bu maç kaydedilmez.'), evet: t('Maçı iptal et'), tehlike: true })
         .then(ok => { if (ok) { const om = data().current; if (om && om.online) onlineIptal(om); store.setCurrent(null); E.clearUndo(); go('home'); } });
       break;
@@ -2121,6 +2133,12 @@ app.addEventListener('click', e => {
 
     case 'rematch': {
       const lm = S.lastMatch;
+      if (lm && lm.online) { // Demir 12.11: online rövanş — rakibe aynı ayarlarla davet
+        el.disabled = true;
+        onlineRovans(lm).then(ok => { if (ok) { toast(t('Rövanş daveti gönderildi — rakibin kabul edince maç açılır'), 'ok', { sure: 3000 }); S.lastMatch = null; go('online'); } else { el.disabled = false; toast(t('Rövanş gönderilemedi'), 'bad'); } })
+          .catch(err => { console.warn(err); el.disabled = false; toast(t('Rövanş gönderilemedi'), 'bad'); });
+        break;
+      }
       E.clearUndo();
       // başlayan sırayı kaydır
       const sides = lm.sides.map(s => ({ name: s.name, members: s.members }));

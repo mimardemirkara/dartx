@@ -16,6 +16,7 @@ import { dil } from '../i18n.js';
 let C = null;
 const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {} };
 const goruldu = new Set();
+const siraGordum = new Map(); // maç id → sıra bende mi (son görülen)
 const araGordum = new Map(); // maç id → rakip ara verdi mi (son görülen)
 const clone = o => JSON.parse(JSON.stringify(o));
 
@@ -204,6 +205,24 @@ async function dinle() {
       if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi] }); }
       const m = data().current;
       if (m && m.online && m.online.id === d.id) uygula(d);
+      // Demir 12.11: "sıra sende" — maç ekranında değilken rakip atışını bitirdiyse şerit bildirimi
+      if (d.durum === 'oyunda') {
+        try {
+          const cur2 = data().current;
+          let yerel = cur2 && cur2.online && cur2.online.id === d.id ? cur2 : null;
+          if (!yerel) {
+            const park = (data().ara || []).find(x => x.online && x.online.id === d.id);
+            if (park && (d.surum || 0) > (park.online.surum || 0)) { E.hamlelerleKur(park, yereleCevir(d.adimlar, park.online.harita)); park.online.surum = d.surum || 0; park.online.anahtar = anahtar(park.adimlar); save(); }
+            yerel = park || null;
+          }
+          if (yerel && !yerel.done && (yerel.adimlar || []).some(a => a.t === 'b')) {
+            const bende = E.currentPid(yerel) === yerel.online.ben, once = siraGordum.get(d.id);
+            const ekranda = yerel === cur2 && C.S.view === 'play';
+            if (once === false && bende && !ekranda) bildir(t('Sıra sende: {0} ile {1}', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => macaGir(d), sure: 6000 });
+            siraGordum.set(d.id, bende);
+          }
+        } catch (hata_) { console.warn('sıra', hata_); }
+      }
     });
     tazele();
   }, () => {}));
@@ -388,6 +407,15 @@ export async function araBildir(m, ara) {
   m.online.araVerdim = !!ara;
   try { const { db, F } = await bulut(); await F.updateDoc(F.doc(db, 'online', m.online.id), { ['ara.' + benUid()]: ara ? Date.now() : null, guncel: F.serverTimestamp() }); } catch (_) { m.online.araVerdim = !ara; }
 }
+/** Demir 12.11: online maçın rövanşı — aynı oyun ve ayarlarla rakibe yeni davet */
+export async function rovans(m) {
+  if (!(m && m.online)) return false;
+  const ben = benUid(); const karsi = Object.keys(m.online.harita || {}).find(u => u !== ben);
+  if (!karsi) return false;
+  const ozel = clone(m.opts || {});
+  await davetEt(karsi, m.gameId === 'x01' ? 'x01:' + (ozel.start || 501) : m.gameId, ozel);
+  return true;
+}
 /** Demir 12.11: maç iptal edilince rakibe haber gider */
 export async function onlineIptal(m) {
   if (!(m && m.online)) return;
@@ -437,7 +465,10 @@ function uygula(d) {
   E.hamlelerleKur(m, uzak);
   m.online.anahtar = sade(m.adimlar);
   setCurrent(m);
-  if (m.done) { C.macBitti(m); return; } // Demir 12.11: rakip maçı bitirdi (erken bitirme dahil)
+  if (m.done) {
+    if (m.cekildi != null) { const kp = (m.sides[m.cekildi] || {}).members || []; const kisi = data().players.find(x => x.id === kp[0]); bildir(t('{0} maçtan çekildi, maçı sen kazandın', `<b>${esc(kisi ? kisi.name : '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: kisi ? kisi.name : '', sure: 5000 }); }
+    C.macBitti(m); return; // Demir 12.11: rakip maçı bitirdi (erken bitirme ve çekilme dahil)
+  }
   if (C.S.modal && C.S.modal.type === 'onlineBekle' && m.adimlar.some(a => a.t === 'b')) C.S.modal = { type: 'ilksira' }; // Demir 12.11
   if (C.S.view === 'play') C.render();
 }

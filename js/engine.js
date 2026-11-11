@@ -90,6 +90,14 @@ export function baslayanSec(m, i) {
 }
 /** Oyunu bitir (Demir 09.11): leg bitiminde maç burada kapanır; kazanan en çok set/leg alan, eşitse berabere.
  *  Yeni leg'e hiç ok atılmadığı için istatistikler bozulmaz. */
+/** Online maçtan çekilme (Demir 12.11): çekilen taraf kaybeder, maç rakibin galibiyeti olarak biter */
+export function cekil(m, taraf) {
+  if (m.done) return;
+  if (!oynatiliyor && m.adimlar) m.adimlar.push({ t: 'c', i: taraf });
+  m.done = true; m.ended = Date.now(); m.cekildi = taraf;
+  m.winner = m.sides.length === 2 ? 1 - taraf : -1;
+  m.turnDarts = [];
+}
 export function erkenBitir(m) {
   if (m.done) return;
   kaydet(m, { t: 'e' });
@@ -124,6 +132,7 @@ function yenidenKur(m, kac) {
         else if (a.t === 'p') passTurn(y);
         else if (a.t === 'T') throwTotal(y, a.total, a.co);
         else if (a.t === 'e') erkenBitir(y);
+        else if (a.t === 'c') cekil(y, a.i);
       });
     });
   } finally { oynatiliyor = false; }
