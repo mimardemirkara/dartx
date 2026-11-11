@@ -299,7 +299,7 @@ export function viewUye() {
         <div class="uy-ic uy-karsila">
           <div class="uy-hosgeldin"><h2><span class="uy-baslik-ic">${IC.selam}</span>${t('Hoş geldin')}</h2><p>${t('Skorunu tut, istatistiğini gör. Ücretsiz, hemen başla.')}</p></div>
           <button type="button" class="btn primary uy-karsila-btn uy-karsila-oyna" data-act="uy-misafir"><span class="uy-karsila-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.52.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5Z"/></svg></span><span class="uy-karsila-yazi"><b>${t('Hemen oyna')}</b><small>${t('Üyelik gerekmez')}</small></span></button>
-          <button type="button" class="btn uy-karsila-btn uy-karsila-giris" data-act="uy-karsila-giris"><span class="uy-karsila-ic">${IC.giris}</span><span class="uy-karsila-yazi"><b>${t('Giriş yap / Üye ol')}</b><small>${t('E-posta, Google ya da Apple')}</small></span></button>
+          <button type="button" class="btn uy-karsila-btn uy-karsila-giris" data-act="uy-karsila-giris"><span class="uy-karsila-ic">${IC.giris}</span><span class="uy-karsila-yazi"><b>${t('Giriş yap / Üye ol')}</b><small>${t('E-posta, Google ya da Apple')}</small></span><span class="uy-karsila-rozet">${t('Ücretsiz')}</span></button>
           <p class="uy-karsila-fayda"><span class="uy-karsila-fayda-ic">${IC.bulut}</span><span>${t('Üye olursan maçların her cihazında seninle, arkadaşlarınla online maç yaparsın.')}</span></p>
         </div>
       ${kartKapa()}</div>`, 'karsila');
