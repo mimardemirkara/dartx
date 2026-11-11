@@ -66,6 +66,8 @@ export function uyelikKur(ctx) {
   H.dinle(u => {
     // açılış giriş ekranındayken kayıtlı oturum bulunursa (profil tamam) doğrudan ana sayfaya geç
     if (C.S.view === 'uye' && C.S.uyeIlk && !C.S.uyeMesgul && u.user && u.profil && H.dogrulandi()) { C.S.uyeIlk = false; C.go('home'); return; }
+    // telefonun seçicisi açıkken ekran yeniden çizilmesin (seçim kaybolmasın); seçim bitince zaten çizilir
+    if (document.activeElement && document.activeElement.matches && document.activeElement.matches('select.secim-gizli')) return;
     if (['uye', 'settings', 'online', 'home'].includes(C.S.view)) C.render(); else window.dispatchEvent(new Event('dartx-hesap-rozet'));
   });
   const app = document.getElementById('app');
@@ -549,7 +551,12 @@ async function tikla(e) {
     case 'uy-menu': menuAc(el); return;
     case 'uy-hakkinda': hakkindaAc(); return;
     case 'uy-m-hakkinda': if (C.S.view !== 'about') C.S.hakkindaDonus = C.S.view; C.go('about'); return;
-    case 'uy-secim': await secimPencere(el); return;
+    case 'uy-secim': {
+      // Demir 12.11: dokunmatikte dokunuş görünmez <select>'e ulaşmazsa (iPhone ana ekran uygulaması) seçiciyi biz açarız
+      const sel = el.querySelector('select.secim-gizli');
+      if (dokunmatik() && sel && e.target !== sel) { try { sel.showPicker ? sel.showPicker() : sel.focus(); } catch (_) { sel.focus(); } return; }
+      await secimPencere(el); return;
+    }
     case 'uy-eylembitir': { const q = new URLSearchParams(location.search); ['eylem', 'kod', 'lang'].forEach(k => q.delete(k)); location.replace(location.pathname + (q.toString() ? '?' + q : '')); return; }
     case 'uy-m-giris': C.go('uye', { uyeDonus: S.view === 'uye' ? S.uyeDonus : S.view, uyeMod: 'giris' }); break;
     case 'uy-m-uyeol': C.go('uye', { uyeDonus: S.view === 'uye' ? S.uyeDonus : S.view, uyeMod: 'kayit' }); break;

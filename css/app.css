@@ -3971,3 +3971,6 @@ a.ay-satir { color: inherit; text-decoration: none; }
 /* Hesabım: Ok setim ayrı kart; sağ sütunda Ok setim + Hesap alt alta (Demir 11.11) */
 .uy-sag-sutun { display: grid; gap: 16px; align-content: start; min-width: 0; }
 .uy-sag-sutun > .uy-kart { margin: 0 !important; }
+
+/* Seçiciler telefonda açılmıyordu (Demir 12.11): görünmez <select> satırın en üstünde ve dokunuşu alır */
+.secim-gizli { z-index: 3; pointer-events: auto; -webkit-user-select: auto; user-select: auto; -webkit-touch-callout: default; touch-action: manipulation; }
