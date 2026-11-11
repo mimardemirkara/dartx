@@ -4022,3 +4022,10 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .uye-sayfa:not(.profil) .uy-misafir.uy-karsila-don { opacity: 1 !important; display: inline-flex; align-items: center; gap: 6px; justify-self: center; margin: 6px auto 0; padding: 7px 16px 7px 12px !important; border-radius: 99px; font-size: 13.5px !important; font-weight: 700 !important; text-decoration: none; color: var(--fg) !important; background: color-mix(in srgb, var(--fg) 9%, transparent) !important; border: 1px solid color-mix(in srgb, var(--fg) 22%, transparent) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 8px rgba(0,0,0,.18); }
 .uy-karsila-don svg { width: 15px; height: 15px; }
 .uy-karsila-don:active { transform: scale(.96); }
+
+/* Girişten sonra profil gelirken kısa bekleme (Demir 12.11): "Profilini tamamla" formu yanıp sönmesin */
+.uy-yukleniyor { display: grid !important; justify-items: center; gap: 12px; padding: 34px 20px !important; text-align: center; }
+.uy-yukleniyor h2 { margin: 0; font-size: 18px; }
+.uy-yuk-ic { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; color: #e3b866; background: rgba(227,184,102,.12); box-shadow: inset 0 0 0 1px rgba(227,184,102,.3); animation: uy-karsila-nabiz 1.6s ease-in-out infinite; }
+.uy-yuk-ic svg { width: 26px; height: 26px; }
+:root[data-tema="acik"] .uy-yuk-ic { color: #8a6418; background: rgba(185,138,53,.14); box-shadow: inset 0 0 0 1px rgba(138,100,24,.3); }

@@ -76,8 +76,10 @@ export function baslat(zorla = false) {
     const { auth, A } = await bulut();
     A.onAuthStateChanged(auth, async u => {
       durum.user = u; durum.hazir = true;
+      durum.profilBakildi = !u; // Demir 12.11: profil gelene kadar "Profilini tamamla" formu gösterilmez
       data().settings.uyeOturum = !!u; save();
       durum.profil = u ? await profilGetir().catch(() => durum.profil) : null;
+      durum.profilBakildi = true;
       // e-posta değişikliği onaylanıp yeni adresle girildiyse "onay bekliyor" kaydı silinir
       if (u && durum.profil && durum.profil.epostaBekleyen && String(u.email || '').toLowerCase() === durum.profil.epostaBekleyen) profilKaydet({ epostaBekleyen: null }).catch(() => {});
       // tekillik kuralından önce kaydedilmiş numara bir kez bu hesaba ayrılır (Demir 11.11)

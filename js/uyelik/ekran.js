@@ -92,7 +92,7 @@ function adim() {
   const u = H.uye(), S = C.S;
   if (!H.girisli()) return 'eposta'; // Demir 11.11: girişte doğrudan form gelir
   if (!H.dogrulandi()) return 'dogrula';
-  if (!u.profil) return 'tamamla';
+  if (!u.profil) return u.profilBakildi === false ? 'yukleniyor' : 'tamamla'; // Demir 12.11: girişten hemen sonra profil buluttan gelirken bekleme ekranı
   if (u.profil.oyuncuId == null && !u.profil.eslesmeAtlandi && data().players.some(p => !p.silindi)) return 'eslestir';
   return 'profil';
 }
@@ -378,6 +378,7 @@ export function viewUye() {
           <button type="button" class="uy-misafir soluk" data-act="uy-cikis">${t('Başka bir hesapla giriş yap')}</button>
         </div>
       </section></div>`);
+  if (a === 'yukleniyor') return sayfa(`<div class="uy-duzen tek"><section class="ay-grup uy-kart uy-ortala uy-yukleniyor"><span class="uy-yuk-ic">${IC.kisi}</span><h2>${t('Hesabın açılıyor…')}</h2><span class="on-bekle-nokta"><i></i><i></i><i></i></span></section></div>`);
   if (a === 'tamamla') { try { const ts = JSON.parse(localStorage.getItem('dartx.uyeTaslak') || 'null'); if (ts && !C.S.uyeTaslak) C.S.uyeTaslak = ts; } catch (_) { /* yok */ } }
   if (a === 'tamamla') return sayfa(`<div class="uy-duzen tek">
       <section class="ay-grup uy-kart">

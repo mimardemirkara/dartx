@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b191';
+const VERSION = 'dartx-b192';
 const FILES = [
   'ses/spiker/liste.json',
   'ses/spiker/bull.mp3',
