@@ -177,6 +177,22 @@ async function dinle() {
         else { const p = (data().ara || []).find(x => x.online && x.online.id === d.id); if (p) araSil(p.id); }
         bildir(t('{0} maçı iptal etti', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], sure: 4500 });
       }
+      // Demir 12.11: maç karşı tarafta bitti ama bu telefonda yarım duruyor (ara verilmiş ya da uygulama kapalıydı) → geçmişe taşınır
+      if (d.durum === 'bitti' && !goruldu.has('b' + d.id)) {
+        const cur = data().current, park = (data().ara || []).find(x => x.online && x.online.id === d.id);
+        const yerel = cur && cur.online && cur.online.id === d.id ? null : park; // şimdiki maç aşağıda uygula() ile (son ok sesli/animasyonlu) biter
+        if (yerel && !yerel.done) {
+          goruldu.add('b' + d.id);
+          try {
+            E.hamlelerleKur(yerel, yereleCevir(d.adimlar, yerel.online.harita)); yerel.online.surum = d.surum || 0; yerel.online.anahtar = anahtar(yerel.adimlar);
+            if (yerel.done) {
+              if (yerel === cur) C.macBitti(yerel);
+              else { araSil(yerel.id); delete yerel.hesap; data().history.unshift(yerel); save(); window.dispatchEvent(new Event('dartx-mac-bitti')); }
+              bildir(t('{0} ile maçın bitti', `<b>${esc(ad)}</b>`), { tur: 'tamam', renk: 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: () => C.go('stats'), sure: 5000 });
+            }
+          } catch (hata_) { console.warn('bitiş', hata_); }
+        }
+      }
       // Demir 12.11: rakip maça ara verdi / döndü
       if (d.durum === 'oyunda') {
         const araK = !!(d.ara && d.ara[karsi]), once = araGordum.get(d.id);
@@ -421,6 +437,7 @@ function uygula(d) {
   E.hamlelerleKur(m, uzak);
   m.online.anahtar = sade(m.adimlar);
   setCurrent(m);
+  if (m.done) { C.macBitti(m); return; } // Demir 12.11: rakip maçı bitirdi (erken bitirme dahil)
   if (C.S.modal && C.S.modal.type === 'onlineBekle' && m.adimlar.some(a => a.t === 'b')) C.S.modal = { type: 'ilksira' }; // Demir 12.11
   if (C.S.view === 'play') C.render();
 }

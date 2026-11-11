@@ -2100,6 +2100,7 @@ app.addEventListener('click', e => {
     case 'oyunubitir': {
       if (!m || !S.modal || S.modal.type !== 'legbitti') break;
       E.erkenBitir(m); S.modal = null;
+      if (m.online) onlineEsitle(m); // Demir 12.11: erken bitirme rakibe de gitsin
       store.finishCurrent(); S.lastMatch = m; ses.oyun('mac');
       setTimeout(konfeti, 120);
       go('end'); break;
@@ -2330,7 +2331,9 @@ uyelikKur({ S, render, go, toast, onayla, bilgi, header, kart, ikonKutu, AY, LUC
 fotoBulKur(ad => { const k = String(ad || '').trim().toLocaleLowerCase('tr'); const p = data().players.find(x => x.foto && x.name.toLocaleLowerCase('tr') === k); return p ? p.foto : ''; });
 onlineKur({ S, render, go, toast, onayla, kart, vib, afterThrow, IC: { uye: ON.uye, lig: ON.lig },
   secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l]) => ({ v, l, on: v === cur })), v => ok(v), { baslik })),
-  devam: id => { if (store.araDevam(id)) go('play'); } });
+  devam: id => { if (store.araDevam(id)) go('play'); },
+  // Demir 12.11: rakip maçı bitirdi — şimdiki maçsa sonuç ekranı, değilse sessizce geçmişe
+  macBitti: m => { store.finishCurrent(); S.lastMatch = m; E.clearUndo(); if (S.view === 'play') { S.modal = null; ses.oyun('mac'); setTimeout(konfeti, 120); go('end'); } else render(); } });
 // e-postadaki bağlantıyla gelindiyse (doğrula / şifre / e-posta değiştir) açılış efekti ve giriş ekranı atlanır
 const eylemli = eylemBaslat();
 if (!eylemli && ilkAcilisSor()) S.view = 'uye'; // üyelik açılınca ilk açılışta bir kez: giriş ya da misafir
