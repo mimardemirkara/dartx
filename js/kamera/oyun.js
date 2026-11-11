@@ -92,7 +92,7 @@ export async function eslestir(t = s => s) {
   const svg = await qrSvg(b.qr);
   pencere(`${baslik(IC.tablet, t('Kamerayı telefondan al'))}
     <ol class="kam-adimlar"><li>${t('İki cihaz aynı Wi-Fi’ye (ya da telefonun hotspot’una) bağlı olsun. İnternet gerekmez.')}</li>
-    <li>${t('Telefonda DartX → <b>Kamera</b>: kamerayı aç, tahtayı ayarla, sonra <b>Tablete bağlan</b>; bu kodu telefonla okut.')}</li></ol>
+    <li>${t('Telefonda DartX → <b>X-Eye</b>: kamerayı aç, tahtayı ayarla, sonra <b>Tablete bağlan</b>; bu kodu telefonla okut.')}</li></ol>
     <div class="kam-qr">${svg}</div>
     <button class="btn primary" data-kam="ileri">${t('Telefon kodu gösteriyor ›')}</button>
     <button class="btn" data-kam="kapat">${t('Vazgeç')}</button>`);

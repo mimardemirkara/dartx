@@ -337,7 +337,7 @@ function gecisOynat() {
   el.animate([{ transform: `translateX(${yon * 28}%)`, opacity: .35 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 280, easing: 'cubic-bezier(.2,.8,.3,1)' });
 }
 function go(view, extra = {}) {
-  if (view === 'kamera' && !kameraAcik()) { toast(t('Kamera yakında'), '', { tur: { ic: 'kamera', a: 'a-zipla', k: '' } }); if (S.view === 'kamera') view = 'home'; else return; } // Demir 12.11
+  if (view === 'kamera' && !kameraAcik()) { toast(t('X-Eye yakında'), '', { tur: { ic: 'kamera', a: 'a-zipla', k: '' } }); if (S.view === 'kamera') view = 'home'; else return; } // Demir 12.11
   const yaz = !gecmisAtla; gecmisAtla = false;
   const onceki = S.view;
   Object.assign(S, { view, modal: null }, extra);
@@ -581,7 +581,7 @@ function viewHome() {
   const menu = [['players', 'Oyuncular'], ['stats', 'İstatistik'], ['settings', 'Ayarlar']].map(([v, l]) => `
       <button class="app" data-act="tab" data-v="${v}"><span class="app-ico simge">${ikon(v)}</span><span class="app-ad">${t(l)}</span></button>`).join('')
     + `<button class="app" data-act="tab" data-v="nasil"><span class="app-ico simge">${ikon('nasil')}</span><span class="app-ad">${t('Nasıl Oynanır')}</span></button>`
-    + `<button class="app" data-act="tab" data-v="kamera"><span class="app-ico kam-ana"><span class="kam-kart-ic kam-ana-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span><i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">${t('Kamera')}</span></button>`
+    + `<button class="app" data-act="tab" data-v="kamera"><span class="app-ico kam-ana"><span class="kam-kart-ic kam-ana-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kamEkran.IC.kamera}</svg></span><i class="rozet-yakinda">${t('Yakında')}</i></span><span class="app-ad">X-Eye</span></button>`
     + `<button class="app" data-act="tab" data-v="online"><span class="app-ico simge ${uyelikHazir() ? '' : 'yakinda'}">${ikon('grp-online')}${uyelikHazir() ? '' : `<i class="rozet-yakinda">${t('Yakında')}</i>`}</span><span class="app-ad">${t('Online')}</span></button>`
     + `<button class="app" data-act="tab" data-v="yardim"><span class="app-ico simge">${ikon('yardim')}</span><span class="app-ad">${t('Yardım')}</span></button>`
     + hesapKaro();
@@ -1028,7 +1028,7 @@ const KAM_IC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stro
 function kamDugme(useTotal) {
   const d = kam.durum();
   if (useTotal || !kameraAcik()) return ''; // ayar yoksa da görünür: basınca kamera ekranı açılır (Demir 10.11); izinli değilse hiç yok (12.11)
-  return `<button class="icon-btn pt-kam" data-d="${d}" data-act="kamera" aria-label="${t('Kamera')}" title="${t('Kamera')}">${KAM_IC}</button>`;
+  return `<button class="icon-btn pt-kam" data-d="${d}" data-act="kamera" aria-label="X-Eye" title="X-Eye">${KAM_IC}</button>`;
 }
 // Hata bildir (Demir 11.11): kullanıcı sorunu yazar; cihaz bilgisi ve son hatalar eklenmiş e-posta açılır.
 // Hiçbir şey kendiliğinden gönderilmez; e-postayı kullanıcı kendi uygulamasından yollar.
@@ -1057,7 +1057,7 @@ function kamAyarUyari() {
   const p = document.createElement('div');
   p.className = 'kam-perde kam-uyari';
   p.innerHTML = `<div class="kam-kart"><span class="kam-kart-ic">${KAM_IC}</span>
-    <h3>${t('Önce Tahtayı Ayarla')}</h3><p>${t('Bitince Geri İle Oyuna Dön, Kamera Kendiliğinden Açılır')}</p>
+    <h3>${t('Önce Tahtayı Ayarla')}</h3><p>${t('Bitince Geri İle Oyuna Dön, X-Eye Kendiliğinden Açılır')}</p>
     <button class="btn primary">${t('Tamam')}</button></div>`;
   p.addEventListener('click', () => { p.classList.add('kapan'); setTimeout(() => p.remove(), 200); vib(6); });
   document.body.appendChild(p);
@@ -1066,7 +1066,7 @@ function kameraAtis(p) {
   const m = data().current;
   if (S.view !== 'play' || !m || m.done) return;
   const g = GAMES[m.gameId];
-  if (S.modal || botSirasi(m) || (g.totalInput && m.opts.input === 'total')) { toast(t('Kamera atışı yazılamadı: önce açık pencereyi kapat'), 'bad'); return; }
+  if (S.modal || botSirasi(m) || (g.totalInput && m.opts.input === 'total')) { toast(t('X-Eye atışı yazılamadı: önce açık pencereyi kapat'), 'bad'); return; }
   const ok = { n: p.n, m: p.n === 0 ? 1 : p.m };
   const sec = g.secenekler ? g.secenekler(m, m.g, ok) : null;
   if (sec) { S.modal = { type: 'hedefsec', ok, sec }; vib(10); render(); return; }
@@ -1408,7 +1408,7 @@ function viewYardim() {
       <p>${t('Kriket tablosunda bir hücreye dokunarak da yazabilirsin. Üstteki ☰ menüsünden maçı duraklatabilir ya da bitirebilirsin.')}</p>`),
     konu(AY.oyunSes, t('Sesli okuma'), `<p>${t('Oyun ekranının üstündeki konuşan kişi düğmesi sesli okumayı açar. Basılı tutunca seviye seçilir: Sade (yalnız atışlar), Standart (+ toplam, kalan), Koç (+ tavsiye). Türkçede spiker sesi, İngilizcede telefonun kendi sesi okur.')}</p>`),
     konu(AY.kisi, t('DartBot'), `<p>${t('Oyuncu seçerken DartBot Kolay, Orta, Zor ya da Usta’yı ekle. Bot kendi sırasında kendisi atar; attığı oklar ekranda gösterilir.')}</p>`),
-    (!kameraAcik() ? '' : konu(AY.kamera, t('Kamera'), `<p>${t('Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte sabitle. Kamera ekranında altın kalıba tahtayı oturt, Oturdu’ya bas, sonra Otomatik algıla. Tablet + telefon için aynı Wi-Fi’de QR ile eşleştir.')}</p>
+    (!kameraAcik() ? '' : konu(AY.kamera, 'X-Eye · ' + t('Otomatik skor'), `<p>${t('Telefonu tahtanın yaklaşık 1 m önüne, 30–40° yandan, kamera yerden 173 cm yükseklikte sabitle. Kamera ekranında altın kalıba tahtayı oturt, Oturdu’ya bas, sonra Otomatik algıla. Tablet + telefon için aynı Wi-Fi’de QR ile eşleştir.')}</p>
       <button class="btn sm" data-act="tab" data-v="kamera">${AY.kamera}<span>${t('Kamerayı aç')}</span></button>`)),
     konu(AY.kisi, t('Hesap ve üyelik'), `<p>${t('DartX’i üye olmadan (misafir) kullanabilirsin. Üye olunca maçların ve istatistiklerin buluta yedeklenir, her cihazında seninle olur; arkadaş ekleyip online maç yapabilirsin.')}</p>
       <ol class="yd-adim">
@@ -1518,7 +1518,7 @@ function viewOnline() {
 
 // Kamera (Beta) ekranı: içeriği js/kamera/ekran.js kurar (kalıcı öğe, her çizimde #kam-yer'e takılır)
 function viewKamera() {
-  return `<main class="page kamera-sayfa">${header(t('Kamera') + ` <span class="beta-rozet">${t('Yakında')}</span>`, 'kamgeri')}<div id="kam-yer"></div></main>`;
+  return `<main class="page kamera-sayfa">${header('X-Eye' + ` <span class="beta-rozet">${t('Yakında')}</span>`, 'kamgeri')}<div id="kam-yer"></div></main>`;
 }
 function viewSettings() {
   const s = data().settings;
@@ -2159,16 +2159,16 @@ app.addEventListener('click', e => {
     case 'kamgeri': { // oyundan gelindiyse oyuna döner; tahta ayarlandıysa kamera kendiliğinden açılır
       const don = S.kamDonus === 'play' && data().current ? 'play' : 'home';
       S.kamDonus = null; go(don);
-      if (don === 'play' && kam.durum() === 'hazir') kam.yerelAc().then(ok => { if (ok) toast(t('Kamera açık: atışlar kendiliğinden yazılır'), ''); }).catch(() => {});
+      if (don === 'play' && kam.durum() === 'hazir') kam.yerelAc().then(ok => { if (ok) toast(t('X-Eye açık: atışlar kendiliğinden yazılır'), ''); }).catch(() => {});
       break;
     }
     case 'kameslestir': kam.eslestir(t); break;
     case 'kamera': { // oyunda kamera düğmesi
       const d = kam.durum();
-      if (d === 'uzak') { toast(t('Kamera: telefon bağlı'), ''); break; }
-      if (d === 'yerel') { kam.yerelKapat(); toast(t('Kamera kapandı'), ''); break; }
+      if (d === 'uzak') { toast(t('X-Eye: telefon bağlı'), ''); break; }
+      if (d === 'yerel') { kam.yerelKapat(); toast(t('X-Eye kapandı'), ''); break; }
       if (d === 'ayarsiz') { go('kamera', { kamDonus: 'play' }); kamAyarUyari(); break; }
-      kam.yerelAc().then(ok => { if (ok) toast(t('Kamera açık: atışlar kendiliğinden yazılır'), ''); })
+      kam.yerelAc().then(ok => { if (ok) toast(t('X-Eye açık: atışlar kendiliğinden yazılır'), ''); })
         .catch(e => toast(t('Kamera açılamadı') + (e && e.name === 'NotAllowedError' ? ': ' + t('izin verilmedi') : ''), 'bad'));
       break;
     }
