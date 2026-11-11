@@ -4029,3 +4029,20 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .uy-yuk-ic { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; color: #e3b866; background: rgba(227,184,102,.12); box-shadow: inset 0 0 0 1px rgba(227,184,102,.3); animation: uy-karsila-nabiz 1.6s ease-in-out infinite; }
 .uy-yuk-ic svg { width: 26px; height: 26px; }
 :root[data-tema="acik"] .uy-yuk-ic { color: #8a6418; background: rgba(185,138,53,.14); box-shadow: inset 0 0 0 1px rgba(138,100,24,.3); }
+
+/* Giriş yapılıyor (Demir 12.11): kartsız, ortada DartX logosu — üzerinden parıltı geçer, altında altın akan çubuk */
+.uye-sayfa.yukleme .uy-duzen.uy-yuk { display: grid; justify-items: center; align-content: center; gap: 22px; min-height: min(70vh, 560px); max-width: none; text-align: center; }
+.uy-yuk-logo { position: relative; width: min(300px, 62vw); aspect-ratio: 1000 / 370; animation: uy-yuk-nefes 2.2s ease-in-out infinite; filter: drop-shadow(0 14px 30px rgba(0,0,0,.5)); }
+.uy-yuk-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.uy-yuk-parilti { position: absolute; inset: 0; -webkit-mask: url(../img/logo-dartx.webp) center / contain no-repeat; mask: url(../img/logo-dartx.webp) center / contain no-repeat; background: linear-gradient(105deg, transparent 38%, rgba(255,240,200,.9) 50%, transparent 62%) no-repeat; background-size: 250% 100%; animation: uy-yuk-parilti 1.8s ease-in-out infinite; mix-blend-mode: screen; pointer-events: none; }
+@keyframes uy-yuk-parilti { 0% { background-position: 130% 0; } 70%, 100% { background-position: -60% 0; } }
+@keyframes uy-yuk-nefes { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+.uy-yuk-cubuk { position: relative; width: min(190px, 46vw); height: 4px; border-radius: 99px; overflow: hidden; background: color-mix(in srgb, var(--fg) 14%, transparent); }
+.uy-yuk-cubuk i { position: absolute; top: 0; bottom: 0; width: 42%; border-radius: 99px; background: linear-gradient(90deg, transparent, #f0cf86 35%, #b98a35 65%, transparent); animation: uy-yuk-ak 1.25s cubic-bezier(.45,.05,.55,.95) infinite; }
+@keyframes uy-yuk-ak { 0% { left: -45%; } 100% { left: 103%; } }
+.uy-yuk-yazi { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .02em; color: var(--fg); }
+.uy-yuk-yazi svg { width: 18px; height: 18px; color: #e3b866; }
+:root[data-tema="acik"] .uy-yuk-yazi svg { color: #8a6418; }
+:root[data-tema="acik"] .uy-yuk-logo { filter: drop-shadow(0 12px 24px rgba(90,60,20,.3)); }
+:root[data-tema="acik"] .uy-yuk-parilti { background-image: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.95) 50%, transparent 62%); }
+@media (prefers-reduced-motion: reduce) { .uy-yuk-logo, .uy-yuk-parilti { animation: none; } }

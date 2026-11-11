@@ -378,7 +378,8 @@ export function viewUye() {
           <button type="button" class="uy-misafir soluk" data-act="uy-cikis">${t('Başka bir hesapla giriş yap')}</button>
         </div>
       </section></div>`);
-  if (a === 'yukleniyor') return sayfa(`<div class="uy-duzen tek"><section class="ay-grup uy-kart uy-ortala uy-yukleniyor"><span class="uy-yuk-ic">${IC.kisi}</span><h2>${t('Hesabın açılıyor…')}</h2><span class="on-bekle-nokta"><i></i><i></i><i></i></span></section></div>`);
+  // Demir 12.11: giriş yapılırken ve profil buluttan gelirken logolu "Giriş yapılıyor" ekranı (form yanıp sönmez)
+  if (C.S.uyeGiriyor || a === 'yukleniyor') return sayfa(`<div class="uy-duzen tek uy-yuk" role="status" aria-live="polite"><div class="uy-yuk-logo"><img src="img/logo-dartx.webp" alt="DartX"><span class="uy-yuk-parilti" aria-hidden="true"></span></div><div class="uy-yuk-cubuk" aria-hidden="true"><i></i></div><p class="uy-yuk-yazi">${IC.giris}<span>${t('Giriş yapılıyor…')}</span></p></div>`, 'yukleme');
   if (a === 'tamamla') { try { const ts = JSON.parse(localStorage.getItem('dartx.uyeTaslak') || 'null'); if (ts && !C.S.uyeTaslak) C.S.uyeTaslak = ts; } catch (_) { /* yok */ } }
   if (a === 'tamamla') return sayfa(`<div class="uy-duzen tek">
       <section class="ay-grup uy-kart">
@@ -586,8 +587,8 @@ async function tikla(e) {
     case 'uy-mod': { const f = el.closest('form'); if (f) tasla(f); S.uyeMod = el.dataset.v; C.render(); break; }
     case 'uy-gizlilik': e.preventDefault(); { const f = el.closest('form'); if (f) tasla(f); } C.go('gizlilik', { gizlilikDonus: 'uye' }); break;
     case 'uy-kosullar': e.preventDefault(); { const f = el.closest('form'); if (f) tasla(f); } C.go('kosullar', { gizlilikDonus: 'uye' }); break;
-    case 'uy-google': await is(() => H.googleGiris()); break;
-    case 'uy-apple': await is(() => H.appleGiris()); break;
+    case 'uy-google': S.uyeGiriyor = true; try { await is(() => H.googleGiris()); } finally { S.uyeGiriyor = false; C.render(); } break;
+    case 'uy-apple': S.uyeGiriyor = true; try { await is(() => H.appleGiris()); } finally { S.uyeGiriyor = false; C.render(); } break;
     case 'uy-sifreunut': {
       const f = el.closest('form'); const eposta = f && f.elements.eposta.value;
       if (!epostaGecerli(eposta)) { C.toast(t('Önce e-posta adresini yaz'), 'bad'); return; }
@@ -794,7 +795,7 @@ async function gonder(e) {
       localStorage.setItem('dartx.hatirla', hat ? '1' : '0');
       if (hat) localStorage.setItem('dartx.sonEposta', v.eposta.trim()); else localStorage.removeItem('dartx.sonEposta');
       // Demir 11.11: "e-posta kayıtlı değil" ile "şifre yanlış" ayrı söylenir; uyarı ekranda daha uzun kalır
-      C.S.uyeMesgul = true; C.render();
+      C.S.uyeMesgul = true; C.S.uyeGiriyor = true; C.render();
       try { await H.epostaGiris(v.eposta, f.elements.sifre.value, hat); }
       catch (err) {
         console.warn(err);
@@ -805,7 +806,7 @@ async function gonder(e) {
           else if (kayitli === true) C.toast(t('Şifre yanlış. Tekrar dene ya da “Şifremi unuttum?”a dokun.'), 'bad', { sure: 5000 });
           else C.toast(t('E-posta ya da şifre hatalı'), 'bad', { sure: 5000 });
         } else C.toast(H.hataMetni(err), 'bad', { sure: 5000 });
-      } finally { C.S.uyeMesgul = false; C.render(); }
+      } finally { C.S.uyeMesgul = false; C.S.uyeGiriyor = false; C.render(); }
     }
   } else if (act === 'uy-tamamla') {
     const hata = isimHatasi(v); if (hata) { C.toast(hata, 'bad', { sure: 2800 }); return; }
