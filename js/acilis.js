@@ -112,7 +112,7 @@ export function acilisGoster(acik = true) {
       setTimeout(() => h.remove(), 2000);
       // logo tam netleşince uçan dart logodaki dartın içinde kaybolur
       setTimeout(() => d.classList.add('git'), 1300);
-      setTimeout(() => d.remove(), 1800);
+      setTimeout(() => { if (A.cikis === null) d.remove(); }, 1800); // çıkış başladıysa logoyla birlikte küçülerek gider
     };
     setTimeout(vur, DART.ucus * 1000);
     uc.onfinish = vur;
@@ -125,6 +125,18 @@ export function acilisGoster(acik = true) {
     if ((performance.now() - A.t0) / 1000 < DART.vurus + 0.15) { sesiAc(); return; }
     A.cikis = performance.now();
     kat.classList.add('cikis');
+    // Demir 12.11: saplanmış dart ekranda asılı kalmasın — logoyla birlikte ekran ortasına küçülerek kaybolur
+    // (uçuş animasyonu "fill: forwards" ile görünürlüğü sabitlediği için CSS ile sönmüyordu)
+    kat.querySelectorAll('.acilis-dart').forEach(d => {
+      const x = parseFloat(d.style.left) || 0, y = parseFloat(d.style.top) || 0, k = 1 - 0.08;
+      d.getAnimations().forEach(a => a.cancel());
+      d.classList.remove('git');
+      d.animate([
+        { transform: 'translate(0px, 0px) scale(1)', opacity: 1 },
+        { opacity: 0, offset: 0.69 },
+        { transform: `translate(${(innerWidth / 2 - x) * k}px, ${(innerHeight / 2 - y) * k}px) scale(.08)`, opacity: 0 },
+      ], { duration: 1300, easing: 'cubic-bezier(.55,.02,.78,.2)', fill: 'forwards' });
+    });
     // Kapatan dokunuş alttaki düğmeye / kutuya düşmesin: katman 0,8 sn daha dokunuşları tutar (görünmez olsa da),
     // bu sürede gelen tıklamalar ve odaklanmalar da yutulur; sonra geçirgen olur ve kaldırılır.
     setTimeout(() => kat.classList.add('gecirgen'), 800);

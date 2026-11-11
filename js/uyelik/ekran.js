@@ -292,6 +292,17 @@ export function viewUye() {
       ${C.kart(IC.kisi, t('Şimdilik'), `<div class="hk-metin"><p>${t('DartX üye olmadan, internetsiz çalışmaya devam ediyor. Verilerin yalnız bu cihazda.')}</p></div>`)}</div>`);
   }
   const a = adim();
+  // Demir 12.11: ilk açılışta önce sade karşılama — "Hemen oyna" (misafir) ya da "Giriş yap / Üye ol"; form arkada
+  if (C.S.uyeIlk && C.S.uyeKarsila && (a === 'eposta' || a === 'giris')) return sayfa(`<div class="uy-duzen tek uy-karsila-duzen">
+      ${logo()}
+      ${kartAc()}
+        <div class="uy-ic uy-karsila">
+          <div class="uy-hosgeldin"><h2><span class="uy-baslik-ic">${IC.selam}</span>${t('Hoş geldin')}</h2><p>${t('Skorunu tut, istatistiğini gör. Ücretsiz, hemen başla.')}</p></div>
+          <button type="button" class="btn primary uy-karsila-btn uy-karsila-oyna" data-act="uy-misafir"><span class="uy-karsila-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.52.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5Z"/></svg></span><span class="uy-karsila-yazi"><b>${t('Hemen oyna')}</b><small>${t('Üyelik gerekmez')}</small></span></button>
+          <button type="button" class="btn uy-karsila-btn uy-karsila-giris" data-act="uy-karsila-giris"><span class="uy-karsila-ic">${IC.giris}</span><span class="uy-karsila-yazi"><b>${t('Giriş yap / Üye ol')}</b><small>${t('E-posta, Google ya da Apple')}</small></span></button>
+          <p class="uy-karsila-fayda"><span class="uy-karsila-fayda-ic">${IC.bulut}</span><span>${t('Üye olursan maçların her cihazında seninle, arkadaşlarınla online maç yaparsın.')}</span></p>
+        </div>
+      ${kartKapa()}</div>`, 'karsila');
   if (a === 'giris') return sayfa(`<div class="uy-duzen">
       ${logo(t('Maçların ve istatistiklerin her cihazında. Üye olunca arkadaşlarınla online maç da yakında.'))}
       ${kartAc()}
@@ -344,6 +355,7 @@ export function viewUye() {
           ${btn('uy-apple', `<span class="uy-marka">${IC.apple}</span>${t('Apple ile devam et')}`, '', 'uy-saglayici')}
           ${btn('uy-misafir', `<span class="uy-marka misafir"><img src="img/logo-x.webp" alt=""></span>${t('Misafir olarak devam et')}`, '', 'uy-saglayici uy-misafir-btn')}
           <p class="uy-not">${t('Misafirken oyuncuların, maçların ve istatistiklerin yalnız bu cihazda kalır. İstediğin zaman üye olabilirsin.')}</p>
+          ${C.S.uyeIlk ? `<button type="button" class="uy-misafir soluk uy-karsila-don" data-act="uy-karsila-geri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>${t('Geri')}</button>` : ''}
         </div>
       ${kartKapa()}</div>`);
   }
@@ -496,7 +508,7 @@ function menuAc(dugme) {
   } else {
     const n = bekleyenSayi();
     const zaman = data().bulutZaman ? new Date(data().bulutZaman).toLocaleTimeString(document.documentElement.lang || 'tr', { hour: '2-digit', minute: '2-digit' }) : t('Henüz yok');
-    ic = `<div class="uy-m-bas">${avatarIc('uy-m-av')}<div><b>${esc(p.ad || u.user.displayName || '')}</b><small>${p.kod ? `${t('Arkadaş kodu')}: ${p.kod}` : esc(u.user.email || '')}</small><button type="button" class="uy-m-durum ${p.durumGizli ? 'gizli' : 'acik'}" data-act="uy-durumgizle" title="${t('Dokun: değiştir')}"><i></i>${p.durumGizli ? t('Görünmez') : t('Çevrimiçi')}</button></div></div><span class="cizgi"></span>
+    ic = `<div class="uy-m-bas">${avatarIc('uy-m-av')}<div><b>${esc(p.ad || u.user.displayName || '')}</b>${p.lakap || p.seviye ? `<span class="uy-m-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${p.seviye ? seviyeRozet(p.seviye, dil()) : ''}</span>` : ''}<small>${p.kod ? `${t('Arkadaş kodu')}: ${p.kod}` : esc(u.user.email || '')}</small><button type="button" class="uy-m-durum ${p.durumGizli ? 'gizli' : 'acik'}" data-act="uy-durumgizle" title="${t('Dokun: değiştir')}"><i></i>${p.durumGizli ? t('Görünmez') : t('Çevrimiçi')}</button></div></div><span class="cizgi"></span>
       ${H.dogrulandi() ? '' : satir('uy-ac', IC.eposta, t('E-postanı doğrula'))}
       ${satir('uy-ac', IC.kisi, t('Profilim'))}
       ${satir('uy-m-online', IC.arkadas, t('Arkadaşlar ve online maçlar'), n ? `<i class="uy-m-sayi">${n}</i>` : '')}
@@ -528,6 +540,7 @@ export function ilkAcilisSor() {
   // Demir 11.11: üye girişi açık değilse HER açılışta (açılış efektinden sonra) önce giriş ekranı gelir; misafir oradan geçer
   if (!hazirMi() || H.girisli() || s.uyeOturum) return false;
   C.S.uyeIlk = true; // ilk açılış: geri düğmesi yok, misafir ya da giriş ile uygulamaya girilir
+  C.S.uyeKarsila = true; // Demir 12.11: önce sade karşılama ekranı
   H.baslat(true).catch(() => {}); // cihazda kayıtlı oturum varsa bulunur, giriş ekranı kendiliğinden geçilir
   return true;
 }
@@ -550,6 +563,8 @@ async function tikla(e) {
   C.vib && C.vib(6);
   switch (act) {
     case 'uy-ac': C.go('uye', { uyeDonus: S.view === 'uye' ? S.uyeDonus : S.view, uyeAdim: null }); break;
+    case 'uy-karsila-giris': S.uyeKarsila = false; S.uyeMod = 'giris'; C.render(); break;
+    case 'uy-karsila-geri': S.uyeKarsila = true; C.render(); break;
     case 'uy-misafir': { const d = !S.uyeIlk && S.uyeDonus && S.uyeDonus !== 'uye' ? S.uyeDonus : 'home'; S.uyeIlk = false; C.go(d); break; }
     case 'uy-menu': menuAc(el); return;
     case 'uy-hakkinda': hakkindaAc(); return;

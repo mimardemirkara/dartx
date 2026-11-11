@@ -4,7 +4,7 @@
 // Firestore: profiller/{uid} (ad, foto, kod) · kodlar/{kod} → uid · arkadaslik/{uidA_uidB} · online/{id} · varlik/{uid} (çevrimiçi durumu; yalnız arkadaşlar okur)
 import { bulut } from './bulut.js';
 import * as H from './hesap.js';
-import { data, save, addPlayer, updatePlayer, setCurrent } from '../store.js';
+import { data, save, addPlayer, updatePlayer, setCurrent, araSil } from '../store.js';
 import * as E from '../engine.js';
 import { GAMES } from '../games/index.js';
 import { t, gt } from '../i18n.js';
@@ -16,6 +16,7 @@ import { dil } from '../i18n.js';
 let C = null;
 const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {} };
 const goruldu = new Set();
+const araGordum = new Map(); // maç id → rakip ara verdi mi (son görülen)
 const clone = o => JSON.parse(JSON.stringify(o));
 const benUid = () => (H.uye().user ? H.uye().user.uid : null);
 /** Bekleyen: gelen arkadaşlık istekleri + gelen maç davetleri (rozet sayısı) */
@@ -84,6 +85,9 @@ async function varlikIzle(arkadaslar) {
   }
   for (const u of Object.keys(durum.varlikDinle)) if (!arkadaslar.includes(u)) { durum.varlikDinle[u](); delete durum.varlikDinle[u]; delete durum.varlik[u]; }
 }
+// bugünse yalnız saat (16:30), değilse gün + saat (11 Kas 16:30)
+const saatYazi = ms => { if (!ms) return ''; const d = new Date(ms), yer = dil() === 'en' ? 'en-GB' : 'tr-TR'; const s = d.toLocaleTimeString(yer, { hour: '2-digit', minute: '2-digit' });
+  return d.toDateString() === new Date().toDateString() ? s : `${d.toLocaleDateString(yer, { day: 'numeric', month: 'short' })} ${s}`; };
 /** { tur: 'acik' | 'macta' | 'kapali', yazi } */
 function varlikDurum(u) {
   const v = durum.varlik[u];
@@ -115,7 +119,7 @@ async function dinle() {
     tazele();
   }, () => {}));
   durum.dinliyor.push(F.onSnapshot(F.query(F.collection(db, 'online'), F.where('uids', 'array-contains', ben)), s => {
-    durum.maclar = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.durum !== 'bitti' && d.durum !== 'red');
+    durum.maclar = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.durum !== 'bitti' && d.durum !== 'red' && d.durum !== 'iptal');
     s.docChanges().forEach(c => {
       const d = { id: c.doc.id, ...c.doc.data() }; const karsi = d.uids.find(u => u !== ben);
       const ad = (d.adlar && d.adlar[karsi]) || '';
@@ -126,6 +130,22 @@ async function dinle() {
         goruldu.add('k' + d.id);
         C.toast(t('{0} davetini kabul etti', esc(ad)), 'ok', { sure: 2500 });
         if (C.S.view !== 'play') macaGir(d);
+      }
+      // Demir 12.11: rakip maçı iptal etti → uyarı, maç bu telefondan da kalkar
+      if (d.durum === 'iptal' && d.iptalEden !== ben && !goruldu.has('i' + d.id)) {
+        goruldu.add('i' + d.id);
+        const cur = data().current;
+        if (cur && cur.online && cur.online.id === d.id) { data().current = null; save(); E.clearUndo(); if (C.S.view === 'play') C.go('home'); }
+        else { const p = (data().ara || []).find(x => x.online && x.online.id === d.id); if (p) araSil(p.id); }
+        C.toast(t('{0} maçı iptal etti', esc(ad)), 'bad', { sure: 3500, tur: { ic: 'carpi', a: 'a-sal', k: 'bad', ses: 'hata' } });
+      }
+      // Demir 12.11: rakip maça ara verdi / döndü
+      if (d.durum === 'oyunda') {
+        const araK = !!(d.ara && d.ara[karsi]), once = araGordum.get(d.id);
+        if (once !== undefined && once !== araK) {
+          C.toast(araK ? t('{0} maça ara verdi', esc(ad)) : t('{0} maça döndü', esc(ad)), araK ? 'bad' : 'good', { sure: 3000, tur: araK ? { ic: 'duraklat', a: 'a-sal', k: 'bad', ses: 'hata' } : { ic: 'oynat', a: 'a-zipla', k: 'good', ses: 'sira' } });
+        }
+        araGordum.set(d.id, araK);
       }
       if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); C.toast(t('{0} daveti kabul etmedi', esc(ad)), 'bad', { sure: 2500 }); }
       const m = data().current;
@@ -250,7 +270,7 @@ export async function davetEt(karsi, secim, ozel = null) {
   const p = H.uye().profil || {}; const kp = await profilAl(karsi);
   await F.setDoc(ref, {
     uids: [ben, karsi], davetEden: ben, durum: 'davet', gameId, opts, bas: basla,
-    adimlar: [{ t: 'b', i: Math.random() < 0.5 ? 0 : 1 }], // ilk leg'i kim açacak: yazı tura
+    adimlar: [], // Demir 12.11: ilk kim atacak, maç açılınca daveti gönderene sorulur (Bull'a At, Yazı Tura, Rastgele, Sen Seç)
     surum: 0, adlar: { [ben]: p.ad || '', [karsi]: kp.ad || '' }, fotolar: { [ben]: p.foto || null, [karsi]: kp.foto || null },
     olusturma: F.serverTimestamp(), guncel: F.serverTimestamp(),
   });
@@ -287,20 +307,37 @@ const uzagaCevir = (adimlar, harita) => { const ters = Object.fromEntries(Object
 
 export function macaGir(d) {
   const cur = data().current;
-  if (cur && cur.online && cur.online.id === d.id) { C.go('play'); return; }
+  if (cur && cur.online && cur.online.id === d.id) { C.go('play', basModal(cur)); araBildir(cur, false); return; }
   const parkta = (data().ara || []).find(x => x.online && x.online.id === d.id);
-  if (parkta) { C.devam(parkta.id); return; }
+  if (parkta) { C.devam(parkta.id); if (data().current) { Object.assign(C.S, basModal(data().current)); C.render(); araBildir(data().current, false); } return; }
   const ben = benUid();
   const harita = {};
   d.uids.forEach(u => { harita[u] = u === ben ? kendiOyuncum() : arkadasOyuncu(u, d.adlar && d.adlar[u], d.fotolar && d.fotolar[u]); });
   const bas = clone(d.bas); bas.sides = bas.sides.map(s => ({ ...s, members: s.members.map(u => harita[u]) }));
   const m = E.createMatch(bas.gameId, clone(bas.opts), clone(bas.sides), bas);
-  m.online = { id: d.id, surum: d.surum || 0, harita, ben: harita[ben] };
+  m.online = { id: d.id, surum: d.surum || 0, harita, ben: harita[ben], davetci: d.davetEden === ben };
   E.hamlelerleKur(m, yereleCevir(d.adimlar, harita));
   m.online.anahtar = anahtar(m.adimlar);
   E.clearUndo();
   setCurrent(m);
-  C.go('play');
+  C.go('play', basModal(m));
+}
+/** Demir 12.11: başlayan henüz seçilmediyse daveti gönderen "İlk kim atacak?" ekranını görür, rakibi bekler */
+export function basModal(m) {
+  if (!(m && m.online) || m.done || (m.adimlar || []).some(a => a.t === 'b')) return {};
+  return { modal: { type: m.online.davetci ? 'baslayan' : 'onlineBekle' } };
+}
+/** Demir 12.11: maça ara verince / dönünce rakibe haber gider (maç belgesinde ara.{uid}) */
+export async function araBildir(m, ara) {
+  if (!(m && m.online) || m.done || !acik()) return;
+  if (!!m.online.araVerdim === !!ara) return;
+  m.online.araVerdim = !!ara;
+  try { const { db, F } = await bulut(); await F.updateDoc(F.doc(db, 'online', m.online.id), { ['ara.' + benUid()]: ara ? Date.now() : null, guncel: F.serverTimestamp() }); } catch (_) { m.online.araVerdim = !ara; }
+}
+/** Demir 12.11: maç iptal edilince rakibe haber gider */
+export async function onlineIptal(m) {
+  if (!(m && m.online)) return;
+  try { const { db, F } = await bulut(); await F.updateDoc(F.doc(db, 'online', m.online.id), { durum: 'iptal', iptalEden: benUid(), guncel: F.serverTimestamp() }); } catch (_) { /* yok say */ }
 }
 
 /** Sıra bende değilse tuşlar kilitli */
@@ -346,6 +383,7 @@ function uygula(d) {
   E.hamlelerleKur(m, uzak);
   m.online.anahtar = sade(m.adimlar);
   setCurrent(m);
+  if (C.S.modal && C.S.modal.type === 'onlineBekle' && m.adimlar.some(a => a.t === 'b')) C.S.modal = { type: 'ilksira' }; // Demir 12.11
   if (C.S.view === 'play') C.render();
 }
 
@@ -438,6 +476,11 @@ export function onlineKartlari() {
     const k = d.uids.find(u => u !== ben); const ad = (d.adlar && d.adlar[k]) || pr(k).ad; const oy = oyunAd(d.gameId, d.opts);
     if (d.durum === 'davet' && d.davetEden !== ben) return sat(k, kucuk('on-kabulmac', t('Kabul et'), `data-id="${d.id}"`, 'primary') + kucuk('on-redmac', '✕', `data-id="${d.id}" aria-label="${t('Reddet')}"`), t('{0} · seni çağırıyor', esc(oy)));
     if (d.durum === 'davet') return sat(k, kucuk('on-iptalmac', t('İptal'), `data-id="${d.id}"`), t('{0} · kabul etmesi bekleniyor', esc(oy)));
+    // Demir 12.11: biri ara verdiyse ya da uzun süredir hamle yoksa "oynanıyor" değil "ara verildi · saat"
+    const araZ = Math.max(Number(d.ara && d.ara[ben]) || 0, Number(d.ara && d.ara[k]) || 0);
+    const sonZ = d.guncel && d.guncel.toMillis ? d.guncel.toMillis() : 0;
+    const araMi = araZ > 0 || (sonZ && Date.now() - sonZ > 15 * 60e3);
+    if (araMi) return sat(k, kucuk('on-devam', t('Devam et'), `data-id="${d.id}"`, 'primary'), t('{0} · ara verildi · {1}', esc(oy), saatYazi(araZ || sonZ)));
     return sat(k, kucuk('on-devam', t('Devam et'), `data-id="${d.id}"`, 'primary'), t('{0} · oynanıyor', esc(oy)));
   }).join('') : `<p class="uy-not on-bos">${t('Bir arkadaşını maça davet et; kabul edince maç ikinizde de açılır.')}</p>`;
   return C.kart(C.IC.uye, t('Arkadaşlar'), arkadasHtml, 'on-kart') + C.kart(C.IC.lig, t('Online maçlar'), macHtml, 'on-kart');

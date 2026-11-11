@@ -29,7 +29,7 @@ import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ek
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
 import { kurulumArkadaslar, kurulumDavet, onlineDestekli } from './uyelik/online.js';
-import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik } from './uyelik/online.js';
+import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal } from './uyelik/online.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
 const app = document.getElementById('app');
@@ -94,6 +94,8 @@ const UYARI_IC = {
   bot: UI('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
   kamera: UI('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
   tablet: UI('<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>'),
+  duraklat: UI('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>'),
+  oynat: UI('<polygon points="6 3 20 12 6 21 6 3"/>'),
   simsek: UI('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>'),
 };
 // Uyarı metni → simge, animasyon (a-*), renk türü, ses. Kalıplar her iki dilde çalışsın diye t() ile kurulur.
@@ -337,6 +339,7 @@ function go(view, extra = {}) {
   const yaz = !gecmisAtla; gecmisAtla = false;
   const onceki = S.view;
   Object.assign(S, { view, modal: null }, extra);
+  { const cm = data().current; if (cm && cm.online) { if (onceki === 'play' && view !== 'play') onlineAraBildir(cm, true); else if (view === 'play') onlineAraBildir(cm, false); } } // Demir 12.11
   if (yaz) gecmisYaz(view);
   if (yaz && view !== onceki && !gecisYon) gecisYon = 1; // yeni ekran: sağdan
   keepAwake(view === 'play');
@@ -893,7 +896,7 @@ function viewPlay() {
   const legTxt = cokLeg ? `${(m.opts.sets || 1) > 1 ? `<span class="pt-seg"><i>${t('Set')}</i><b>${setNo}</b></span>` : ''}<span class="pt-seg"><i>${t('Leg')}</i><b>${m.legNo}</b></span>` : '';
   const useTotal = g.totalInput && m.opts.input === 'total';
   const tabloYaz = tabloYazAcik(m, g);
-  return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''} ${botSirasi(m) ? 'bot-sirasi' : ''}">
+  return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''} ${botSirasi(m) ? 'bot-sirasi' : ''} ${onlineKilitli(m) ? 'bot-sirasi rakip-sirasi' : ''}">
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
       <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
@@ -1702,6 +1705,14 @@ function modal() {
             <div class="bs-yuz arka" style="--pc:${renk(1)}">${rozet(1)}<span>${esc(ad(1))}</span></div></div></div>`
           : `<div class="bs-liste bs-kura">${m.sides.map((_, i) => `<div class="btn bs-kisi" data-kura="${i}" style="--pc:${renk(i)}">${rozet(i)}<span>${esc(ad(i))}</span></div>`).join('')}</div>`}`;
     }
+  } else if (md.type === 'onlineBekle') {
+    // Demir 12.11: daveti gönderen ilk kimin atacağını seçerken rakibi bekler
+    const m = data().current; if (!m) { S.modal = null; return ''; }
+    const davetci = m.sides.map(sd => sd.members[0]).find(pid => pid !== (m.online && m.online.ben));
+    const dp = player(davetci);
+    body = `<div class="on-bekle"><span class="on-bekle-ic">${BS_TAHTA}</span><h2 class="bs-baslik">${t('İlk kim atacak?')}</h2>
+      <p class="muted">${t('{0} seçiyor, birazdan başlıyoruz…', esc(dp ? dp.name : ''))}</p><span class="on-bekle-nokta"><i></i><i></i><i></i></span>
+      <button class="btn bs-geri" data-act="home">‹ ${t('Ana sayfa')}</button></div>`;
   } else if (md.type === 'ozelsec') {
     const ad = { D: t('Hangi double?'), T: t('Hangi triple?'), H: t('House: hangi sayıya üç ok?'), B3: t('3 in a bed: hangi sayıya üç ok?') }[md.h];
     const on = md.h === 'D' ? 'D' : md.h === 'T' ? 'T' : '';
@@ -2083,7 +2094,7 @@ app.addEventListener('click', e => {
     case 'menu': S.modal = { type: 'menu' }; render(); break;
     case 'abort':
       onayla({ baslik: t('Maç iptal edilsin mi?'), metin: t('Bu maç kaydedilmez.'), evet: t('Maçı iptal et'), tehlike: true })
-        .then(ok => { if (ok) { store.setCurrent(null); E.clearUndo(); go('home'); } });
+        .then(ok => { if (ok) { const om = data().current; if (om && om.online) onlineIptal(om); store.setCurrent(null); E.clearUndo(); go('home'); } });
       break;
     case 'close': S.modal = null; render(); break;
     case 'oyunubitir': {
@@ -2096,7 +2107,7 @@ app.addEventListener('click', e => {
     case 'legdevam': S.modal = null; render(); okuma.legBasladi(); if (data().current) siraGoster(data().current, 150); break;
     case 'ilkbasla': S.modal = null; vib(8); ses.tus(); render(); okuma.macBasladi(); break;
     case 'bg': if (S.modal && S.modal.type === 'ilksira') { S.modal = null; vib(8); render(); okuma.macBasladi(); break; }
-      if (e.target === el && !(S.modal && S.modal.type === 'baslayan')) { S.modal = null; render(); } break; // başlama atışı boşluğa dokunarak geçilmez
+      if (e.target === el && !(S.modal && (S.modal.type === 'baslayan' || S.modal.type === 'onlineBekle'))) { S.modal = null; render(); } break; // başlama atışı boşluğa dokunarak geçilmez
 
     case 'rematch': {
       const lm = S.lastMatch;
@@ -2298,9 +2309,10 @@ app.addEventListener('click', e => {
 // Ana ekrana eklenmiş uygulamada iOS kenar kaydırması yok: aynısı simgesiz (sayfa parmakla kayar)
 const tekBasina = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true || new URLSearchParams(location.search).has('tek'); // ?tek=1: deneme
 if (tekBasina) kenarKaydirKur({
-  geriVar: () => !S.modal && S.view !== 'play' && gIdx > 0,
+  // Demir 12.11: giriş formundayken soldan kaydırınca karşılama ekranına dönülür (geçmişte kaydı olmasa da)
+  geriVar: () => !S.modal && S.view !== 'play' && (gIdx > 0 || !!document.querySelector('[data-act="uy-karsila-geri"]')),
   ileriVar: () => !S.modal && S.view !== 'play' && gIdx < gMax,
-  geri: () => { parmakGecis = true; history.back(); },
+  geri: () => { if (document.querySelector('[data-act="uy-karsila-geri"]')) { S.uyeKarsila = true; render(); return; } parmakGecis = true; history.back(); },
   ileri: () => { parmakGecis = true; history.forward(); },
   sayfa: () => app.querySelector('main.page, .page') || app.lastElementChild,
   engel: el => !!(el.closest && el.closest('.kam-tuval, input, textarea, select, .modal-bg, .kam-perde, .dx-acilir, .spot-perde')) || !!document.querySelector('.kam-perde, .modal-bg'),
@@ -2349,3 +2361,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:' && !isDev) {
     yenile();
   });
 }
+
+// Demir 12.11: online maçtayken uygulama kapanırsa rakip "ara verdi" uyarısı alır
+window.addEventListener('pagehide', () => { const cm = data().current; if (S.view === 'play' && cm && cm.online) onlineAraBildir(cm, true); });
