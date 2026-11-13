@@ -69,6 +69,7 @@ export function onlineKur(ctx) {
     if (k) { localStorage.setItem(QR_BEKLEYEN, k); q.delete('arkadas'); history.replaceState(history.state, '', location.pathname + (q.toString() ? '?' + q : '')); }
   } catch (_) { /* yok say */ }
   H.dinle(() => { if (acik()) dinle(); else birak(); });
+  window.addEventListener('dartx-mac-bitti', () => { macPaylas(); }); // Yan yanayız: biten maç arkadaşa da gider
   const app = document.getElementById('app');
   app.addEventListener('click', e => { const el = e.target.closest('[data-act^="on-"]'); if (!el || el.disabled || el.tagName === 'FORM' || el.tagName === 'INPUT') return; C.vib && C.vib(6); onlineTikla(el.dataset.act, el); });
   app.addEventListener('submit', e => { const f = e.target; if (f.dataset.act === 'on-ekle') { e.preventDefault(); onlineGonder(f); } });
@@ -226,6 +227,75 @@ async function dinle() {
     });
     tazele();
   }, () => {}));
+  // Yan yanayız: arkadaşların bu hesaba gönderdiği maçlar
+  durum.dinliyor.push(F.onSnapshot(F.query(F.collection(db, 'paylasim'), F.where('alici', '==', ben)), s => {
+    s.docChanges().forEach(c => {
+      if (c.type !== 'added' || goruldu.has('p' + c.doc.id)) return; goruldu.add('p' + c.doc.id);
+      const d = c.doc.data(); let ok = false;
+      try { ok = macAl(d); } catch (e) { console.warn('maç al', e); }
+      if (ok) {
+        F.deleteDoc(c.doc.ref).catch(() => {});
+        bildir(t('{0} ile yan yana oynadığın maç istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', git: () => C.go('stats'), sure: 6000 });
+        tazele();
+      }
+    });
+  }, () => {}));
+}
+// ---- Yan yanayız (Demir 14.11): tek cihazda oynanan maç, oyuncusu olan arkadaşların hesabına da yazılır
+const kabulArk = () => { const ben = benUid(); return durum.arkadaslik.filter(a => a.durum === 'kabul').map(a => a.uids.find(u => u !== ben)); };
+/** Kurulum ekranı için: arkadaş listesi (uid, ad, foto, bu cihazdaki oyuncu kimliği varsa) */
+export function yanYanaArkadaslar() {
+  if (!acik()) return [];
+  return kabulArk().map(u => { const p = durum.profil[u] || {}; const o = data().players.find(x => x.uid === u && !x.silindi); return { uid: u, ad: p.ad || '…', foto: p.foto || '', pid: o ? o.id : null }; })
+    .sort((x, y) => x.ad.localeCompare(y.ad, 'tr'));
+}
+/** Arkadaşı bu cihaza oyuncu olarak ekler (aynı adlı yerel oyuncu varsa onunla birleşir); oyuncu kimliğini döner */
+export function arkadasOyuncuEkle(uid) { const p = durum.profil[uid] || {}; return arkadasOyuncu(uid, p.ad, p.foto); }
+const oyuncuAnahtar = (pid, ben) => { const o = data().players.find(x => x.id === pid) || {}; const benim = (H.uye().profil || {}).oyuncuId; return pid === benim ? 'u:' + ben : o.uid ? 'u:' + o.uid : 'n:' + (o.name || '?'); };
+/** Biten yerel maçı, içinde oynayan arkadaşların hesabına gönderir */
+async function macPaylas() {
+  try {
+    if (!acik()) return;
+    const m = (data().history || [])[0]; if (!m || m.online || m.paylasildi || m.paylasan || !m.bas || !m.adimlar || !m.done) return;
+    const ben = benUid(), ark = new Set(kabulArk());
+    const pidler = m.sides.flatMap(s => s.members);
+    const alicilar = [...new Set(pidler.map(pid => (data().players.find(x => x.id === pid) || {}).uid).filter(u => u && u !== ben && ark.has(u)))];
+    if (!alicilar.length) return;
+    const harita = {}; pidler.forEach(pid => { harita[pid] = oyuncuAnahtar(pid, ben); });
+    const bas = clone(m.bas); bas.sides = bas.sides.map(s => ({ ...s, members: s.members.map(pid => harita[pid] || 'n:?') }));
+    const adimlar = (m.adimlar || []).map(a => (a.p != null && harita[a.p] ? { ...a, p: harita[a.p] } : { ...a }));
+    const oyuncular = {}; pidler.forEach(pid => { const o = data().players.find(x => x.id === pid) || {}; oyuncular[harita[pid]] = { ad: o.name || '', bot: !!o.bot }; });
+    const { db, F } = await bulut(); const p = H.uye().profil || {};
+    for (const alici of alicilar) {
+      await F.setDoc(F.doc(F.collection(db, 'paylasim')), { gonderen: ben, alici, gonderenAd: p.ad || '', mac: { id: m.id, bas, adimlar, started: m.started, ended: m.ended }, oyuncular, olusturma: F.serverTimestamp() });
+    }
+    m.paylasildi = alicilar; save();
+  } catch (e) { console.warn('paylaş', e); }
+}
+/** Arkadaşın gönderdiği maçı bu hesabın geçmişine ekler */
+function macAl(d) {
+  const ben = benUid(); const mac = d.mac || {}; const bas = mac.bas;
+  if (!bas || !Array.isArray(mac.adimlar) || d.alici !== ben) return false;
+  if ((data().history || []).some(h => h.id === mac.id)) return true; // zaten var
+  const yerel = {};
+  const cevir = k => {
+    if (yerel[k]) return yerel[k];
+    const bilgi = (d.oyuncular || {})[k] || {}; let id;
+    if (k === 'u:' + ben) id = kendiOyuncum();
+    else if (k.startsWith('u:')) { const u = k.slice(2); const pr = durum.profil[u] || {}; id = arkadasOyuncu(u, pr.ad || bilgi.ad, pr.foto); }
+    else { const ad = bilgi.ad || k.slice(2); const o = data().players.find(x => !x.uid && !x.silindi && !!x.bot === !!bilgi.bot && x.name.toLocaleLowerCase('tr') === String(ad).toLocaleLowerCase('tr')) || addPlayer(ad || t('Arkadaş')); id = o.id; }
+    return (yerel[k] = id);
+  };
+  const bas2 = clone(bas); bas2.sides = bas2.sides.map(s => ({ ...s, members: s.members.map(cevir) }));
+  const adim2 = mac.adimlar.map(a => (a.p != null ? { ...a, p: cevir(a.p) } : { ...a }));
+  const m = E.createMatch(bas2.gameId, clone(bas2.opts), clone(bas2.sides), bas2);
+  E.hamlelerleKur(m, adim2);
+  if (!m.done) return false; // bitmemiş ya da bozuk kayıt eklenmez
+  m.started = mac.started || m.started; m.ended = mac.ended || Date.now();
+  m.paylasan = { uid: d.gonderen, ad: d.gonderenAd || '' };
+  data().history.unshift(m); data().history.sort((a, b) => (b.started || 0) - (a.started || 0)); save();
+  window.dispatchEvent(new Event('dartx-mac-bitti'));
+  return true;
 }
 const tazele = () => { if (C.S.view === 'online' || C.S.view === 'home') C.render(); else window.dispatchEvent(new Event('dartx-hesap-rozet')); };
 

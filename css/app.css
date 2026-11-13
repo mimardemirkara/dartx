@@ -4200,3 +4200,17 @@ a.ay-satir { color: inherit; text-decoration: none; }
 [dir="rtl"] .araclar > * { direction: rtl; }
 /* tablet ana sayfa üst kartları: ortalama (margin-left:50% + translateX(-50%)) sağdan sola düzende ters kurulur */
 [dir="rtl"] .home .araclar { margin-left: 0 !important; margin-right: 50% !important; transform: translateX(50%) !important; }
+
+/* Yan yanayız (Demir 14.11): kurulumda arkadaş seçimi; istatistikte "cihazında oynandı" notu */
+.yy-kutu { margin-top: 10px; padding: 10px 12px; border-radius: 16px; background: color-mix(in srgb, var(--fg) 5%, transparent); border: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); }
+.yy-bas { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-weight: 800; font-size: 14px; color: var(--brand, #e3b866); }
+.yy-bas svg, .yy-bas img { width: 18px; height: 18px; flex: none; }
+.yy-bas small { flex-basis: 100%; font-size: 12px; font-weight: 500; color: var(--mut); }
+.yy-liste { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.yy-ark { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 5px; border-radius: 99px; font-size: 14px; font-weight: 700; color: var(--fg); background: color-mix(in srgb, var(--fg) 8%, transparent); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+.yy-ark.on { color: #1d160a; background: linear-gradient(180deg, #f0cf86, #b98a35); border-color: transparent; }
+.yy-av, .yy-harf { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; }
+.yy-harf { display: grid; place-items: center; font-size: 13px; font-weight: 800; background: color-mix(in srgb, var(--fg) 16%, transparent); }
+:root[data-tema="acik"] .yy-bas { color: #7a5410; }
+.ist-yy { display: block; font-size: 11.5px; color: var(--mut); }
+.ist-yy-sil { font: inherit; color: var(--red, #ff6b6b); text-decoration: underline; text-underline-offset: 2px; padding: 0 2px; }
