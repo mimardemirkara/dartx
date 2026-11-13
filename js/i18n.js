@@ -6,14 +6,14 @@ import { data, save } from './store.js';
 export const DILLER = [
   { kod: 'tr', ad: 'Türkçe', bayrak: 'tr', yerel: 'tr-TR', hazir: true },
   { kod: 'en', ad: 'English', bayrak: 'gb', yerel: 'en-GB', hazir: true },
-  { kod: 'de', ad: 'Deutsch', bayrak: 'de', yerel: 'de-DE', hazir: false },
-  { kod: 'nl', ad: 'Nederlands', bayrak: 'nl', yerel: 'nl-NL', hazir: false },
-  { kod: 'es', ad: 'Español', bayrak: 'es', yerel: 'es-ES', hazir: false },
-  { kod: 'fr', ad: 'Français', bayrak: 'fr', yerel: 'fr-FR', hazir: false },
-  { kod: 'ru', ad: 'Русский', bayrak: 'ru', yerel: 'ru-RU', hazir: false },
+  { kod: 'de', ad: 'Deutsch', bayrak: 'de', yerel: 'de-DE', hazir: true },
+  { kod: 'nl', ad: 'Nederlands', bayrak: 'nl', yerel: 'nl-NL', hazir: true },
+  { kod: 'es', ad: 'Español', bayrak: 'es', yerel: 'es-ES', hazir: true },
+  { kod: 'fr', ad: 'Français', bayrak: 'fr', yerel: 'fr-FR', hazir: true },
+  { kod: 'ru', ad: 'Русский', bayrak: 'ru', yerel: 'ru-RU', hazir: true },
   { kod: 'ar', ad: 'العربية', bayrak: 'sa', yerel: 'ar-SA', hazir: false },
-  { kod: 'zh', ad: '中文', bayrak: 'cn', yerel: 'zh-CN', hazir: false },
-  { kod: 'ja', ad: '日本語', bayrak: 'jp', yerel: 'ja-JP', hazir: false },
+  { kod: 'zh', ad: '中文', bayrak: 'cn', yerel: 'zh-CN', hazir: true },
+  { kod: 'ja', ad: '日本語', bayrak: 'jp', yerel: 'ja-JP', hazir: true },
 ];
 const hazirMi = kod => { const d = DILLER.find(x => x.kod === kod); return !!(d && d.hazir); };
 const SOZLUK = {}; // kod → sözlük (en aşağıda; diğerleri dilYukle ile gelir)

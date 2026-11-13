@@ -1527,7 +1527,7 @@ function viewSettings() {
   const satir = (ic, ad, sag = '') => `<div class="ay-satir">${ikonKutu(ic)}<span class="ay-ad">${ad}</span>${sag}</div>`;
   return `<main class="page ayarlar">${header(t('Ayarlar'))}
     ${kart(AY.tema, t('Görünüm'), `
-      ${satir(AY.dil, t('Dil'), seg('dil', DILLER.filter(d => d.hazir).map(d => [d.kod, `<img class="seg-bayrak" src="img/bayrak/${d.bayrak}.svg" alt="">${d.kod === 'tr' ? 'Türkçe' : 'English'}`]), dil()))}
+      ${(() => { const sd = DILLER.find(d => d.kod === dil()) || DILLER[0]; return satir(AY.dil, t('Dil'), `<button type="button" class="btn sm ay-dil-dugme" data-act="dilmenu"><img class="seg-bayrak" src="img/bayrak/${sd.bayrak}.svg" alt=""><span>${sd.ad}</span></button>`); })()}
       ${satir(AY.tema, t('Tema'), seg('tema', [['auto', `${IC.ekran}${t('Otomatik')}`], ['koyu', `${IC.ay}${t('Koyu')}`], ['acik', `${IC.gunes}${t('Açık')}`]], s.theme || 'koyu'))}`)}
     ${kart(AY.titresim, t('Oyun'), `
       ${satir(AY.titresim, t('Titreşim'), anahtar('vibrate'))}
@@ -1891,7 +1891,7 @@ app.addEventListener('click', e => {
         v => { const d = DILLER.find(x => x.kod === v); if (!d) return;
           if (!d.hazir) { toast(t('{0} yakında', d.ad), '', { tur: { ic: 'simsek', a: 'a-zipla', k: '' } }); return; }
           dilYukle(v).then(() => { dilKoy(v); render(); }); },
-        { en: 132 });
+        { en: 104 });
       break;
     }
     case 'dilac': S.dilAcik = !S.dilAcik; render(); break;
