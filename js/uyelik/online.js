@@ -14,7 +14,7 @@ import { qrGoster, qrOku, qrKodBul, QR_SIMGE, OKU_SIMGE } from './qr.js';
 import { dil, dilIki } from '../i18n.js';
 
 let C = null;
-const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {} };
+const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {}, gelenMac: [] };
 const goruldu = new Set();
 const siraGordum = new Map(); // maç id → sıra bende mi (son görülen)
 const araGordum = new Map(); // maç id → rakip ara verdi mi (son görülen)
@@ -53,7 +53,7 @@ function bildirimGoster() {
 const benUid = () => (H.uye().user ? H.uye().user.uid : null);
 /** Bekleyen: gelen arkadaşlık istekleri + gelen maç davetleri (rozet sayısı) */
 export const bekleyenSayi = () => { const ben = benUid(); if (!ben) return 0;
-  return durum.arkadaslik.filter(a => a.durum === 'bekliyor' && a.isteyen !== ben).length + durum.maclar.filter(d => d.durum === 'davet' && d.davetEden !== ben).length; };
+  return durum.arkadaslik.filter(a => a.durum === 'bekliyor' && a.isteyen !== ben).length + durum.maclar.filter(d => d.durum === 'davet' && d.davetEden !== ben).length + durum.gelenMac.length; };
 export const acik = () => !!(H.girisli() && H.dogrulandi() && H.uye().profil);
 
 // Online oynanabilen oyunlar (ilk sürüm): X01 ve kriket ailesi
@@ -78,7 +78,7 @@ export function onlineKur(ctx) {
 
 // ---- dinleme: arkadaşlıklar ve maçlar canlı gelir
 function birak() {
-  if (durum.dinliyor) { durum.dinliyor.forEach(f => f()); durum.dinliyor = null; durum.arkadaslik = []; durum.maclar = []; }
+  if (durum.dinliyor) { durum.dinliyor.forEach(f => f()); durum.dinliyor = null; durum.arkadaslik = []; durum.maclar = []; durum.gelenMac = []; }
   Object.values(durum.varlikDinle).forEach(f => f()); durum.varlikDinle = {}; durum.varlik = {};
   varlikDurdur();
 }
@@ -229,16 +229,15 @@ async function dinle() {
   }, () => {}));
   // Yan yanayız: arkadaşların bu hesaba gönderdiği maçlar
   durum.dinliyor.push(F.onSnapshot(F.query(F.collection(db, 'paylasim'), F.where('alici', '==', ben)), s => {
+    // Demir 14.11 (düzeltme): maç kendiliğinden eklenmez; alıcı kendi cihazında onaylar. Onaylanana kadar bulutta bekler.
+    durum.gelenMac = s.docs.map(x => ({ id: x.id, ref: x.ref, ...x.data() })).filter(x => x.mac && x.mac.bas);
     s.docChanges().forEach(c => {
       if (c.type !== 'added' || goruldu.has('p' + c.doc.id)) return; goruldu.add('p' + c.doc.id);
-      const d = c.doc.data(); let ok = false;
-      try { ok = macAl(d); } catch (e) { console.warn('maç al', e); }
-      if (ok) {
-        F.deleteDoc(c.doc.ref).catch(() => {});
-        bildir(t('{0} ile yan yana oynadığın maç istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', git: () => C.go('stats'), sure: 6000 });
-        tazele();
-      }
+      const d = c.doc.data();
+      if ((data().history || []).some(h => d.mac && h.id === d.mac.id)) { F.deleteDoc(c.doc.ref).catch(() => {}); return; } // zaten eklenmiş
+      bildir(t('{0} yan yana oynadığınız maçı gönderdi — onayla', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'davet', ad: d.gonderenAd || '', git: () => C.go('online'), sure: 7000 });
     });
+    tazele();
   }, () => {}));
 }
 // ---- Yan yanayız (Demir 14.11): tek cihazda oynanan maç, oyuncusu olan arkadaşların hesabına da yazılır
@@ -271,6 +270,14 @@ async function macPaylas() {
     }
     m.paylasildi = alicilar; save();
   } catch (e) { console.warn('paylaş', e); }
+}
+/** Onay bekleyen yan yana maç: ekle (geçmişe yazılır) ya da reddet (silinir) */
+async function gelenMacKarar(id, ekle) {
+  const g = durum.gelenMac.find(x => x.id === id); if (!g) return;
+  const { F } = await bulut();
+  if (ekle) { let ok = false; try { ok = macAl(g); } catch (hata_) { console.warn('maç al', hata_); } if (!ok) { C.toast(t('Maç eklenemedi'), 'bad'); return; } C.toast(t('Maç istatistiklerine eklendi'), 'ok'); }
+  await F.deleteDoc(g.ref).catch(() => {});
+  durum.gelenMac = durum.gelenMac.filter(x => x.id !== id); tazele();
 }
 /** Arkadaşın gönderdiği maçı bu hesabın geçmişine ekler */
 function macAl(d) {
@@ -628,7 +635,9 @@ export function onlineKartlari() {
     ${giden.map(a => sat(karsi(a), kucuk('on-sil', t('İptal'), `data-id="${a.id}"`), t('Kabul etmesi bekleniyor'))).join('')}
     ${!A.length ? `<p class="uy-not on-bos">${t('Arkadaşının kodunu yaz ya da kendi kodunu ona gönder. İkiniz de üye olmalısınız.')}</p>` : ''}`;
   const M = durum.maclar.slice().sort((x, y) => (y.guncel?.seconds || 0) - (x.guncel?.seconds || 0));
-  const macHtml = M.length ? M.map(d => {
+  const gelenHtml = durum.gelenMac.map(g => sat(g.gonderen, kucuk('on-yyekle', t('Ekle'), `data-id="${g.id}"`, 'primary') + kucuk('on-yyred', '✕', `data-id="${g.id}" aria-label="${t('Reddet')}"`),
+    t('{0} · yan yana maç · istatistiğine eklensin mi?', esc(oyunAd(g.mac.bas.gameId, g.mac.bas.opts))))).join('');
+  const macHtml = gelenHtml + (M.length ? M.map(d => {
     const k = d.uids.find(u => u !== ben); const ad = (d.adlar && d.adlar[k]) || pr(k).ad; const oy = oyunAd(d.gameId, d.opts);
     if (d.durum === 'davet' && d.davetEden !== ben) return sat(k, kucuk('on-kabulmac', t('Kabul et'), `data-id="${d.id}"`, 'primary') + kucuk('on-redmac', '✕', `data-id="${d.id}" aria-label="${t('Reddet')}"`), t('{0} · seni çağırıyor', esc(oy)));
     if (d.durum === 'davet') return sat(k, kucuk('on-iptalmac', t('İptal'), `data-id="${d.id}"`), t('{0} · kabul etmesi bekleniyor', esc(oy)));
@@ -638,7 +647,7 @@ export function onlineKartlari() {
     const araMi = araZ > 0 || (sonZ && Date.now() - sonZ > 15 * 60e3);
     if (araMi) return sat(k, kucuk('on-devam', t('Devam et'), `data-id="${d.id}"`, 'primary'), t('{0} · ara verildi · {1}', esc(oy), saatYazi(araZ || sonZ)));
     return sat(k, kucuk('on-devam', t('Devam et'), `data-id="${d.id}"`, 'primary'), t('{0} · oynanıyor', esc(oy)));
-  }).join('') : `<p class="uy-not on-bos">${t('Bir arkadaşını maça davet et; kabul edince maç ikinizde de açılır.')}</p>`;
+  }).join('') : gelenHtml ? '' : `<p class="uy-not on-bos">${t('Bir arkadaşını maça davet et; kabul edince maç ikinizde de açılır.')}</p>`);
   return C.kart(C.IC.uye, t('Arkadaşlar'), arkadasHtml, 'on-kart') + C.kart(C.IC.lig, t('Online maçlar'), macHtml, 'on-kart');
 }
 
@@ -667,6 +676,8 @@ export async function onlineTikla(act, el) {
     case 'on-kabulmac': { const d = bul(el.dataset.id); if (d) await is(() => davetKabul(d)); return true; }
     case 'on-redmac': { const d = bul(el.dataset.id); if (d) await is(() => davetRed(d)); return true; }
     case 'on-iptalmac': { const d = bul(el.dataset.id); if (d) await is(() => macIptal(d)); return true; }
+    case 'on-yyekle': await gelenMacKarar(el.dataset.id, true); return true;
+    case 'on-yyred': await gelenMacKarar(el.dataset.id, false); return true;
     case 'on-devam': { const d = bul(el.dataset.id); if (d) macaGir(d); return true; }
   }
   return false;
