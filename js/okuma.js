@@ -11,13 +11,13 @@ import { checkout } from './checkout.js';
 
 const TR = { house: 'Haus', triple: 'Tripıl', double: 'Dabıl', bull: 'Bul', dbull: 'Dabıl bul', iska: 'Iska', bust: 'Bast', oyun: 'Geym şat', yuzseksen: 'Yüz seksen!', kalan: 'kalan', sira: 'Sıra' };
 const EN = { house: 'House', triple: 'Treble', double: 'Double', bull: 'Bull', dbull: 'Bullseye', iska: 'Miss', bust: 'Bust', oyun: 'Game shot', yuzseksen: 'One hundred and eighty!', kalan: 'you require', sira: 'Next up,' };
-const S = () => (dil() === 'en' ? EN : TR);
+const S = () => (dil() !== 'tr' ? EN : TR);
 
 export const acikMi = () => data().settings.sesliOkuma === true && data().settings.sessiz !== true && destekli();
 const ttsVar = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 const sesVar = () => typeof window !== 'undefined' && !!(window.AudioContext || window.webkitAudioContext);
 // Demir 11.11: İngilizcede spiker kaydı yok → telefonun kendi okuyucusu (iOS/Android sesi) okur
-const enMi = () => dil() === 'en';
+const enMi = () => dil() !== 'tr';
 export const destekli = () => (enMi() ? ttsVar() : ttsVar() || sesVar());
 
 // ---- spiker kayıtları (Web Audio): ilk açılışta indirilip çözülür, sonra anında çalar
@@ -46,7 +46,7 @@ const adId = ad => 'sira_' + String(ad || '').trim().split(/\s+/)[0].toLocaleLow
 
 let sesler = [];
 function sesSec() {
-  const kod = dil() === 'en' ? 'en' : 'tr';
+  const kod = dil() !== 'tr' ? 'en' : 'tr';
   if (!sesler.length && ttsVar()) sesler = speechSynthesis.getVoices();
   const uygun = sesler.filter(v => (v.lang || '').toLowerCase().startsWith(kod));
   return uygun.find(v => /premium|enhanced|geliş/i.test(v.name)) || uygun.find(v => /yelda|samantha|daniel/i.test(v.name)) || uygun[0] || null;
@@ -73,7 +73,7 @@ function pompala() {
   const metin = enMi() && o.parca ? enMetin(o.parca) || o.metin : o.metin;
   if (!ttsVar() || !metin) { suan = null; pompala(); return; }
   const u = new SpeechSynthesisUtterance(metin);
-  u.lang = dil() === 'en' ? 'en-GB' : 'tr-TR';
+  u.lang = dil() !== 'tr' ? 'en-GB' : 'tr-TR';
   const v = sesSec(); if (v) u.voice = v;
   u.rate = enMi() ? 1.1 : 1.25; u.pitch = 1; u.volume = 1;
   u.onend = u.onerror = () => bitir(o);

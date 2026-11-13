@@ -125,7 +125,7 @@ async function varlikIzle(arkadaslar) {
   for (const u of Object.keys(durum.varlikDinle)) if (!arkadaslar.includes(u)) { durum.varlikDinle[u](); delete durum.varlikDinle[u]; delete durum.varlik[u]; }
 }
 // bugünse yalnız saat (16:30), değilse gün + saat (11 Kas 16:30)
-const saatYazi = ms => { if (!ms) return ''; const d = new Date(ms), yer = dil() === 'en' ? 'en-GB' : 'tr-TR'; const s = d.toLocaleTimeString(yer, { hour: '2-digit', minute: '2-digit' });
+const saatYazi = ms => { if (!ms) return ''; const d = new Date(ms), yer = dil() !== 'tr' ? 'en-GB' : 'tr-TR'; const s = d.toLocaleTimeString(yer, { hour: '2-digit', minute: '2-digit' });
   return d.toDateString() === new Date().toDateString() ? s : `${d.toLocaleDateString(yer, { day: 'numeric', month: 'short' })} ${s}`; };
 /** { tur: 'acik' | 'macta' | 'kapali', yazi } */
 function varlikDurum(u) {
@@ -240,7 +240,7 @@ async function profilAl(uid) {
 
 // ---- arkadaş profili (Demir 11.11): ad, lakap, seviye, ok seti özeti
 function arkadasProfil(u) {
-  const p = durum.profil[u] || {}; const vd = varlikDurum(u); const en = dil() === 'en';
+  const p = durum.profil[u] || {}; const vd = varlikDurum(u); const en = dil() !== 'tr';
   const oz = en ? (p.okOzetEn || p.okOzet) : p.okOzet;
   const ok = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 19 5"/><path d="m19.8 6.6-2.4-2.4-4.2 4.2 2.4 2.4Z"/><path d="m16.2 6.4 1.4 1.4"/><path d="M14.4 9.6 9 15"/><path d="M9 15 2 16l2.8 3.2L8 22Z"/></svg>';
   const kisi = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';

@@ -9,7 +9,7 @@ import { dartLabel, dartValue, esc, fmt1, pct, yuzde, ondalik, adAvatar, adResim
 import { playerStats } from './stats.js';
 import { IMPOSSIBLE } from './games/x01.js';
 import { ikon } from './icons.js';
-import { t, gt, dil, dilKoy, yerel, DILLER } from './i18n.js';
+import { t, gt, dil, dilKoy, yerel, DILLER, dilYukle } from './i18n.js';
 import { korumaKur, telifAc } from './telif.js';
 import { kuralMaddeleri, KURAL_IKON } from './kurallar.js';
 import { onayla, bilgi } from './dialog.js';
@@ -300,9 +300,8 @@ function topbar() {
 
 function dilDugme() {
   const secili = DILLER.find(d => d.kod === dil()) || DILLER[0];
-  // Demir 08.11: liste açılmaz, bayrağa basınca dil doğrudan değişir (TR ↔ EN)
-  const sonraki = DILLER[(DILLER.indexOf(secili) + 1) % DILLER.length];
-  return `<button class="mc-dugme mc-dil" data-act="dil" data-v="${sonraki.kod}" aria-label="${t('Dil')}: ${secili.ad} → ${sonraki.ad}" title="${sonraki.ad}"><img src="img/bayrak/${secili.bayrak}.svg" alt=""></button>`;
+  // Demir 13.11: bayrağa basınca demirkara.com'daki gibi bayraklı dil listesi açılır
+  return `<button class="mc-dugme mc-dil" data-act="dilmenu" aria-label="${t('Dil')}: ${secili.ad}" title="${t('Dil')}" aria-haspopup="listbox"><img src="img/bayrak/${secili.bayrak}.svg" alt=""></button>`;
 }
 
 let wakeLock = null;
@@ -444,8 +443,8 @@ function render() {
   else if (v === 'kamera') html = viewKamera();
   else if (v === 'about') html = viewAbout();
   else if (v === 'yardim') html = viewYardim();
-  else if (v === 'kosullar') html = `<main class="page gizlilik-sayfa">${header(t('Kullanım şartları'), 'yardimgeri')}<iframe class="gz-cerceve" src="kosullar.html?app=1#${dil() === 'en' ? 'en' : 'tr'}" title="${t('Kullanım şartları')}"></iframe></main>`; // Demir 11.11
-  else if (v === 'gizlilik') html = `<main class="page gizlilik-sayfa">${header(t('Gizlilik politikası'), 'yardimgeri')}<iframe class="gz-cerceve" src="gizlilik.html?app=1#${dil() === 'en' ? 'en' : 'tr'}" title="${t('Gizlilik politikası')}"></iframe></main>`; // Demir 11.11: uygulama içinde açılır
+  else if (v === 'kosullar') html = `<main class="page gizlilik-sayfa">${header(t('Kullanım şartları'), 'yardimgeri')}<iframe class="gz-cerceve" src="kosullar.html?app=1#${dil() !== 'tr' ? 'en' : 'tr'}" title="${t('Kullanım şartları')}"></iframe></main>`; // Demir 11.11
+  else if (v === 'gizlilik') html = `<main class="page gizlilik-sayfa">${header(t('Gizlilik politikası'), 'yardimgeri')}<iframe class="gz-cerceve" src="gizlilik.html?app=1#${dil() !== 'tr' ? 'en' : 'tr'}" title="${t('Gizlilik politikası')}"></iframe></main>`; // Demir 11.11: uygulama içinde açılır
   else if (v === 'online') html = viewOnline();
   else if (v === 'uye') html = viewUye();
   else if (v === 'eylem') html = viewEylem();
@@ -933,7 +932,7 @@ const GERI_IC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" str
 // Durum satırı (Demir 09.11): öndeyse gülen yüz + yeşil, gerideyse üzgün yüz + kırmızı, eşitse düz yüz; kelimeler büyük harfle
 const yuz = agiz => LUCIDE('<circle cx="12" cy="12" r="10"/>' + agiz + '<line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>', 22, 2.2);
 const DURUM_YUZ = { onde: yuz('<path d="M8 14s1.5 2 4 2 4-2 4-2"/>'), geride: yuz('<path d="M16 16s-1.5-2-4-2-4 2-4 2"/>'), esit: yuz('<line x1="8" x2="16" y1="15" y2="15"/>') };
-const kelimeBuyuk = s => String(s).split(' ').map(w => w ? w.charAt(0).toLocaleUpperCase(dil() === 'en' ? 'en' : 'tr') + w.slice(1) : w).join(' ');
+const kelimeBuyuk = s => String(s).split(' ').map(w => w ? w.charAt(0).toLocaleUpperCase(dil() !== 'tr' ? 'en' : 'tr') + w.slice(1) : w).join(' ');
 // Renk açık mı (Demir 09.11: açık renkte yazı siyah, koyu renkte beyaz)
 function acikRenk(hex) {
   const h = String(hex || '').replace('#', ''); if (h.length < 6) return false;
@@ -1528,7 +1527,7 @@ function viewSettings() {
   const satir = (ic, ad, sag = '') => `<div class="ay-satir">${ikonKutu(ic)}<span class="ay-ad">${ad}</span>${sag}</div>`;
   return `<main class="page ayarlar">${header(t('Ayarlar'))}
     ${kart(AY.tema, t('Görünüm'), `
-      ${satir(AY.dil, t('Dil'), seg('dil', DILLER.map(d => [d.kod, `<img class="seg-bayrak" src="img/bayrak/${d.bayrak}.svg" alt="">${d.kod === 'tr' ? 'Türkçe' : 'English'}`]), dil()))}
+      ${satir(AY.dil, t('Dil'), seg('dil', DILLER.filter(d => d.hazir).map(d => [d.kod, `<img class="seg-bayrak" src="img/bayrak/${d.bayrak}.svg" alt="">${d.kod === 'tr' ? 'Türkçe' : 'English'}`]), dil()))}
       ${satir(AY.tema, t('Tema'), seg('tema', [['auto', `${IC.ekran}${t('Otomatik')}`], ['koyu', `${IC.ay}${t('Koyu')}`], ['acik', `${IC.gunes}${t('Açık')}`]], s.theme || 'koyu'))}`)}
     ${kart(AY.titresim, t('Oyun'), `
       ${satir(AY.titresim, t('Titreşim'), anahtar('vibrate'))}
@@ -1886,6 +1885,15 @@ app.addEventListener('click', e => {
     case 'takim': { takimlar(S.setup); S.setup.takimElle = true; const tk = S.setup.takim; tk[el.dataset.id] = tk[el.dataset.id] === 'A' ? 'B' : 'A'; vib(8); render(); break; }
     case 'tema': data().settings.theme = el.dataset.v; store.save(); applyTheme(); render(); break;
     case 'dil': dilKoy(el.dataset.v); S.dilAcik = false; render(); break;
+    case 'dilmenu': { // Demir 13.11: bayraklı dil listesi
+      vib(6);
+      acilirAc(el, () => DILLER.map(d => ({ v: d.kod, l: d.kod.toUpperCase(), on: d.kod === dil(), soluk: !d.hazir, ic: `<img class="dil-bayrak" src="img/bayrak/${d.bayrak}.svg" alt="">` })),
+        v => { const d = DILLER.find(x => x.kod === v); if (!d) return;
+          if (!d.hazir) { toast(t('{0} yakında', d.ad), '', { tur: { ic: 'simsek', a: 'a-zipla', k: '' } }); return; }
+          dilYukle(v).then(() => { dilKoy(v); render(); }); },
+        { en: 132 });
+      break;
+    }
     case 'dilac': S.dilAcik = !S.dilAcik; render(); break;
     case 'telif': telifAc(); break;
     case 'klasor': S.modal = { type: 'klasor', cat: el.dataset.v }; render(); break;
@@ -2394,3 +2402,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:' && !isDev) {
 
 // Demir 12.11: online maçtayken uygulama kapanırsa rakip "ara verdi" uyarısı alır
 window.addEventListener('pagehide', () => { const cm = data().current; if (S.view === 'play' && cm && cm.online) onlineAraBildir(cm, true); });
+
+// Demir 13.11: seçili dilin sözlüğü ayrı dosyadaysa (Türkçe ve İngilizce dışı) yüklenince ekran yenilenir
+if (!['tr', 'en'].includes(dil())) dilYukle().then(() => render());

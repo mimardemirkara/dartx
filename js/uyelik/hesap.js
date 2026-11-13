@@ -16,7 +16,7 @@ async function sunucuyaSor(yol, govde, jeton) {
   try {
     const r = await fetch(EPOSTA_SUNUCU + yol, { method: 'POST', signal: kontrol.signal,
       headers: { 'Content-Type': 'application/json', ...(jeton ? { Authorization: 'Bearer ' + jeton } : {}) },
-      body: JSON.stringify({ ...govde, dil: dil() === 'en' ? 'en' : 'tr' }) });
+      body: JSON.stringify({ ...govde, dil: dil() !== 'tr' ? 'en' : 'tr' }) });
     if (r.status === 429) { const e = new Error('sik'); e.code = 'auth/too-many-requests'; e.sik = true; throw e; }
     if (!r.ok) { const v = await r.json().catch(() => ({})); const e = new Error('sunucu ' + r.status); if (v.hata) { e.code = 'dx/' + v.hata; e.dx = true; } throw e; }
     return r.json();
@@ -103,7 +103,7 @@ export function baslat(zorla = false) {
 }
 
 const fb = async () => { await baslat(true); return bulut(); };
-const ayarDil = async () => { const { auth } = await bulut(); auth.languageCode = dil() === 'en' ? 'en' : 'tr'; };
+const ayarDil = async () => { const { auth } = await bulut(); auth.languageCode = dil() !== 'tr' ? 'en' : 'tr'; };
 
 // ---- giriş yolları
 export async function googleGiris() {

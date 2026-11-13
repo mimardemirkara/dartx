@@ -923,7 +923,7 @@ function listeSec({ baslik, ikon: ikonHtml, ogeler, secili, serbest, kaldir = tr
  *  → { e164, ulke, gorunen } · null (kaldır) · undefined (vazgeç) */
 async function telefonSor(p) {
   const L = await import('../telefon/telefon.mjs');
-  const dl = dil() === 'en' ? 'en' : 'tr';
+  const dl = dil() !== 'tr' ? 'en' : 'tr';
   let ulke = (p.telefonUlke || (p.ulke && p.ulke.length === 2 ? p.ulke : 'tr')).toUpperCase();
   if (!L.getCountries().includes(ulke)) ulke = 'TR';
   const ilk = p.telefon ? (L.parsePhoneNumberFromString(p.telefon) || null) : null;
