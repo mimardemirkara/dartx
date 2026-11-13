@@ -4157,3 +4157,15 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .kam-sahne .kam-flas { width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: 50%; top: 8px; }
 .kam-sahne .kam-flas:not(.kam-cevir) { right: 8px; }
 .kam-sahne .kam-flas.kam-cevir { left: 8px; }
+/* Kriket tablosu telefonda küçük kalıyordu (Demir 13.11):
+   1) işaretler ve sayılar satırı dolduracak kadar iri;
+   2) online maçta sıra rakipteyken tuş takımı gizlenir, tablo boşalan yere yayılır (satır yüksekliğini tabloSigdir yeniden hesaplar) */
+.ctable.olcekli td.num { font-size: min(30px, calc(var(--satir) * .74)) !important; font-weight: 800; }
+.ctable.olcekli .mk.m3 { width: min(44px, calc(var(--satir) * .94)); height: min(44px, calc(var(--satir) * .94)); font-size: min(24px, calc(var(--satir) * .56)); }
+.ctable.olcekli td { font-size: min(34px, calc(var(--satir) * .74)) !important; }
+@media (max-width: 699px) {
+  .play.rakip-sirasi .keypad { display: none; }
+  .play.rakip-sirasi .scores { flex: 1 1 auto; }
+  .play.rakip-sirasi .turn::after { content: attr(data-bekle); grid-column: 1 / -1; font-size: 12.5px; font-weight: 600; color: var(--mut); }
+}
+@media (max-width: 699px) { .play.rakip-sirasi .turn { margin-bottom: 18px; } }

@@ -907,7 +907,7 @@ function viewPlay() {
       <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
     </header>
     <section class="scores">${g.view(m, m.g, ctx)}</section>
-    <section class="turn" style="--pc:${p.color}">
+    <section class="turn" style="--pc:${p.color}" data-bekle="${onlineKilitli(m) ? t('Tuşlar sıra sana gelince açılır') : ''}">
       <div class="who" data-act="durumoku">${adAvatar(p.name)}<b>${esc(p.name)}</b>${m.sides[m.cur].members.length > 1 ? `<small>${esc(ctx.name(m.cur))}</small>` : ''}</div>
       ${useTotal ? `<div class="totalbuf">${S.totalBuf || '0'}</div>` : `<div class="slots">${slots}</div><div class="tp">${turnPts}</div>`}
       ${hint ? `<div class="hint">${esc(hint)}</div>` : ''}
