@@ -3,7 +3,7 @@
 import * as H from './hesap.js';
 import { hazirMi } from './bulut.js';
 import { data, save, updatePlayer, addPlayer } from '../store.js';
-import { t, dil } from '../i18n.js';
+import { t, dil, dilIki } from '../i18n.js';
 import { bayrak, ulkeAd, ulkeler, sehirler } from './yer.js';
 import { meslekAd, meslekler, SEVIYELER, seviyeBul, seviyeRozet } from './meslek.js';
 import { ILCELER } from './ilce.js';
@@ -145,7 +145,7 @@ const secSatir = (act, ic, ad, sag, ogeler, secili, serbest = false) => {
     ${yerel ? `<select class="secim-gizli" data-secim="${act}" aria-label="${esc(String(ad).replace(/<[^>]+>/g, ''))}">${sec}</select>` : ''}</div>`;
 };
 function secimListe(act, p) {
-  const dl = dil();
+  const dl = dilIki();
   const sirala = a => a.slice().sort((x, y) => x.localeCompare(y, 'tr'));
   switch (act) {
     case 'uy-el': return [{ deger: 'sag', ad: t('Sağ') }, { deger: 'sol', ad: t('Sol') }];
@@ -437,7 +437,7 @@ function viewProfil() {
         <label class="uy-foto" aria-label="${t('Profil fotoğrafı')}">${avatarHtml(p.ad, p.foto, null, 'uy-av buyuk')}<span class="uy-foto-ic">${IC.kamera}</span>
           <input type="file" accept="image/*" data-act="uy-foto" hidden></label>
         <b class="uy-ad">${esc(p.ad || u.user.displayName || '')}</b>
-        ${p.lakap || p.seviye ? `<span class="uy-ad-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${seviyeRozet(p.seviye, dil())}</span>` : ''}
+        ${p.lakap || p.seviye ? `<span class="uy-ad-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${seviyeRozet(p.seviye, dilIki())}</span>` : ''}
         <small class="uy-eposta">${esc(u.user.email || '')} · ${yer}</small>
         ${p.kod ? `<button type="button" class="uy-kod" data-act="uy-kodkopya">${t('Arkadaş kodu')}: <b>${p.kod}</b> ${IC.kopya}</button>` : ''}        ${p.foto ? `<button type="button" class="uy-misafir soluk" data-act="uy-fotosil">${t('Fotoğrafı kaldır')}</button>` : ''}
       </div>
@@ -445,10 +445,10 @@ function viewProfil() {
       ${satir('uy-lakap', IC.lakap, t('Lakap'), p.lakap ? esc(p.lakap) : `<span class="soluk">${t('Yaz')}</span>`)}
       ${satir('uy-ad', IC.etiket, t('Maçlarda görünen ad'), deger('ad', ''))}
       ${secSatir('uy-el', IC.el, t('Atış eli'), p.el ? elAd[p.el] : '', secimListe('uy-el', p), p.el)}
-      ${secSatir('uy-seviye', IC.madalya, t('Seviye'), p.seviye ? seviyeRozet(p.seviye, dil()) : '', secimListe('uy-seviye', p), p.seviye)}
-      ${secSatir('uy-meslek', IC.canta, t('Meslek'), p.meslek ? esc(meslekAd(p.meslek, dil())) : '', secimListe('uy-meslek', p), p.meslek, true)}
+      ${secSatir('uy-seviye', IC.madalya, t('Seviye'), p.seviye ? seviyeRozet(p.seviye, dilIki()) : '', secimListe('uy-seviye', p), p.seviye)}
+      ${secSatir('uy-meslek', IC.canta, t('Meslek'), p.meslek ? esc(meslekAd(p.meslek, dilIki())) : '', secimListe('uy-meslek', p), p.meslek, true)}
       ${secSatir('uy-sevilen', IC.yildiz, t('Sevdiğin oyun'), p.sevilenOyun ? esc(p.sevilenOyun) : '', secimListe('uy-sevilen', p), p.sevilenOyun)}
-      ${secSatir('uy-ulke', IC.kure, t('Ülke'), p.ulke ? `<span class="yer-deger">${bayrak(p.ulke)}${esc(ulkeAd(p.ulke, dil()))}</span>` : '', secimListe('uy-ulke', p), p.ulke)}
+      ${secSatir('uy-ulke', IC.kure, t('Ülke'), p.ulke ? `<span class="yer-deger">${bayrak(p.ulke)}${esc(ulkeAd(p.ulke, dilIki()))}</span>` : '', secimListe('uy-ulke', p), p.ulke)}
       ${secSatir('uy-sehir', IC.konum, t('Şehir'), p.sehir ? esc(p.sehir) : '', secimListe('uy-sehir', p), p.sehir, true)}
       ${(p.ulke || 'tr') === 'tr' && p.sehir ? secSatir('uy-ilce', IC.konum, t('İlçe'), p.ilce ? esc(p.ilce) : '', secimListe('uy-ilce', p), p.ilce, true) : ''}
       ${satir('uy-telefon', IC.telefon, t('Cep telefonu'), p.telefonGorunen ? esc(p.telefonGorunen) : `<span class="soluk">${t('Ekle (isteğe bağlı)')}</span>`)}
@@ -456,7 +456,7 @@ function viewProfil() {
     <div class="uy-sag-sutun">
     <section class="ay-grup uy-kart uy-okset">
       <div class="kart-bas">${IC.terazi}<span>${t('Ok setim')}</span></div>
-      ${(() => { const sec = v => v || `<span class="soluk">${t('Seç')}</span>`; const dl = dil();
+      ${(() => { const sec = v => v || `<span class="soluk">${t('Seç')}</span>`; const dl = dilIki();
         return secSatir('uy-okmarka', IC.yildiz, t('Marka'), p.okMarka ? `<span class="yer-deger">${markaRozet(p.okMarka)}${esc(p.okMarka)}</span>` : '', secimListe('uy-okmarka', p), p.okMarka, true)
           // Demir 11.11: model her zaman seçici; markanın listesi yoksa "Listede yok, yaz" ile yazılır
           + secSatir('uy-okmodel', IC.lakap, t('Model'), p.okModel ? esc(p.okModel) : '', modeller(p.okMarka), p.okModel, true)
@@ -510,7 +510,7 @@ function menuAc(dugme) {
   } else {
     const n = bekleyenSayi();
     const zaman = data().bulutZaman ? new Date(data().bulutZaman).toLocaleTimeString(document.documentElement.lang || 'tr', { hour: '2-digit', minute: '2-digit' }) : t('Henüz yok');
-    ic = `<div class="uy-m-bas">${avatarIc('uy-m-av')}<div><b>${esc(p.ad || u.user.displayName || '')}</b>${p.lakap || p.seviye ? `<span class="uy-m-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${p.seviye ? seviyeRozet(p.seviye, dil()) : ''}</span>` : ''}<small>${p.kod ? `${t('Arkadaş kodu')}: ${p.kod}` : esc(u.user.email || '')}</small><button type="button" class="uy-m-durum ${p.durumGizli ? 'gizli' : 'acik'}" data-act="uy-durumgizle" title="${t('Dokun: değiştir')}"><i></i>${p.durumGizli ? t('Görünmez') : t('Çevrimiçi')}</button></div></div><span class="cizgi"></span>
+    ic = `<div class="uy-m-bas">${avatarIc('uy-m-av')}<div><b>${esc(p.ad || u.user.displayName || '')}</b>${p.lakap || p.seviye ? `<span class="uy-m-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${p.seviye ? seviyeRozet(p.seviye, dilIki()) : ''}</span>` : ''}<small>${p.kod ? `${t('Arkadaş kodu')}: ${p.kod}` : esc(u.user.email || '')}</small><button type="button" class="uy-m-durum ${p.durumGizli ? 'gizli' : 'acik'}" data-act="uy-durumgizle" title="${t('Dokun: değiştir')}"><i></i>${p.durumGizli ? t('Görünmez') : t('Çevrimiçi')}</button></div></div><span class="cizgi"></span>
       ${H.dogrulandi() ? '' : satir('uy-ac', IC.eposta, t('E-postanı doğrula'))}
       ${satir('uy-ac', IC.kisi, t('Profilim'))}
       ${satir('uy-m-online', IC.arkadas, t('Arkadaşlar ve online maçlar'), n ? `<i class="uy-m-sayi">${n}</i>` : '')}

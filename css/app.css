@@ -4185,3 +4185,18 @@ a.ay-satir { color: inherit; text-decoration: none; }
 /* Ayarlar: dil satırı artık bayraklı listeyi açan düğme (10 dil seg düğmesine sığmaz) */
 .ay-dil-dugme { display: inline-flex; align-items: center; gap: 8px; }
 .ay-dil-dugme .seg-bayrak { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+
+/* ── Sağdan sola düzen (Arapça, Demir 14.11) ──
+   Sayfa akışı ve satırlar sağdan sola; oyun alanı (tahta, skor tablosu, tuş takımı, kamera) soldan sağa kalır: sayılar ve tuş sırası değişmez. */
+[dir="rtl"] .play, [dir="rtl"] .keypad, [dir="rtl"] .scores, [dir="rtl"] .tablewrap, [dir="rtl"] .kam-sahne, [dir="rtl"] .acilis, [dir="rtl"] .ym-noktalar { direction: ltr; }
+[dir="rtl"] .play .turn, [dir="rtl"] .play .play-top h1 { direction: rtl; }
+[dir="rtl"] .ay-ok svg, [dir="rtl"] .geri-dugme svg, [dir="rtl"] .uy-karsila-ok svg, [dir="rtl"] .uy-karsila-don svg, [dir="rtl"] .uy-ok svg { transform: scaleX(-1); }
+[dir="rtl"] .ay-satir, [dir="rtl"] .uy-karsila-btn, [dir="rtl"] .hk-metin, [dir="rtl"] .uy-hk, [dir="rtl"] .dx-bildirim, [dir="rtl"] .yd-konu, [dir="rtl"] .uy-not.sol { text-align: right; }
+[dir="rtl"] .ay-satir + .ay-satir::before { left: 0; right: 56px; }
+[dir="rtl"] .uy-karsila-rozet, [dir="rtl"] .uy-hk-yazar-logo, [dir="rtl"] .hk-profil .hk-profil-logo { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .uy-hk-kapat { right: auto; left: 12px; }
+[dir="rtl"] .rozet-yakinda { right: auto; left: -10px; }
+[dir="rtl"] .araclar { direction: ltr; }
+[dir="rtl"] .araclar > * { direction: rtl; }
+/* tablet ana sayfa üst kartları: ortalama (margin-left:50% + translateX(-50%)) sağdan sola düzende ters kurulur */
+[dir="rtl"] .home .araclar { margin-left: 0 !important; margin-right: 50% !important; transform: translateX(50%) !important; }

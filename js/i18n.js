@@ -11,7 +11,7 @@ export const DILLER = [
   { kod: 'es', ad: 'Español', bayrak: 'es', yerel: 'es-ES', hazir: true },
   { kod: 'fr', ad: 'Français', bayrak: 'fr', yerel: 'fr-FR', hazir: true },
   { kod: 'ru', ad: 'Русский', bayrak: 'ru', yerel: 'ru-RU', hazir: true },
-  { kod: 'ar', ad: 'العربية', bayrak: 'sa', yerel: 'ar-SA', hazir: false },
+  { kod: 'ar', ad: 'العربية', bayrak: 'sa', yerel: 'ar-EG-u-nu-latn-hc-h23', hazir: true, rtl: true }, // miladi takvim + Latin rakam; ekran sağdan sola
   { kod: 'zh', ad: '中文', bayrak: 'cn', yerel: 'zh-CN', hazir: true },
   { kod: 'ja', ad: '日本語', bayrak: 'jp', yerel: 'ja-JP', hazir: true },
 ];
@@ -24,7 +24,9 @@ export function dil() {
   if (!hazirMi(s.lang)) return 'en'; // çevirisi hazır olmayan dil seçili kalmışsa İngilizce
   return s.lang;
 }
-export function dilKoy(kod) { data().settings.lang = kod; save(); document.documentElement.lang = kod; }
+/** Sayfanın dilini ve yazı yönünü (Arapça: sağdan sola) ayarlar */
+export function yonKoy() { const d = DILLER.find(x => x.kod === dil()) || DILLER[0]; document.documentElement.lang = d.kod; document.documentElement.dir = d.rtl ? 'rtl' : 'ltr'; }
+export function dilKoy(kod) { data().settings.lang = kod; save(); yonKoy(); }
 export const yerel = () => (DILLER.find(d => d.kod === dil()) || DILLER[0]).yerel;
 
 /** İki dilli veri (meslek, ülke, ses, e-posta…) için: Türkçe değilse İngilizce kullanılır */

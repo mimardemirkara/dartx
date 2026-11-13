@@ -9,7 +9,7 @@ import { dartLabel, dartValue, esc, fmt1, pct, yuzde, ondalik, adAvatar, adResim
 import { playerStats } from './stats.js';
 import { IMPOSSIBLE } from './games/x01.js';
 import { ikon } from './icons.js';
-import { t, gt, dil, dilKoy, yerel, DILLER, dilYukle } from './i18n.js';
+import { t, gt, dil, dilKoy, yerel, DILLER, dilYukle, yonKoy } from './i18n.js';
 import { korumaKur, telifAc } from './telif.js';
 import { kuralMaddeleri, KURAL_IKON } from './kurallar.js';
 import { onayla, bilgi } from './dialog.js';
@@ -2374,7 +2374,7 @@ const eylemli = eylemBaslat();
 if (!eylemli && ilkAcilisSor()) S.view = 'uye'; // üyelik açılınca ilk açılışta bir kez: giriş ya da misafir
 history.replaceState({ v: S.view, n: null, i: 0 }, '');
 acilisGoster(data().settings.acilis !== false && !eylemli); // demirkara.com açılışı: yıldız küresi patlar, dart işaretleriyle döner, DartX logosuna akar
-document.documentElement.lang = dil();
+yonKoy();
 if (data().current && data().current.done) { store.finishCurrent(); }
 render();
 havaGetir(); // eski hava/konum kayıtlarını temizler (hava durumu 11.11'de kaldırıldı)

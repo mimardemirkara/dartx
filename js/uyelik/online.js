@@ -11,7 +11,7 @@ import { t, gt } from '../i18n.js';
 import { esc, adResim } from '../util.js';
 import { seviyeRozet } from './meslek.js';
 import { qrGoster, qrOku, qrKodBul, QR_SIMGE, OKU_SIMGE } from './qr.js';
-import { dil } from '../i18n.js';
+import { dil, dilIki } from '../i18n.js';
 
 let C = null;
 const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {} };
@@ -247,7 +247,7 @@ function arkadasProfil(u) {
   const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru';
   pd.innerHTML = `<div class="modal glass uy-soru-kart ark-profil" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${kisi}<span>${t('Arkadaş')}</span></h3>
     <div class="ark-bas"><span class="on-av-yer">${avatar(p.ad, p.foto, 'uy-av buyuk')}<i class="on-nokta ${vd.tur}"></i></span>
-      <b>${esc(p.ad || '')}</b>${p.lakap || p.seviye ? `<span class="uy-ad-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${seviyeRozet(p.seviye, dil())}</span>` : ''}
+      <b>${esc(p.ad || '')}</b>${p.lakap || p.seviye ? `<span class="uy-ad-alt">${p.lakap ? `<i class="uy-lakap">“${esc(p.lakap)}”</i>` : ''}${seviyeRozet(p.seviye, dilIki())}</span>` : ''}
       <small class="on-durum ${vd.tur}">${esc(vd.yazi)}</small>${p.kod ? `<small class="ark-kod">${esc(p.kod)}</small>` : ''}</div>
     <div class="uy-alt-bas">${ok}<span>${t('Ok seti')}</span></div>
     <p class="ark-ok">${oz ? esc(oz) : `<span class="soluk">${t('Henüz eklememiş')}</span>`}</p>
@@ -531,7 +531,7 @@ export function onlineKartlari() {
   const giden = A.filter(a => a.durum === 'bekliyor' && a.isteyen === ben);
   const sira = { acik: 0, macta: 1, kapali: 2 };
   const ark = A.filter(a => a.durum === 'kabul').sort((x, y) => (sira[varlikDurum(karsi(x)).tur] - sira[varlikDurum(karsi(y)).tur]) || pr(karsi(x)).ad.localeCompare(pr(karsi(y)).ad, 'tr'));
-  const sat = (u, sag, alt = '', vd = null) => `<div class="ay-satir on-ark" data-ara="${esc(araAnahtar(pr(u)))}"><button type="button" class="on-kisi" data-act="on-profil" data-u="${u}"><span class="on-av-yer">${avatar(pr(u).ad, pr(u).foto)}${vd ? `<i class="on-nokta ${vd.tur}" title="${esc(vd.yazi)}"></i>` : ''}</span><span class="ay-ad">${esc(pr(u).ad)}${pr(u).seviye ? ' ' + seviyeRozet(pr(u).seviye, dil()) : ''}${alt ? `<small>${alt}</small>` : ''}</span></button><span class="on-tuslar">${sag}</span></div>`;
+  const sat = (u, sag, alt = '', vd = null) => `<div class="ay-satir on-ark" data-ara="${esc(araAnahtar(pr(u)))}"><button type="button" class="on-kisi" data-act="on-profil" data-u="${u}"><span class="on-av-yer">${avatar(pr(u).ad, pr(u).foto)}${vd ? `<i class="on-nokta ${vd.tur}" title="${esc(vd.yazi)}"></i>` : ''}</span><span class="ay-ad">${esc(pr(u).ad)}${pr(u).seviye ? ' ' + seviyeRozet(pr(u).seviye, dilIki()) : ''}${alt ? `<small>${alt}</small>` : ''}</span></button><span class="on-tuslar">${sag}</span></div>`;
   const arkSat = a => { const vd = varlikDurum(karsi(a)); return sat(karsi(a), kucuk('on-davet', t('Maça davet et'), `data-u="${karsi(a)}"`, 'primary'), `<span class="on-durum ${vd.tur}">${esc(vd.yazi)}</span>`, vd); };
   const arkListe = () => {
     if (!ark.length) return '';
