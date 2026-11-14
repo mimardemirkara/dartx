@@ -244,4 +244,8 @@ const EN = {
   "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.": "Your {0} invite went to {1}. Once they accept, the match opens on both phones automatically.",
   "Daveti geri al": "Withdraw invite",
   "Beklerken gez": "Browse while waiting",
+  "Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.": "Tap a friend who is online: a request goes to their phone right away. If they accept, they join the players and the match counts in both your stats.",
+  "Onayladı": "Approved",
+  "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.": "You can add them as a guest: the match stays on this device only and is not added to their stats.",
+  "Misafir olarak ekle": "Add as guest",
 };

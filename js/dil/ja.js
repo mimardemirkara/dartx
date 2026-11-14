@@ -1082,4 +1082,8 @@ export default {"Oyunlar":"ゲーム",
 "Davet zaten gönderildi":"招待はすでに送信済みです",
 "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"{0} の招待を {1} さんに送りました。承諾されると両方のスマホでマッチが自動で開きます。",
 "Daveti geri al":"招待を取り消す",
-"Beklerken gez":"待つ間に見て回る"};
+"Beklerken gez":"待つ間に見て回る",
+"Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"オンラインのフレンドをタップすると、すぐに相手のスマホにリクエストが届きます。承諾されるとプレイヤーに追加され、マッチは両方の統計に記録されます。",
+"Onayladı":"承認済み",
+"Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"ゲストとして追加できます。マッチはこの端末だけに残り、相手の統計には記録されません。",
+"Misafir olarak ekle":"ゲストとして追加"};

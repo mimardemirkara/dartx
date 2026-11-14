@@ -1082,4 +1082,8 @@ export default {"Oyunlar":"游戏",
 "Davet zaten gönderildi":"邀请已发送过",
 "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"你的 {0} 邀请已发送给 {1}。对方接受后，比赛会在两部手机上自动打开。",
 "Daveti geri al":"撤回邀请",
-"Beklerken gez":"等待时随便看看"};
+"Beklerken gez":"等待时随便看看",
+"Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"点按在线好友：请求会立即发送到对方手机。对方接受后会加入玩家，比赛计入你们双方的统计。",
+"Onayladı":"已确认",
+"Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"可以以访客身份添加：比赛只保留在本设备上，不会计入对方的统计。",
+"Misafir olarak ekle":"以访客身份添加"};

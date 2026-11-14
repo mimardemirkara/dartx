@@ -1082,4 +1082,8 @@ export default {"Oyunlar":"Игры",
 "Davet zaten gönderildi":"Приглашение уже отправлено",
 "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"Ваше приглашение на {0} отправлено {1}. Когда он примет, матч откроется на обоих телефонах.",
 "Daveti geri al":"Отозвать приглашение",
-"Beklerken gez":"Пока подождать"};
+"Beklerken gez":"Пока подождать",
+"Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"Нажмите на друга в сети: запрос сразу придёт на его телефон. Если он примет, он добавится в игроки, и матч засчитается в статистику обоих.",
+"Onayladı":"Подтвердил",
+"Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Можно добавить его как гостя: матч останется только на этом устройстве и не попадёт в его статистику.",
+"Misafir olarak ekle":"Добавить как гостя"};

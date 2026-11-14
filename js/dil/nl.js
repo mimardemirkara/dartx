@@ -1082,4 +1082,8 @@ export default {"Oyunlar":"Spellen",
 "Davet zaten gönderildi":"Uitnodiging al verstuurd",
 "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"Je uitnodiging voor {0} is naar {1} gegaan. Na acceptatie opent de wedstrijd vanzelf op beide telefoons.",
 "Daveti geri al":"Uitnodiging intrekken",
-"Beklerken gez":"Rondkijken tijdens wachten"};
+"Beklerken gez":"Rondkijken tijdens wachten",
+"Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"Tik op een vriend die online is: het verzoek gaat direct naar zijn telefoon. Accepteert hij, dan wordt hij speler en telt de wedstrijd in jullie beider statistieken.",
+"Onayladı":"Goedgekeurd",
+"Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Je kunt hem als gast toevoegen: de wedstrijd blijft alleen op dit toestel en telt niet in zijn statistieken.",
+"Misafir olarak ekle":"Als gast toevoegen"};

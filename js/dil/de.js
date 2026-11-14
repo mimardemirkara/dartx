@@ -1082,4 +1082,8 @@ export default {"Oyunlar":"Spiele",
 "Davet zaten gönderildi":"Einladung schon gesendet",
 "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"Deine Einladung zu {0} ging an {1}. Sobald angenommen, öffnet sich das Spiel auf beiden Handys.",
 "Daveti geri al":"Einladung zurückziehen",
-"Beklerken gez":"Beim Warten umsehen"};
+"Beklerken gez":"Beim Warten umsehen",
+"Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"Tippe auf einen Freund, der online ist: Die Anfrage geht sofort an sein Handy. Nimmt er an, wird er als Spieler hinzugefügt und das Spiel zählt in euren beiden Statistiken.",
+"Onayladı":"Bestätigt",
+"Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Du kannst ihn als Gast hinzufügen: Das Spiel bleibt nur auf diesem Gerät und zählt nicht in seinen Statistiken.",
+"Misafir olarak ekle":"Als Gast hinzufügen"};

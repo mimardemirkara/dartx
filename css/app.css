@@ -4217,6 +4217,11 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .yy-av-yer { position: relative; display: inline-flex; flex: none; }
 .yy-av-yer .on-nokta { width: 10px; height: 10px; }
 .yy-ark.kapali { opacity: .5; }
+.yy-ark-ad { display: grid; line-height: 1.15; text-align: start; }
+.yy-ark-ad small { font-size: 10.5px; font-weight: 700; opacity: .8; }
+.yy-tik { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; margin-inline-start: 2px; color: #fff; background: #22a35a; animation: icZipla .45s both; }
+.yy-tik svg { width: 13px; height: 13px; }
+.yy-ark.onayli { box-shadow: 0 0 0 2px rgb(34 163 90 / .55); }
 .yy-ark.kapali .yy-av, .yy-ark.kapali .yy-harf { filter: grayscale(1); }
 .yy-ark.on .on-nokta { border-color: #d9b05a; }
 .yy-bekle-liste { display: grid; gap: 8px; }

@@ -1082,4 +1082,8 @@ export default {"Oyunlar":"الألعاب",
 "Davet zaten gönderildi":"الدعوة مُرسلة مسبقًا",
 "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"وصلت دعوتك إلى {0} إلى {1}. عند القبول تُفتح المباراة تلقائيًا على الهاتفين.",
 "Daveti geri al":"سحب الدعوة",
-"Beklerken gez":"تصفّح أثناء الانتظار"};
+"Beklerken gez":"تصفّح أثناء الانتظار",
+"Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"اضغط على صديق متصل: يصل الطلب إلى هاتفه فورًا. إذا قبل يُضاف إلى اللاعبين وتُحتسب المباراة في إحصائياتكما معًا.",
+"Onayladı":"وافق",
+"Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"يمكنك إضافته كضيف: تبقى المباراة على هذا الجهاز فقط ولا تُضاف إلى إحصائياته.",
+"Misafir olarak ekle":"أضف كضيف"};
