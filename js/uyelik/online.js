@@ -392,7 +392,7 @@ function yyGelenSor(d, sure) {
     const kabul = b.dataset.h === 'kabul'; clearTimeout(saat); yyKapat(pd);
     try {
       const { F } = await bulut(); await F.updateDoc(d.ref, { durum: kabul ? 'kabul' : 'red' });
-      if (kabul) C.toast(t('Kabul edildi — maç bitince istatistiklerine yazılacak'), 'ok', { sure: 3000, tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } });
+      if (kabul) C.toast(t('{0} ile yan yanasınız: {1} maçı {0} cihazında oynanacak, skoru o girecek. Maç bitince istatistiklerine de yazılır.', esc(ad), esc(oyunAd(d.gameId, d.opts))), 'ok', { sure: 5500, tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } }); // Demir 14.11: kimle, hangi oyun, kimin cihazında
     } catch (hata_) { console.warn('yan yana cevap', hata_); C.toast(t('İstek artık geçerli değil'), 'bad', { tur: { ic: 'kisi', a: 'a-sars', k: 'bad' } }); }
   });
 }
