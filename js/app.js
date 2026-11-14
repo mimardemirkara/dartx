@@ -1798,7 +1798,8 @@ function modal() {
 let surukle = null;
 app.addEventListener('pointerdown', e => {
   const satir = e.target.closest('.sira-satir');
-  if (surukle || !satir || satir.classList.contains('bekleyen') || e.target.closest('.sira-cik, .takim-rozet') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  // Demir 14.11: sırası olmayan satırlar (Online'daki arkadaş satırı gibi) sürüklenmez; yoksa bırakınca ekran yeniden çizilip tıklama kayboluyordu
+  if (surukle || !satir || !satir.dataset.sira || satir.classList.contains('bekleyen') || e.target.closest('.sira-cik, .takim-rozet') || (e.pointerType === 'mouse' && e.button !== 0)) return;
   const liste = satir.parentElement;
   e.preventDefault();
   try { satir.setPointerCapture(e.pointerId); } catch {}
