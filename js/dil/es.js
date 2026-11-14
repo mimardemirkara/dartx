@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"Juegos",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Podéis jugar como invitado: la partida se queda solo en este dispositivo y no se añade a sus estadísticas.",
 "Misafir olarak oyna":"Jugar como invitado",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} está desconectado: para jugar lado a lado debe tener la app abierta",
-"Doğrulanmış maç":"Partida verificada"};
+"Doğrulanmış maç":"Partida verificada",
+"Bildirimler":"Notificaciones",
+"Şimdi":"Ahora",
+"Temizle":"Borrar",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Aún no hay notificaciones. Aquí se reúnen invitaciones, solicitudes y novedades de partidas.",
+"{0} yan yana {1} oynamak istedi":"{0} quiso jugar {1} lado a lado"};

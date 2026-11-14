@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"游戏",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"可以以访客身份进行：比赛只保留在本设备上，不会计入对方的统计。",
 "Misafir olarak oyna":"以访客身份开始",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} 不在线——面对面比赛需要对方打开应用",
-"Doğrulanmış maç":"已验证的比赛"};
+"Doğrulanmış maç":"已验证的比赛",
+"Bildirimler":"通知",
+"Şimdi":"刚刚",
+"Temizle":"清空",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"暂无通知。邀请、请求和比赛消息会汇集在这里。",
+"{0} yan yana {1} oynamak istedi":"{0} 想和你面对面玩 {1}"};

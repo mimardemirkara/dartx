@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"Spiele",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Ihr könnt als Gast spielen: Das Spiel bleibt nur auf diesem Gerät und zählt nicht in seinen Statistiken.",
 "Misafir olarak oyna":"Als Gast spielen",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} ist offline – für ein Spiel nebeneinander muss die App geöffnet sein",
-"Doğrulanmış maç":"Bestätigtes Spiel"};
+"Doğrulanmış maç":"Bestätigtes Spiel",
+"Bildirimler":"Mitteilungen",
+"Şimdi":"Gerade eben",
+"Temizle":"Leeren",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Noch keine Mitteilungen. Einladungen, Anfragen und Spielneuigkeiten sammeln sich hier.",
+"{0} yan yana {1} oynamak istedi":"{0} wollte nebeneinander {1} spielen"};

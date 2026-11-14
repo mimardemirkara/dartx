@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"ゲーム",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"ゲストとしてプレイできます。マッチはこの端末だけに残り、相手の統計には記録されません。",
 "Misafir olarak oyna":"ゲストとしてプレイ",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} さんはオフラインです — 対面でプレイするにはアプリを開いている必要があります",
-"Doğrulanmış maç":"認証済みマッチ"};
+"Doğrulanmış maç":"認証済みマッチ",
+"Bildirimler":"通知",
+"Şimdi":"たった今",
+"Temizle":"クリア",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"まだ通知はありません。招待、リクエスト、マッチのお知らせがここに届きます。",
+"{0} yan yana {1} oynamak istedi":"{0} さんが対面で {1} をプレイしたいそうです"};

@@ -29,7 +29,7 @@ import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu } from './uyel
 import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ekranSonra, girisEkrani, eylemBaslat, viewEylem } from './uyelik/ekran.js';
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
-import { kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
+import { zilDugme, kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
 import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal, rovans as onlineRovans } from './uyelik/online.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
@@ -287,8 +287,9 @@ function topbar() {
       <!-- Demir 11.11: tablette sayfa adı ve Oyunlar/Oyuncular/İstatistik/Ayarlar menüleri kaldırıldı (gerek yok, sade çubuk) -->
     </div>
     <div class="mc-sag">
-      <button class="mc-dugme mc-ses ${data().settings.sessiz ? 'kapali' : ''}" data-act="sesmenu" aria-label="${t('Sesler')}" title="${t('Sesler')}">${data().settings.sessiz ? SESSIZ_IC : SESLI_IC}</button>
       <button class="mc-dugme mc-ara" data-act="ara" aria-label="${t('Ara')}" title="${t('Ara')}">${IC.ara}</button>
+      <button class="mc-dugme mc-ses ${data().settings.sessiz ? 'kapali' : ''}" data-act="sesmenu" aria-label="${t('Sesler')}" title="${t('Sesler')}">${data().settings.sessiz ? SESSIZ_IC : SESLI_IC}</button>
+      ${zilDugme()}
       <button class="mc-dugme" data-act="temadon" aria-label="${t('Tema')}: ${t(TEMA_AD[tema])}" title="${t('Tema')}: ${t(TEMA_AD[tema])}">${temaIc}</button>
       <span class="mc-hava mc-hava-uzun" data-hava="uzun" ${hava ? '' : 'hidden'}>${havaYaz(true)}</span>
       <span class="mc-saat" data-saat="uzun">${s.uzun}</span>

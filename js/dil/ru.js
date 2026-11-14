@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"Игры",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Можно сыграть как гость: матч останется только на этом устройстве и не попадёт в его статистику.",
 "Misafir olarak oyna":"Играть как гость",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} не в сети — для игры рядом приложение должно быть открыто",
-"Doğrulanmış maç":"Подтверждённый матч"};
+"Doğrulanmış maç":"Подтверждённый матч",
+"Bildirimler":"Уведомления",
+"Şimdi":"Только что",
+"Temizle":"Очистить",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Уведомлений пока нет. Здесь собираются приглашения, запросы и новости о матчах.",
+"{0} yan yana {1} oynamak istedi":"{0} хотел сыграть в {1} рядом"};

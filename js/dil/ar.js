@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"الألعاب",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"يمكنكما اللعب كضيف: تبقى المباراة على هذا الجهاز فقط ولا تُضاف إلى إحصائياته.",
 "Misafir olarak oyna":"العب كضيف",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} غير متصل — للعب جنبًا إلى جنب يجب أن يكون التطبيق مفتوحًا لديه",
-"Doğrulanmış maç":"مباراة موثّقة"};
+"Doğrulanmış maç":"مباراة موثّقة",
+"Bildirimler":"الإشعارات",
+"Şimdi":"الآن",
+"Temizle":"مسح",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"لا توجد إشعارات بعد. تتجمع هنا الدعوات والطلبات وأخبار المباريات.",
+"{0} yan yana {1} oynamak istedi":"{0} أراد أن يلعب {1} جنبًا إلى جنب"};

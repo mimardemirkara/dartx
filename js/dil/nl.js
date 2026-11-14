@@ -1066,4 +1066,9 @@ export default {"Oyunlar":"Spellen",
 "Misafir olarak oynayabilirsiniz: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Jullie kunnen als gast spelen: de wedstrijd blijft alleen op dit toestel en telt niet in zijn statistieken.",
 "Misafir olarak oyna":"Als gast spelen",
 "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı":"{0} is offline — om naast elkaar te spelen moet de app open staan",
-"Doğrulanmış maç":"Geverifieerde wedstrijd"};
+"Doğrulanmış maç":"Geverifieerde wedstrijd",
+"Bildirimler":"Meldingen",
+"Şimdi":"Zojuist",
+"Temizle":"Wissen",
+"Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Nog geen meldingen. Uitnodigingen, verzoeken en wedstrijdnieuws verzamelen zich hier.",
+"{0} yan yana {1} oynamak istedi":"{0} wilde naast elkaar {1} spelen"};

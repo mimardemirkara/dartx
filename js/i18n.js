@@ -228,4 +228,9 @@ const EN = {
   "Misafir olarak oyna": "Play as guest",
   "{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı": "{0} is offline — they need to have the app open to play side by side",
   "Doğrulanmış maç": "Verified match",
+  "Bildirimler": "Notifications",
+  "Şimdi": "Just now",
+  "Temizle": "Clear",
+  "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.": "No notifications yet. Invites, requests and match news collect here.",
+  "{0} yan yana {1} oynamak istedi": "{0} asked to play {1} side by side",
 };

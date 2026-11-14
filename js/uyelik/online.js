@@ -12,6 +12,7 @@ import { esc, adResim } from '../util.js';
 import { seviyeRozet } from './meslek.js';
 import { qrGoster, qrOku, qrKodBul, QR_SIMGE, OKU_SIMGE } from './qr.js';
 import { dil, dilIki } from '../i18n.js';
+import { bildirimEkle, bildirimAc, zilDugme as zilHtml } from './bildirim.js';
 
 let C = null;
 const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {}, gelenMac: [] };
@@ -34,7 +35,9 @@ const BILDIRIM_IC = {
 };
 const bildirimKuyruk = []; let bildirimAcik = false;
 /** yazi: HTML (adlar esc'li gelir) · tur: BILDIRIM_IC anahtarı · renk: iyi | kotu | '' · git: dokununca çalışır */
-function bildir(yazi, { tur = 'acik', renk = '', foto = '', ad = '', git = null, sure = 3800 } = {}) {
+function bildir(yazi, { tur = 'acik', renk = '', foto = '', ad = '', git = null, sure = 3800, hedef = '', kaydet = true } = {}) {
+  if (!git && hedef) git = () => C.go(hedef);
+  if (kaydet) bildirimEkle(benUid(), { yazi, tur, renk, ad, hedef }); // Demir 14.11: kaçırılan bildirim zilin altında kalır
   bildirimKuyruk.push({ yazi, tur, renk, foto, ad, git, sure });
   if (!bildirimAcik) bildirimGoster();
 }
@@ -57,6 +60,8 @@ const benUid = () => (H.uye().user ? H.uye().user.uid : null);
 export const bekleyenSayi = () => { const ben = benUid(); if (!ben) return 0;
   return durum.arkadaslik.filter(a => a.durum === 'bekliyor' && a.isteyen !== ben).length + durum.maclar.filter(d => d.durum === 'davet' && d.davetEden !== ben).length + durum.gelenMac.length; };
 export const acik = () => !!(H.girisli() && H.dogrulandi() && H.uye().profil);
+/** Üst çubuktaki bildirim zili (yalnız giriş yapmış üyede görünür) */
+export const zilDugme = () => (acik() ? zilHtml(benUid()) : '');
 
 // Online oynanabilen oyunlar (ilk sürüm): X01 ve kriket ailesi
 export const ONLINE_OYUN = [['x01:501', '501'], ['x01:301', '301'], ['turk', null], ['cricket', null], ['fullboard', null]];
@@ -122,7 +127,7 @@ async function varlikIzle(arkadaslar) {
       durum.varlik[u] = s.exists() ? s.data() : null;
       const simdi = varlikDurum(u).tur;
       // Demir 12.11: arkadaş çevrimdışıyken çevrimiçi olduysa şerit bildirimi (ilk yüklemede değil)
-      if (!ilk && once === 'kapali' && simdi !== 'kapali') profilAl(u).then(p => bildir(t('{0} çevrimiçi oldu', `<b>${esc(p.ad || '')}</b>`), { tur: 'acik', renk: 'iyi', ad: p.ad, foto: p.foto, git: () => C.go('online') }));
+      if (!ilk && once === 'kapali' && simdi !== 'kapali') profilAl(u).then(p => bildir(t('{0} çevrimiçi oldu', `<b>${esc(p.ad || '')}</b>`), { tur: 'acik', renk: 'iyi', ad: p.ad, foto: p.foto, hedef: 'online', kaydet: false }));
       tazele();
     }, () => {});
   }
@@ -154,7 +159,7 @@ async function dinle() {
     s.docChanges().forEach(c => {
       const d = c.doc.data();
       if (c.type === 'added' && d.durum === 'bekliyor' && d.isteyen !== ben && !goruldu.has('a' + c.doc.id)) {
-        goruldu.add('a' + c.doc.id); profilAl(d.isteyen).then(p => bildir(t('{0} seni arkadaş olarak ekledi', `<b>${esc(p.ad)}</b>`), { tur: 'kisi', ad: p.ad, foto: p.foto, git: () => C.go('online') }));
+        goruldu.add('a' + c.doc.id); profilAl(d.isteyen).then(p => bildir(t('{0} seni arkadaş olarak ekledi', `<b>${esc(p.ad)}</b>`), { tur: 'kisi', ad: p.ad, foto: p.foto, hedef: 'online' }));
       }
     });
     durum.arkadaslik.forEach(a => a.uids.forEach(u => { if (u !== ben) profilAl(u); }));
@@ -167,7 +172,7 @@ async function dinle() {
       const d = { id: c.doc.id, ...c.doc.data() }; const karsi = d.uids.find(u => u !== ben);
       const ad = (d.adlar && d.adlar[karsi]) || '';
       if (d.durum === 'davet' && d.davetEden !== ben && !goruldu.has('d' + d.id)) {
-        goruldu.add('d' + d.id); bildir(t('{0} seni {1} maçına çağırıyor', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => C.go('online'), sure: 6000 });
+        goruldu.add('d' + d.id); bildir(t('{0} seni {1} maçına çağırıyor', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], hedef: 'online', sure: 6000 });
       }
       if (d.durum === 'oyunda' && d.davetEden === ben && !goruldu.has('k' + d.id) && !(data().current && data().current.online && data().current.online.id === d.id)) {
         goruldu.add('k' + d.id);
@@ -193,7 +198,7 @@ async function dinle() {
             if (yerel.done) {
               if (yerel === cur) C.macBitti(yerel);
               else { araSil(yerel.id); delete yerel.hesap; data().history.unshift(yerel); save(); window.dispatchEvent(new Event('dartx-mac-bitti')); }
-              bildir(t('{0} ile maçın bitti', `<b>${esc(ad)}</b>`), { tur: 'tamam', renk: 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: () => C.go('stats'), sure: 5000 });
+              bildir(t('{0} ile maçın bitti', `<b>${esc(ad)}</b>`), { tur: 'tamam', renk: 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], hedef: 'stats', sure: 5000 });
             }
           } catch (hata_) { console.warn('bitiş', hata_); }
         }
@@ -202,11 +207,11 @@ async function dinle() {
       if (d.durum === 'oyunda') {
         const araK = !!(d.ara && d.ara[karsi]), once = araGordum.get(d.id);
         if (once !== undefined && once !== araK) {
-          bildir(araK ? t('{0} maça ara verdi', `<b>${esc(ad)}</b>`) : t('{0} maça döndü', `<b>${esc(ad)}</b>`), { tur: araK ? 'ara' : 'don', renk: araK ? 'kotu' : 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: araK ? null : () => macaGir(d) });
+          bildir(araK ? t('{0} maça ara verdi', `<b>${esc(ad)}</b>`) : t('{0} maça döndü', `<b>${esc(ad)}</b>`), { tur: araK ? 'ara' : 'don', renk: araK ? 'kotu' : 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: araK ? null : () => macaGir(d), hedef: 'online' });
         }
         araGordum.set(d.id, araK);
       }
-      if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi] }); }
+      if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], hedef: 'online' }); }
       const m = data().current;
       if (m && m.online && m.online.id === d.id) uygula(d);
       // Demir 12.11: "sıra sende" — maç ekranında değilken rakip atışını bitirdiyse şerit bildirimi
@@ -222,7 +227,7 @@ async function dinle() {
           if (yerel && !yerel.done && (yerel.adimlar || []).some(a => a.t === 'b')) {
             const bende = E.currentPid(yerel) === yerel.online.ben, once = siraGordum.get(d.id);
             const ekranda = yerel === cur2 && C.S.view === 'play';
-            if (once === false && bende && !ekranda) bildir(t('Sıra sende: {0} ile {1}', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => macaGir(d), sure: 6000 });
+            if (once === false && bende && !ekranda) bildir(t('Sıra sende: {0} ile {1}', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => macaGir(d), hedef: 'online', sure: 6000 });
             siraGordum.set(d.id, bende);
           }
         } catch (hata_) { console.warn('sıra', hata_); }
@@ -246,11 +251,11 @@ async function dinle() {
         profilAl(d.gonderen).then(() => {
           let ok = false; try { ok = macAl(d); } catch (hata_) { console.warn('maç al', hata_); }
           sil();
-          if (ok) bildir(t('{0} ile yan yana maçın istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', foto: (durum.profil[d.gonderen] || {}).foto, git: () => C.go('stats'), sure: 5000 });
+          if (ok) bildir(t('{0} ile yan yana maçın istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', foto: (durum.profil[d.gonderen] || {}).foto, hedef: 'stats', sure: 5000 });
         });
         return;
       }
-      bildir(t('{0} yan yana oynadığınız maçı gönderdi — onayla', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'davet', ad: d.gonderenAd || '', git: () => C.go('online'), sure: 7000 });
+      bildir(t('{0} yan yana oynadığınız maçı gönderdi — onayla', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'davet', ad: d.gonderenAd || '', hedef: 'online', sure: 7000 });
     });
     tazele();
   }, () => {}));
@@ -263,7 +268,7 @@ async function dinle() {
       if (goruldu.has('y' + d.id)) return; goruldu.add('y' + d.id);
       const z = d.olusturma && d.olusturma.toMillis ? d.olusturma.toMillis() : Date.now();
       if (Date.now() - z > YY_SURE + 15e3) { F.deleteDoc(c.doc.ref).catch(() => {}); return; } // süresi geçmiş istek
-      profilAl(d.gonderen).then(() => yyGelenSor(d, Math.max(8e3, YY_SURE - (Date.now() - z))));
+      profilAl(d.gonderen).then(p => { bildirimEkle(ben, { yazi: t('{0} yan yana {1} oynamak istedi', `<b>${esc(p.ad || d.gonderenAd || '')}</b>`, esc(oyunAd(d.gameId, d.opts))), tur: 'davet', ad: p.ad || d.gonderenAd || '', hedef: 'online' }); yyGelenSor(d, Math.max(8e3, YY_SURE - (Date.now() - z))); });
     });
   }, () => {}));
   macPaylas(); // önceki oturumda gönderilememiş yan yana maçlar
@@ -788,6 +793,7 @@ export async function onlineTikla(act, el) {
     case 'on-qroku': { const k = await qrOku(); if (k) await qrIleEkle(k); return true; }
     case 'on-profil': arkadasProfil(el.dataset.u); return true;
     case 'on-hepsi': durum.hepsi = !durum.hepsi; C.render(); return true;
+    case 'on-zil': bildirimAc(benUid(), { git: v => C.go(v), ikonlar: BILDIRIM_IC }); return true;
     case 'on-kabul': await is(() => istekKabul(el.dataset.id), t('Artık arkadaşsınız')); return true;
     case 'on-sil': await is(() => arkadaslikSil(el.dataset.id)); return true;
     case 'on-davet': {
