@@ -1,6 +1,6 @@
 // DartX — internetsiz çalışma (önbellek)
 // Yeni sürüm yayınlarken VERSION'u artır.
-const VERSION = 'dartx-b210';
+const VERSION = 'dartx-b211';
 const FILES = [
   'ses/spiker/liste.json',
   'ses/spiker/bull.mp3',
@@ -1032,6 +1032,7 @@ const FILES = [
   'img/imza-siyah.png',
   'img/logo-x.webp',
   'icons/favicon-64.png',
+  'icons/favicon-32.png',
   'icons/icon-maskable-512.png',
   'img/duvar-koyu.webp',
   'img/duvar-acik.webp',

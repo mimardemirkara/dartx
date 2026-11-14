@@ -4212,5 +4212,36 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .yy-av, .yy-harf { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; }
 .yy-harf { display: grid; place-items: center; font-size: 13px; font-weight: 800; background: color-mix(in srgb, var(--fg) 16%, transparent); }
 :root[data-tema="acik"] .yy-bas { color: #7a5410; }
+/* Yan yanayız (2): çevrimdışı arkadaş soluk; onay bekleme ve gelen istek pencereleri; doğrulanmış maç işareti */
+.yy-av-yer { position: relative; display: inline-flex; flex: none; }
+.yy-av-yer .on-nokta { width: 10px; height: 10px; }
+.yy-ark.kapali { opacity: .5; }
+.yy-ark.kapali .yy-av, .yy-ark.kapali .yy-harf { filter: grayscale(1); }
+.yy-ark.on .on-nokta { border-color: #d9b05a; }
+.yy-bekle-liste { display: grid; gap: 8px; }
+.yy-bekle { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; border-radius: 16px; background: color-mix(in srgb, var(--fg) 6%, transparent); border: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); }
+.yy-bekle-ad { display: grid; flex: 1; min-width: 0; font-weight: 700; font-size: 15px; color: var(--fg); }
+.yy-bekle-ad small { font-size: 12.5px; font-weight: 500; color: var(--mut); }
+.yy-bekle-ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; flex: none; color: var(--brand, #e3b866); background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.yy-bekle.kabul .yy-bekle-ic { color: #fff; background: #22a35a; animation: icZipla .45s both; }
+.yy-bekle.kabul .yy-bekle-ad small { color: #22a35a; }
+.yy-bekle.red .yy-bekle-ic, .yy-bekle.yok .yy-bekle-ic { color: #fff; background: #d9534f; animation: icZipla .45s both; }
+.yy-bekle.red .yy-bekle-ad small, .yy-bekle.yok .yy-bekle-ad small { color: #e0645f; }
+.yy-don { animation: yyDon 1s linear infinite; }
+@keyframes yyDon { to { transform: rotate(360deg); } }
+.yy-halka { position: relative; display: inline-grid; border-radius: 50%; }
+.yy-halka::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--brand, #e3b866); animation: yyHalka 1.6s ease-out infinite; pointer-events: none; }
+@keyframes yyHalka { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
+.yy-gelen .uy-not b { color: var(--fg); }
+.yy-pencere .uy-not b { color: var(--fg); }
+.yy-pencere { z-index: 95; }
+.onay-ic.simge-ic { color: var(--brand, #e3b866); background: color-mix(in srgb, var(--brand, #e3b866) 16%, transparent); animation: icZipla .5s both; }
+:root[data-tema="acik"] .onay-ic.simge-ic { color: #7a5410; }
+.ist-dogru-yer { display: inline-flex; vertical-align: -2px; margin-inline-start: 6px; color: #22a35a; }
+.ist-dogru { width: 15px; height: 15px; }
+:root[data-tema="acik"] .yy-bekle-ic { color: #7a5410; }
+:root[data-tema="acik"] .yy-bekle.kabul .yy-bekle-ic, :root[data-tema="acik"] .yy-bekle.red .yy-bekle-ic, :root[data-tema="acik"] .yy-bekle.yok .yy-bekle-ic { color: #fff; }
+:root[data-tema="acik"] .yy-ark.on .on-nokta { border-color: #d9b05a; }
+@media (prefers-reduced-motion: reduce) { .yy-don, .yy-halka::after { animation: none; } }
 .ist-yy { display: block; font-size: 11.5px; color: var(--mut); }
 .ist-yy-sil { font: inherit; color: var(--red, #ff6b6b); text-decoration: underline; text-underline-offset: 2px; padding: 0 2px; }

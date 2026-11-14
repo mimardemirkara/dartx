@@ -15,6 +15,8 @@ import { dil, dilIki } from '../i18n.js';
 
 let C = null;
 const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {}, gelenMac: [] };
+const YY_SURE = 60e3; // yan yana isteğine cevap süresi
+const yyIslenen = new Set(); // bu oturumda maçı alınmış onaylar (bir onay = bir maç)
 const goruldu = new Set();
 const siraGordum = new Map(); // maç id → sıra bende mi (son görülen)
 const araGordum = new Map(); // maç id → rakip ara verdi mi (son görülen)
@@ -69,6 +71,7 @@ export function onlineKur(ctx) {
     if (k) { localStorage.setItem(QR_BEKLEYEN, k); q.delete('arkadas'); history.replaceState(history.state, '', location.pathname + (q.toString() ? '?' + q : '')); }
   } catch (_) { /* yok say */ }
   H.dinle(() => { if (acik()) dinle(); else birak(); });
+  window.addEventListener('online', () => { macPaylas(); }); // internet gelince bekleyen yan yana maçlar gönderilir
   window.addEventListener('dartx-mac-bitti', () => { macPaylas(); }); // Yan yanayız: biten maç arkadaşa da gider
   const app = document.getElementById('app');
   app.addEventListener('click', e => { const el = e.target.closest('[data-act^="on-"]'); if (!el || el.disabled || el.tagName === 'FORM' || el.tagName === 'INPUT') return; C.vib && C.vib(6); onlineTikla(el.dataset.act, el); });
@@ -229,47 +232,167 @@ async function dinle() {
   }, () => {}));
   // Yan yanayız: arkadaşların bu hesaba gönderdiği maçlar
   durum.dinliyor.push(F.onSnapshot(F.query(F.collection(db, 'paylasim'), F.where('alici', '==', ben)), s => {
-    // Demir 14.11 (düzeltme): maç kendiliğinden eklenmez; alıcı kendi cihazında onaylar. Onaylanana kadar bulutta bekler.
-    durum.gelenMac = s.docs.map(x => ({ id: x.id, ref: x.ref, ...x.data() })).filter(x => x.mac && x.mac.bas);
+    // Demir 14.11 (2): onay maç BAŞINDA alınır (yanyana/{id}); onaylı maç bitince kendiliğinden eklenir, sonradan reddedilemez.
+    // Onaysız (eski sürümden kalan) kayıtlar Online sayfasında Ekle / reddet olarak bekler.
+    durum.gelenMac = s.docs.map(x => ({ id: x.id, ref: x.ref, ...x.data() })).filter(x => x.mac && x.mac.bas && !x.davet);
     s.docChanges().forEach(c => {
       if (c.type !== 'added' || goruldu.has('p' + c.doc.id)) return; goruldu.add('p' + c.doc.id);
-      const d = c.doc.data();
+      const d = { id: c.doc.id, ...c.doc.data() };
       if ((data().history || []).some(h => d.mac && h.id === d.mac.id)) { F.deleteDoc(c.doc.ref).catch(() => {}); return; } // zaten eklenmiş
+      if (d.davet) {
+        const sil = () => { F.deleteDoc(c.doc.ref).catch(() => {}); F.deleteDoc(F.doc(db, 'yanyana', d.davet)).catch(() => {}); };
+        if (yyIslenen.has(d.davet)) { sil(); return; }
+        yyIslenen.add(d.davet);
+        profilAl(d.gonderen).then(() => {
+          let ok = false; try { ok = macAl(d); } catch (hata_) { console.warn('maç al', hata_); }
+          sil();
+          if (ok) bildir(t('{0} ile yan yana maçın istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', foto: (durum.profil[d.gonderen] || {}).foto, git: () => C.go('stats'), sure: 5000 });
+        });
+        return;
+      }
       bildir(t('{0} yan yana oynadığınız maçı gönderdi — onayla', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'davet', ad: d.gonderenAd || '', git: () => C.go('online'), sure: 7000 });
     });
     tazele();
   }, () => {}));
+  // Yan yanayız: maç başında gelen onay isteği (arkadaşın cihazında oynanacak maç)
+  durum.dinliyor.push(F.onSnapshot(F.query(F.collection(db, 'yanyana'), F.where('alici', '==', ben)), s => {
+    s.docChanges().forEach(c => {
+      if (c.type === 'removed') { yyGelenKapat(c.doc.id); return; }
+      const d = { id: c.doc.id, ref: c.doc.ref, ...c.doc.data() };
+      if (d.durum !== 'davet') { yyGelenKapat(d.id); return; }
+      if (goruldu.has('y' + d.id)) return; goruldu.add('y' + d.id);
+      const z = d.olusturma && d.olusturma.toMillis ? d.olusturma.toMillis() : Date.now();
+      if (Date.now() - z > YY_SURE + 15e3) { F.deleteDoc(c.doc.ref).catch(() => {}); return; } // süresi geçmiş istek
+      profilAl(d.gonderen).then(() => yyGelenSor(d, Math.max(8e3, YY_SURE - (Date.now() - z))));
+    });
+  }, () => {}));
+  macPaylas(); // önceki oturumda gönderilememiş yan yana maçlar
 }
-// ---- Yan yanayız (Demir 14.11): tek cihazda oynanan maç, oyuncusu olan arkadaşların hesabına da yazılır
+// ---- Yan yanayız (Demir 14.11): tek cihazda oynanan maç, oyuncusu olan arkadaşların hesabına da yazılır.
+// Akış: kurulumda arkadaş seçilir → Başla → arkadaşın kendi telefonuna onay isteği (yanyana/{id}) → kabul ederse maç
+// başlar ve bitince iki hesaba da yazılır. Çevrimdışıysa ya da kabul etmezse maç "misafir" oynanır: yalnız bu cihazda kalır.
 const kabulArk = () => { const ben = benUid(); return durum.arkadaslik.filter(a => a.durum === 'kabul').map(a => a.uids.find(u => u !== ben)); };
-/** Kurulum ekranı için: arkadaş listesi (uid, ad, foto, bu cihazdaki oyuncu kimliği varsa) */
+const cevrimici = u => varlikDurum(u).tur !== 'kapali';
+const YY_IC = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+const YY_DURUM_IC = {
+  bekle: '<svg class="yy-don" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.56"/></svg>',
+  kabul: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+  red: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  yok: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+};
+/** Kurulum ekranı için: arkadaş listesi (uid, ad, foto, çevrimiçi mi, bu cihazdaki oyuncu kimliği varsa); çevrimiçiler önce */
 export function yanYanaArkadaslar() {
   if (!acik()) return [];
-  return kabulArk().map(u => { const p = durum.profil[u] || {}; const o = data().players.find(x => x.uid === u && !x.silindi); return { uid: u, ad: p.ad || '…', foto: p.foto || '', pid: o ? o.id : null }; })
-    .sort((x, y) => x.ad.localeCompare(y.ad, 'tr'));
+  return kabulArk().map(u => { const p = durum.profil[u] || {}; const o = data().players.find(x => x.uid === u && !x.silindi); return { uid: u, ad: p.ad || '…', foto: p.foto || '', acik: cevrimici(u), pid: o ? o.id : null }; })
+    .sort((x, y) => (Number(y.acik) - Number(x.acik)) || x.ad.localeCompare(y.ad, 'tr'));
+}
+/** Seçili oyunculardan arkadaş hesabına bağlı olanlar: [{ uid, ad, pid, acik }] */
+export function yanYanaSecili(pidler) {
+  if (!acik()) return [];
+  const ark = new Set(kabulArk()), ben = benUid();
+  return (pidler || []).map(pid => data().players.find(x => x.id === pid)).filter(o => o && o.uid && o.uid !== ben && ark.has(o.uid))
+    .map(o => ({ uid: o.uid, pid: o.id, ad: (durum.profil[o.uid] || {}).ad || o.name, acik: cevrimici(o.uid) }));
 }
 /** Arkadaşı bu cihaza oyuncu olarak ekler (aynı adlı yerel oyuncu varsa onunla birleşir); oyuncu kimliğini döner */
 export function arkadasOyuncuEkle(uid) { const p = durum.profil[uid] || {}; return arkadasOyuncu(uid, p.ad, p.foto); }
+const yyKapat = pd => { pd.classList.add('kapan'); setTimeout(() => pd.remove(), 200); };
+/** Arkadaşlara "yan yana oynayalım mı" isteği gönderir, cevapları bekler. Döner: { kabul: { uid: istekId } } ya da vazgeçildiyse null */
+export function yanYanaIste(uids, gameId, opts) {
+  return new Promise(coz => { (async () => {
+    const ben = benUid(); const p = H.uye().profil || {};
+    const oyun = oyunAd(gameId, opts);
+    const st = {}; uids.forEach(u => { st[u] = { durum: 'bekle', ref: null, birak: null }; });
+    const satirYazi = { bekle: t('Onay bekleniyor'), kabul: t('Kabul etti'), red: t('Kabul etmedi'), yok: t('Cevap vermedi') };
+    const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru yy-pencere';
+    const ciz = () => {
+      pd.innerHTML = `<div class="modal glass uy-soru-kart" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${YY_IC}<span>${t('Yan yanayız')}</span></h3>
+        <p class="uy-not sol">${t('{0} için onay istendi. Arkadaşın kendi telefonunda kabul edince maç başlar.', `<b>${esc(oyun)}</b>`)}</p>
+        <div class="yy-bekle-liste">${uids.map(u => { const pr = durum.profil[u] || {}; const d = st[u].durum; return `<div class="yy-bekle ${d}">${avatar(pr.ad, pr.foto, 'uy-av kucuk')}<span class="yy-bekle-ad">${esc(pr.ad || '')}<small>${satirYazi[d]}</small></span><span class="yy-bekle-ic">${YY_DURUM_IC[d]}</span></div>`; }).join('')}</div>
+        <div class="uy-soru-dugmeler"><button type="button" class="btn" data-h="vazgec">${t('Vazgeç')}</button></div></div>`;
+    };
+    ciz(); document.body.appendChild(pd);
+    let bitti = false, saat = null, F = null;
+    const temizle = hepsi => { Object.values(st).forEach(x => { if (x.birak) x.birak(); if (F && x.ref && (hepsi || x.durum !== 'kabul')) F.deleteDoc(x.ref).catch(() => {}); }); };
+    const bitir = sonuc => { if (bitti) return; bitti = true; clearTimeout(saat); temizle(!sonuc); yyKapat(pd); coz(sonuc); };
+    const bak = () => {
+      if (bitti) return; ciz();
+      if (Object.values(st).some(x => x.durum === 'bekle')) return;
+      const kabul = {}; uids.forEach(u => { if (st[u].durum === 'kabul') kabul[u] = st[u].ref.id; });
+      setTimeout(() => bitir({ kabul }), 650); // sonuç bir an görünsün
+    };
+    pd.addEventListener('click', e => { if (e.target.closest('[data-h="vazgec"]')) bitir(null); });
+    try {
+      const b = await bulut(); F = b.F; const db = b.db;
+      for (const u of uids) {
+        const ref = F.doc(F.collection(db, 'yanyana'));
+        await F.setDoc(ref, { gonderen: ben, alici: u, durum: 'davet', gameId, opts: clone(opts || {}), gonderenAd: p.ad || '', olusturma: F.serverTimestamp() });
+        if (bitti) { F.deleteDoc(ref).catch(() => {}); return; }
+        st[u].ref = ref;
+        st[u].birak = F.onSnapshot(ref, s => {
+          if (bitti || st[u].durum !== 'bekle') return;
+          if (!s.exists()) st[u].durum = 'red'; else if (s.data().durum === 'kabul') st[u].durum = 'kabul'; else if (s.data().durum === 'red') st[u].durum = 'red'; else return;
+          if (C.vib) C.vib(st[u].durum === 'kabul' ? 12 : 30);
+          bak();
+        }, () => {});
+      }
+      saat = setTimeout(() => { Object.values(st).forEach(x => { if (x.durum === 'bekle') x.durum = 'yok'; }); bak(); }, YY_SURE);
+    } catch (e) { console.warn('yan yana', e); C.toast(t('İstek gönderilemedi. İnternet bağlantını kontrol et.'), 'bad', { sure: 3000, tur: { ic: 'kisi', a: 'a-sars', k: 'bad' } }); bitir(null); }
+  })(); });
+}
+/** Alınmış onaylardan vazgeçildi (maç başlamadı): istekler silinir */
+export async function yanYanaVazgec(kabul) {
+  try { const { db, F } = await bulut(); for (const id of Object.values(kabul || {})) await F.deleteDoc(F.doc(db, 'yanyana', id)).catch(() => {}); } catch (_) { /* yok say */ }
+}
+// Gelen istek penceresi: arkadaşın "yan yana oynayalım mı" sorusu
+function yyGelenKapat(id) { const pd = document.querySelector(`.yy-pencere[data-yy="${id}"]`); if (pd) yyKapat(pd); }
+function yyGelenSor(d, sure) {
+  if (document.querySelector(`.yy-pencere[data-yy="${d.id}"]`)) return;
+  const pr = durum.profil[d.gonderen] || {}; const ad = pr.ad || d.gonderenAd || '';
+  const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru yy-pencere'; pd.dataset.yy = d.id;
+  pd.innerHTML = `<div class="modal glass uy-soru-kart yy-gelen" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${YY_IC}<span>${t('Yan yana maç isteği')}</span></h3>
+    <div class="ark-bas"><span class="yy-halka">${avatar(ad, pr.foto, 'uy-av buyuk')}</span><b>${esc(ad)}</b></div>
+    <p class="uy-not">${t('{0} seninle yan yana {1} oynamak istiyor. Maç onun cihazında oynanır; bitince senin istatistiklerine de yazılır.', `<b>${esc(ad)}</b>`, `<b>${esc(oyunAd(d.gameId, d.opts))}</b>`)}</p>
+    <div class="uy-soru-dugmeler"><button type="button" class="btn" data-h="red">${t('Reddet')}</button><button type="button" class="btn primary" data-h="kabul">${t('Kabul et')}</button></div></div>`;
+  document.body.appendChild(pd);
+  if (C.vib) C.vib(20);
+  const saat = setTimeout(() => yyKapat(pd), sure);
+  pd.addEventListener('click', async e => {
+    const b = e.target.closest('[data-h]'); if (!b) return;
+    const kabul = b.dataset.h === 'kabul'; clearTimeout(saat); yyKapat(pd);
+    try {
+      const { F } = await bulut(); await F.updateDoc(d.ref, { durum: kabul ? 'kabul' : 'red' });
+      if (kabul) C.toast(t('Kabul edildi — maç bitince istatistiklerine yazılacak'), 'ok', { sure: 3000, tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } });
+    } catch (hata_) { console.warn('yan yana cevap', hata_); C.toast(t('İstek artık geçerli değil'), 'bad', { tur: { ic: 'kisi', a: 'a-sars', k: 'bad' } }); }
+  });
+}
 const oyuncuAnahtar = (pid, ben) => { const o = data().players.find(x => x.id === pid) || {}; const benim = (H.uye().profil || {}).oyuncuId; return pid === benim ? 'u:' + ben : o.uid ? 'u:' + o.uid : 'n:' + (o.name || '?'); };
-/** Biten yerel maçı, içinde oynayan arkadaşların hesabına gönderir */
+/** Biten yan yana maçları, maç başında onay vermiş arkadaşların hesabına gönderir (gönderilemeyen sonra yeniden denenir) */
+let paylasiyor = false;
 async function macPaylas() {
+  if (paylasiyor || !acik()) return; paylasiyor = true;
   try {
-    if (!acik()) return;
-    const m = (data().history || [])[0]; if (!m || m.online || m.paylasildi || m.paylasan || !m.bas || !m.adimlar || !m.done) return;
-    const ben = benUid(), ark = new Set(kabulArk());
-    const pidler = m.sides.flatMap(s => s.members);
-    const alicilar = [...new Set(pidler.map(pid => (data().players.find(x => x.id === pid) || {}).uid).filter(u => u && u !== ben && ark.has(u)))];
-    if (!alicilar.length) return;
-    const harita = {}; pidler.forEach(pid => { harita[pid] = oyuncuAnahtar(pid, ben); });
-    const bas = clone(m.bas); bas.sides = bas.sides.map(s => ({ ...s, members: s.members.map(pid => harita[pid] || 'n:?') }));
-    const adimlar = (m.adimlar || []).map(a => (a.p != null && harita[a.p] ? { ...a, p: harita[a.p] } : { ...a }));
-    const oyuncular = {}; pidler.forEach(pid => { const o = data().players.find(x => x.id === pid) || {}; oyuncular[harita[pid]] = { ad: o.name || '', bot: !!o.bot }; });
-    const { db, F } = await bulut(); const p = H.uye().profil || {};
-    for (const alici of alicilar) {
-      await F.setDoc(F.doc(F.collection(db, 'paylasim')), { gonderen: ben, alici, gonderenAd: p.ad || '', mac: { id: m.id, bas, adimlar, started: m.started, ended: m.ended }, oyuncular, olusturma: F.serverTimestamp() });
+    const ben = benUid(); const p = H.uye().profil || {};
+    const bekleyen = (data().history || []).slice(0, 30).filter(m => m.yanyana && m.done && !m.online && !m.paylasan && m.bas && m.adimlar && Object.keys(m.yanyana).some(u => !(m.paylasildi || []).includes(u)));
+    if (!bekleyen.length) return;
+    const { db, F } = await bulut();
+    for (const m of bekleyen) {
+      const pidler = m.sides.flatMap(s => s.members);
+      const harita = {}; pidler.forEach(pid => { harita[pid] = oyuncuAnahtar(pid, ben); });
+      const bas = clone(m.bas); bas.sides = bas.sides.map(s => ({ ...s, members: s.members.map(pid => harita[pid] || 'n:?') }));
+      const adimlar = (m.adimlar || []).map(a => (a.p != null && harita[a.p] ? { ...a, p: harita[a.p] } : { ...a }));
+      const oyuncular = {}; pidler.forEach(pid => { const o = data().players.find(x => x.id === pid) || {}; oyuncular[harita[pid]] = { ad: o.name || '', bot: !!o.bot }; });
+      for (const [alici, davet] of Object.entries(m.yanyana)) {
+        if ((m.paylasildi || []).includes(alici)) continue;
+        try {
+          await F.setDoc(F.doc(F.collection(db, 'paylasim')), { gonderen: ben, alici, davet, gonderenAd: p.ad || '', mac: { id: m.id, bas, adimlar, started: m.started, ended: m.ended }, oyuncular, olusturma: F.serverTimestamp() });
+          m.paylasildi = [...(m.paylasildi || []), alici]; save();
+        } catch (e) {
+          console.warn('paylaş', e);
+          if (e && e.code === 'permission-denied') { m.paylasildi = [...(m.paylasildi || []), alici]; save(); } // onay artık geçerli değil: yeniden denenmez
+        }
+      }
     }
-    m.paylasildi = alicilar; save();
-  } catch (e) { console.warn('paylaş', e); }
+  } catch (e) { console.warn('paylaş', e); } finally { paylasiyor = false; }
 }
 /** Onay bekleyen yan yana maç: ekle (geçmişe yazılır) ya da reddet (silinir) */
 async function gelenMacKarar(id, ekle) {
@@ -299,7 +422,7 @@ function macAl(d) {
   E.hamlelerleKur(m, adim2);
   if (!m.done) return false; // bitmemiş ya da bozuk kayıt eklenmez
   m.started = mac.started || m.started; m.ended = mac.ended || Date.now();
-  m.paylasan = { uid: d.gonderen, ad: d.gonderenAd || '' };
+  m.paylasan = { uid: d.gonderen, ad: d.gonderenAd || '', ...(d.davet ? { onayli: true } : {}) };
   data().history.unshift(m); data().history.sort((a, b) => (b.started || 0) - (a.started || 0)); save();
   window.dispatchEvent(new Event('dartx-mac-bitti'));
   return true;

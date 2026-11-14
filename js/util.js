@@ -20,14 +20,11 @@ export const yuzde = n => (trMi() ? '%' + n : n + '%');
 export const fmt1 = n => (Number.isFinite(n) ? ondalik(n) : '–');
 export const pct = (a, b) => (b ? yuzde(Math.round((a / b) * 100)) : '–');
 
-// Demir ve Kenan istisnası (Demir 09.11): adı (ilk kelimesi) Demir / Kenan olan oyuncunun yanında kendi avatarı
+// Demir 14.11: ada göre özel resim yok (eskiden Demir / Kenan / Tuncay adına karakter resmi çıkıyordu). Herkes gibi:
+// üye olup profil fotoğrafını ekleyen oyuncunun fotoğrafı görünür; misafir oyuncular baş harfle.
 let fotoBul = () => '';
 export const fotoBulKur = f => { fotoBul = f; };
-export function adResim(ad) {
-  const f = fotoBul(ad); if (f) return f; // üyenin profil fotoğrafı
-  const k = String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr');
-  return k === 'demir' || k === 'kenan' || k === 'tuncay' ? `img/karakter/${k}-avatar.webp` : '';
-}
+export function adResim(ad) { return fotoBul(ad) || ''; }
 // DartBot (Demir 10.11): renk noktası yerine oyuncunun renginde robot simgesi
 export const botMu = ad => String(ad || '').trim().split(/\s+/)[0].toLocaleLowerCase('tr') === 'dartbot';
 const BOT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>';

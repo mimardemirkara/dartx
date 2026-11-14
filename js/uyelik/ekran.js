@@ -399,8 +399,9 @@ export function viewUye() {
       </section></div>`);
   if (a === 'eslestir') {
     const say = id => (data().history || []).filter(h => h.sides && h.sides.some(s => s.members && s.members.includes(id))).length;
-    const oyuncular = data().players.filter(p => !p.silindi && !/^dartbot/i.test(p.name));
-    const sec = C.S.uyeSecili;
+    // Demir 14.11: bir arkadaşın hesabına bağlı oyuncu (uid) başka hesaba bağlanamaz
+    const oyuncular = data().players.filter(p => !p.silindi && !/^dartbot/i.test(p.name) && !p.uid);
+    const sec = oyuncular.some(p => p.id === C.S.uyeSecili) ? C.S.uyeSecili : null;
     return sayfa(`<div class="uy-duzen tek">
       <section class="ay-grup uy-kart">
         <div class="kart-bas">${IC.kisi}<span>${t('Bu cihazdaki hangi oyuncu sensin?')}</span></div>
@@ -417,7 +418,7 @@ export function viewUye() {
 }
 
 function avatarHtml(ad, foto, renk, sinif = 'uy-av') {
-  const r = foto || adResim(ad); // profil fotoğrafı yoksa karakter avatarı (Demir, Tuncay, Kenan)
+  const r = foto || adResim(ad); // profil fotoğrafı (yoksa baş harf)
   if (r) return `<img class="${sinif}" src="${r}" alt="">`;
   const harf = (String(ad || '?').trim()[0] || '?').toLocaleUpperCase('tr');
   return `<span class="${sinif} harf" style="--pc:${renk || 'var(--brand)'}">${esc(harf)}</span>`;
@@ -608,6 +609,7 @@ async function tikla(e) {
     case 'uy-oyuncusec': S.uyeSecili = el.dataset.id; C.render(); break;
     case 'uy-eslestir': {
       const p = data().players.find(x => x.id === S.uyeSecili); if (!p) return;
+      if (p.uid) return; // başkasının (arkadaşın) hesabına bağlı oyuncu
       await is(async () => {
         const prof = H.uye().profil || {};
         await H.profilKaydet({ oyuncuId: p.id, ...(prof.foto ? {} : p.foto ? { foto: p.foto } : {}) });

@@ -14,14 +14,14 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
  * onayla({ baslik, metin, evet, hayir, tehlike }) → Promise<boolean>
  * tehlike: true → onay düğmesi kırmızı (silme gibi geri alınamaz işler)
  */
-export function onayla({ baslik, metin = '', evet = t('Tamam'), hayir = t('Vazgeç'), tehlike = false, tekDugme = false }) {
+export function onayla({ baslik, metin = '', evet = t('Tamam'), hayir = t('Vazgeç'), tehlike = false, tekDugme = false, simge = '' }) {
   return new Promise(coz => {
     document.getElementById('dx-onay')?.remove();
     const k = document.createElement('div');
     k.id = 'dx-onay';
     k.className = 'telif-ort';
     k.innerHTML = `<div class="telif-kart onay-kart" role="alertdialog" aria-modal="true" aria-label="${esc(baslik)}">
-        ${tehlike ? `<span class="onay-ic tehlike-ic">${IC_COP}</span>` : ''}<h2>${esc(baslik)}</h2>${metin ? `<p>${esc(metin)}</p>` : ''}
+        ${tehlike ? `<span class="onay-ic tehlike-ic">${IC_COP}</span>` : simge ? `<span class="onay-ic simge-ic">${simge}</span>` : ''}<h2>${esc(baslik)}</h2>${metin ? `<p>${esc(metin)}</p>` : ''}
         <div class="telif-dugmeler onay-dugmeler ${tekDugme ? 'tek' : ''}">
           ${tekDugme ? '' : `<button type="button" class="pill onay-tus" data-o="0">${IC_HAYIR}<span>${esc(hayir)}</span></button>`}
           <button type="button" class="pill onay-tus ${tehlike ? 'tehlike' : 'gold'}" data-o="1">${tehlike ? IC_TEHLIKE : IC_EVET}<span>${esc(evet)}</span></button>

@@ -119,7 +119,7 @@ function snapshot(m) {
 function yenidenKur(m, kac) {
   const adim = m.adimlar.slice(0, kac);
   const b = m.adimlar.find(a => a.t === 'b');
-  const hesap = m.hesap, online = m.online; // online maç bilgisi yeniden kurulumda kaybolmasın
+  const hesap = m.hesap, online = m.online, yanyana = m.yanyana; // online / yan yana bilgisi yeniden kurulumda kaybolmasın
   oynatiliyor = true;
   let y;
   try {
@@ -141,6 +141,7 @@ function yenidenKur(m, kac) {
   Object.assign(m, y);
   if (hesap) m.hesap = hesap;
   if (online) m.online = online;
+  if (yanyana) m.yanyana = yanyana;
   return true;
 }
 /** Son 'n' hamleyi geri al (n=1: son ok). Kayıtlı maçta oyunun başına kadar gider. */
