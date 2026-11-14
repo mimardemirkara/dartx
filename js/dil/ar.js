@@ -1076,4 +1076,10 @@ export default {"Oyunlar":"الألعاب",
 "Kriket oyunlarında canlı MPR":"MPR مباشر في ألعاب الكريكت",
 "{0} {1} maçını iptal etti":"ألغى {0} مباراة {1}",
 "Maç {0}. turdaydı.":"كانت المباراة في الجولة {0}.",
-"İptal edilen maç kimsenin istatistiğine yazılmaz.":"المباراة الملغاة لا تُضاف إلى إحصائيات أحد."};
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"المباراة الملغاة لا تُضاف إلى إحصائيات أحد.",
+"Kabul etti, maç açılıyor":"تم القبول، جارٍ فتح المباراة",
+"Davet geri alındı":"تم سحب الدعوة",
+"Davet zaten gönderildi":"الدعوة مُرسلة مسبقًا",
+"{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"وصلت دعوتك إلى {0} إلى {1}. عند القبول تُفتح المباراة تلقائيًا على الهاتفين.",
+"Daveti geri al":"سحب الدعوة",
+"Beklerken gez":"تصفّح أثناء الانتظار"};

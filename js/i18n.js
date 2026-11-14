@@ -238,4 +238,10 @@ const EN = {
   "{0} {1} maçını iptal etti": "{0} cancelled the {1} match",
   "Maç {0}. turdaydı.": "The match was in round {0}.",
   "İptal edilen maç kimsenin istatistiğine yazılmaz.": "A cancelled match is not added to anyone's stats.",
+  "Kabul etti, maç açılıyor": "Accepted, opening the match",
+  "Davet geri alındı": "Invite withdrawn",
+  "Davet zaten gönderildi": "Invite already sent",
+  "{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.": "Your {0} invite went to {1}. Once they accept, the match opens on both phones automatically.",
+  "Daveti geri al": "Withdraw invite",
+  "Beklerken gez": "Browse while waiting",
 };

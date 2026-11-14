@@ -569,6 +569,7 @@ export async function davetEt(karsi, secim, ozel = null) {
   if (g.totalInput) opts.input = 'darts'; // online: ok ok giriş
   const { db, F } = await bulut(); const ben = benUid();
   const ref = F.doc(F.collection(db, 'online'));
+  const davetId = ref.id;
   const tohum = Math.floor(Math.random() * 2 ** 31);
   const basla = { gameId, opts, sides: [{ name: '', members: [ben] }, { name: '', members: [karsi] }], tohum, id: ref.id, started: Date.now() };
   const p = H.uye().profil || {}; const kp = await profilAl(karsi);
@@ -578,6 +579,7 @@ export async function davetEt(karsi, secim, ozel = null) {
     surum: 0, adlar: { [ben]: p.ad || '', [karsi]: kp.ad || '' }, fotolar: { [ben]: p.foto || null, [karsi]: kp.foto || null },
     olusturma: F.serverTimestamp(), guncel: F.serverTimestamp(),
   });
+  return davetId;
 }
 export async function davetKabul(d) {
   const { db, F } = await bulut();
@@ -721,8 +723,47 @@ export function kurulumArkadaslar(secili) {
       <span class="pc-ad">${esc(pr(u).ad)}<small class="on-durum ${vd.tur}">${esc(vd.yazi)}</small></span>
       <span class="kur-ark-tik" aria-hidden="true">${on ? '✓' : ''}</span></button>`; }).join('')}</div>`;
 }
+// Demir 14.11: "davet gitti mi gitmedi mi anlamıyorum, sürekli butona basıyorum" — davet gidince bekleme penceresi açılır:
+// arkadaşın adı, oyun, "Kabul etmesi bekleniyor"; kabul edince maç kendiliğinden açılır, reddederse pencerede görünür.
+// Aynı arkadaşa bekleyen davet varsa yenisi gönderilmez, o davetin penceresi açılır.
 export async function kurulumDavet(uid, gameId, opts) {
-  await davetEt(uid, gameId, opts);
+  const ben = benUid();
+  const bekleyen = durum.maclar.find(d => d.durum === 'davet' && d.davetEden === ben && d.uids.includes(uid));
+  const id = bekleyen ? bekleyen.id : await davetEt(uid, gameId, opts);
+  davetBekle(id, uid, bekleyen ? oyunAd(bekleyen.gameId, bekleyen.opts) : oyunAd(gameId, opts), !!bekleyen);
+}
+const SVG_DAVET = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>'; // lucide send
+function davetBekle(id, uid, oyun, eski) {
+  document.querySelectorAll('.davet-pencere').forEach(x => x.remove());
+  const pr = durum.profil[uid] || {};
+  const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru yy-pencere davet-pencere';
+  let hal = 'bekle', birak = null, bitti = false;
+  const yazi = { bekle: t('Kabul etmesi bekleniyor'), kabul: t('Kabul etti, maç açılıyor'), red: t('Kabul etmedi'), yok: t('Davet geri alındı') };
+  const ciz = () => {
+    pd.innerHTML = `<div class="modal glass uy-soru-kart" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${SVG_DAVET}<span>${eski ? t('Davet zaten gönderildi') : t('Davet gönderildi')}</span></h3>
+      <p class="uy-not">${t('{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.', `<b>${esc(oyun)}</b>`, `<b>${esc(pr.ad || '')}</b>`)}</p>
+      <div class="yy-bekle-liste"><div class="yy-bekle ${hal}">${avatar(pr.ad, pr.foto, 'uy-av kucuk')}<span class="yy-bekle-ad">${esc(pr.ad || '')}<small>${yazi[hal]}</small></span><span class="yy-bekle-ic">${YY_DURUM_IC[hal === 'kabul' ? 'kabul' : hal === 'bekle' ? 'bekle' : 'red']}</span></div></div>
+      <div class="uy-soru-dugmeler">${hal === 'bekle' ? `<button type="button" class="btn" data-h="iptal">${t('Daveti geri al')}</button><button type="button" class="btn primary" data-h="arka">${t('Beklerken gez')}</button>` : `<button type="button" class="btn primary" data-h="kapat">${t('Tamam')}</button>`}</div></div>`;
+  };
+  const kapat = () => { if (bitti) return; bitti = true; if (birak) birak(); pd.classList.add('kapan'); setTimeout(() => pd.remove(), 200); };
+  ciz(); document.body.appendChild(pd);
+  pd.addEventListener('click', async e => {
+    const b = e.target.closest('[data-h]'); if (!b) return;
+    if (b.dataset.h === 'iptal') { b.disabled = true; try { await macIptal({ id }); C.toast(t('Davet geri alındı'), 'ok', { tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } }); } catch (_) { /* yok say */ } kapat(); return; }
+    if (b.dataset.h === 'arka') { kapat(); C.go('online'); return; }
+    kapat();
+  });
+  bulut().then(({ db, F }) => {
+    if (bitti) return;
+    birak = F.onSnapshot(F.doc(db, 'online', id), s => {
+      if (bitti) return;
+      const d = s.exists() ? s.data() : null;
+      const yeni = !d ? 'yok' : d.durum === 'oyunda' ? 'kabul' : d.durum === 'red' ? 'red' : 'bekle';
+      if (yeni === hal) return;
+      hal = yeni; ciz(); if (C.vib) C.vib(hal === 'kabul' ? 15 : 30);
+      if (hal === 'kabul') setTimeout(kapat, 900); // maçı genel dinleyici açar
+    }, () => {});
+  });
 }
 
 // ---- Online sayfası kartları

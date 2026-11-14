@@ -1076,4 +1076,10 @@ export default {"Oyunlar":"ゲーム",
 "Kriket oyunlarında canlı MPR":"クリケットでリアルタイム MPR を表示",
 "{0} {1} maçını iptal etti":"{0} さんが {1} のマッチをキャンセルしました",
 "Maç {0}. turdaydı.":"マッチは {0} ラウンド目でした。",
-"İptal edilen maç kimsenin istatistiğine yazılmaz.":"キャンセルされたマッチは誰の統計にも記録されません。"};
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"キャンセルされたマッチは誰の統計にも記録されません。",
+"Kabul etti, maç açılıyor":"承諾されました。マッチを開いています",
+"Davet geri alındı":"招待を取り消しました",
+"Davet zaten gönderildi":"招待はすでに送信済みです",
+"{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"{0} の招待を {1} さんに送りました。承諾されると両方のスマホでマッチが自動で開きます。",
+"Daveti geri al":"招待を取り消す",
+"Beklerken gez":"待つ間に見て回る"};

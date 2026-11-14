@@ -1076,4 +1076,10 @@ export default {"Oyunlar":"Игры",
 "Kriket oyunlarında canlı MPR":"MPR в реальном времени в крикете",
 "{0} {1} maçını iptal etti":"{0} отменил матч {1}",
 "Maç {0}. turdaydı.":"Матч был в раунде {0}.",
-"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Отменённый матч не попадает ни в чью статистику."};
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Отменённый матч не попадает ни в чью статистику.",
+"Kabul etti, maç açılıyor":"Принято, матч открывается",
+"Davet geri alındı":"Приглашение отозвано",
+"Davet zaten gönderildi":"Приглашение уже отправлено",
+"{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"Ваше приглашение на {0} отправлено {1}. Когда он примет, матч откроется на обоих телефонах.",
+"Daveti geri al":"Отозвать приглашение",
+"Beklerken gez":"Пока подождать"};

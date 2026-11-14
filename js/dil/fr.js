@@ -1076,4 +1076,10 @@ export default {"Oyunlar":"Jeux",
 "Kriket oyunlarında canlı MPR":"MPR en direct dans les jeux de cricket",
 "{0} {1} maçını iptal etti":"{0} a annulé la partie de {1}",
 "Maç {0}. turdaydı.":"La partie était au tour {0}.",
-"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Une partie annulée n’est ajoutée aux statistiques de personne."};
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Une partie annulée n’est ajoutée aux statistiques de personne.",
+"Kabul etti, maç açılıyor":"Accepté, ouverture de la partie",
+"Davet geri alındı":"Invitation retirée",
+"Davet zaten gönderildi":"Invitation déjà envoyée",
+"{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"Ton invitation à {0} est partie vers {1}. Dès qu’il accepte, la partie s’ouvre sur les deux téléphones.",
+"Daveti geri al":"Retirer l’invitation",
+"Beklerken gez":"Naviguer en attendant"};

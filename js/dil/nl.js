@@ -1076,4 +1076,10 @@ export default {"Oyunlar":"Spellen",
 "Kriket oyunlarında canlı MPR":"Live MPR in cricketspellen",
 "{0} {1} maçını iptal etti":"{0} heeft de {1}-wedstrijd geannuleerd",
 "Maç {0}. turdaydı.":"De wedstrijd was in ronde {0}.",
-"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Een geannuleerde wedstrijd telt voor niemand mee in de statistieken."};
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Een geannuleerde wedstrijd telt voor niemand mee in de statistieken.",
+"Kabul etti, maç açılıyor":"Geaccepteerd, wedstrijd opent",
+"Davet geri alındı":"Uitnodiging ingetrokken",
+"Davet zaten gönderildi":"Uitnodiging al verstuurd",
+"{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"Je uitnodiging voor {0} is naar {1} gegaan. Na acceptatie opent de wedstrijd vanzelf op beide telefoons.",
+"Daveti geri al":"Uitnodiging intrekken",
+"Beklerken gez":"Rondkijken tijdens wachten"};

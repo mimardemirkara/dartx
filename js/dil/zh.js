@@ -1076,4 +1076,10 @@ export default {"Oyunlar":"游戏",
 "Kriket oyunlarında canlı MPR":"板球游戏中显示实时 MPR",
 "{0} {1} maçını iptal etti":"{0} 取消了 {1} 比赛",
 "Maç {0}. turdaydı.":"比赛进行到第 {0} 轮。",
-"İptal edilen maç kimsenin istatistiğine yazılmaz.":"已取消的比赛不会计入任何人的统计。"};
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"已取消的比赛不会计入任何人的统计。",
+"Kabul etti, maç açılıyor":"已接受，正在打开比赛",
+"Davet geri alındı":"邀请已撤回",
+"Davet zaten gönderildi":"邀请已发送过",
+"{0} davetin {1} arkadaşına gitti. Kabul edince maç iki telefonda da kendiliğinden açılır.":"你的 {0} 邀请已发送给 {1}。对方接受后，比赛会在两部手机上自动打开。",
+"Daveti geri al":"撤回邀请",
+"Beklerken gez":"等待时随便看看"};

@@ -1930,7 +1930,7 @@ app.addEventListener('click', e => {
       if (!S.setup.onlineArk) break;
       const opts = { ...S.setup.opts };
       el.disabled = true;
-      kurulumDavet(S.setup.onlineArk, S.gameId, opts).then(() => { toast(t('Davet gönderildi — arkadaşın kabul edince maç açılır'), 'ok', { sure: 3000 }); S.setup.onlineArk = null; go('online'); })
+      kurulumDavet(S.setup.onlineArk, S.gameId, opts).then(() => { el.disabled = false; }) // Demir 14.11: bekleme penceresi açılır
         .catch(e => { console.warn(e); toast(t('Davet gönderilemedi. İnternet bağlantını kontrol et.'), 'bad'); el.disabled = false; });
       break;
     }
