@@ -85,6 +85,6 @@ Son kalan kazanır.`,
 
   summary(m, pid) {
     const t = playerTurns(m, pid);
-    return [['Can alma', sumRec(t, 'kills')], ['Ok', t.reduce((a, x) => a + x.darts.length, 0)]];
+    return [['Can alma', sumRec(t, 'kills')], ['Atılan ok', t.reduce((a, x) => a + x.darts.length, 0)]];
   },
 };

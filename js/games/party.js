@@ -142,7 +142,7 @@ Mod: tüm bölge / sadece double / sadece triple. Amaç: en az okla bitirmek. So
     },
     summary(m, pid) {
       const t = playerTurns(m, pid), d = dartsOf(t), h = sumRec(t, 'hits');
-      return [['Ok', d], ['İsabet', d ? `%${Math.round((h / d) * 100)}` : '–']];
+      return [['Atılan ok', d], ['İsabet', d ? `%${Math.round((h / d) * 100)}` : '–']];
     },
     score: solo ? (m, pid) => dartsOf(playerTurns(m, pid)) : undefined,
     lowerBetter: solo,

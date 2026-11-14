@@ -54,16 +54,16 @@ const KISA = {
   turk: '20–10, D, T, B, H — Cezalı ya da Cezasız; Türkiye\'de en çok oynanan kriket',
   minnesota: '20–15, D, T, B ve 3B (3 ok aynı sayı) — dünyadaki hali',
 };
-const ORTAK = 'Her hedefi 3 işaretle kapatırsın (single 1, double 2, triple 3; 25 = 1, Bull = 2).';
+const ORTAK = 'Her hedefi 3 vuruşla kapatırsın (single 1, double 2, triple 3; 25 = 1, Bull = 2).';
 const KURAL = {
   minnesota: `Hedefler 20'den 15'e kadar sayılar, <b>D</b> (double), <b>T</b> (triple), <b>B</b> (Bull) ve <b>3B</b> ("3 in a bed"). ${ORTAK}
-<b>D ve T:</b> tahtadaki her double D'ye, her triple T'ye 1 işaret koyar; ok aynı anda kendi sayısına da işaret koyar (seçim yok).
-<b>3B:</b> bir elde 3 okun üçü de aynı sayıya girerse 1 işaret; tahtadaki her sayı geçerlidir.
+<b>D ve T:</b> tahtadaki her double D'ye, her triple T'ye 1 vuruş yazar; ok aynı anda kendi sayısına da vuruş yazar (seçim yok).
+<b>3B:</b> bir elde 3 okun üçü de aynı sayıya girerse 1 vuruş; tahtadaki her sayı geçerlidir.
 Kapattığın ama rakibin kapatmadığı hedefe vurdukça puan alırsın (Oyun modu: Puanlı, Cezalı ya da Cezasız).
 Tüm hedefleri kapatan ve puanda geride olmayan kazanır.`,
-  turk: `Hedefler 20'den 10'a kadar sayılar (istersen 12'ye ya da 15'e kadar), <b>D</b> (double), <b>T</b> (triple), <b>B</b> (Bull) ve <b>H</b> (House). Her hedef 3 işaretle kapanır.
-<b>Double attığında seçersin:</b> o sayıya 2 işaret ya da D'ye 1 işaret. <b>Triple'da:</b> sayıya 3 işaret (tek seferde kapatır) ya da T'ye 1 işaret. Double Bull: Bull'a 2 işaret ya da D'ye 1 işaret.
-<b>House:</b> bir elde 3 okun üçü de tablodaki aynı sayıya girerse, ya o sayıya yazarsın ya da H'ye 1 işaret. Tablo dışındaki sayılar D, T ve H için de sayılmaz.
+  turk: `Hedefler 20'den 10'a kadar sayılar (istersen 12'ye ya da 15'e kadar), <b>D</b> (double), <b>T</b> (triple), <b>B</b> (Bull) ve <b>H</b> (House). Her hedef 3 vuruşla kapanır.
+<b>Double attığında seçersin:</b> o sayıya 2 vuruş ya da D'ye 1 vuruş. <b>Triple'da:</b> sayıya 3 vuruş (tek seferde kapatır) ya da T'ye 1 vuruş. Double Bull: Bull'a 2 vuruş ya da D'ye 1 vuruş.
+<b>House:</b> bir elde 3 okun üçü de tablodaki aynı sayıya girerse, ya o sayıya yazarsın ya da H'ye 1 vuruş. Tablo dışındaki sayılar D, T ve H için de sayılmaz.
 <b>Cezalı:</b> kapattığın ama rakibin kapatmadığı hedefe vurdukça puanı kendi hanene yazarsın (Bull 25, double Bull 50). Tüm hedefleri kapatan ve puanı rakiplerden yüksek olan kazanır (eşit puan yetmez); puanı düşük olan, rakibin açık hedeflerine vurarak öne geçebilir.
 <b>Cezasız:</b> puan yok; bütün hedefleri ilk kapatan kazanır.`,
   cricket: `Hedefler 15–20 ve Bull. ${ORTAK}
@@ -79,7 +79,7 @@ Kapattığın ama rakibin kapatmadığı sayıya vurdukça puan toplarsın.
 Kapattığın ama rakibin kapatmadığı sayıya vurdukça puan toplarsın.
 Tüm hedefleri kapatan ve puanı rakiplerden düşük olmayan kazanır.`,
   mickey: `Hedefler 12'den 20'ye, <b>herhangi bir double</b>, <b>herhangi bir triple</b> ve Bull. ${ORTAK}
-<b>Double hedefi:</b> tahtadaki her double 1 işaret sayılır. <b>Triple hedefi:</b> her triple 1 işaret sayılır.
+<b>Double hedefi:</b> tahtadaki her double 1 vuruş sayılır. <b>Triple hedefi:</b> her triple 1 vuruş sayılır.
 Kapattığın ama rakibin kapatmadığı hedefe vurdukça okun değeri kadar puan toplarsın.
 Tüm hedefleri kapatan ve puanı rakiplerden düşük olmayan kazanır.`,
   hidden: `Oyun başında rastgele 6 sayı ve Bull hedef olur ama sayılar <b>gizlidir</b>. ${ORTAK}
@@ -87,7 +87,7 @@ Bir oyuncu gizli bir sayıya vurunca o hedef herkes için ortaya çıkar.
 Kapattığın ama rakibin kapatmadığı sayıya vurdukça puan toplarsın.
 Tüm hedefleri kapatan ve puanı rakiplerden düşük olmayan kazanır.`,
   crazy: `Rastgele 6 sayı ve Bull hedef olur. ${ORTAK}
-Her turun başında, <b>henüz kimsenin işaret koymadığı</b> sayılar yeni rastgele sayılarla değişir.
+Her turun başında, <b>henüz kimsenin vuruş yazmadığı</b> sayılar yeni rastgele sayılarla değişir.
 Kapattığın ama rakibin kapatmadığı sayıya vurdukça puan toplarsın.
 Tüm hedefleri kapatan ve puanı rakiplerden düşük olmayan kazanır.`,
 };
@@ -120,12 +120,12 @@ function make(id) {
     if (!tablo) return liste;
     const adet = d.m;
     const ekle = (v, l, hedef) => { const f = faydali(m, g, hedef); if (f || tumu) liste.push({ v, l, etkisiz: !f }); };
-    ekle('n', tr('{0} · {1} işaret', hedefAd(d.n), adet), d.n);
-    if (d.m === 2 && hedefler(g).includes('D')) ekle('D', tr('Double · 1 işaret'), 'D');
-    if (d.m === 3 && hedefler(g).includes('T')) ekle('T', tr('Triple · 1 işaret'), 'T');
+    ekle('n', tr('{0} · {1} vuruş', hedefAd(d.n), adet), d.n);
+    if (d.m === 2 && hedefler(g).includes('D')) ekle('D', tr('Double · 1 vuruş'), 'D');
+    if (d.m === 3 && hedefler(g).includes('T')) ekle('T', tr('Triple · 1 vuruş'), 'T');
     const td = m.turnDarts || [];
     const onceki = td[td.length - 1] === d ? td.slice(0, -1) : td; // ok henüz eklenmemiş ya da eklenmiş olabilir
-    if (onceki.length === 2 && onceki.every(x => x.n === d.n) && hedefler(g).includes('H')) ekle('H', tr('House · 1 işaret'), 'H');
+    if (onceki.length === 2 && onceki.every(x => x.n === d.n) && hedefler(g).includes('H')) ekle('H', tr('House · 1 vuruş'), 'H');
     if (!tumu) return liste.map(x => (x.e = onizle(m, g, d, x.v, onceki), x));
     // Anlık hesap (Demir 09.11: "şu kadar puan / ceza gibi anlık hesaplarsan daha teşvik edici olur")
     // Etkisiz seçenek de seçilebilir (Demir 10.11): House varken "19" demek = önceki okların yazdığı kalsın, bu ok boşa gitsin
@@ -364,7 +364,7 @@ function make(id) {
       }
       // Kapanmaya yakın hedef
       const yakin = sirala(H.filter(n => me.k[n] > 0 && me.k[n] < 3)).sort((x, y) => kalan(x) - kalan(y));
-      if (yakin.length) { const n = yakin[0]; return { tur: 'bilgi', metin: kalan(n) === 1 ? tr('{0} kapanmaya 1 işaret kaldı', ad(n)) : tr('{0} kapanmaya {1} işaret kaldı', ad(n), kalan(n)), ses: ses(sp(n), kalan(n) === 1 ? 'k_1isaret' : 'k_2isaret') }; }
+      if (yakin.length) { const n = yakin[0]; return { tur: 'bilgi', metin: kalan(n) === 1 ? tr('{0} kapanmaya 1 vuruş kaldı', ad(n)) : tr('{0} kapanmaya {1} vuruş kaldı', ad(n), kalan(n)), ses: ses(sp(n), kalan(n) === 1 ? 'k_1isaret' : 'k_2isaret') }; }
       // Kimsenin açmadığı en büyük sayı
       const bos = sirala(H.filter(n => typeof n === 'number' && n !== 25 && g.s.every(s2 => s2.k[n] === 0)));
       if (bos.length) return { tur: 'bilgi', metin: tr('Kimse {0} açmadı: T{0} ile tek okta kapatırsın', bos[0]), ses: ['k_kimse_acmadi', 'n' + bos[0], 'k_onerim', 't' + bos[0]] };
@@ -442,9 +442,9 @@ function make(id) {
       const marks = t.reduce((a, x) => a + (x.marks || 0), 0);
       const nd = t.reduce((a, x) => a + x.darts.length, 0);
       return [
-        ['MPR (tur başı işaret)', nd ? ondalik((marks / nd) * 3, 2) : '–'],
-        ['Toplam işaret', marks],
-        ['Ok', nd],
+        ['MPR (tur başı vuruş)', nd ? ondalik((marks / nd) * 3, 2) : '–'],
+        ['Toplam vuruş', marks],
+        ['Atılan ok', nd],
       ];
     },
   };
@@ -466,9 +466,9 @@ export const crazy = make('crazy');
 // ───────── Cricket antrenmanı (MPR): belirli turda 15–20 ve Bull'a kaç işaret
 export const crpractice = {
   id: 'crpractice', name: 'Kriket Antrenmanı', cat: 'practice',
-  short: '15–20 ve Bull\'a işaret topla, MPR\'ını ölç',
-  rules: `Hedefler 15–20 ve Bull. Kapatma yok: her isabet işaret sayılır (single 1, double 2, triple 3; 25 = 1, Bull = 2).
-Turlar bitince toplam işaretin ve <b>MPR</b>'ın (tur başına işaret) görünür. 3'ün üstü iyi, 5'in üstü çok iyi bir MPR'dır.`,
+  short: '15–20 ve Bull\'a vuruş topla, MPR\'ını ölç',
+  rules: `Hedefler 15–20 ve Bull. Kapatma yok: her isabet vuruş sayılır (single 1, double 2, triple 3; 25 = 1, Bull = 2).
+Turlar bitince toplam vuruşun ve <b>MPR</b>'ın (tur başına vuruş) görünür. 3'ün üstü iyi, 5'in üstü çok iyi bir MPR'dır.`,
   min: 1, max: 8, teams: false,
   options: [{ key: 'rounds', label: 'Tur', type: 'choice', values: [[10, '10'], [15, '15'], [20, '20']], def: 10 }],
   init(m) { return { s: m.sides.map(() => ({ mk: 0 })) }; },
@@ -492,7 +492,7 @@ Turlar bitince toplam işaretin ve <b>MPR</b>'ın (tur başına işaret) görün
   },
   summary(m, pid) {
     const t = m.log.filter(x => x.pid === pid); const mk = t.reduce((a, x) => a + (x.marks || 0), 0); const d = t.reduce((a, x) => a + x.darts.length, 0);
-    return [['MPR (tur başı işaret)', d ? ondalik((mk / d) * 3, 2) : '–'], ['Toplam işaret', mk]];
+    return [['MPR (tur başı vuruş)', d ? ondalik((mk / d) * 3, 2) : '–'], ['Toplam vuruş', mk]];
   },
   score: (m, pid) => m.log.filter(x => x.pid === pid).reduce((a, x) => a + (x.marks || 0), 0),
 };

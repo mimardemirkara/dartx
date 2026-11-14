@@ -336,7 +336,7 @@ export function yanYanaIste(uids, gameId, opts) {
     const satirYazi = { bekle: t('Onay bekleniyor'), kabul: t('Kabul etti'), red: t('Kabul etmedi'), yok: t('Cevap vermedi') };
     const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru yy-pencere';
     const ciz = () => {
-      pd.innerHTML = `<div class="modal glass uy-soru-kart" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${YY_IC}<span>${t('Yan yanayız')}</span></h3>
+      pd.innerHTML = `<div class="modal glass uy-soru-kart" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${YY_IC}<span>${t('Yan Yana Oynuyoruz')}</span></h3>
         <p class="uy-not sol">${t('{0} için onay istendi. Arkadaşın kendi telefonunda kabul edince maç başlar.', `<b>${esc(oyun)}</b>`)}</p>
         <div class="yy-bekle-liste">${uids.map(u => { const pr = durum.profil[u] || {}; const d = st[u].durum; return `<div class="yy-bekle ${d}">${avatar(pr.ad, pr.foto, 'uy-av kucuk')}<span class="yy-bekle-ad">${esc(pr.ad || '')}<small>${satirYazi[d]}</small></span><span class="yy-bekle-ic">${YY_DURUM_IC[d]}</span></div>`; }).join('')}</div>
         <div class="uy-soru-dugmeler"><button type="button" class="btn" data-h="vazgec">${t('Vazgeç')}</button></div></div>`;
