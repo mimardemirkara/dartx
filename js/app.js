@@ -1867,7 +1867,13 @@ app.addEventListener('click', e => {
     case 'nasiloyna': go('nasiloyna', { nasilId: el.dataset.id }); break;
     case 'nsoynat': case 'nsgeri': case 'nsileri': case 'nsadim': case 'nsses': nasilKontrol(el.dataset.act, el); vib(6); break;
     case 'nskural': S.modal = { type: 'rules', id: el.dataset.id }; render(); break;
-    case 'home': go('home'); break;
+    case 'home': {
+      // Demir 14.11: oyundayken üst çubuktaki ana sayfa düğmesi doğrudan çıkmaz; oyun menüsü açılır (Oyuna Dön, Kurallar,
+      // Maça Ara Ver, Maçı İptal Et). Menüdeki "Maça Ara Ver" kutusu da 'home' gönderir: o gerçekten çıkar.
+      const am = data().current;
+      if (S.view === 'play' && am && !am.done && !S.modal && !el.closest('.menu-kutu')) { vib(6); S.modal = { type: 'menu' }; render(); break; }
+      go('home'); break;
+    }
     case 'resume': { E.clearUndo(); go('play'); const cm = data().current; if (cm && !cm.done) siraGoster(cm, 350); break; } // Demir 09.11: ara sonrası sıra kimde, söylensin
     case 'pick': {
       const g = GAMES[el.dataset.id];
