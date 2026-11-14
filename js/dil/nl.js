@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"Spellen",
 "Şimdi":"Zojuist",
 "Temizle":"Wissen",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Nog geen meldingen. Uitnodigingen, verzoeken en wedstrijdnieuws verzamelen zich hier.",
-"{0} yan yana {1} oynamak istedi":"{0} wilde naast elkaar {1} spelen"};
+"{0} yan yana {1} oynamak istedi":"{0} wilde naast elkaar {1} spelen",
+"Kalan ok":"Resterende pijlen",
+"Kriket oyunlarında canlı MPR":"Live MPR in cricketspellen",
+"{0} {1} maçını iptal etti":"{0} heeft de {1}-wedstrijd geannuleerd",
+"Maç {0}. turdaydı.":"De wedstrijd was in ronde {0}.",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Een geannuleerde wedstrijd telt voor niemand mee in de statistieken."};

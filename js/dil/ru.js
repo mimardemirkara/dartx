@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"Игры",
 "Şimdi":"Только что",
 "Temizle":"Очистить",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Уведомлений пока нет. Здесь собираются приглашения, запросы и новости о матчах.",
-"{0} yan yana {1} oynamak istedi":"{0} хотел сыграть в {1} рядом"};
+"{0} yan yana {1} oynamak istedi":"{0} хотел сыграть в {1} рядом",
+"Kalan ok":"Осталось дротиков",
+"Kriket oyunlarında canlı MPR":"MPR в реальном времени в крикете",
+"{0} {1} maçını iptal etti":"{0} отменил матч {1}",
+"Maç {0}. turdaydı.":"Матч был в раунде {0}.",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Отменённый матч не попадает ни в чью статистику."};

@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"游戏",
 "Şimdi":"刚刚",
 "Temizle":"清空",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"暂无通知。邀请、请求和比赛消息会汇集在这里。",
-"{0} yan yana {1} oynamak istedi":"{0} 想和你面对面玩 {1}"};
+"{0} yan yana {1} oynamak istedi":"{0} 想和你面对面玩 {1}",
+"Kalan ok":"剩余飞镖",
+"Kriket oyunlarında canlı MPR":"板球游戏中显示实时 MPR",
+"{0} {1} maçını iptal etti":"{0} 取消了 {1} 比赛",
+"Maç {0}. turdaydı.":"比赛进行到第 {0} 轮。",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"已取消的比赛不会计入任何人的统计。"};

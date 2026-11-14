@@ -16,9 +16,24 @@ import { bildirimEkle, bildirimAc, zilDugme as zilHtml } from './bildirim.js';
 
 let C = null;
 const durum = { arkadaslik: [], maclar: [], profil: {}, dinliyor: null, varlik: {}, varlikDinle: {}, gelenMac: [] };
+let yyIptalKilit = null; // rakip iptal etti, pencere açık: bu maç için eşitleme yapılmaz
+const IPTAL_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>';
 const YY_SURE = 60e3; // yan yana isteğine cevap süresi
 const yyIslenen = new Set(); // bu oturumda maçı alınmış onaylar (bir onay = bir maç)
-const goruldu = new Set();
+// Demir 14.11: "gördüm" bilgisi cihazda kalıcı (hesap başına). Eskiden yalnız bellekteydi; her girişte ve yenilemede
+// sunucuda duran eski kayıtlar (iptal edilen maç, reddedilen davet…) yeniden bildirim olarak geliyordu.
+const goruldu = (() => {
+  let uid = null, set = new Set();
+  const anahtar = () => 'dartx.goruldu.' + uid;
+  const hazir = () => {
+    const u = H.uye().user ? H.uye().user.uid : null;
+    if (u !== uid) { uid = u; try { set = new Set(JSON.parse(localStorage.getItem(anahtar()) || '[]')); } catch (_) { set = new Set(); } }
+  };
+  return {
+    has: k => { hazir(); return set.has(k); },
+    add: k => { hazir(); if (set.has(k)) return; set.add(k); if (!uid) return; const l = [...set].slice(-400); set = new Set(l); try { localStorage.setItem(anahtar(), JSON.stringify(l)); } catch (_) { /* yer yoksa yok say */ } },
+  };
+})();
 const siraGordum = new Map(); // maç id → sıra bende mi (son görülen)
 const araGordum = new Map(); // maç id → rakip ara verdi mi (son görülen)
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -179,13 +194,24 @@ async function dinle() {
         bildir(t('{0} davetini kabul etti', `<b>${esc(ad)}</b>`), { tur: 'tamam', renk: 'iyi', ad, foto: d.fotolar && d.fotolar[karsi] });
         if (C.S.view !== 'play') macaGir(d);
       }
-      // Demir 12.11: rakip maçı iptal etti → uyarı, maç bu telefondan da kalkar
+      // Demir 12.11: rakip maçı iptal etti → maç bu telefondan da kalkar.
+      // Demir 14.11: şerit gelip gidiyordu, maç sessizce kapanıyordu. Artık ayrıntılı pencere çıkar; maç "Tamam"a basınca kapanır.
       if (d.durum === 'iptal' && d.iptalEden !== ben && !goruldu.has('i' + d.id)) {
         goruldu.add('i' + d.id);
-        const cur = data().current;
-        if (cur && cur.online && cur.online.id === d.id) { data().current = null; save(); E.clearUndo(); if (C.S.view === 'play') C.go('home'); }
-        else { const p = (data().ara || []).find(x => x.online && x.online.id === d.id); if (p) araSil(p.id); }
-        bildir(t('{0} maçı iptal etti', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], sure: 4500 });
+        const cur = data().current, ekranda = cur && cur.online && cur.online.id === d.id;
+        const park = ekranda ? null : (data().ara || []).find(x => x.online && x.online.id === d.id);
+        const mac = ekranda ? cur : park;
+        const oyun = oyunAd(d.gameId, d.opts);
+        bildirimEkle(ben, { yazi: t('{0} {1} maçını iptal etti', `<b>${esc(ad)}</b>`, esc(oyun)), tur: 'iptal', renk: 'kotu', ad, hedef: 'online' });
+        const metin = (mac && mac.round ? t('Maç {0}. turdaydı.', mac.round) + ' ' : '') + t('İptal edilen maç kimsenin istatistiğine yazılmaz.');
+        if (ekranda) yyIptalKilit = d.id; // pencere açıkken eşitleme denenmesin
+        C.onayla({ simge: IPTAL_IC, baslik: t('{0} {1} maçını iptal etti', ad, oyun), metin, evet: t('Tamam'), tekDugme: true }).then(() => {
+          const simdi = data().current;
+          if (simdi && simdi.online && simdi.online.id === d.id) { data().current = null; save(); E.clearUndo(); if (C.S.view === 'play') C.go('home'); }
+          else { const p2 = (data().ara || []).find(x => x.online && x.online.id === d.id); if (p2) araSil(p2.id); }
+          yyIptalKilit = null;
+          F.deleteDoc(c.doc.ref).catch(() => {}); // haber alındı: iptal kaydı silinir, bir daha gelmez
+        });
       }
       // Demir 12.11: maç karşı tarafta bitti ama bu telefonda yarım duruyor (ara verilmiş ya da uygulama kapalıydı) → geçmişe taşınır
       if (d.durum === 'bitti' && !goruldu.has('b' + d.id)) {
@@ -211,7 +237,7 @@ async function dinle() {
         }
         araGordum.set(d.id, araK);
       }
-      if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], hedef: 'online' }); }
+      if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); F.deleteDoc(c.doc.ref).catch(() => {}); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], hedef: 'online' }); }
       const m = data().current;
       if (m && m.online && m.online.id === d.id) uygula(d);
       // Demir 12.11: "sıra sende" — maç ekranında değilken rakip atışını bitirdiyse şerit bildirimi
@@ -635,7 +661,7 @@ export const geriAlinabilir = m => { if (!(m && m.online)) return true; const so
 let kuyruk = Promise.resolve();
 /** Yerel değişiklik varsa karşıya gönderir (ekran her yenilendiğinde ve her atıştan sonra çağrılır) */
 export function esitle(m) {
-  if (!(m && m.online)) return;
+  if (!(m && m.online) || m.online.id === yyIptalKilit) return;
   const bekleyen = durum.maclar.find(x => x.id === m.online.id);
   if (bekleyen && (bekleyen.surum || 0) > (m.online.surum || 0)) { uygula(bekleyen); return; }
   if (anahtar(m.adimlar) === m.online.anahtar) return;

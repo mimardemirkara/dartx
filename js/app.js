@@ -363,6 +363,7 @@ const matchCtx = m => ({
       : `<span>${esc(player(pid).name)}</span>`).join('')}</div>`;
   },
   color: i => player(m.sides[i].members[0]).color,
+  mpr: i => canliMpr(m, i),
   active: i => !m.done && i === m.cur,
   legInfo: i => {
     const g = GAMES[m.gameId];
@@ -902,6 +903,19 @@ const ozelResim = adResim;
 const UNVAN = () => '';
 const avatarIc = (ad, yedek) => { if (botMu(ad)) return botAvatar('oz-av'); const r = ozelResim(ad); return r ? `<img class="oz-av" src="${r}" alt="">` : yedek; };
 
+// Atılmamış ok: DartX logosundaki dart (uç solda, kanat sağda)
+const OK_IC = '<svg class="ok-ic" viewBox="0 0 48 16" aria-hidden="true"><path d="M2 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M11 6.2h4.5l1.2-.9h7.6l1.2.9H31v3.6h-5.5l-1.2.9h-7.6l-1.2-.9H11z" fill="currentColor"/><path d="M17.6 6.2v3.6M19.6 6.2v3.6M21.6 6.2v3.6" stroke="rgb(0 0 0 / .35)" stroke-width=".8"/><path d="M31 7.3h7" stroke="currentColor" stroke-width="1.4"/><path d="M37 8 46 1.6l-1.6 6.4L46 14.4z" fill="currentColor" opacity=".9"/></svg>';
+// Kriket oyuncu kartında canlı MPR (Demir 14.11; Ayarlar'dan kapatılabilir): tur başına işaret, biten ellerden
+const canliMpr = (m, i) => {
+  if (data().settings.mprGoster === false) return '';
+  const uye = m.sides[i].members;
+  const el = (m.log || []).filter(x => uye.includes(x.pid));
+  const ok = el.reduce((a, x) => a + (x.darts || []).length, 0);
+  if (!ok) return '';
+  const mk = el.reduce((a, x) => a + (x.marks || 0), 0);
+  return `<span class="cn-mpr" title="${t('MPR (tur başı işaret)')}"><i>MPR</i>${ondalik((mk / ok) * 3, 1)}</span>`;
+};
+
 // Oyun ekranı
 function viewPlay() {
   const m = data().current;
@@ -910,9 +924,16 @@ function viewPlay() {
   const ctx = matchCtx(m);
   const pid = E.currentPid(m);
   const p = player(pid);
+  // Demir 14.11: atılmamış ok kutusunda dart çizimi (kaç ok kaldığı görünsün); atılan ok tuş rengiyle yazılır
+  // (dabıl mavi, tripıl mor, Bull yeşil, D-Bull kırmızı, ıska çelik); yeni atılan ok kısa bir saplanmayla gelir
+  const okAnahtar = (m.adimlar || []).length + ':' + m.turnDarts.length;
+  const yeniOk = m.turnDarts.length && S.okAnim !== okAnahtar ? m.turnDarts.length - 1 : -1;
+  S.okAnim = okAnahtar;
   const slots = [0, 1, 2].slice(0, g.dartsPerTurn || 3).map(i => {
     const d = m.turnDarts[i];
-    return `<span class="slot ${d ? 'f' : ''}">${d ? dartLabel(d) : ''}</span>`;
+    if (!d) return `<span class="slot bos" aria-label="${t('Kalan ok')}">${OK_IC}</span>`;
+    const tur = d.n === 0 ? 'iska' : d.n === 25 ? (d.m === 2 ? 'dbull' : 'bull') : d.m === 3 ? 't' : d.m === 2 ? 'd' : 's';
+    return `<span class="slot f ok-${tur} ${i === yeniOk ? 'yeni' : ''}">${dartLabel(d)}</span>`;
   }).join('');
   const turnPts = m.turnDarts.reduce((a, d) => a + dartValue(d), 0);
   const hint = g.hint ? g.hint(m, m.g) : '';
@@ -1379,6 +1400,7 @@ function viewStats() {
 // Ayarlar
 // Ayarlar (iPhone Ayarlar uygulaması gibi gruplu cam liste). Satır simgeleri lucide-react 1.26.0 — demirkara.com ile aynı set.
 const AY = {
+  mpr: LUCIDE('<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/>', 17), // lucide chart-line
   destek: LUCIDE('<path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/>', 17),
   kalkan: LUCIDE('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>', 17),
   kamera: LUCIDE('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>', 17),
@@ -1558,6 +1580,7 @@ function viewSettings() {
       ${satir(AY.tusSes, t('Tuş sesi'), anahtar('tusSes', s.tusSes !== false))}
       ${satir(AY.oyunSes, t('Oyun sesleri'), anahtar('oyunSes', s.oyunSes !== false))}
       ${satir(AY.ekran, t('Oyunda ekran açık kalsın'), anahtar('keepAwake'))}
+      ${satir(AY.mpr, t('Kriket oyunlarında canlı MPR'), anahtar('mprGoster', s.mprGoster !== false))}
       ${satir(AY.yildiz, t('Açılış efekti'), anahtar('acilis', data().settings.acilis !== false))}
       ${okuma.destekli() ? satir(AY.oyunSes, t('Sesli okuma (atışlar ve bitiriş)'), anahtar('sesliOkuma', s.sesliOkuma === true)) : ''}`)}
     ${kart(AY.indir, t('Yedek'), `

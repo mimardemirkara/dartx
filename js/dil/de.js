@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"Spiele",
 "Şimdi":"Gerade eben",
 "Temizle":"Leeren",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Noch keine Mitteilungen. Einladungen, Anfragen und Spielneuigkeiten sammeln sich hier.",
-"{0} yan yana {1} oynamak istedi":"{0} wollte nebeneinander {1} spielen"};
+"{0} yan yana {1} oynamak istedi":"{0} wollte nebeneinander {1} spielen",
+"Kalan ok":"Verbleibende Darts",
+"Kriket oyunlarında canlı MPR":"Live-MPR in Cricket-Spielen",
+"{0} {1} maçını iptal etti":"{0} hat das Spiel {1} abgebrochen",
+"Maç {0}. turdaydı.":"Das Spiel war in Runde {0}.",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Ein abgebrochenes Spiel zählt in niemandes Statistik."};

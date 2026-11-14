@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"ゲーム",
 "Şimdi":"たった今",
 "Temizle":"クリア",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"まだ通知はありません。招待、リクエスト、マッチのお知らせがここに届きます。",
-"{0} yan yana {1} oynamak istedi":"{0} さんが対面で {1} をプレイしたいそうです"};
+"{0} yan yana {1} oynamak istedi":"{0} さんが対面で {1} をプレイしたいそうです",
+"Kalan ok":"残りのダーツ",
+"Kriket oyunlarında canlı MPR":"クリケットでリアルタイム MPR を表示",
+"{0} {1} maçını iptal etti":"{0} さんが {1} のマッチをキャンセルしました",
+"Maç {0}. turdaydı.":"マッチは {0} ラウンド目でした。",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"キャンセルされたマッチは誰の統計にも記録されません。"};

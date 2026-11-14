@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"Juegos",
 "Şimdi":"Ahora",
 "Temizle":"Borrar",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"Aún no hay notificaciones. Aquí se reúnen invitaciones, solicitudes y novedades de partidas.",
-"{0} yan yana {1} oynamak istedi":"{0} quiso jugar {1} lado a lado"};
+"{0} yan yana {1} oynamak istedi":"{0} quiso jugar {1} lado a lado",
+"Kalan ok":"Dardos restantes",
+"Kriket oyunlarında canlı MPR":"MPR en vivo en juegos de cricket",
+"{0} {1} maçını iptal etti":"{0} canceló la partida de {1}",
+"Maç {0}. turdaydı.":"La partida iba por la ronda {0}.",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"Una partida cancelada no se añade a las estadísticas de nadie."};

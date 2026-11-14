@@ -233,4 +233,9 @@ const EN = {
   "Temizle": "Clear",
   "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.": "No notifications yet. Invites, requests and match news collect here.",
   "{0} yan yana {1} oynamak istedi": "{0} asked to play {1} side by side",
+  "Kalan ok": "Darts left",
+  "Kriket oyunlarında canlı MPR": "Live MPR in cricket games",
+  "{0} {1} maçını iptal etti": "{0} cancelled the {1} match",
+  "Maç {0}. turdaydı.": "The match was in round {0}.",
+  "İptal edilen maç kimsenin istatistiğine yazılmaz.": "A cancelled match is not added to anyone's stats.",
 };

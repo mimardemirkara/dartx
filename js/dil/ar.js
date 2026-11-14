@@ -1071,4 +1071,9 @@ export default {"Oyunlar":"الألعاب",
 "Şimdi":"الآن",
 "Temizle":"مسح",
 "Henüz bildirim yok. Davetler, istekler ve maç haberleri burada birikir.":"لا توجد إشعارات بعد. تتجمع هنا الدعوات والطلبات وأخبار المباريات.",
-"{0} yan yana {1} oynamak istedi":"{0} أراد أن يلعب {1} جنبًا إلى جنب"};
+"{0} yan yana {1} oynamak istedi":"{0} أراد أن يلعب {1} جنبًا إلى جنب",
+"Kalan ok":"السهام المتبقية",
+"Kriket oyunlarında canlı MPR":"MPR مباشر في ألعاب الكريكت",
+"{0} {1} maçını iptal etti":"ألغى {0} مباراة {1}",
+"Maç {0}. turdaydı.":"كانت المباراة في الجولة {0}.",
+"İptal edilen maç kimsenin istatistiğine yazılmaz.":"المباراة الملغاة لا تُضاف إلى إحصائيات أحد."};
