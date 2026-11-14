@@ -2,6 +2,14 @@
 # DartX web yayınını günceller: ../DartX'teki dosyaları kopyalar, commit + push (GitHub Pages)
 set -e
 Y="$(cd "$(dirname "$0")" && pwd)"; K="$Y/../DartX"
+# Demir 14.11: Firestore kuralları değiştiyse ÖNCE onlar yayınlanır (firebase-tools; bu bilgisayarda bir kez "firebase login" yapıldı).
+# Son yayınlanan kuralın özeti firebase/.kural-yayin dosyasında; aynıysa atlanır. Yayın başarısızsa uygulama da gönderilmez.
+KURAL="$K/firebase/firestore.rules"; OZET=$(sha256sum "$KURAL" | cut -d" " -f1)
+if [ "$OZET" != "$(cat "$K/firebase/.kural-yayin" 2>/dev/null)" ]; then
+  echo "Firestore kuralları yayınlanıyor…"
+  (cd "$K/firebase" && npx --yes firebase-tools deploy --only firestore:rules --project dartx-1b030)
+  echo "$OZET" > "$K/firebase/.kural-yayin"
+fi
 # Demir 10.11: her yayında derleme numarası 1 artar (uygulamada "1.1 Beta · Derleme N"), sw.js sürümü de ona uyar
 N=$(( $(grep -o '[0-9]\+' "$K/js/derleme.js" | tail -1) + 1 ))
 sed -i "s/export const DERLEME = [0-9]*;/export const DERLEME = $N;/" "$K/js/derleme.js"
