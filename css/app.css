@@ -4101,7 +4101,20 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .dx-bildirim.kotu .dxb-ic { color: #ff7b6b; background: rgba(255,107,107,.14); box-shadow: inset 0 0 0 1px rgba(255,107,107,.35); }
 .dx-bildirim .dxb-yazi { flex: 1 1 auto; min-width: 0; font-weight: 600; }
 .dx-bildirim .dxb-yazi b { font-weight: 800; }
-.dx-bildirim { touch-action: none; } /* yukarı kaydırınca kapanır (Demir 15.11) */
+.dx-bildirim { touch-action: none; }
+/* Online maçta rakibin durumu (Demir 15.11) */
+.play-top h1 .pt-rakip { display: inline-flex; align-items: center; gap: 6px; max-width: 46vw; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; color: var(--fg); background: color-mix(in srgb, var(--fg) 8%, transparent); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); white-space: nowrap; overflow: hidden; }
+.pt-rakip b { font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+.pt-rakip span { color: var(--mut); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.pt-rakip .pr-nokta { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #6b6f78; }
+.pt-rakip.acik .pr-nokta { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,.7); }
+.pt-rakip.ara .pr-nokta { background: #e3b866; box-shadow: 0 0 8px rgba(227,184,102,.7); animation: icNabiz 1.4s ease-in-out infinite; }
+.pt-rakip.kapali { border-color: rgb(233 75 60 / .35); }
+@media (max-width: 699px) { .play-top h1 .pt-rakip span { display: none; } .play-top h1 .pt-rakip { max-width: 30vw; } }
+.sessiz-dugmeler { display: grid; gap: 8px; }
+.sessiz-dugmeler .btn { min-height: 46px; }
+.sessiz-dugmeler .tehlike-btn { color: #ff8a80; border-color: rgb(233 75 60 / .45); }
+:root[data-tema="acik"] .sessiz-dugmeler .tehlike-btn { color: #a3291b; } /* yukarı kaydırınca kapanır (Demir 15.11) */
 @keyframes dxb-nabiz { 0% { transform: scale(.7); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
 :root[data-tema="acik"] .dx-bildirim { background: linear-gradient(180deg, rgba(255,250,240,.96), rgba(246,234,214,.96)); border-color: rgba(138,100,24,.35); box-shadow: 0 14px 30px rgba(90,60,20,.25), inset 0 1px 0 #fff; }
 :root[data-tema="acik"] .dx-bildirim .dxb-ic { color: #8a6418; }

@@ -1095,4 +1095,12 @@ export default {"Yan Yana Oynuyoruz":"Jugamos lado a lado",
 "Adın aynı, bu sen misin?":"Mismo nombre que el tuyo, ¿eres tú?",
 "Bu cihazdaki oyuncular":"Jugadores en este dispositivo",
 "Arkadaşların":"Tus amigos",
-"Adı ve fotoğrafı kendi hesabından gelir":"El nombre y la foto vienen de su propia cuenta"};
+"Adı ve fotoğrafı kendi hesabından gelir":"El nombre y la foto vienen de su propia cuenta",
+"{0} çevrimdışı oldu":"{0} se desconectó",
+"Ara verdi":"En pausa",
+"{0} {1} dakikadır atmadı":"{0} lleva {1} minutos sin lanzar",
+"Şu an: {0}":"Ahora: {0}",
+"Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"Puedes seguir esperando, pausar la partida y volver más tarde, o cancelarla. Una partida cancelada no se añade a las estadísticas de nadie.",
+"Beklemeye devam":"Seguir esperando",
+"Maça ara ver":"Pausar la partida",
+"Maç iptal edildi":"Partida cancelada"};

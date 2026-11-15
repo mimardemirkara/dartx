@@ -1095,4 +1095,12 @@ export default {"Yan Yana Oynuyoruz":"面对面对战",
 "Adın aynı, bu sen misin?":"与你同名，这是你吗？",
 "Bu cihazdaki oyuncular":"本设备上的玩家",
 "Arkadaşların":"你的好友",
-"Adı ve fotoğrafı kendi hesabından gelir":"名字和照片来自对方的账户"};
+"Adı ve fotoğrafı kendi hesabından gelir":"名字和照片来自对方的账户",
+"{0} çevrimdışı oldu":"{0} 已离线",
+"Ara verdi":"暂停中",
+"{0} {1} dakikadır atmadı":"{0} 已经 {1} 分钟没有投掷",
+"Şu an: {0}":"当前：{0}",
+"Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"你可以继续等待、暂停比赛稍后再回来，或取消比赛。已取消的比赛不会计入任何人的统计。",
+"Beklemeye devam":"继续等待",
+"Maça ara ver":"暂停比赛",
+"Maç iptal edildi":"比赛已取消"};

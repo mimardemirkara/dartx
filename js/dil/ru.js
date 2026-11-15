@@ -1095,4 +1095,12 @@ export default {"Yan Yana Oynuyoruz":"Играем рядом",
 "Adın aynı, bu sen misin?":"Имя совпадает с вашим — это вы?",
 "Bu cihazdaki oyuncular":"Игроки на этом устройстве",
 "Arkadaşların":"Ваши друзья",
-"Adı ve fotoğrafı kendi hesabından gelir":"Имя и фото берутся из его аккаунта"};
+"Adı ve fotoğrafı kendi hesabından gelir":"Имя и фото берутся из его аккаунта",
+"{0} çevrimdışı oldu":"{0} вышел из сети",
+"Ara verdi":"На паузе",
+"{0} {1} dakikadır atmadı":"{0} не бросает уже {1} мин",
+"Şu an: {0}":"Сейчас: {0}",
+"Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"Можно подождать, поставить матч на паузу и вернуться позже или отменить его. Отменённый матч не попадает ни в чью статистику.",
+"Beklemeye devam":"Ждать дальше",
+"Maça ara ver":"Пауза",
+"Maç iptal edildi":"Матч отменён"};

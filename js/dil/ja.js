@@ -1095,4 +1095,12 @@ export default {"Yan Yana Oynuyoruz":"対面でプレイ",
 "Adın aynı, bu sen misin?":"同じ名前です。これはあなたですか？",
 "Bu cihazdaki oyuncular":"この端末のプレイヤー",
 "Arkadaşların":"フレンド",
-"Adı ve fotoğrafı kendi hesabından gelir":"名前と写真は相手のアカウントから表示されます"};
+"Adı ve fotoğrafı kendi hesabından gelir":"名前と写真は相手のアカウントから表示されます",
+"{0} çevrimdışı oldu":"{0} さんがオフラインになりました",
+"Ara verdi":"休憩中",
+"{0} {1} dakikadır atmadı":"{0} さんが {1} 分間投げていません",
+"Şu an: {0}":"現在：{0}",
+"Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"待ち続けるか、マッチを中断して後で戻るか、キャンセルできます。キャンセルしたマッチは誰の統計にも記録されません。",
+"Beklemeye devam":"待ち続ける",
+"Maça ara ver":"マッチを中断",
+"Maç iptal edildi":"マッチをキャンセルしました"};

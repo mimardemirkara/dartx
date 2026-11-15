@@ -29,7 +29,7 @@ import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu, bulutMacSil }
 import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ekranSonra, girisEkrani, eylemBaslat, viewEylem } from './uyelik/ekran.js';
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
-import { zilDugme, kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
+import { zilDugme, rakipDurumHtml, kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
 import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal, rovans as onlineRovans } from './uyelik/online.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
@@ -967,7 +967,7 @@ function viewPlay() {
   return `<div class="play ${g.cat === 'cricket' ? 'kriket' : ''} ${tabloYaz ? 'tablo-yaz' : ''} ${botSirasi(m) ? 'bot-sirasi' : ''} ${onlineKilitli(m) ? 'bot-sirasi rakip-sirasi' : ''}">
     <header class="top play-top">
       <button class="icon-btn" data-act="menu">☰</button>
-      <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small></h1>
+      <h1><span class="pt-ad"><span class="app-ico simge pt-ic">${ikon(g.id)}</span>${esc(gt(g, 'name'))}</span><small class="pt-tur"><span class="pt-seg"><i>${t('Tur')}</i><b>${m.round}</b></span>${legTxt}</small>${rakipDurumHtml(m)}</h1>
       ${kamDugme(useTotal)}
       ${okuma.destekli() ? `<button class="icon-btn pt-ses ${okuma.acikMi() ? 'acik' : ''}" data-sv="${okuma.seviye()}" data-act="sesliokuma" aria-label="${t('Sesli Okuma')}" title="${t('Sesli Okuma')}: ${okuma.acikMi() ? t('Açık') : t('Kapalı')}">${okuma.acikMi() ? OKUMA_IC : OKUMA_KAPALI_IC}</button>` : ''}
       <button class="geri-al" data-act="undo" ${E.canUndo(m) ? '' : 'disabled'} title="${t('Son oku geri al')}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg><span>${t('Atışı Geri Al')}</span></button>
@@ -2365,7 +2365,7 @@ app.addEventListener('submit', e => {
   }
   if (act === 'addp') {
     if (!name) return;
-    if (data().players.some(p => p.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'))) { toast(t('Bu isim zaten var'), 'bad'); return; }
+    if (data().players.some(p => !p.uid && p.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'))) { /* Demir 15.11: hesaplı arkadaş adı yerel adı engellemez */ toast(t('Bu isim zaten var'), 'bad'); return; }
     const p = store.addPlayer(name);
     if (S.view === 'setup') S.setup.pids.push(p.id);
     render();
@@ -2373,7 +2373,7 @@ app.addEventListener('submit', e => {
     if (inp) inp.focus();
   } else if (act === 'psave') {
     if (!name) return;
-    if (data().players.some(p => p.id !== f.dataset.id && p.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'))) { toast(t('Bu isim zaten var'), 'bad'); return; }
+    if (data().players.some(p => p.id !== f.dataset.id && !p.uid && p.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'))) { toast(t('Bu isim zaten var'), 'bad'); return; }
     store.updatePlayer(f.dataset.id, { name, color: f.elements.color.value });
     S.modal = null;
     render();

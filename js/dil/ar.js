@@ -1095,4 +1095,12 @@ export default {"Yan Yana Oynuyoruz":"نلعب جنبًا إلى جنب",
 "Adın aynı, bu sen misin?":"الاسم مطابق لاسمك، هل هذا أنت؟",
 "Bu cihazdaki oyuncular":"اللاعبون على هذا الجهاز",
 "Arkadaşların":"أصدقاؤك",
-"Adı ve fotoğrafı kendi hesabından gelir":"الاسم والصورة من حسابه الخاص"};
+"Adı ve fotoğrafı kendi hesabından gelir":"الاسم والصورة من حسابه الخاص",
+"{0} çevrimdışı oldu":"أصبح {0} غير متصل",
+"Ara verdi":"في استراحة",
+"{0} {1} dakikadır atmadı":"لم يرمِ {0} منذ {1} دقيقة",
+"Şu an: {0}":"الآن: {0}",
+"Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"يمكنك مواصلة الانتظار أو إيقاف المباراة مؤقتًا والعودة لاحقًا أو إلغاؤها. المباراة الملغاة لا تُضاف إلى إحصائيات أحد.",
+"Beklemeye devam":"مواصلة الانتظار",
+"Maça ara ver":"إيقاف المباراة مؤقتًا",
+"Maç iptal edildi":"أُلغيت المباراة"};

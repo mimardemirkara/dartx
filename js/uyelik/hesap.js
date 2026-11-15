@@ -321,7 +321,7 @@ async function genelYaz(alan) {
 export async function yedekGonder() {
   const { db, F } = await fb(); const u = durum.user; if (!u) return 0;
   const d = data();
-  const ana = { players: d.players, silinen: d.silinen || [], silinenMaclar: (d.silinenMaclar || []).slice(-500), settings: { ...d.settings, uyeOturum: undefined }, guncel: F.serverTimestamp() };
+  const ana = { players: d.players, silinen: d.silinen || [], silinenMaclar: (d.silinenMaclar || []).slice(-500), silinenOyuncular: (d.silinenOyuncular || []).slice(-1000), settings: { ...d.settings, uyeOturum: undefined }, guncel: F.serverTimestamp() };
   delete ana.settings.uyeOturum;
   await F.setDoc(F.doc(db, 'users', u.uid, 'yedek', 'ana'), JSON.parse(JSON.stringify(ana)));
   const gonderilen = new Set(d.bulutMaclar || []);

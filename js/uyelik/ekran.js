@@ -135,11 +135,13 @@ export function hesapTekille() {
   return degisti;
 }
 /** Buluttaki yedeği bu cihazdakiyle birleştirir (aynı maç iki kez eklenmez; silinenler geri gelmez). Eklenen maç sayısını döner */
-function bulutBirlestir(y) {
+export function bulutBirlestir(y) {
   const d = data();
   const silMac = new Set([...(d.silinenMaclar || []), ...((y.ana && y.ana.silinenMaclar) || [])]);
   d.silinenMaclar = [...silMac].slice(-500);
-  const silOy = new Set((d.silinen || []).map(p => p.id));
+  // silinen oyuncular: arşiv + bu cihazda ve öteki cihazda silinen kimlikler (aynı adlı iki oyuncuda biri silinince öteki geri gelmesin)
+  const silOy = new Set([...(d.silinen || []).map(p => p.id), ...(d.silinenOyuncular || []), ...((y.ana && y.ana.silinenOyuncular) || [])]);
+  d.silinenOyuncular = [...new Set([...(d.silinenOyuncular || []), ...((y.ana && y.ana.silinenOyuncular) || [])])].slice(-1000);
   const ids = new Set(d.players.map(p => p.id));
   // Demir 15.11: buluttan gelen oyuncu bir hesaba bağlıysa (arkadaş ya da sen) ve bu cihazda o hesabın oyuncusu varsa yenisi
   // eklenmez; o oyuncunun maçları buradaki oyuncuya yazılır (iki Tuncay olmasın)

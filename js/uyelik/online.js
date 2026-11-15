@@ -112,6 +112,7 @@ export function onlineKur(ctx) {
   H.dinle(() => { if (acik()) dinle(); else birak(); });
   window.addEventListener('online', () => { macPaylas(); }); // internet gelince bekleyen yan yana maçlar gönderilir
   window.addEventListener('dartx-mac-bitti', () => { macPaylas(); }); // Yan yanayız: biten maç arkadaşa da gider
+  setInterval(sessizlikBak, 30e3); // Demir 15.11: rakip uzun süre atmazsa sorulur
   const app = document.getElementById('app');
   app.addEventListener('click', e => { const el = e.target.closest('[data-act^="on-"]'); if (!el || el.disabled || el.tagName === 'FORM' || el.tagName === 'INPUT') return; C.vib && C.vib(6); onlineTikla(el.dataset.act, el); });
   app.addEventListener('submit', e => { const f = e.target; if (f.dataset.act === 'on-ekle') { e.preventDefault(); onlineGonder(f); } });
@@ -161,6 +162,8 @@ async function varlikIzle(arkadaslar) {
       durum.varlik[u] = s.exists() ? s.data() : null;
       const simdi = varlikDurum(u).tur;
       // Demir 12.11: arkadaş çevrimdışıyken çevrimiçi olduysa şerit bildirimi (ilk yüklemede değil)
+      if (!ilk && once !== 'kapali' && simdi === 'kapali' && macRakibi() === u && C.S.view === 'play') profilAl(u).then(p => bildir(t('{0} çevrimdışı oldu', `<b>${esc(p.ad || '')}</b>`), { tekrar: true, tur: 'iptal', renk: 'kotu', ad: p.ad, foto: p.foto, kaydet: false, sure: 4500 }));
+      rakipCipTazele();
       if (!ilk && once === 'kapali' && simdi !== 'kapali') profilAl(u).then(p => bildir(t('{0} çevrimiçi oldu', `<b>${esc(p.ad || '')}</b>`), { tur: 'acik', renk: 'iyi', ad: p.ad, foto: p.foto, hedef: 'online', kaydet: false }));
       tazele();
     }, () => {});
@@ -252,13 +255,13 @@ async function dinle() {
       if (d.durum === 'oyunda') {
         const araK = !!(d.ara && d.ara[karsi]), once = araGordum.get(d.id);
         if (once !== undefined && once !== araK) {
-          bildir(araK ? t('{0} maça ara verdi', `<b>${esc(ad)}</b>`) : t('{0} maça döndü', `<b>${esc(ad)}</b>`), { tur: araK ? 'ara' : 'don', renk: araK ? 'kotu' : 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: araK ? null : () => macaGir(d), hedef: 'online' });
+          bildir(araK ? t('{0} maça ara verdi', `<b>${esc(ad)}</b>`) : t('{0} maça döndü', `<b>${esc(ad)}</b>`), { tekrar: true, tur: araK ? 'ara' : 'don', renk: araK ? 'kotu' : 'iyi', ad, foto: d.fotolar && d.fotolar[karsi], git: araK ? null : () => macaGir(d), hedef: 'online' });
         }
         araGordum.set(d.id, araK);
       }
       if (d.durum === 'red' && d.davetEden === ben && !goruldu.has('r' + d.id)) { goruldu.add('r' + d.id); F.deleteDoc(c.doc.ref).catch(() => {}); bildir(t('{0} daveti kabul etmedi', `<b>${esc(ad)}</b>`), { tur: 'iptal', renk: 'kotu', ad, foto: d.fotolar && d.fotolar[karsi], hedef: 'online' }); }
       const m = data().current;
-      if (m && m.online && m.online.id === d.id) uygula(d);
+      if (m && m.online && m.online.id === d.id) { uygula(d); rakipCipTazele(); }
       // Demir 12.11: "sıra sende" — maç ekranında değilken rakip atışını bitirdiyse şerit bildirimi
       if (d.durum === 'oyunda') {
         try {
@@ -689,7 +692,7 @@ export function esitle(m) {
   const bekleyen = durum.maclar.find(x => x.id === m.online.id);
   if (bekleyen && (bekleyen.surum || 0) > (m.online.surum || 0)) { uygula(bekleyen); return; }
   if (anahtar(m.adimlar) === m.online.anahtar) return;
-  m.online.anahtar = anahtar(m.adimlar);
+  m.online.anahtar = anahtar(m.adimlar); m.online.sonHamle = Date.now();
   kuyruk = kuyruk.then(async () => {
     const { db, F } = await bulut(); const ref = F.doc(db, 'online', m.online.id);
     const sur = m.online.surum || 0; const adimlar = uzagaCevir(m.adimlar, m.online.harita);
@@ -707,7 +710,7 @@ function uygula(d) {
   const m = data().current; if (!(m && m.online && m.online.id === d.id)) return;
   if ((d.surum || 0) <= (m.online.surum || 0)) return;
   const uzak = yereleCevir(d.adimlar, m.online.harita);
-  m.online.surum = d.surum || 0;
+  m.online.surum = d.surum || 0; m.online.sonHamle = Date.now(); m.online.sordu = 0;
   const sade = a => anahtar(a);
   if (sade(uzak) === sade(m.adimlar)) { m.online.anahtar = sade(m.adimlar); setCurrent(m); return; }
   if (uzak.length === m.adimlar.length + 1 && sade(uzak.slice(0, -1)) === sade(m.adimlar)) {
@@ -913,5 +916,48 @@ export async function onlineGonder(f) {
 const HATA = { 'kod-gecersiz': 'Kod DX- ile başlayan 4 harf/rakam olmalı', 'kod-yok': 'Bu kodla bir üye bulunamadı', 'kod-senin': 'Bu senin kendi kodun',
   'zaten-arkadas': 'Zaten arkadaşsınız', 'istek-var': 'İsteğin zaten gönderildi' };
 const hata = e => (HATA[e && e.code] ? t(HATA[e.code]) : H.hataMetni(e));
+
+// ---- Online maçta rakibin durumu (Demir 15.11): maç ekranında çip; uzun sessizlikte soru
+const SESSIZ_SURE = 10 * 60e3;
+const SAAT_IC = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
+function macRakibi() { const m = data().current; if (!(m && m.online && !m.done)) return null; const ben = benUid(); return Object.keys(m.online.harita || {}).find(u => u !== ben) || null; }
+function rakipHal(m) {
+  const u = Object.keys(m.online.harita || {}).find(x => x !== benUid()); if (!u) return null;
+  const d = durum.maclar.find(x => x.id === m.online.id);
+  const yerelAd = (data().players.find(p => p.id === (m.online.harita || {})[u]) || {}).name;
+  const ad = (d && d.adlar && d.adlar[u]) || (durum.profil[u] || {}).ad || yerelAd || '';
+  if (d && d.ara && d.ara[u]) return { u, ad, tur: 'ara', yazi: t('Ara verdi') };
+  const vd = varlikDurum(u); return { u, ad, tur: vd.tur === 'kapali' ? 'kapali' : 'acik', yazi: vd.tur === 'kapali' ? vd.yazi : t('Çevrimiçi') };
+}
+/** Maç ekranında rakibin durumu: yeşil çevrimiçi, gri çevrimdışı, sarı ara verdi */
+export function rakipDurumHtml(m) {
+  if (!(m && m.online) || m.done) return '';
+  const h = rakipHal(m); if (!h) return '';
+  return `<small class="pt-rakip ${h.tur}" title="${esc(h.ad)} · ${esc(h.yazi)}"><i class="pr-nokta"></i><b>${esc(h.ad)}</b><span>${esc(h.yazi)}</span></small>`;
+}
+function rakipCipTazele() { const el = document.querySelector('.pt-rakip'); const m = data().current; if (el && m && m.online) { const yeni = rakipDurumHtml(m); if (yeni) el.outerHTML = yeni; } }
+function sessizlikBak() {
+  const m = data().current;
+  if (!(m && m.online) || m.done || C.S.view !== 'play' || !kilitli(m)) return;
+  if (document.querySelector('.modal-bg, #dx-onay, .sessiz-pencere') || C.S.modal) return;
+  const simdi = Date.now();
+  if (!m.online.sonHamle) { m.online.sonHamle = simdi; return; }
+  if (simdi - m.online.sonHamle < SESSIZ_SURE) return;
+  if (m.online.sordu && simdi - m.online.sordu < SESSIZ_SURE) return;
+  m.online.sordu = simdi;
+  const h = rakipHal(m) || { ad: '', yazi: '' }; const dk = Math.round((simdi - m.online.sonHamle) / 60e3);
+  const pd = document.createElement('div'); pd.className = 'modal-bg uy-soru yy-pencere sessiz-pencere';
+  pd.innerHTML = `<div class="modal glass uy-soru-kart" role="dialog" aria-modal="true"><h3 class="uy-soru-bas">${SAAT_IC}<span>${t('{0} {1} dakikadır atmadı', esc(h.ad), dk)}</span></h3>
+    <p class="uy-not">${t('Şu an: {0}', `<b>${esc(h.yazi)}</b>`)}. ${t('Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.')}</p>
+    <div class="sessiz-dugmeler"><button type="button" class="btn primary" data-h="bekle">${t('Beklemeye devam')}</button><button type="button" class="btn" data-h="ara">${t('Maça ara ver')}</button><button type="button" class="btn tehlike-btn" data-h="iptal">${t('Maçı iptal et')}</button></div></div>`;
+  document.body.appendChild(pd); if (C.vib) C.vib(25);
+  const kapat = () => { pd.classList.add('kapan'); setTimeout(() => pd.remove(), 200); };
+  pd.addEventListener('click', async e => {
+    const b = e.target.closest('[data-h]'); if (!b) return; kapat();
+    const cur = data().current; if (!(cur && cur.online && cur.online.id === m.online.id)) return;
+    if (b.dataset.h === 'ara') { C.go('home'); return; } // ana sayfaya çıkınca rakibe "ara verdi" gider
+    if (b.dataset.h === 'iptal') { await onlineIptal(cur); data().current = null; save(); E.clearUndo(); C.go('home'); C.toast(t('Maç iptal edildi'), 'ok', { tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } }); }
+  });
+}
 
 export { bildir }; // şerit bildirimi (başka modüller de kullanabilir)

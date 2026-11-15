@@ -254,4 +254,12 @@ const EN = {
   "Bu cihazdaki oyuncular": "Players on this device",
   "Arkadaşların": "Your friends",
   "Adı ve fotoğrafı kendi hesabından gelir": "Name and photo come from their own account",
+  "{0} çevrimdışı oldu": "{0} went offline",
+  "Ara verdi": "On a break",
+  "{0} {1} dakikadır atmadı": "{0} hasn’t thrown for {1} minutes",
+  "Şu an: {0}": "Right now: {0}",
+  "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.": "You can keep waiting, pause the match and come back later, or cancel it. A cancelled match is not added to anyone’s stats.",
+  "Beklemeye devam": "Keep waiting",
+  "Maça ara ver": "Pause the match",
+  "Maç iptal edildi": "Match cancelled",
 };

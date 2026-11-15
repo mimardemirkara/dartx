@@ -84,6 +84,7 @@ export function addPlayer(name) {
   const arsiv = (db.silinen || []).find(p => adAnahtar(p.name) === adAnahtar(name));
   if (arsiv) {
     db.silinen = db.silinen.filter(p => p !== arsiv);
+    db.silinenOyuncular = (db.silinenOyuncular || []).filter(x => x !== arsiv.id);
     const geri = { ...arsiv, name: name.trim(), color: used.has(arsiv.color) ? (COLORS.find(c => !used.has(c)) || arsiv.color) : arsiv.color };
     delete geri.silindi;
     db.players.push(geri); save(); return geri;
@@ -107,6 +108,8 @@ export function updatePlayer(id, patch) {
 export function removePlayer(id) {
   const p = db.players.find(x => x.id === id);
   if (p) { db.silinen = (db.silinen || []).filter(x => x.id !== id && adAnahtar(x.name) !== adAnahtar(p.name)); db.silinen.push({ ...p, silindi: Date.now() }); }
+  // Demir 15.11: silinen her oyuncunun kimliği ayrıca tutulur (adla değil); eşitleme silinen oyuncuyu buluttan geri getirmesin
+  db.silinenOyuncular = [...new Set([...(db.silinenOyuncular || []), id])].slice(-1000);
   db.players = db.players.filter(p => p.id !== id);
   save();
 }
