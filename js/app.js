@@ -25,7 +25,7 @@ import { hesapKur, hesapKapat, kenarlar } from './hesap.js';
 import { acilirAc, acilirKapat, acilirAcik, dokunmatik } from './acilir.js';
 import * as ses from './ses.js';
 import { hataKur, hataKaydet, hataSayisi, raporMetni } from './hata.js';
-import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu } from './uyelik/hesap.js';
+import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu, bulutMacSil } from './uyelik/hesap.js';
 import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ekranSonra, girisEkrani, eylemBaslat, viewEylem } from './uyelik/ekran.js';
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
@@ -741,15 +741,18 @@ function viewSetup() {
 
   const all = data().players;
   st.pids = st.pids.filter(id => all.some(p => p.id === id)); // silinmiş oyuncu sırada kalmasın
+  // Demir 15.11: giriş yapan üye kendini her seferinde seçmesin — kendi oyuncusu hep sırada (ilk sırada eklenir, çıkarılamaz)
+  const benId = benimOyuncum();
+  if (benId && !st.pids.includes(benId)) st.pids.unshift(benId);
   // Oynama sırası (Demir 08.11): seçilenler alt alta, tutamaktan sürükleyerek yer değiştirir; ✕ sıradan çıkarır
   const takimModu = g.teams && st.teams && st.pids.length >= 4;
   if (takimModu) takimlar(st);
   const sira = st.pids.map((id, i) => { const p = player(id); return `
     <div class="pchip on sira-satir" style="--pc:${p.color}" data-sira="${id}">
       <span class="sira-tut" aria-label="${t('Sürükle')}">${TUTAMAK}</span>
-      <span class="pc-av">${avatarIc(p.name, i + 1)}</span><span class="pc-ad">${esc(p.name)}</span>
+      <span class="pc-av">${avatarIc(p.name, i + 1)}</span><span class="pc-ad">${esc(p.name)}${id === benId ? `<small class="pc-sen">${t('Sen')}</small>` : ''}</span>
       ${takimModu ? `<button class="takim-rozet t-${st.takim[id].toLowerCase()}" data-act="takim" data-id="${id}" aria-label="${t('Takım ' + st.takim[id])}">${KALKAN(st.takim[id])}</button>` : ''}
-      <button class="sira-cik" data-act="togglep" data-id="${id}" aria-label="${t('Sıradan çıkar')}">${CARPI}</button>
+      ${id === benId ? '' : `<button class="sira-cik" data-act="togglep" data-id="${id}" aria-label="${t('Sıradan çıkar')}">${CARPI}</button>`}
     </div>`; }).join('');
   const bekleyen = all.filter(p => !st.pids.includes(p.id));
   // Seçilmemişler de alt alta (Demir 08.11): dokununca sıranın sonuna eklenir
@@ -806,6 +809,18 @@ function viewSetup() {
   </main>`;
 }
 
+// Oyuncular sayfası grup başlığı simgeleri (lucide: user, smartphone, users)
+const OY_IC = {
+  sen: LUCIDE('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 18),
+  cihaz: LUCIDE('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>', 18),
+  ark: LUCIDE('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>', 18),
+};
+// Giriş yapmış üyenin bu cihazdaki kendi oyuncusu (yoksa null)
+function benimOyuncum() {
+  const u = hesapUye(); if (!u.user || !hesapDogrulandi() || !u.profil) return null;
+  const id = u.profil.oyuncuId; if (id && data().players.some(p => p.id === id && !p.silindi)) return id;
+  const o = data().players.find(p => p.uid === u.user.uid && !p.silindi); return o ? o.id : null;
+}
 // Takımlar (Demir 08.11): her oyuncunun takımı st.takim'de; atanmamışlar sırayla A, B, A, B… dağıtılır.
 // Takım içindeki atış sırası listedeki sıradır; oyuncunun kalkanına dokununca takımı değişir.
 // Demir 09.11: kendiliğinden dağılım her zaman sıraya göre eşit (1. A, 2. B, 3. A, 4. B…); eski maçın dağılımı geri
@@ -1318,22 +1333,39 @@ const COP = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke=
 function viewPlayers() {
   // Demir 08.11: üstte arama — yazdıkça liste süzülür (ekran yeniden çizilmez, klavye kapanmaz)
   const q = (S.oyuncuAra || '').trim().toLocaleLowerCase('tr');
-  const list = data().players.map(p => `
-    <div class="prow" style="--pc:${p.color}" data-sira="${p.id}" data-ad="${esc(p.name.toLocaleLowerCase('tr'))}" ${q && !p.name.toLocaleLowerCase('tr').includes(q) ? 'hidden' : ''}>
-      <span class="prow-tut" aria-label="${t('Sürükle')}" title="${t('Sürükle')}">${TUTAMAK}</span>
-      ${botMu(p.name) ? botAvatar('bot-prow') : ozelResim(p.name) ? `<img class="oz-av prow-av" src="${ozelResim(p.name)}" alt="">` : '<span class="dot"></span>'}<b>${esc(p.name)}${UNVAN(p.name)}</b>
+  // Demir 15.11: üç ayrı grup — Sen (giriş yapan üyenin oyuncusu), Bu cihazdaki oyuncular (yerel + DartBot),
+  // Arkadaşların (hesaba bağlı; adı ve fotoğrafı onun hesabından gelir, düzenlenmez/silinmez)
+  const benId = benimOyuncum(), benUid = hesapUye().user ? hesapUye().user.uid : null;
+  const acik = Object.fromEntries(yanYanaArkadaslar().map(a => [a.uid, a.acik]));
+  const hepsi = data().players;
+  const senO = hepsi.filter(p => p.id === benId);
+  const arkO = hepsi.filter(p => p.id !== benId && p.uid && p.uid !== benUid);
+  const yerelO = hepsi.filter(p => p.id !== benId && !(p.uid && p.uid !== benUid));
+  const gizle = p => (q && !p.name.toLocaleLowerCase('tr').includes(q) ? 'hidden' : '');
+  const satir = (p, tur) => `
+    <div class="prow ${tur !== 'yerel' ? 'prow-hesap' : ''}" style="--pc:${p.color}" data-sira="${p.id}" data-ad="${esc(p.name.toLocaleLowerCase('tr'))}" ${gizle(p)}>
+      ${tur === 'yerel' ? `<span class="prow-tut" aria-label="${t('Sürükle')}" title="${t('Sürükle')}">${TUTAMAK}</span>` : ''}
+      ${botMu(p.name) ? botAvatar('bot-prow') : (tur !== 'yerel' && p.foto) ? `<span class="prow-av-yer"><img class="oz-av prow-av" src="${p.foto}" alt="">${tur === 'ark' ? `<i class="on-nokta ${acik[p.uid] ? 'acik' : 'kapali'}"></i>` : ''}</span>` : tur === 'ark' ? `<span class="prow-av-yer"><span class="dot"></span><i class="on-nokta ${acik[p.uid] ? 'acik' : 'kapali'}"></i></span>` : ozelResim(p.name) ? `<img class="oz-av prow-av" src="${ozelResim(p.name)}" alt="">` : '<span class="dot"></span>'}
+      <b>${esc(p.name)}${tur === 'sen' ? `<small class="pc-sen">${t('Sen')}</small>` : tur === 'ark' ? `<small class="prow-etiket">${acik[p.uid] ? t('Çevrimiçi') : t('Arkadaş')}</small>` : UNVAN(p.name)}</b>
       <button class="prow-ic" data-act="pstats" data-id="${p.id}" aria-label="${t('İstatistik')}" title="${t('İstatistik')}">${GRAFIK}</button>
-      <button class="prow-ic" data-act="pedit" data-id="${p.id}" aria-label="${t('Düzenle')}" title="${t('Düzenle')}">${KALEM}</button>
-      <button class="prow-sil" data-act="pdel" data-id="${p.id}" aria-label="${t('Oyuncuyu sil')}" title="${t('Oyuncuyu sil')}">${COP}</button>
-    </div>`).join('') || `<p class="muted center">${t('Henüz oyuncu yok. Aşağıdan ekle.')}</p>`;
+      ${tur === 'yerel' ? `<button class="prow-ic" data-act="pedit" data-id="${p.id}" aria-label="${t('Düzenle')}" title="${t('Düzenle')}">${KALEM}</button>
+      <button class="prow-sil" data-act="pdel" data-id="${p.id}" aria-label="${t('Oyuncuyu sil')}" title="${t('Oyuncuyu sil')}">${COP}</button>` : ''}
+    </div>`;
+  const grupBas = (ic, yazi, n, alt) => `<h2 class="sec oy-grup">${ic}<span>${yazi}</span><b class="oy-grup-n">${n}</b>${alt ? `<small>${alt}</small>` : ''}</h2>`;
+  const senHtml = senO.length ? grupBas(OY_IC.sen, t('Sen'), 1) + `<div class="prow-sabit">${senO.map(p => satir(p, 'sen')).join('')}</div>` : '';
+  const yerelHtml = (senO.length || arkO.length ? grupBas(OY_IC.cihaz, t('Bu cihazdaki oyuncular'), yerelO.length) : '')
+    + (yerelO.length ? `<div class="prow-liste">${yerelO.map(p => satir(p, 'yerel')).join('')}</div>` : `<p class="muted center">${t('Henüz oyuncu yok. Aşağıdan ekle.')}</p>`);
+  const arkHtml = arkO.length ? grupBas(OY_IC.ark, t('Arkadaşların'), arkO.length, t('Adı ve fotoğrafı kendi hesabından gelir')) + `<div class="prow-sabit">${arkO.map(p => satir(p, 'ark')).join('')}</div>` : '';
+  const list = senHtml + yerelHtml;
   const ara = data().players.length ? `<label class="oyuncu-ara">${IC.ara}<input type="search" data-act="oyuncuara" value="${esc(S.oyuncuAra || '')}" placeholder="${t('Oyuncu ara')}" autocomplete="off" enterkeyhint="search"><span class="oa-sayi">${data().players.length}</span></label>
     <p class="muted center oa-bos" hidden>${t('Sonuç yok')}</p>` : '';
   return `<main class="page oyuncular">${header(t('Oyuncular'))}
     ${ara}
-    <div class="prow-liste">${list}</div>
+    ${list}
     <form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form>
     <div class="bot-ekle glass"><div class="bot-bas">${BOT_IC}<b>DartBot</b><small>${t('Bilgisayara karşı oyna — seviye seç')}</small></div>
       <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv bot-${k}" data-act="botekle" data-v="${k}"><span class="bsv-ic">${BOT_SV_IC[k]}</span><span class="bsv-yazi"><b>${t(v.ad)}</b><small>${t('~{0} ort.', v.ort)}</small></span></button>`).join('')}</div></div>
+    ${arkHtml}
   </main>`;
 }
 
@@ -1961,7 +1993,7 @@ app.addEventListener('click', e => {
     case 'yymacsil': { // arkadaşın cihazından gelen maçı kendi geçmişinden sil
       const hm = (data().history || []).find(x => x.id === el.dataset.id); if (!hm || !hm.paylasan || hm.paylasan.onayli) break;
       onayla({ baslik: t('Bu maç silinsin mi?'), metin: t('Maç yalnız senin geçmişinden ve istatistiklerinden çıkar.'), evet: t('Sil'), tehlike: true })
-        .then(ok => { if (!ok) return; data().history = data().history.filter(x => x.id !== hm.id); store.save(); render(); });
+        .then(ok => { if (!ok) return; data().history = data().history.filter(x => x.id !== hm.id); data().silinenMaclar = [...(data().silinenMaclar || []), hm.id]; store.save(); bulutMacSil(hm.id); render(); });
       break;
     }
     case 'oyuncutik': { const a = S.setup.pids, id = el.dataset.id, i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); vib(6); render(); break; }
@@ -1989,6 +2021,7 @@ app.addEventListener('click', e => {
     case 'togglep': {
       const id = el.dataset.id, a = S.setup.pids;
       const i = a.indexOf(id);
+      if (i >= 0 && id === benimOyuncum()) break; // giriş yapan üyenin kendisi sıradan çıkarılamaz
       if (i >= 0) a.splice(i, 1); else a.push(id);
       render();
       break;
@@ -2293,7 +2326,7 @@ app.addEventListener('click', e => {
       // Demir 11.11: iki aşamalı onay — önce uyarı (yedek önerisi), sonra son onay
       onayla({ baslik: t('Tüm veriler silinsin mi?'), metin: t('TÜM oyuncular, maçlar ve istatistikler silinecek. Bu işlem geri alınamaz. Önce Yedek al ile yedeklemeni öneririz.'), evet: t('Devam et'), tehlike: true })
         .then(ok => ok && onayla({ baslik: t('Son onay'), metin: t('{0} oyuncu ve {1} maç kalıcı olarak silinecek.', data().players.length, data().history.length), evet: t('Tümünü sil'), tehlike: true }))
-        .then(ok => { if (ok) { store.resetAll(); go('home'); toast(t('Tüm veriler silindi'), '', { tur: { ic: 'carpi', a: 'a-dus', k: 'bad' } }); } });
+        .then(ok => { if (ok) { store.resetAll(); data().sifirlandi = true; store.save(); go('home'); toast(t('Tüm veriler silindi'), '', { tur: { ic: 'carpi', a: 'a-dus', k: 'bad' } }); } });
       break;
   }
 });

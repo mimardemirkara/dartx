@@ -1089,4 +1089,10 @@ export default {"Yan Yana Oynuyoruz":"Играем рядом",
 "Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"Нажмите на друга в сети: запрос сразу придёт на его телефон. Если он примет, он добавится в игроки, и матч засчитается в статистику обоих.",
 "Onayladı":"Подтвердил",
 "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Можно добавить его как гостя: матч останется только на этом устройстве и не попадёт в его статистику.",
-"Misafir olarak ekle":"Добавить как гостя"};
+"Misafir olarak ekle":"Добавить как гостя",
+"Diğer cihazından {0} maç eklendi":"Добавлено матчей с другого устройства: {0}",
+"Sen":"Вы",
+"Adın aynı, bu sen misin?":"Имя совпадает с вашим — это вы?",
+"Bu cihazdaki oyuncular":"Игроки на этом устройстве",
+"Arkadaşların":"Ваши друзья",
+"Adı ve fotoğrafı kendi hesabından gelir":"Имя и фото берутся из его аккаунта"};

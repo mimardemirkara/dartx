@@ -50,7 +50,19 @@ const BILDIRIM_IC = {
 };
 const bildirimKuyruk = []; let bildirimAcik = false;
 /** yazi: HTML (adlar esc'li gelir) · tur: BILDIRIM_IC anahtarı · renk: iyi | kotu | '' · git: dokununca çalışır */
-function bildir(yazi, { tur = 'acik', renk = '', foto = '', ad = '', git = null, sure = 3800, hedef = '', kaydet = true } = {}) {
+// Demir 15.11: "sürekli bildirim geliyor, bazen arka arkaya 3 kere" — aynı yazı 15 dakika içinde bir daha gösterilmez
+// (yenilemede de geçerli: zamanlar cihazda tutulur). "Sıra sende" gibi gerçekten tekrar eden bildirimler tekrar: true ile geçer.
+const TEKRAR_SURE = 15 * 60e3, TEKRAR_ANAHTAR = 'dartx.bildirimSon';
+function yakindaGosterildi(yazi) {
+  let m = {}; try { m = JSON.parse(localStorage.getItem(TEKRAR_ANAHTAR) || '{}') || {}; } catch (_) { m = {}; }
+  const simdi = Date.now(), k = (benUid() || '') + '|' + yazi;
+  for (const x of Object.keys(m)) if (simdi - m[x] > TEKRAR_SURE) delete m[x];
+  const var_ = !!m[k]; m[k] = simdi;
+  try { localStorage.setItem(TEKRAR_ANAHTAR, JSON.stringify(m)); } catch (_) { /* yok say */ }
+  return var_;
+}
+function bildir(yazi, { tur = 'acik', renk = '', foto = '', ad = '', git = null, sure = 3800, hedef = '', kaydet = true, tekrar = false } = {}) {
+  if (!tekrar && yakindaGosterildi(yazi)) return;
   if (!git && hedef) git = () => C.go(hedef);
   if (kaydet) bildirimEkle(benUid(), { yazi, tur, renk, ad, hedef }); // Demir 14.11: kaçırılan bildirim zilin altında kalır
   bildirimKuyruk.push({ yazi, tur, renk, foto, ad, git, sure });
@@ -64,8 +76,15 @@ function bildirimGoster() {
   el.innerHTML = `${b.ad || b.foto ? avatar(b.ad, b.foto, 'uy-av kucuk dxb-av') : ''}<span class="dxb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BILDIRIM_IC[b.tur] || BILDIRIM_IC.acik}</svg></span><span class="dxb-yazi">${b.yazi}</span>`;
   document.body.appendChild(el);
   let bitti = false;
-  const kapat = () => { if (bitti) return; bitti = true; el.classList.remove('gor'); setTimeout(() => { el.remove(); bildirimGoster(); }, 320); };
-  el.addEventListener('click', () => { kapat(); if (b.git) { try { b.git(); } catch (_) { /* yok say */ } } });
+  // Demir 15.11: şerit üstteki düğmeleri kapatıyordu, gitmesini beklemek gerekiyordu. Ekranın başka bir yerine dokununca
+  // ya da şeridi yukarı kaydırınca hemen kalkar (o dokunuş alttaki düğmeye de gider); şeride dokunmak ilgili yere götürür.
+  const disDokun = e => { if (!el.contains(e.target)) kapat(); };
+  const kapat = () => { if (bitti) return; bitti = true; document.removeEventListener('pointerdown', disDokun, true); el.classList.remove('gor'); setTimeout(() => { el.remove(); bildirimGoster(); }, 320); };
+  setTimeout(() => { if (!bitti) document.addEventListener('pointerdown', disDokun, true); }, 0);
+  let basY = null, kaydi = false;
+  el.addEventListener('pointerdown', e => { basY = e.clientY; kaydi = false; });
+  el.addEventListener('pointermove', e => { if (basY !== null && basY - e.clientY > 18) { kaydi = true; basY = null; kapat(); } });
+  el.addEventListener('click', () => { if (kaydi) return; kapat(); if (b.git) { try { b.git(); } catch (_) { /* yok say */ } } });
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('gor')));
   if (C && C.vib) C.vib(10);
   setTimeout(kapat, b.sure);
@@ -253,7 +272,7 @@ async function dinle() {
           if (yerel && !yerel.done && (yerel.adimlar || []).some(a => a.t === 'b')) {
             const bende = E.currentPid(yerel) === yerel.online.ben, once = siraGordum.get(d.id);
             const ekranda = yerel === cur2 && C.S.view === 'play';
-            if (once === false && bende && !ekranda) bildir(t('Sıra sende: {0} ile {1}', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => macaGir(d), hedef: 'online', sure: 6000 });
+            if (once === false && bende && !ekranda) bildir(t('Sıra sende: {0} ile {1}', `<b>${esc(ad)}</b>`, esc(oyunAd(d.gameId, d.opts))), { tekrar: true, tur: 'davet', ad, foto: d.fotolar && d.fotolar[karsi], git: () => macaGir(d), hedef: 'online', sure: 6000 });
             siraGordum.set(d.id, bende);
           }
         } catch (hata_) { console.warn('sıra', hata_); }
@@ -591,10 +610,13 @@ export async function macIptal(d) { const { db, F } = await bulut(); await F.del
 
 // ---- yerel oyuncular: ben = profilimdeki oyuncu; arkadaş = uid'li oyuncu (aynı adlı misafir varsa ona bağlanır)
 function kendiOyuncum() {
-  const p = H.uye().profil || {};
-  let o = data().players.find(x => x.id === p.oyuncuId);
-  if (!o) { o = addPlayer(p.ad || 'Ben'); H.profilKaydet({ oyuncuId: o.id }).catch(() => {}); }
-  if (p.foto && o.foto !== p.foto) updatePlayer(o.id, { foto: p.foto });
+  const p = H.uye().profil || {}; const ben = benUid();
+  // Demir 15.11: kendi oyuncun da hesabına (uid) bağlı — telefon ve tabletteki kayıtlar eşitlemede tek oyuncuda birleşir
+  let o = data().players.find(x => x.id === p.oyuncuId && !x.silindi) || data().players.find(x => ben && x.uid === ben && !x.silindi);
+  if (!o) o = addPlayer(p.ad || 'Ben');
+  if (p.oyuncuId !== o.id) H.profilKaydet({ oyuncuId: o.id }).catch(() => {});
+  const yama = {}; if (ben && o.uid !== ben) yama.uid = ben; if (p.foto && o.foto !== p.foto) yama.foto = p.foto;
+  if (Object.keys(yama).length) updatePlayer(o.id, yama);
   return o.id;
 }
 // Demir 15.11: yerelde eklenen "Demir", "Tuncay" gibi oyuncular aynı adlı online arkadaşa bağlanmaz (başka biri olabilir).
@@ -821,7 +843,7 @@ export function onlineKartlari() {
   const kucuk = (act, yazi, ek = '', tur = '') => `<button type="button" class="btn on-btn ${tur}" data-act="${act}" ${ek}>${yazi}</button>`;
   const arkadasHtml = `
     <form class="on-ekle" data-act="on-ekle"><input class="uy-girdi" name="kod" placeholder="${t('Arkadaş kodu (DX-…)')}" autocomplete="off" autocapitalize="characters" maxlength="8"><button type="submit" class="btn primary on-btn"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>${t('Ekle')}</button></form>
-    <div class="on-kodum">${t('Senin kodun')}: <button type="button" class="uy-kod" data-act="on-kodpaylas"><b>${p.kod || ''}</b> ${t('Paylaş')}</button>
+    <div class="on-kodum"><span class="on-kod-yazi">${t('Senin kodun')}:</span> <button type="button" class="uy-kod" data-act="on-kodpaylas"><b>${p.kod || ''}</b> ${t('Paylaş')}</button>
       <span class="on-qr-tuslar"><button type="button" class="on-qr-btn" data-act="on-qr">${QR_SIMGE}<span>${t('QR kodum')}</span></button><button type="button" class="on-qr-btn" data-act="on-qroku">${OKU_SIMGE}<span>${t('QR okut')}</span></button></span></div>
     ${gelen.length ? altBas(IC_ALT.istek, t('Arkadaşlık istekleri'), gelen.length) : ''}
     ${gelen.map(a => sat(karsi(a), kucuk('on-kabul', t('Kabul et'), `data-id="${a.id}"`, 'primary') + kucuk('on-sil', '✕', `data-id="${a.id}" aria-label="${t('Reddet')}"`), t('Seni arkadaş olarak eklemek istiyor'))).join('')}

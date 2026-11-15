@@ -1089,4 +1089,10 @@ export default {"Yan Yana Oynuyoruz":"対面でプレイ",
 "Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"オンラインのフレンドをタップすると、すぐに相手のスマホにリクエストが届きます。承諾されるとプレイヤーに追加され、マッチは両方の統計に記録されます。",
 "Onayladı":"承認済み",
 "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"ゲストとして追加できます。マッチはこの端末だけに残り、相手の統計には記録されません。",
-"Misafir olarak ekle":"ゲストとして追加"};
+"Misafir olarak ekle":"ゲストとして追加",
+"Diğer cihazından {0} maç eklendi":"別の端末から {0} 件のマッチを追加しました",
+"Sen":"あなた",
+"Adın aynı, bu sen misin?":"同じ名前です。これはあなたですか？",
+"Bu cihazdaki oyuncular":"この端末のプレイヤー",
+"Arkadaşların":"フレンド",
+"Adı ve fotoğrafı kendi hesabından gelir":"名前と写真は相手のアカウントから表示されます"};

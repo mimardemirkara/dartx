@@ -321,7 +321,7 @@ async function genelYaz(alan) {
 export async function yedekGonder() {
   const { db, F } = await fb(); const u = durum.user; if (!u) return 0;
   const d = data();
-  const ana = { players: d.players, silinen: d.silinen || [], settings: { ...d.settings, uyeOturum: undefined }, guncel: F.serverTimestamp() };
+  const ana = { players: d.players, silinen: d.silinen || [], silinenMaclar: (d.silinenMaclar || []).slice(-500), settings: { ...d.settings, uyeOturum: undefined }, guncel: F.serverTimestamp() };
   delete ana.settings.uyeOturum;
   await F.setDoc(F.doc(db, 'users', u.uid, 'yedek', 'ana'), JSON.parse(JSON.stringify(ana)));
   const gonderilen = new Set(d.bulutMaclar || []);
@@ -333,6 +333,11 @@ export async function yedekGonder() {
   }
   d.bulutMaclar = [...gonderilen, ...yeni.map(h => h.id)]; d.bulutZaman = Date.now(); save();
   return yeni.length;
+}
+/** Demir 15.11: kullanıcının sildiği maç buluttan da silinir (öteki cihazında geri gelmesin) */
+export async function bulutMacSil(id) {
+  if (!durum.user) return;
+  const { db, F } = await fb(); await F.deleteDoc(F.doc(db, 'users', durum.user.uid, 'maclar', String(id))).catch(() => {});
 }
 /** Buluttaki yedek: { ana, maclar } (yoksa null) */
 export async function yedekGetir() {

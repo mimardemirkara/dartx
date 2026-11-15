@@ -1089,4 +1089,10 @@ export default {"Yan Yana Oynuyoruz":"نلعب جنبًا إلى جنب",
 "Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"اضغط على صديق متصل: يصل الطلب إلى هاتفه فورًا. إذا قبل يُضاف إلى اللاعبين وتُحتسب المباراة في إحصائياتكما معًا.",
 "Onayladı":"وافق",
 "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"يمكنك إضافته كضيف: تبقى المباراة على هذا الجهاز فقط ولا تُضاف إلى إحصائياته.",
-"Misafir olarak ekle":"أضف كضيف"};
+"Misafir olarak ekle":"أضف كضيف",
+"Diğer cihazından {0} maç eklendi":"أُضيفت {0} مباراة من جهازك الآخر",
+"Sen":"أنت",
+"Adın aynı, bu sen misin?":"الاسم مطابق لاسمك، هل هذا أنت؟",
+"Bu cihazdaki oyuncular":"اللاعبون على هذا الجهاز",
+"Arkadaşların":"أصدقاؤك",
+"Adı ve fotoğrafı kendi hesabından gelir":"الاسم والصورة من حسابه الخاص"};

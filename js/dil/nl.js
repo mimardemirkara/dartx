@@ -1089,4 +1089,10 @@ export default {"Yan Yana Oynuyoruz":"We spelen naast elkaar",
 "Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"Tik op een vriend die online is: het verzoek gaat direct naar zijn telefoon. Accepteert hij, dan wordt hij speler en telt de wedstrijd in jullie beider statistieken.",
 "Onayladı":"Goedgekeurd",
 "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Je kunt hem als gast toevoegen: de wedstrijd blijft alleen op dit toestel en telt niet in zijn statistieken.",
-"Misafir olarak ekle":"Als gast toevoegen"};
+"Misafir olarak ekle":"Als gast toevoegen",
+"Diğer cihazından {0} maç eklendi":"{0} wedstrijden van je andere toestel toegevoegd",
+"Sen":"Jij",
+"Adın aynı, bu sen misin?":"Zelfde naam als jij – ben jij dit?",
+"Bu cihazdaki oyuncular":"Spelers op dit toestel",
+"Arkadaşların":"Je vrienden",
+"Adı ve fotoğrafı kendi hesabından gelir":"Naam en foto komen uit hun eigen account"};

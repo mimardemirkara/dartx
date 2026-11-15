@@ -84,7 +84,83 @@ export function uyelikKur(ctx) {
   window.addEventListener('dartx-mac-bitti', otoYedek);
   window.addEventListener('online', otoYedek);
   let sonUid = null; // girişte bir kez (her profil değişikliğinde değil)
-  H.dinle(u => { const id = u.user && u.profil && u.profil.oyuncuId != null ? u.user.uid : null; if (id && id !== sonUid) otoYedek(); sonUid = id; });
+  // Demir 15.11: telefon + tablet aynı hesap — girişte ve uygulama her öne geldiğinde (en çok 2 dakikada bir) buluttaki
+  // yeni maçlar ve oyuncular kendiliğinden iner; sonra bu cihazdakiler yedeklenir. "Buluttan al"a basmak gerekmez.
+  let sonCekme = 0;
+  const otoCek = async (zorla = false) => {
+    if (!(H.girisli() && H.dogrulandi() && H.uye().profil) || navigator.onLine === false) return;
+    if (data().sifirlandi) return; // "Tüm verileri sil"den sonra kendiliğinden geri yüklenmez; Hesabım → Buluttan al ile alınır
+    if (!zorla && Date.now() - sonCekme < 120e3) return;
+    sonCekme = Date.now();
+    try { const y = await H.yedekGetir(); if (y) { const n = bulutBirlestir(y); if (n) C.toast(t('Diğer cihazından {0} maç eklendi', n), 'ok', { tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' }, sure: 3200 }); } } catch (e) { console.warn('bulut çek', e); }
+    otoYedek();
+  };
+  H.dinle(u => {
+    const id = u.user && u.profil ? u.user.uid : null;
+    if (id && id !== sonUid) {
+      const o = data().players.find(p => p.id === u.profil.oyuncuId && !p.silindi);
+      if (o && o.uid !== id) { o.uid = id; save(); }
+      if (hesapTekille() && ['home', 'players', 'stats'].includes(C.S.view)) C.render();
+      otoCek(true);
+    }
+    sonUid = id;
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') otoCek(); });
+  window.addEventListener('online', () => otoCek());
+}
+/** Maç kaydında oyuncu kimliklerini değiştirir (taraflar, hamleler, el kayıtları) */
+function idDegistir(h, esle) {
+  let j = JSON.stringify(h);
+  for (const [eski, yeni] of Object.entries(esle)) j = j.split('"' + eski + '"').join('"' + yeni + '"');
+  return JSON.parse(j);
+}
+/** Demir 15.11: aynı hesaba (uid) bağlı birden çok oyuncu varsa tek oyuncuda birleştirir (maçları taşınır, fazlası kalkar).
+ *  Kalan: senin hesabınsa profildeki oyuncu, değilse en çok maçı olan. */
+export function hesapTekille() {
+  const d = data(), ben = H.uye().user ? H.uye().user.uid : null, benimId = (H.uye().profil || {}).oyuncuId;
+  const say = id => (d.history || []).filter(h => h.sides && h.sides.some(s => (s.members || []).includes(id))).length;
+  const gruplar = {};
+  d.players.forEach(p => { if (p.uid && !p.silindi) (gruplar[p.uid] = gruplar[p.uid] || []).push(p); });
+  let degisti = false;
+  for (const [uid, liste] of Object.entries(gruplar)) {
+    if (liste.length < 2) continue;
+    const kalan = (uid === ben && liste.find(p => p.id === benimId)) || liste.slice().sort((a, b) => say(b.id) - say(a.id))[0];
+    const esle = {}; liste.forEach(p => { if (p.id !== kalan.id) esle[p.id] = kalan.id; });
+    d.history = (d.history || []).map(h => idDegistir(h, esle));
+    d.players = d.players.filter(p => !esle[p.id]);
+    if (!kalan.foto) { const f = liste.find(p => p.foto); if (f) kalan.foto = f.foto; }
+    degisti = true;
+  }
+  if (degisti) save();
+  return degisti;
+}
+/** Buluttaki yedeği bu cihazdakiyle birleştirir (aynı maç iki kez eklenmez; silinenler geri gelmez). Eklenen maç sayısını döner */
+function bulutBirlestir(y) {
+  const d = data();
+  const silMac = new Set([...(d.silinenMaclar || []), ...((y.ana && y.ana.silinenMaclar) || [])]);
+  d.silinenMaclar = [...silMac].slice(-500);
+  const silOy = new Set((d.silinen || []).map(p => p.id));
+  const ids = new Set(d.players.map(p => p.id));
+  // Demir 15.11: buluttan gelen oyuncu bir hesaba bağlıysa (arkadaş ya da sen) ve bu cihazda o hesabın oyuncusu varsa yenisi
+  // eklenmez; o oyuncunun maçları buradaki oyuncuya yazılır (iki Tuncay olmasın)
+  const esle = {};
+  ((y.ana && y.ana.players) || []).forEach(p => {
+    if (ids.has(p.id) || silOy.has(p.id)) return;
+    const yerel = p.uid && d.players.find(x => x.uid === p.uid && !x.silindi);
+    if (yerel) { esle[p.id] = yerel.id; return; }
+    d.players.push(p); ids.add(p.id);
+  });
+  if (Object.keys(esle).length) y = { ...y, maclar: (y.maclar || []).map(h => idDegistir(h, esle)) };
+  const once = (d.history || []).length;
+  d.history = (d.history || []).filter(h => !silMac.has(h.id)); // öteki cihazda silinen maç burada da kalkar
+  const hs = new Set(d.history.map(h => h.id)); let n = 0;
+  (y.maclar || []).forEach(h => { if (h && h.id && !hs.has(h.id) && !silMac.has(h.id)) { d.history.push(h); hs.add(h.id); n++; } });
+  d.history.sort((a, b) => (b.started || 0) - (a.started || 0)); // en yeni başta
+  d.bulutMaclar = [...new Set([...(d.bulutMaclar || []), ...(y.maclar || []).map(h => h.id)])];
+  save();
+  hesapTekille();
+  if (n || d.history.length !== once - 0) { if (['home', 'stats', 'players', 'uye'].includes(C.S.view)) C.render(); }
+  return n;
 }
 
 // ---- hangi adım gösterilir
@@ -400,7 +476,13 @@ export function viewUye() {
   if (a === 'eslestir') {
     const say = id => (data().history || []).filter(h => h.sides && h.sides.some(s => s.members && s.members.includes(id))).length;
     // Demir 14.11: bir arkadaşın hesabına bağlı oyuncu (uid) başka hesaba bağlanamaz
-    const oyuncular = data().players.filter(p => !p.silindi && !/^dartbot/i.test(p.name) && !p.uid);
+    // Demir 15.11: üye olurken seçtiği adla aynı adlı oyuncu en üstte ve hazır seçili gelir ("Adın aynı, bu sen misin?");
+    // kendiliğinden bağlanmaz, son karar kullanıcının
+    const benAd = H.adAnahtar((H.uye().profil || {}).ad || '');
+    const ayniMi = p => !!benAd && H.adAnahtar(p.name) === benAd;
+    const oyuncular = data().players.filter(p => !p.silindi && !/^dartbot/i.test(p.name) && !p.uid)
+      .sort((x, y) => (ayniMi(y) - ayniMi(x)) || (say(y.id) - say(x.id)));
+    if (C.S.uyeSecili === undefined) { const a = oyuncular.find(ayniMi); C.S.uyeSecili = a ? a.id : null; }
     const sec = oyuncular.some(p => p.id === C.S.uyeSecili) ? C.S.uyeSecili : null;
     return sayfa(`<div class="uy-duzen tek">
       <section class="ay-grup uy-kart">
@@ -408,7 +490,7 @@ export function viewUye() {
         <div class="uy-ic">
           <p class="uy-not sol">${t('Seçtiğin oyuncunun bütün maçları ve istatistikleri hesabına bağlanır. Diğer oyuncular bu cihazda misafir olarak kalır.')}</p>
           <div class="uy-liste">${oyuncular.map(p => `<button type="button" class="ay-satir tikla uy-oyuncu ${sec === p.id ? 'on' : ''}" data-act="uy-oyuncusec" data-id="${p.id}">
-            ${avatarHtml(p.name, p.foto, p.color, 'uy-av kucuk')}<span class="ay-ad">${esc(p.name)}<small>${t('{0} maç', say(p.id))}</small></span>${sec === p.id ? `<span class="uy-tik">${IC.tamam}</span>` : ''}</button>`).join('')}</div>
+            ${avatarHtml(p.name, p.foto, p.color, 'uy-av kucuk')}<span class="ay-ad">${esc(p.name)}<small>${t('{0} maç', say(p.id))}${ayniMi(p) ? ` · <b class="uy-ayni">${t('Adın aynı, bu sen misin?')}</b>` : ''}</small></span>${sec === p.id ? `<span class="uy-tik">${IC.tamam}</span>` : ''}</button>`).join('')}</div>
           ${btn('uy-eslestir', t('Bu benim, bağla'), sec ? '' : 'disabled', 'primary')}
           <button type="button" class="uy-misafir" data-act="uy-eslesmeatla">${t('Hiçbiri değil, yeni başla')}</button>
         </div>
@@ -673,10 +755,7 @@ async function tikla(e) {
       const y = await is(() => H.yedekGetir()); if (y === undefined) return;
       if (!y) { C.bilgi(t('Bulut yedeği yok'), t('Bu hesapta henüz yedek yok. Bulut yedeği satırına dokunarak bu cihazdakileri yedekleyebilirsin.')); return; }
       if (!(await C.onayla({ baslik: t('Buluttaki yedek yüklensin mi?'), metin: t('Buluttaki {0} oyuncu ve {1} maç bu cihazdakilerle birleştirilir; aynı maç iki kez eklenmez.', y.ana.players.length, y.maclar.length), evet: t('Yükle') }))) return;
-      const d = data(); const ids = new Set(d.players.map(p => p.id)); y.ana.players.forEach(p => { if (!ids.has(p.id)) d.players.push(p); });
-      const hs = new Set((d.history || []).map(h => h.id)); y.maclar.forEach(h => { if (!hs.has(h.id)) d.history.push(h); });
-      d.history.sort((a, b) => (b.started || 0) - (a.started || 0)); // en yeni başta
-      d.bulutMaclar = [...new Set([...(d.bulutMaclar || []), ...y.maclar.map(h => h.id)])]; save();
+      delete data().sifirlandi; bulutBirlestir(y); // elle alınca otomatik çekme de yeniden açılır
       C.toast(t('Yedek yüklendi'), 'ok'); C.render(); break;
     }
     case 'uy-epostadegis': {

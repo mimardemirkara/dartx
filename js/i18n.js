@@ -248,4 +248,10 @@ const EN = {
   "Onayladı": "Approved",
   "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.": "You can add them as a guest: the match stays on this device only and is not added to their stats.",
   "Misafir olarak ekle": "Add as guest",
+  "Diğer cihazından {0} maç eklendi": "{0} matches added from your other device",
+  "Sen": "You",
+  "Adın aynı, bu sen misin?": "Same name as yours, is this you?",
+  "Bu cihazdaki oyuncular": "Players on this device",
+  "Arkadaşların": "Your friends",
+  "Adı ve fotoğrafı kendi hesabından gelir": "Name and photo come from their own account",
 };

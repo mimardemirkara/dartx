@@ -1089,4 +1089,10 @@ export default {"Yan Yana Oynuyoruz":"On joue côte à côte",
 "Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.":"Touche un ami en ligne : la demande part tout de suite sur son téléphone. S’il accepte, il rejoint les joueurs et la partie compte dans vos deux statistiques.",
 "Onayladı":"Validé",
 "Misafir olarak ekleyebilirsin: maç yalnız bu cihazda kalır, onun istatistiklerine yazılmaz.":"Tu peux l’ajouter en invité : la partie reste uniquement sur cet appareil et n’est pas ajoutée à ses statistiques.",
-"Misafir olarak ekle":"Ajouter en invité"};
+"Misafir olarak ekle":"Ajouter en invité",
+"Diğer cihazından {0} maç eklendi":"{0} parties ajoutées depuis ton autre appareil",
+"Sen":"Toi",
+"Adın aynı, bu sen misin?":"Même nom que toi, est-ce toi ?",
+"Bu cihazdaki oyuncular":"Joueurs sur cet appareil",
+"Arkadaşların":"Tes amis",
+"Adı ve fotoğrafı kendi hesabından gelir":"Le nom et la photo viennent de son propre compte"};
