@@ -102,7 +102,7 @@ const UYARI_IC = {
 // Uyarı metni → simge, animasyon (a-*), renk türü, ses. Kalıplar her iki dilde çalışsın diye t() ile kurulur.
 const kalip = key => new RegExp('^' + t(key).replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{\d\}/g, '.*') + '$', 'i');
 const UYARI_TUR = [
-  [['BUST!', 'BUST', 'Sıfırın altı — bitti'], { ic: 'bomba', a: 'a-sars', k: 'bad', ses: 'bust' }],
+  [['BUST!', 'BUST', 'Sıfırın altı — bitti'], { ic: 'bomba', a: 'a-bomba', k: 'bad', ses: 'bust' }],
   [['180!'], { ic: 'ates', a: 'a-zipla', k: 'kutla' }],
   [['{0} leg\'i aldı!', '{0} set\'i aldı!'], { ic: 'kupa', a: 'a-zipla', k: 'good kutla' }],
   [['House!', '3 in a bed!'], { ic: 'house3', a: 'a-zipla', k: 'kutla', ses: 'kutlama' }],
@@ -137,10 +137,12 @@ function toast(msg, kind = '', ozel = null) {
   const uzun = String(msg).replace(/<[^>]*>/g, '').length > 26;
   el.className = `toast ${kind} ${tur.a} ${uzun ? 'uzun' : ''}`;
   const ic = tur.ic === 'house3' ? HOUSE3_HTML : String(tur.ic).startsWith('resim:') ? `<img class="u-resim" src="${tur.ic.slice(6)}" alt="">` : UYARI_IC[tur.ic];
-  el.innerHTML = `<span class="u-ic">${ic}</span><span class="u-yazi">${msg}</span>`;
+  // Demir 15.11: Bust — fitil yanar, bomba patlar: parlama, şok dalgası, kıvılcımlar, kart sarsılır
+  const patla = tur.a === 'a-bomba' ? `<span class="patla" aria-hidden="true">${Array.from({ length: 12 }, (_, i) => `<i style="--a:${i * 30 + (i % 2 ? 12 : 0)}deg;--d:${i % 3 ? 1 : 1.35}"></i>`).join('')}</span>` : '';
+  el.innerHTML = `<span class="u-ic">${ic}${patla}</span><span class="u-yazi">${msg}</span>`;
   void el.offsetWidth; // animasyon her uyarıda baştan başlasın
   el.classList.add('show'); perde.classList.add('show');
-  const sure = (ozel && ozel.sure) || 1500; // Demir 11.11: sıra uyarısı 2,5 sn (bot eli 3 sn); dokununca yine hemen kapanır
+  const sure = (ozel && ozel.sure) || (tur.a === 'a-bomba' ? 1900 : 1500); // Demir 11.11: sıra uyarısı 2,5 sn (bot eli 3 sn); dokununca yine hemen kapanır
   uyariKilit = Date.now() + sure + 450; // uyarı ve sönme animasyonu boyunca alttaki tuşlar basılmaz
   if (/\bkutla\b/.test(kind)) konfeti();
   // House: üç dart arka arkaya saplanır, her birinde "tak" sesi (uyarı biraz daha uzun kalır)

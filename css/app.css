@@ -4371,3 +4371,17 @@ a.ay-satir { color: inherit; text-decoration: none; }
 /* Uzun bilgi uyarıları (Demir 15.11): oyun anları (Bust, 180) iri kalır; cümleler okunur boyutta */
 .toast.uzun { font-size: 19px; font-weight: 700; line-height: 1.35; width: min(340px, 86vw); max-width: min(340px, 86vw); padding: 18px 24px; text-align: center; }
 @media (min-width: 720px) { .toast.uzun { font-size: 23px; width: 480px; max-width: 480px; padding: 22px 32px; } }
+/* Bust (Demir 15.11): kart eskisi gibi sallanır; yalnız bomba simgesi patlar — şişer, küçük kıvılcımlarla dağılır, yerine döner. Tablette büyük */
+.toast.show.a-bomba { animation: kartSars .5s ease-in-out; }
+.toast.show.a-bomba .u-ic > svg { animation: bombaPatla .9s cubic-bezier(.3,1.2,.5,1) .05s both; }
+.patla { position: absolute; left: 50%; top: 55%; width: 0; height: 0; pointer-events: none; }
+.patla i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0; transform: rotate(var(--a)) translateY(0); animation: kivilcim .5s ease-out .3s both; }
+@keyframes bombaPatla { 0% { transform: scale(1); opacity: 1; } 28% { transform: scale(1.3); opacity: 1; } 38% { transform: scale(1.55); opacity: 0; } 70% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes kivilcim { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-44px * var(--d))) scale(.3); } }
+@media (min-width: 720px) {
+  .toast.a-bomba { font-size: 46px; padding: 30px 60px; }
+  .toast.a-bomba .u-ic svg { width: 104px; height: 104px; }
+  .patla i { width: 9px; height: 9px; left: -4px; top: -4px; }
+  @keyframes kivilcim { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-72px * var(--d))) scale(.3); } }
+}
+@media (prefers-reduced-motion: reduce) { .toast.show.a-bomba .u-ic > svg, .patla i { animation: none; } }
