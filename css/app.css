@@ -4386,3 +4386,5 @@ a.ay-satir { color: inherit; text-decoration: none; }
 }
 @media (prefers-reduced-motion: reduce) { .toast.show.a-bomba .u-ic > svg, .patla i { animation: none; } }
 .slot .ok-set { width: 86%; max-width: 58px; }
+/* Demir 16.11: ortak skor kartında alt satır (Ort · Son · ok) yoksa (Halve-It, Shanghai, Count-Up…) skor dibe kaymasın, ortada dursun */
+.board.x01 .side:not(:has(.side-sub)) .side-big { margin-bottom: auto; }
