@@ -896,8 +896,11 @@ async function yanYanaOnay(pidler, gameId, opts, hazir = null, atla = null) {
 }
 const YY_YOK_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5"/><path d="m22 8-5 5"/></svg>'; // lucide user-x
 // kurulumda dokunarak eklenen arkadaşlar (onaylı ya da misafir) yeniden sorulmaz; yalnız listeden seçilenler sorulur
+// Demir 15.11: oyuncu listesinden seçilen oyuncu (adı Demir de olsa, Tuncay da olsa) YERELDİR; onay sorulmaz, maç kimseye gönderilmez.
+// Yalnız "Yan yanayız" kutusundan dokunarak eklenip onay veren arkadaş maça bağlanır.
 const yanYanaBasla = () => { const st = S.setup;
-  return yanYanaOnay(st.pids, S.gameId, { ...st.opts }, { ...(st.yyOnay || {}) }, st.yyMisafir).then(yy => { if (yy) { st.yyOnay = {}; st.yyMisafir = {}; startMatch(yy); } }); };
+  const yy = {}; Object.entries(st.yyOnay || {}).forEach(([u, id]) => { if (st.pids.some(pid => (player(pid) || {}).uid === u)) yy[u] = id; });
+  st.yyOnay = {}; st.yyMisafir = {}; startMatch(yy); return Promise.resolve(); };
 /** Maç iki tarafça doğrulandı mı: online maç ya da maç başında onaylanmış yan yana maç (Demir 14.11) */
 const dogrulanmis = m => !!(m && (m.online || (m.yanyana && Object.keys(m.yanyana).length) || (m.paylasan && m.paylasan.onayli)));
 const DOGRU_IC = '<svg class="ist-dogru" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>';
@@ -2228,9 +2231,9 @@ app.addEventListener('click', e => {
         break;
       }
       // Demir 14.11: rövanşta arkadaş varsa onay yeniden alınır (her maç için ayrı onay)
-      if (!S.rovansOnay && yanYanaSecili(lm.sides.flatMap(s => s.members)).length) {
+      if (!S.rovansOnay && lm.yanyana && Object.keys(lm.yanyana).length) { // yalnız onaylı yan yana maçın rövanşı yeniden sorar
         el.disabled = true;
-        yanYanaOnay(lm.sides.flatMap(s => s.members), lm.gameId, { ...lm.opts }).then(yy => { el.disabled = false; if (!yy) return; S.rovansOnay = yy; el.click(); });
+        yanYanaOnay(lm.sides.flatMap(s => s.members).filter(pid => lm.yanyana[(player(pid) || {}).uid]), lm.gameId, { ...lm.opts }).then(yy => { el.disabled = false; if (!yy) return; S.rovansOnay = yy; el.click(); });
         break;
       }
       const rovansYY = S.rovansOnay || null; S.rovansOnay = null;
@@ -2451,7 +2454,8 @@ uyelikKur({ S, render, go, toast, onayla, bilgi, header, kart, ikonKutu, AY, LUC
   secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l]) => ({ v, l, on: v === cur })), v => ok(v), { baslik })),
   oyunlar: () => GAME_LIST.map(g => { const n = gt(g, 'name'); return [n, n]; }) });
 // Oyuncunun profil fotoğrafı varsa her yerde avatar olarak görünür
-fotoBulKur(ad => { const k = String(ad || '').trim().toLocaleLowerCase('tr'); const p = data().players.find(x => x.foto && x.name.toLocaleLowerCase('tr') === k); return p ? p.foto : ''; });
+// Demir 15.11: aynı adlı iki oyuncu varsa (yerel Tuncay + arkadaş Tuncay) fotoğraf kimseye verilmez, karışmasın
+fotoBulKur(ad => { const k = String(ad || '').trim().toLocaleLowerCase('tr'); const ayni = data().players.filter(x => !x.silindi && x.name.toLocaleLowerCase('tr') === k); return ayni.length === 1 && ayni[0].foto ? ayni[0].foto : ''; });
 onlineKur({ S, render, go, toast, onayla, kart, vib, afterThrow, IC: { uye: ON.uye, lig: ON.lig },
   secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l]) => ({ v, l, on: v === cur })), v => ok(v), { baslik })),
   devam: id => { if (store.araDevam(id)) go('play'); },

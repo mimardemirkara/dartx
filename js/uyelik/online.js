@@ -597,10 +597,10 @@ function kendiOyuncum() {
   if (p.foto && o.foto !== p.foto) updatePlayer(o.id, { foto: p.foto });
   return o.id;
 }
+// Demir 15.11: yerelde eklenen "Demir", "Tuncay" gibi oyuncular aynı adlı online arkadaşa bağlanmaz (başka biri olabilir).
+// Arkadaşın oyuncusu yalnız hesabıyla (uid) bulunur; yoksa ayrı bir oyuncu açılır.
 function arkadasOyuncu(uid, ad, foto) {
-  let o = data().players.find(x => x.uid === uid)
-    || data().players.find(x => !x.uid && x.name.toLocaleLowerCase('tr') === String(ad || '').toLocaleLowerCase('tr'))
-    || addPlayer(ad || t('Arkadaş'));
+  const o = data().players.find(x => x.uid === uid && !x.silindi) || addPlayer(ad || t('Arkadaş'));
   const yama = { uid }; if (foto) yama.foto = foto;
   updatePlayer(o.id, yama);
   return o.id;

@@ -792,7 +792,7 @@ async function gonder(e) {
       await is(() => H.epostaUyeOl(v.ad.trim(), v.eposta, s1));
     } else {
       if (!f.elements.sifre.value) { C.toast(t('Şifreni yaz'), 'bad'); return; }
-      if (!sifreUygun(f.elements.sifre.value)) { C.toast(t('Şifre kurallara uymuyor: en az 6 karakter, 1 büyük harf, 1 rakam, 1 özel karakter'), 'bad', { sure: 3200 }); return; }
+      // Demir 15.11: şifre kuralı yalnız KAYITTA; girişte uygulanmaz (kural gelmeden önce açılan hesaplar doğru şifreyle giremiyordu)
       // Demir 11.11: "Beni hatırla" — açıkken oturum ve e-posta kalır; kapalıyken uygulama kapanınca çıkış yapılır
       const hat = !!(f.elements.hatirla && f.elements.hatirla.checked);
       localStorage.setItem('dartx.hatirla', hat ? '1' : '0');

@@ -2266,6 +2266,11 @@ html:root body .pill.gold.dv-dugme { color: #fff !important; text-shadow: 0 1px 
   .ctable th .legs, .board .side .legs { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 5px; margin: 0; }
   .ctable th .cn, .board .side .side-name { justify-content: center; text-align: center; padding-right: 0; }
 }
+/* Demir 15.11: X01 gibi uzun kartlarda dikey ortalanan rozet puanın (501) üstüne biniyordu: tablette Set/Leg adın altında, ortalı satır */
+@media (min-width: 700px) {
+  .board .side .side-name:has(.legs) { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; row-gap: 8px; }
+  .board .side .side-name .legs { position: static; transform: none; flex-direction: row; justify-content: center; flex-basis: 100%; gap: 6px; margin: 0; }
+}
 
 /* Kurulum: A · Ayar satırları (Demir 09.11) — her ayar tek cam satır; solda simge + ad, sağda birleşik seçenek grubu */
 .kurulum .field.ayar-satir { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 8px; padding: 10px 12px 10px 14px; text-align: left; border-radius: 18px;
