@@ -119,7 +119,19 @@ function kendiniGaranti() {
   const yama = {}; if (o.uid !== ben) yama.uid = ben; if (pr.foto && o.foto !== pr.foto) yama.foto = pr.foto;
   if (Object.keys(yama).length) updatePlayer(o.id, yama);
   if (pr.oyuncuId !== o.id) H.profilKaydet({ oyuncuId: o.id }).catch(() => {});
-  if (['home', 'players', 'setup'].includes(C.S.view)) C.render();
+  // Demir 15.11: kendi kopyalarını silerken eski maçların "Silinmiş" kaldı — silinmiş ve artık hiçbir yerde olmayan oyuncu,
+  // içinde senin oyuncun bulunmayan maçlarda sana bağlanır (yalnız bu cihazda silindiği bilinen kimlikler; başka kimseye dokunulmaz)
+  const sil = new Set(d.silinenOyuncular || []), var_ = new Set(d.players.map(p => p.id)), arsiv = new Set((d.silinen || []).map(p => p.id));
+  let bagli = 0;
+  d.history = (d.history || []).map(h => {
+    const uyeler = (h.sides || []).flatMap(sd => sd.members || []);
+    if (uyeler.includes(o.id)) return h;
+    const kayip = uyeler.filter(id => !var_.has(id) && !arsiv.has(id) && sil.has(id));
+    if (kayip.length !== 1) return h;
+    bagli++; return idDegistir(h, { [kayip[0]]: o.id });
+  });
+  if (bagli) save();
+  if (['home', 'players', 'setup', 'stats'].includes(C.S.view)) C.render();
 }
 /** Maç kaydında oyuncu kimliklerini değiştirir (taraflar, hamleler, el kayıtları) */
 function idDegistir(h, esle) {
