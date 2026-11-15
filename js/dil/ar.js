@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"نلعب جنبًا إلى جنب",
 "Bilgisayara karşı oyna, seviyeni seç.":"العب ضد الكمبيوتر، اختر المستوى.",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"الفردي حتى {0} لاعبين. لـ {1} اختر الفرق.",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"تعذّر على X-Eye تسجيل الرمية. أغلق النافذة المفتوحة أولًا.",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"جنبًا إلى جنب مع {0}: {1}. تُلعب على جهازه وتُحتسب في إحصائياتك عند انتهائها."};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"جنبًا إلى جنب مع {0}: {1}. تُلعب على جهازه وتُحتسب في إحصائياتك عند انتهائها.",
+"Buz mavisi":"أزرق جليدي",
+"Siyah krom":"كروم أسود",
+"Kor kırmızı":"أحمر جمري",
+"Uygulamadaki okum":"سهمي في التطبيق"};

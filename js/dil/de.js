@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"Wir spielen nebeneinander",
 "Bilgisayara karşı oyna, seviyeni seç.":"Spiel gegen den Computer, wähle eine Stufe.",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"Einzel: höchstens {0} Spieler. Für {1} wähle Team.",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye konnte den Wurf nicht eintragen. Schließe zuerst das offene Fenster.",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Nebeneinander mit {0}: {1}. Gespielt auf seinem Gerät; danach zählt es in deinen Statistiken."};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Nebeneinander mit {0}: {1}. Gespielt auf seinem Gerät; danach zählt es in deinen Statistiken.",
+"Buz mavisi":"Eisblau",
+"Siyah krom":"Schwarzchrom",
+"Kor kırmızı":"Glutrot",
+"Uygulamadaki okum":"Mein Dart in der App"};

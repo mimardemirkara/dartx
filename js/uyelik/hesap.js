@@ -306,6 +306,7 @@ export async function profilKaydet(alanlar) {
   await F.setDoc(F.doc(db, 'users', durum.user.uid), alanlar, { merge: true });
   durum.profil = { ...(durum.profil || {}), ...alanlar }; haber();
   if (Object.keys(alanlar).some(k => k.startsWith('ok') || k === 'agirlik')) await genelYaz({ okOzet: okOzet(durum.profil, 'tr') || null, okOzetEn: okOzet(durum.profil, 'en') || null }).catch(() => {});
+  if ('okGorunum' in alanlar) await genelYaz({ okGorunum: durum.profil.okGorunum || null }).catch(() => {});
   if ('seviye' in alanlar || 'lakap' in alanlar) await genelYaz({ seviye: durum.profil.seviye || null, lakap: durum.profil.lakap || null }).catch(() => {});
   if ('ad' in alanlar || 'foto' in alanlar) await genelYaz({ ad: durum.profil.ad, adAnahtar: durum.profil.adAnahtar || null, foto: durum.profil.foto || null, kod: durum.profil.kod || null }).catch(() => {});
   if (alanlar.ad && durum.user.displayName !== alanlar.ad) { const { A } = await bulut(); A.updateProfile(durum.user, { displayName: alanlar.ad }).catch(() => {}); }

@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"Играем рядом",
 "Bilgisayara karşı oyna, seviyeni seç.":"Играйте против компьютера, выберите уровень.",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"Одиночный режим: не более {0} игроков. Для {1} выберите команды.",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye не смог записать бросок. Сначала закройте открытое окно.",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Рядом с {0}: {1}. Играется на его устройстве; после окончания попадёт в вашу статистику."};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Рядом с {0}: {1}. Играется на его устройстве; после окончания попадёт в вашу статистику.",
+"Buz mavisi":"Ледяной синий",
+"Siyah krom":"Чёрный хром",
+"Kor kırmızı":"Огненно-красный",
+"Uygulamadaki okum":"Мой дротик в приложении"};

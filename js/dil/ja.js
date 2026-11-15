@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"対面でプレイ",
 "Bilgisayara karşı oyna, seviyeni seç.":"コンピューターと対戦。レベルを選んでください。",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"シングルは最大 {0} 人です。{1} 人ならチームを選んでください。",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye がスローを記録できませんでした。先に開いている画面を閉じてください。",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"{0} さんと対面で {1}。相手の端末でプレイし、終了後あなたの統計に記録されます。"};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"{0} さんと対面で {1}。相手の端末でプレイし、終了後あなたの統計に記録されます。",
+"Buz mavisi":"アイスブルー",
+"Siyah krom":"ブラッククローム",
+"Kor kırmızı":"エンバーレッド",
+"Uygulamadaki okum":"アプリ内の自分のダーツ"};

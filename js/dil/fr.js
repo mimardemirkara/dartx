@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"On joue côte à côte",
 "Bilgisayara karşı oyna, seviyeni seç.":"Joue contre l’ordinateur, choisis un niveau.",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"En solo : {0} joueurs maximum. Pour {1}, choisis Équipes.",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye n’a pas pu saisir le lancer. Ferme d’abord la fenêtre ouverte.",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Côte à côte avec {0} : {1}. Joué sur son appareil ; à la fin, compté dans tes statistiques."};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Côte à côte avec {0} : {1}. Joué sur son appareil ; à la fin, compté dans tes statistiques.",
+"Buz mavisi":"Bleu glace",
+"Siyah krom":"Chrome noir",
+"Kor kırmızı":"Rouge braise",
+"Uygulamadaki okum":"Ma fléchette dans l’appli"};

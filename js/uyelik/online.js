@@ -960,4 +960,11 @@ function sessizlikBak() {
   });
 }
 
+/** Demir 15.11: hesabın seçtiği ok görünümü ('buz' | 'kont' | 'kor' | '' klasik) — kendi profilinden ya da arkadaşın açık profilinden */
+export function hesapOku(uid) {
+  if (!uid) return '';
+  if (uid === benUid()) return (H.uye().profil || {}).okGorunum || '';
+  return (durum.profil[uid] || {}).okGorunum || '';
+}
+
 export { bildir }; // şerit bildirimi (başka modüller de kullanabilir)

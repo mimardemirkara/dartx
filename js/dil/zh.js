@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"面对面对战",
 "Bilgisayara karşı oyna, seviyeni seç.":"与电脑对战，选择难度。",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"单人模式最多 {0} 名玩家。{1} 人请选择团队。",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye 无法记录这次投掷。请先关闭打开的窗口。",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"与 {0} 面对面：{1}。在对方设备上进行，结束后计入你的统计。"};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"与 {0} 面对面：{1}。在对方设备上进行，结束后计入你的统计。",
+"Buz mavisi":"冰蓝",
+"Siyah krom":"黑铬",
+"Kor kırmızı":"炽红",
+"Uygulamadaki okum":"应用中的我的飞镖"};

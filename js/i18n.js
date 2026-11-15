@@ -270,4 +270,8 @@ const EN = {
   "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.": "Singles allow up to {0} players. Choose Teams for {1}.",
   "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.": "X-Eye could not enter the throw. Close the open window first.",
   "{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.": "Side by side with {0}: {1}. Played on their device; it counts in your stats when it ends.",
+  "Buz mavisi": "Ice blue",
+  "Siyah krom": "Black chrome",
+  "Kor kırmızı": "Ember red",
+  "Uygulamadaki okum": "My dart in the app",
 };

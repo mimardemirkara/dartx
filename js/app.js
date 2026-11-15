@@ -29,7 +29,7 @@ import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu, bulutMacSil }
 import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ekranSonra, girisEkrani, eylemBaslat, viewEylem } from './uyelik/ekran.js';
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
-import { zilDugme, rakipDurumHtml, kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
+import { zilDugme, rakipDurumHtml, hesapOku, kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
 import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal, rovans as onlineRovans } from './uyelik/online.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
@@ -822,6 +822,7 @@ function viewSetup() {
 const OY_IC = {
   sen: LUCIDE('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 18),
   cihaz: LUCIDE('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>', 18),
+  ok: LUCIDE('<path d="m15 9-6 6"/><path d="M9 6.5V15h8.5"/><path d="M21 3 15 9"/>', 16),
   ark: LUCIDE('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>', 18),
 };
 // Giriş yapmış üyenin bu cihazdaki kendi oyuncusu (yoksa null)
@@ -935,7 +936,10 @@ const UNVAN = () => '';
 const avatarIc = (ad, yedek) => { if (botMu(ad)) return botAvatar('oz-av'); const r = ozelResim(ad); return r ? `<img class="oz-av" src="${r}" alt="">` : yedek; };
 
 // Atılmamış ok: DartX logosundaki dart (uç solda, kanat sağda)
-const OK_IC = '<svg class="ok-ic" viewBox="0 0 48 16" aria-hidden="true"><path d="M2 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M11 6.2h4.5l1.2-.9h7.6l1.2.9H31v3.6h-5.5l-1.2.9h-7.6l-1.2-.9H11z" fill="currentColor"/><path d="M17.6 6.2v3.6M19.6 6.2v3.6M21.6 6.2v3.6" stroke="rgb(0 0 0 / .35)" stroke-width=".8"/><path d="M31 7.3h7" stroke="currentColor" stroke-width="1.4"/><path d="M37 8 46 1.6l-1.6 6.4L46 14.4z" fill="currentColor" opacity=".9"/></svg>';
+const OK_IC = '<svg class="ok-ic" viewBox="0 0 64 40" aria-hidden="true"><g transform="rotate(-24 32 20)"><path d="M4 20 L15 18.6 L15 21.4 Z" fill="#e8e2d6"/><rect x="15" y="16.2" width="17" height="7.6" rx="3.2" fill="#d9ad55"/><path d="M19 16.4v7.2M22 16.4v7.2M25 16.4v7.2M28 16.4v7.2" stroke="#7a5414" stroke-width="1.2"/><rect x="32" y="18.6" width="12" height="2.8" rx="1.2" fill="#b98a35"/><path d="M42 20 L60 7 L56 20 L60 33 Z" fill="#e04b3c"/><path d="M42 20 L60 7 L56 20 Z" fill="#f06a55"/></g></svg>'; // Demir 15.11: çapraz duran dart (sivri uç, altın gövde, kırmızı kanat)
+// Demir 15.11: ok online hesaba bağlı (Hesabım → Ok setim → Görünüm): buz mavisi, siyah krom, kor kırmızı; yerel oyuncu ve seçmeyen üye klasik çizim
+const okKutuIc = (tur, i = 0) => (['buz', 'kont', 'kor'].includes(tur)
+  ? `<svg class="ok-ic ok-set" viewBox="-4 -18 60 36" aria-hidden="true">${OK_DEFS('sl' + tur + i)}<g transform="rotate(-24 26 0)">${OK_CIZ('sl' + tur + i, tur)}</g></svg>` : OK_IC);
 // Kriket oyuncu kartında canlı MPR (Demir 14.11; Ayarlar'dan kapatılabilir): tur başına işaret, biten ellerden
 const canliMpr = (m, i) => {
   if (data().settings.mprGoster === false) return '';
@@ -962,7 +966,7 @@ function viewPlay() {
   S.okAnim = okAnahtar;
   const slots = [0, 1, 2].slice(0, g.dartsPerTurn || 3).map(i => {
     const d = m.turnDarts[i];
-    if (!d) return `<span class="slot bos" aria-label="${t('Kalan ok')}">${OK_IC}</span>`;
+    if (!d) return `<span class="slot bos" aria-label="${t('Kalan ok')}">${okKutuIc(p && p.uid ? hesapOku(p.uid) : '', i)}</span>`;
     const tur = d.n === 0 ? 'iska' : d.n === 25 ? (d.m === 2 ? 'dbull' : 'bull') : d.m === 3 ? 't' : d.m === 2 ? 'd' : 's';
     return `<span class="slot f ok-${tur} ${i === yeniOk ? 'yeni' : ''}">${dartLabel(d)}</span>`;
   }).join('');
@@ -1358,7 +1362,7 @@ function viewPlayers() {
       <b>${esc(p.name)}${tur === 'sen' ? `<small class="pc-sen">${t('Sen')}</small>` : tur === 'ark' ? `<small class="prow-etiket">${acik[p.uid] ? t('Çevrimiçi') : t('Arkadaş')}</small>` : UNVAN(p.name)}</b>
       <button class="prow-ic" data-act="pstats" data-id="${p.id}" aria-label="${t('İstatistik')}" title="${t('İstatistik')}">${GRAFIK}</button>
       ${tur === 'yerel' ? `<button class="prow-ic" data-act="pedit" data-id="${p.id}" aria-label="${t('Düzenle')}" title="${t('Düzenle')}">${KALEM}</button>
-      <button class="prow-sil" data-act="pdel" data-id="${p.id}" aria-label="${t('Oyuncuyu sil')}" title="${t('Oyuncuyu sil')}">${COP}</button>` : ''}
+      ${tur === 'yerel' ? `<button class="prow-sil" data-act="pdel" data-id="${p.id}" aria-label="${t('Oyuncuyu sil')}" title="${t('Oyuncuyu sil')}">${COP}</button>` : ''}` : ''}
     </div>`;
   const grupBas = (ic, yazi, n, alt) => `<h2 class="sec oy-grup">${ic}<span>${yazi}</span><b class="oy-grup-n">${n}</b>${alt ? `<small>${alt}</small>` : ''}</h2>`;
   const senHtml = senO.length ? grupBas(OY_IC.sen, t('Sen'), 1) + `<div class="prow-sabit">${senO.map(p => satir(p, 'sen')).join('')}</div>` : '';
@@ -1833,7 +1837,7 @@ function modal() {
       <form data-act="psave" data-id="${p.id}"><input name="name" value="${esc(p.name)}" maxlength="14">
       <div class="colors">${store.COLOR_LIST.map(c => `<label><input type="radio" name="color" value="${c}" ${c === p.color ? 'checked' : ''}><span style="background:${c}"></span></label>`).join('')}</div>
       <button class="btn primary">${t('Kaydet')}</button></form>
-      <button class="btn danger" data-act="pdel" data-id="${p.id}">${t('Oyuncuyu sil')}</button>
+      ${p.id === benimOyuncum() ? '' : `<button class="btn danger" data-act="pdel" data-id="${p.id}">${t('Oyuncuyu sil')}</button>`}
       <button class="btn" data-act="close">${t('Vazgeç')}</button>`;
   }
   return `<div class="modal-bg" data-act="bg"><div class="modal">${body}</div></div>`;

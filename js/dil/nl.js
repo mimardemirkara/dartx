@@ -1111,4 +1111,8 @@ export default {"Yan Yana Oynuyoruz":"We spelen naast elkaar",
 "Bilgisayara karşı oyna, seviyeni seç.":"Speel tegen de computer, kies een niveau.",
 "Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"Enkel: maximaal {0} spelers. Kies Teams voor {1}.",
 "X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye kon de worp niet invoeren. Sluit eerst het open venster.",
-"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Naast elkaar met {0}: {1}. Gespeeld op zijn toestel; na afloop telt het in je statistieken."};
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Naast elkaar met {0}: {1}. Gespeeld op zijn toestel; na afloop telt het in je statistieken.",
+"Buz mavisi":"IJsblauw",
+"Siyah krom":"Zwart chroom",
+"Kor kırmızı":"Gloedrood",
+"Uygulamadaki okum":"Mijn pijl in de app"};

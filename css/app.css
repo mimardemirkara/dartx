@@ -4302,7 +4302,7 @@ a.ay-satir { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) { .mc-zil.yeni svg { animation: none; } }
 /* Atış kutuları (Demir 14.11): boş kutuda dart, atılan ok tuş rengiyle; yeni ok saplanarak gelir */
 .slot.bos { color: color-mix(in srgb, var(--brand, #e3b866) 75%, transparent); }
-.slot .ok-ic { width: 72%; max-width: 46px; height: auto; filter: drop-shadow(0 1px 1px rgb(0 0 0 / .35)); }
+.slot .ok-ic { width: 82%; max-width: 54px; height: auto; filter: drop-shadow(0 1px 1px rgb(0 0 0 / .35)); }
 .slot.f { color: var(--fg); }
 .slot.ok-d { background: rgb(61 139 253 / .32); box-shadow: inset 0 0 0 1.5px rgb(61 139 253 / .75); color: #d6e6ff; }
 .slot.ok-t { background: rgb(168 98 242 / .32); box-shadow: inset 0 0 0 1.5px rgb(168 98 242 / .75); color: #ecdcff; }
@@ -4385,3 +4385,4 @@ a.ay-satir { color: inherit; text-decoration: none; }
   @keyframes kivilcim { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-72px * var(--d))) scale(.3); } }
 }
 @media (prefers-reduced-motion: reduce) { .toast.show.a-bomba .u-ic > svg, .patla i { animation: none; } }
+.slot .ok-set { width: 86%; max-width: 58px; }

@@ -253,11 +253,14 @@ function secimListe(act, p) {
     case 'uy-okuc': return secenekler(UCLAR, dl);
     case 'uy-okgovde': return secenekler(GOVDELER, dl);
     case 'uy-okkanat': return secenekler(KANATLAR, dl);
+    case 'uy-okgorunum': return OK_GORUNUM.map(([v, ad]) => ({ deger: v, ad: t(ad) }));
   }
   return [];
 }
 const SECIM_ALAN = { 'uy-el': 'el', 'uy-seviye': 'seviye', 'uy-meslek': 'meslek', 'uy-sevilen': 'sevilenOyun', 'uy-ulke': 'ulke', 'uy-sehir': 'sehir', 'uy-ilce': 'ilce',
-  'uy-okmarka': 'okMarka', 'uy-okmodel': 'okModel', 'uy-agirlik': 'agirlik', 'uy-oktungsten': 'okTungsten', 'uy-okuc': 'okUc', 'uy-okgovde': 'okGovde', 'uy-okkanat': 'okKanat' };
+  'uy-okmarka': 'okMarka', 'uy-okmodel': 'okModel', 'uy-agirlik': 'agirlik', 'uy-oktungsten': 'okTungsten', 'uy-okuc': 'okUc', 'uy-okgovde': 'okGovde', 'uy-okkanat': 'okKanat', 'uy-okgorunum': 'okGorunum' };
+// Demir 15.11: uygulamada atış kutularında görünen ok (hesaba bağlı; arkadaşların da görür)
+const OK_GORUNUM = [['buz', 'Buz mavisi'], ['kont', 'Siyah krom'], ['kor', 'Kor kırmızı']];
 // Demir 11.11: dokunmatikte (telefon, tablet) telefonun kendi seçicisi; farede (bilgisayar) DartX temalı aramalı pencere
 const dokunmatik = () => matchMedia('(pointer: coarse)').matches;
 async function secimDegisti(sel) { return secimKaydet(sel.dataset.secim, sel.value, sel.getAttribute('aria-label') || ''); }
@@ -555,7 +558,9 @@ function viewProfil() {
     <section class="ay-grup uy-kart uy-okset">
       <div class="kart-bas">${IC.terazi}<span>${t('Ok setim')}</span></div>
       ${(() => { const sec = v => v || `<span class="soluk">${t('Seç')}</span>`; const dl = dilIki();
-        return secSatir('uy-okmarka', IC.yildiz, t('Marka'), p.okMarka ? `<span class="yer-deger">${markaRozet(p.okMarka)}${esc(p.okMarka)}</span>` : '', secimListe('uy-okmarka', p), p.okMarka, true)
+        const gor = OK_GORUNUM.find(([v]) => v === p.okGorunum);
+        return secSatir('uy-okgorunum', IC.kanat, t('Uygulamadaki okum'), gor ? t(gor[1]) : t('Klasik'), secimListe('uy-okgorunum', p), p.okGorunum)
+          + secSatir('uy-okmarka', IC.yildiz, t('Marka'), p.okMarka ? `<span class="yer-deger">${markaRozet(p.okMarka)}${esc(p.okMarka)}</span>` : '', secimListe('uy-okmarka', p), p.okMarka, true)
           // Demir 11.11: model her zaman seçici; markanın listesi yoksa "Listede yok, yaz" ile yazılır
           + secSatir('uy-okmodel', IC.lakap, t('Model'), p.okModel ? esc(p.okModel) : '', modeller(p.okMarka), p.okModel, true)
           + secSatir('uy-agirlik', IC.terazi, t('Ağırlık'), p.agirlik ? `${p.agirlik} g` : '', secimListe('uy-agirlik', p), p.agirlik ? String(p.agirlik) : '')
