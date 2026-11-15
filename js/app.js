@@ -744,6 +744,9 @@ function viewSetup() {
   // Demir 15.11: giriş yapan üye kendini her seferinde seçmesin — kendi oyuncusu hep sırada (ilk sırada eklenir, çıkarılamaz)
   const benId = benimOyuncum();
   if (benId && !st.pids.includes(benId)) st.pids.unshift(benId);
+  // Demir 15.11: önceki maçtan hatırlanan arkadaş kaydı (hesaba bağlı oyuncu) sıraya kendiliğinden gelmez; arkadaş yalnız
+  // "Yan Yana Oynuyoruz" kutusundan (onaylı ya da misafir) eklenir. Böylece yerel Tuncay ile arkadaş Tuncay karışmaz.
+  st.pids = st.pids.filter(id => { const pl = all.find(x => x.id === id); return !pl || !pl.uid || id === benId || (st.yyOnay || {})[pl.uid] || (st.yyMisafir || {})[pl.uid]; });
   // Oynama sırası (Demir 08.11): seçilenler alt alta, tutamaktan sürükleyerek yer değiştirir; ✕ sıradan çıkarır
   const takimModu = g.teams && st.teams && st.pids.length >= 4;
   if (takimModu) takimlar(st);
