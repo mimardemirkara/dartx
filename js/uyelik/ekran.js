@@ -101,12 +101,25 @@ export function uyelikKur(ctx) {
       const o = data().players.find(p => p.id === u.profil.oyuncuId && !p.silindi);
       if (o && o.uid !== id) { o.uid = id; save(); }
       if (hesapTekille() && ['home', 'players', 'stats'].includes(C.S.view)) C.render();
-      otoCek(true);
+      otoCek(true).then(kendiniGaranti);
     }
     sonUid = id;
   });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') otoCek(); });
   window.addEventListener('online', () => otoCek());
+}
+/** Demir 15.11: giriş yapan üyenin bu cihazda mutlaka kendi oyuncusu olur (silinmişse ya da yeni cihazsa açılır;
+ *  adı ve fotoğrafı profilinden). İlk girişte "Bu cihazdaki hangi oyuncu sensin?" sorusu bekleniyorsa dokunulmaz. */
+function kendiniGaranti() {
+  const u = H.uye(); if (!(u.user && u.profil && H.dogrulandi())) return;
+  const pr = u.profil; if (pr.oyuncuId == null && !pr.eslesmeAtlandi) return;
+  const ben = u.user.uid, d = data();
+  let o = d.players.find(p => p.id === pr.oyuncuId && !p.silindi) || d.players.find(p => p.uid === ben && !p.silindi);
+  if (!o) o = addPlayer(pr.ad || 'Ben');
+  const yama = {}; if (o.uid !== ben) yama.uid = ben; if (pr.foto && o.foto !== pr.foto) yama.foto = pr.foto;
+  if (Object.keys(yama).length) updatePlayer(o.id, yama);
+  if (pr.oyuncuId !== o.id) H.profilKaydet({ oyuncuId: o.id }).catch(() => {});
+  if (['home', 'players', 'setup'].includes(C.S.view)) C.render();
 }
 /** Maç kaydında oyuncu kimliklerini değiştirir (taraflar, hamleler, el kayıtları) */
 function idDegistir(h, esle) {
