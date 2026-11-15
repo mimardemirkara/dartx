@@ -670,7 +670,9 @@ function botOyuncu(sv) {
 }
 function secilebilir(pids) {
   const ps = data().players;
-  const insan = ps.filter(p => !p.bot && !botMu(p.name) && !pids.includes(p.id)).map(p => ({ v: p.id, l: p.name, renk: p.color }));
+  // Demir 15.11: hesaba bağlı arkadaş kaydı bu listede çıkmaz (arkadaş Yan Yana kutusundan ya da Online'dan eklenir); kendi oyuncun çıkar
+  const benU = (hesapUye().user || {}).uid;
+  const insan = ps.filter(p => !p.bot && !botMu(p.name) && !pids.includes(p.id) && (!p.uid || p.uid === benU)).map(p => ({ v: p.id, l: p.name, renk: p.color }));
   const botlar = Object.keys(BOT_SEVIYE).map(sv => ({ sv, p: ps.find(x => x.bot === sv) })).filter(x => !x.p || !pids.includes(x.p.id))
     .map(({ sv, p }) => ({ v: 'bot:' + sv, l: 'DartBot ' + t(BOT_SEVIYE[sv].ad), renk: p ? p.color : '#e3b866', bot: BOT_IC }));
   return [...insan, ...botlar];
