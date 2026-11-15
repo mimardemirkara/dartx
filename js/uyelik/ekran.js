@@ -139,7 +139,13 @@ export function hesapTekille() {
   // yalnız o arkadaşın maçlarında geçiyorsa arkadaş kaydına katılır; kendi eklediğin ve kendi maçlarında oynattığın yerel oyuncuya dokunulmaz
   d.players.filter(p => !p.uid && !p.bot && !p.silindi).forEach(yp => {
     const maclar = (d.history || []).filter(h => h.sides && h.sides.some(sd => (sd.members || []).includes(yp.id)));
-    if (!maclar.length || !maclar.every(h => h.paylasan && h.paylasan.uid)) return;
+    // hiç maçı olmayan, adı bir arkadaşla aynı yerel kopya: hiçbir şey kaybolmadan kaldırılır
+    if (!maclar.length) {
+      const ayni = d.players.some(p => p.uid && p.uid !== ben && !p.silindi && p.name.toLocaleLowerCase('tr') === yp.name.toLocaleLowerCase('tr'));
+      if (ayni) { d.players = d.players.filter(p => p.id !== yp.id); d.silinenOyuncular = [...new Set([...(d.silinenOyuncular || []), yp.id])].slice(-1000); degisti = true; }
+      return;
+    }
+    if (!maclar.every(h => h.paylasan && h.paylasan.uid)) return;
     const uid = maclar[0].paylasan.uid; if (!maclar.every(h => h.paylasan.uid === uid)) return;
     const ark = d.players.find(p => p.uid === uid && !p.silindi);
     if (!ark || ark.name.toLocaleLowerCase('tr') !== yp.name.toLocaleLowerCase('tr')) return;
