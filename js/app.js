@@ -1780,13 +1780,16 @@ function modal() {
     const rozet = i => adAvatar(ad(i), 'bs-av') || `<span class="bs-harf" style="--pc:${renk(i)}">${esc(String(ad(i)).trim().charAt(0).toLocaleUpperCase('tr'))}</span>`;
     const adim = md.adim || 'secim';
     const takimli = m.sides.some(sd => sd.members.length > 1);
+    // Demir 15.11: online maçta yalnız tarafsız yöntemler (Yazı Tura, Rastgele). "Sen Seç" ve "Bull'a At" daveti gönderene
+    // karar yetkisi veriyordu (rakibin okunu göremez); ikisi online maçta çıkmaz.
+    const onl = !!m.online;
     if (adim === 'secim') {
       body = `<h2 class="bs-baslik">${t('İlk kim atacak?')}</h2>
-        <div class="bs-yontem">
-          <button class="btn bs-kart bs-bull" data-act="bsyontem" data-v="bull"><span class="bs-kart-ic">${BS_TAHTA}</span><b>${t("Bull'a At")}</b><small>${t('Herkes bir ok atar, en yakın başlar')}</small></button>
+        <div class="bs-yontem ${onl ? 'bs-onl' : ''}">
+          ${onl ? '' : `<button class="btn bs-kart bs-bull" data-act="bsyontem" data-v="bull"><span class="bs-kart-ic">${BS_TAHTA}</span><b>${t("Bull'a At")}</b><small>${t('Herkes bir ok atar, en yakın başlar')}</small></button>`}
           <button class="btn bs-kart bs-para" data-act="bsyontem" data-v="kura"><span class="bs-kart-ic"><span class="bs-coin">${BS_PARA_YUZ}</span></span><b>${t('Yazı Tura')}</b><small>${m.sides.length > 2 ? t('Kura çekilir') : t('Para atılır')}</small></button>
           <button class="btn bs-kart bs-zar" data-act="baslayan" data-i="r"><span class="bs-kart-ic bs-zar-ic">${BS_ZAR}</span><b>${t('Rastgele')}</b><small>${t('DartX karar versin')}</small></button>
-          <button class="btn bs-kart bs-sec" data-act="bsyontem" data-v="sec"><span class="bs-kart-ic bs-sec-ic">${BS_SEC}</span><b>${t('Kimin Başlayacağını Sen Seç')}</b><small>${t('Oyunculardan birine dokun')}</small></button>
+          ${onl ? '' : `<button class="btn bs-kart bs-sec" data-act="bsyontem" data-v="sec"><span class="bs-kart-ic bs-sec-ic">${BS_SEC}</span><b>${t('Kimin Başlayacağını Sen Seç')}</b><small>${t('Oyunculardan birine dokun')}</small></button>`}
         </div>`;
     } else if (adim === 'bull' || adim === 'sec') {
       body = `<h2 class="bs-baslik">${adim === 'sec' ? t('Kim başlasın?') : t("Bull'a en yakın kim?")}</h2>
