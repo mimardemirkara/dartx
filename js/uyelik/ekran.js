@@ -135,6 +135,19 @@ export function hesapTekille() {
   const gruplar = {};
   d.players.forEach(p => { if (p.uid && !p.silindi) (gruplar[p.uid] = gruplar[p.uid] || []).push(p); });
   let degisti = false;
+  // Demir 15.11: arkadaşın gönderdiği yan yana maçlarla açılmış, hesabı olmayan aynı adlı yerel oyuncu (ör. ikinci "Tuncay")
+  // yalnız o arkadaşın maçlarında geçiyorsa arkadaş kaydına katılır; kendi eklediğin ve kendi maçlarında oynattığın yerel oyuncuya dokunulmaz
+  d.players.filter(p => !p.uid && !p.bot && !p.silindi).forEach(yp => {
+    const maclar = (d.history || []).filter(h => h.sides && h.sides.some(sd => (sd.members || []).includes(yp.id)));
+    if (!maclar.length || !maclar.every(h => h.paylasan && h.paylasan.uid)) return;
+    const uid = maclar[0].paylasan.uid; if (!maclar.every(h => h.paylasan.uid === uid)) return;
+    const ark = d.players.find(p => p.uid === uid && !p.silindi);
+    if (!ark || ark.name.toLocaleLowerCase('tr') !== yp.name.toLocaleLowerCase('tr')) return;
+    d.history = d.history.map(h => idDegistir(h, { [yp.id]: ark.id }));
+    d.players = d.players.filter(p => p.id !== yp.id);
+    d.silinenOyuncular = [...new Set([...(d.silinenOyuncular || []), yp.id])].slice(-1000); // öteki cihazdan geri gelmesin
+    degisti = true;
+  });
   for (const [uid, liste] of Object.entries(gruplar)) {
     if (liste.length < 2) continue;
     const kalan = (uid === ben && liste.find(p => p.id === benimId)) || liste.slice().sort((a, b) => say(b.id) - say(a.id))[0];

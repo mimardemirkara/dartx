@@ -466,6 +466,9 @@ function macAl(d) {
     const bilgi = (d.oyuncular || {})[k] || {}; let id;
     if (k === 'u:' + ben) id = kendiOyuncum();
     else if (k.startsWith('u:')) { const u = k.slice(2); const pr = durum.profil[u] || {}; id = arkadasOyuncu(u, pr.ad || bilgi.ad, pr.foto); }
+    // Demir 15.11: gönderen kendi cihazında hesabına bağlı değilken maç adla gelir ("n:Tuncay"); bu durumda yeni yerel
+    // oyuncu açılmaz, gönderenin arkadaş kaydına yazılır (iki Tuncay olmasın)
+    else if (!bilgi.bot && d.gonderen && (bilgi.ad || k.slice(2)).toLocaleLowerCase('tr') === String(d.gonderenAd || (durum.profil[d.gonderen] || {}).ad || '').toLocaleLowerCase('tr')) { const pr = durum.profil[d.gonderen] || {}; id = arkadasOyuncu(d.gonderen, pr.ad || d.gonderenAd, pr.foto); }
     else { const ad = bilgi.ad || k.slice(2); const o = data().players.find(x => !x.uid && !x.silindi && !!x.bot === !!bilgi.bot && x.name.toLocaleLowerCase('tr') === String(ad).toLocaleLowerCase('tr')) || addPlayer(ad || t('Arkadaş')); id = o.id; }
     return (yerel[k] = id);
   };
