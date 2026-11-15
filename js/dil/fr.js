@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"On joue côte à côte",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"Tu peux continuer à attendre, mettre la partie en pause et revenir plus tard, ou l’annuler. Une partie annulée n’est ajoutée aux statistiques de personne.",
 "Beklemeye devam":"Continuer à attendre",
 "Maça ara ver":"Mettre en pause",
-"Maç iptal edildi":"Partie annulée"};
+"Maç iptal edildi":"Partie annulée",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} est hors ligne. Il doit ouvrir l’appli pour jouer côte à côte.",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"Invitation à la revanche envoyée. La partie s’ouvre quand ton adversaire accepte.",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"{0} a envoyé votre partie côte à côte. Elle attend ta validation.",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"Choisis des joueurs ci-dessous ; l’ordre de jeu apparaît ici.",
+"Bilgisayara karşı oyna, seviyeni seç.":"Joue contre l’ordinateur, choisis un niveau.",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"En solo : {0} joueurs maximum. Pour {1}, choisis Équipes.",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye n’a pas pu saisir le lancer. Ferme d’abord la fenêtre ouverte.",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Côte à côte avec {0} : {1}. Joué sur son appareil ; à la fin, compté dans tes statistiques."};

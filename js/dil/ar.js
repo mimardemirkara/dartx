@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"نلعب جنبًا إلى جنب",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"يمكنك مواصلة الانتظار أو إيقاف المباراة مؤقتًا والعودة لاحقًا أو إلغاؤها. المباراة الملغاة لا تُضاف إلى إحصائيات أحد.",
 "Beklemeye devam":"مواصلة الانتظار",
 "Maça ara ver":"إيقاف المباراة مؤقتًا",
-"Maç iptal edildi":"أُلغيت المباراة"};
+"Maç iptal edildi":"أُلغيت المباراة",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} غير متصل. يجب أن يفتح التطبيق للعب جنبًا إلى جنب.",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"تم إرسال دعوة الثأر. تبدأ المباراة عندما يقبل خصمك.",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"أرسل {0} مباراتكما جنبًا إلى جنب. بانتظار موافقتك.",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"اختر اللاعبين من الأسفل؛ يظهر ترتيب اللعب هنا.",
+"Bilgisayara karşı oyna, seviyeni seç.":"العب ضد الكمبيوتر، اختر المستوى.",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"الفردي حتى {0} لاعبين. لـ {1} اختر الفرق.",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"تعذّر على X-Eye تسجيل الرمية. أغلق النافذة المفتوحة أولًا.",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"جنبًا إلى جنب مع {0}: {1}. تُلعب على جهازه وتُحتسب في إحصائياتك عند انتهائها."};

@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"面对面对战",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"你可以继续等待、暂停比赛稍后再回来，或取消比赛。已取消的比赛不会计入任何人的统计。",
 "Beklemeye devam":"继续等待",
 "Maça ara ver":"暂停比赛",
-"Maç iptal edildi":"比赛已取消"};
+"Maç iptal edildi":"比赛已取消",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} 不在线。面对面比赛需要对方打开应用。",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"复仇赛邀请已发送。对手接受后比赛即开始。",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"{0} 发送了你们的面对面比赛，等待你确认。",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"在下方选择玩家；出场顺序会显示在这里。",
+"Bilgisayara karşı oyna, seviyeni seç.":"与电脑对战，选择难度。",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"单人模式最多 {0} 名玩家。{1} 人请选择团队。",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye 无法记录这次投掷。请先关闭打开的窗口。",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"与 {0} 面对面：{1}。在对方设备上进行，结束后计入你的统计。"};

@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"Играем рядом",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"Можно подождать, поставить матч на паузу и вернуться позже или отменить его. Отменённый матч не попадает ни в чью статистику.",
 "Beklemeye devam":"Ждать дальше",
 "Maça ara ver":"Пауза",
-"Maç iptal edildi":"Матч отменён"};
+"Maç iptal edildi":"Матч отменён",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} не в сети. Для игры рядом он должен открыть приложение.",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"Приглашение на реванш отправлено. Матч откроется, когда соперник примет.",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"{0} отправил ваш матч рядом. Он ждёт вашего подтверждения.",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"Выберите игроков ниже; порядок игры появится здесь.",
+"Bilgisayara karşı oyna, seviyeni seç.":"Играйте против компьютера, выберите уровень.",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"Одиночный режим: не более {0} игроков. Для {1} выберите команды.",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye не смог записать бросок. Сначала закройте открытое окно.",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Рядом с {0}: {1}. Играется на его устройстве; после окончания попадёт в вашу статистику."};

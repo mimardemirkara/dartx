@@ -4368,3 +4368,6 @@ a.ay-satir { color: inherit; text-decoration: none; }
 /* Online maçta yalnız Yazı Tura + Rastgele: iki eşit kart yan yana (Demir 15.11) */
 .bs-yontem.bs-onl { grid-template-columns: 1fr 1fr !important; }
 .bs-yontem.bs-onl > .bs-zar { grid-column: auto !important; flex-direction: column !important; }
+/* Uzun bilgi uyarıları (Demir 15.11): oyun anları (Bust, 180) iri kalır; cümleler okunur boyutta */
+.toast.uzun { font-size: 19px; font-weight: 700; line-height: 1.35; width: min(340px, 86vw); max-width: min(340px, 86vw); padding: 18px 24px; text-align: center; }
+@media (min-width: 720px) { .toast.uzun { font-size: 23px; width: 480px; max-width: 480px; padding: 22px 32px; } }

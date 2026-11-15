@@ -303,7 +303,7 @@ async function dinle() {
         });
         return;
       }
-      bildir(t('{0} yan yana oynadığınız maçı gönderdi — onayla', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'davet', ad: d.gonderenAd || '', hedef: 'online', sure: 7000 });
+      bildir(t('{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'davet', ad: d.gonderenAd || '', hedef: 'online', sure: 7000 });
     });
     tazele();
   }, () => {}));
@@ -414,7 +414,7 @@ function yyGelenSor(d, sure) {
     const kabul = b.dataset.h === 'kabul'; clearTimeout(saat); yyKapat(pd);
     try {
       const { F } = await bulut(); await F.updateDoc(d.ref, { durum: kabul ? 'kabul' : 'red' });
-      if (kabul) C.toast(t('{0} ile yan yanasınız: {1} maçı {0} cihazında oynanacak, skoru o girecek. Maç bitince istatistiklerine de yazılır.', esc(ad), esc(oyunAd(d.gameId, d.opts))), 'ok', { sure: 5500, tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } }); // Demir 14.11: kimle, hangi oyun, kimin cihazında
+      if (kabul) C.toast(t('{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.', esc(ad), esc(oyunAd(d.gameId, d.opts))), 'ok', { sure: 5500, tur: { ic: 'kisi', a: 'a-zipla', k: 'ok' } }); // Demir 14.11: kimle, hangi oyun, kimin cihazında
     } catch (hata_) { console.warn('yan yana cevap', hata_); C.toast(t('İstek artık geçerli değil'), 'bad', { tur: { ic: 'kisi', a: 'a-sars', k: 'bad' } }); }
   });
 }

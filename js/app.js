@@ -133,7 +133,9 @@ function toast(msg, kind = '', ozel = null) {
   const tur = (ozel && ozel.tur) || uyariTur(msg);
   if (!kind) kind = tur.k;
   el.style.setProperty('--pc', (ozel && ozel.renk) || '');
-  el.className = `toast ${kind} ${tur.a}`;
+  // Demir 15.11: uzun bilgi metni oyun anı gibi dev harflerle yazılmasın; okunur boyutta, düzgün satırlarla
+  const uzun = String(msg).replace(/<[^>]*>/g, '').length > 26;
+  el.className = `toast ${kind} ${tur.a} ${uzun ? 'uzun' : ''}`;
   const ic = tur.ic === 'house3' ? HOUSE3_HTML : String(tur.ic).startsWith('resim:') ? `<img class="u-resim" src="${tur.ic.slice(6)}" alt="">` : UYARI_IC[tur.ic];
   el.innerHTML = `<span class="u-ic">${ic}</span><span class="u-yazi">${msg}</span>`;
   void el.offsetWidth; // animasyon her uyarıda baştan başlasın
@@ -801,7 +803,7 @@ function viewSetup() {
     <div class="kur-izgara"><section class="kur-panel kur-sol"><h2 class="kp-bas">${KURAL_IKON.nisan}<span>${t('Ayarlar')}</span></h2>${opts}${legs}${input}</section><section class="kur-panel kur-sag">
     ${modSekme}
     ${onl ? `<h2 class="kp-bas">${ikon('grp-online')}<span>${t('Rakibin')}</span></h2>${onlinePanel}` : `<h2 class="kp-bas">${alanIkon('players')}<span>${t('Oyuncular')}</span><small class="kp-sayi">${n}</small><span class="kp-araclar">${n > 1 ? `<button class="kp-ic" data-act="shuffle" aria-label="${t('Sırayı karıştır')}" title="${t('Sırayı karıştır')}">${KARISTIR_IC}</button>` : ''}</span></h2>
-      ${n ? `<div class="sira-liste">${sira}</div>` : `<p class="muted sira-bos">${t('Aşağıdan oyuncu seç — oynama sırası buraya gelir')}</p>`}
+      ${n ? `<div class="sira-liste">${sira}</div>` : `<p class="muted sira-bos">${t('Aşağıdan oyuncu seç; oynama sırası burada görünür.')}</p>`}
       <div class="ekle-satir">${oyuncuSecici(all.filter(p => !p.uid || p.id === benId || p.uid === (hesapUye().user || {}).uid), st.pids)}<form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form></div>
       ${(() => { const yy = yanYanaArkadaslar(); if (!yy.length) return ''; // Demir 14.11: yan yana oynanan maç arkadaşın hesabına da yazılır; onay maç başında, arkadaşın kendi telefonundan
         return `<div class="yy-kutu"><div class="yy-bas">${ikon('grp-online')}<span>${t('Yan Yana Oynuyoruz')}</span><small>${t('Çevrimiçi arkadaşına dokun: telefonuna hemen istek gider. Kabul ederse oyunculara eklenir, maç ikinizin istatistiğine de yazılır.')}</small></div><div class="yy-liste">${yy.map(a => { const on = a.pid && st.pids.includes(a.pid); const onay = on && (st.yyOnay || {})[a.uid], misafirMi = on && !onay && (st.yyMisafir || {})[a.uid]; return `<button type="button" class="yy-ark ${on ? 'on' : ''} ${onay ? 'onayli' : ''} ${a.acik ? '' : 'kapali'}" data-act="yyekle" data-u="${a.uid}" data-ad="${esc(a.ad)}" data-acik="${a.acik ? 1 : 0}" aria-pressed="${on}"><span class="yy-av-yer">${a.foto ? `<img class="yy-av" src="${a.foto}" alt="">` : adAvatar(a.ad, 'yy-av') || `<span class="yy-harf">${esc(a.ad.trim().charAt(0).toLocaleUpperCase('tr'))}</span>`}<i class="on-nokta ${a.acik ? 'acik' : 'kapali'}"></i></span><span class="yy-ark-ad">${esc(a.ad)}${onay || misafirMi ? `<small>${onay ? t('Onayladı') : t('Misafir')}</small>` : ''}</span>${onay ? `<span class="yy-tik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>` : ''}</button>`; }).join('')}</div></div>`; })()}
@@ -809,7 +811,7 @@ function viewSetup() {
     </section></div>
     <div class="kur-alt">
     ${onl ? `<button class="btn primary big" data-act="kurdavet" ${st.onlineArk && onlineAcik() ? '' : 'disabled'}>${ikon('grp-online')}<span>${t('Arkadaşını davet et')}</span></button>${!st.onlineArk && onlineAcik() ? `<p class="muted center">${t('Davet etmek için bir arkadaşını seç')}</p>` : ''}` : `<button class="btn primary big" data-act="start" ${okCount ? '' : 'disabled'}>${t('Başla')}</button>`}
-    ${onl ? '' : !okCount ? `<p class="muted center">${n > sinir ? (g.teams && !teamsOn && g.maxTekli && n <= (g.max || 8) ? t('Tekli en fazla {0} oyuncu — {1} kişi için Takım seç', sinir, n) : t('Bu oyun en fazla {0} oyuncuyla oynanır', sinir)) : g.min > 1 ? t('En az {0} oyuncu seç', g.min) : t('En az 1 oyuncu seç')}</p>` : ''}
+    ${onl ? '' : !okCount ? `<p class="muted center">${n > sinir ? (g.teams && !teamsOn && g.maxTekli && n <= (g.max || 8) ? t('Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.', sinir, n) : t('Bu oyun en fazla {0} oyuncuyla oynanır', sinir)) : g.min > 1 ? t('En az {0} oyuncu seç', g.min) : t('En az 1 oyuncu seç')}</p>` : ''}
     </div>
   </main>`;
 }
@@ -1137,7 +1139,7 @@ function kameraAtis(p) {
   const m = data().current;
   if (S.view !== 'play' || !m || m.done) return;
   const g = GAMES[m.gameId];
-  if (S.modal || botSirasi(m) || (g.totalInput && m.opts.input === 'total')) { toast(t('X-Eye atışı yazılamadı: önce açık pencereyi kapat'), 'bad'); return; }
+  if (S.modal || botSirasi(m) || (g.totalInput && m.opts.input === 'total')) { toast(t('X-Eye atışı yazılamadı. Önce açık pencereyi kapat.'), 'bad'); return; }
   const ok = { n: p.n, m: p.n === 0 ? 1 : p.m };
   const sec = g.secenekler ? g.secenekler(m, m.g, ok) : null;
   if (sec) { S.modal = { type: 'hedefsec', ok, sec }; vib(10); render(); return; }
@@ -1368,7 +1370,7 @@ function viewPlayers() {
     ${ara}
     ${list}
     <form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form>
-    <div class="bot-ekle glass"><div class="bot-bas">${BOT_IC}<b>DartBot</b><small>${t('Bilgisayara karşı oyna — seviye seç')}</small></div>
+    <div class="bot-ekle glass"><div class="bot-bas">${BOT_IC}<b>DartBot</b><small>${t('Bilgisayara karşı oyna, seviyeni seç.')}</small></div>
       <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv bot-${k}" data-act="botekle" data-v="${k}"><span class="bsv-ic">${BOT_SV_IC[k]}</span><span class="bsv-yazi"><b>${t(v.ad)}</b><small>${t('~{0} ort.', v.ort)}</small></span></button>`).join('')}</div></div>
     ${arkHtml}
   </main>`;
@@ -1984,7 +1986,7 @@ app.addEventListener('click', e => {
     }
     case 'yyekle': { // Demir 14.11: arkadaşı bu cihaza oyuncu olarak ekle / sıradan çıkar; çevrimdışı arkadaş seçilemez
       const secili = el.classList.contains('on');
-      if (!secili && el.dataset.acik !== '1') { toast(t('{0} çevrimdışı — yan yana oynamak için uygulamayı açmış olmalı', `<b>${esc(el.dataset.ad || '')}</b>`), 'bad', { tur: { ic: 'kisi', a: 'a-sars', k: 'bad' }, sure: 3200 }); break; }
+      if (!secili && el.dataset.acik !== '1') { toast(t('{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.', `<b>${esc(el.dataset.ad || '')}</b>`), 'bad', { tur: { ic: 'kisi', a: 'a-sars', k: 'bad' }, sure: 3200 }); break; }
       // Demir 14.11: dokununca istek HEMEN gider (bekleme penceresi); kabul ederse oyunculara "Onayladı" olarak eklenir
       const u = el.dataset.u, st0 = S.setup; st0.yyOnay = st0.yyOnay || {};
       const id = arkadasOyuncuEkle(u); const a = st0.pids, i = a.indexOf(id);
@@ -2267,7 +2269,7 @@ app.addEventListener('click', e => {
       const lm = S.lastMatch;
       if (lm && lm.online) { // Demir 12.11: online rövanş — rakibe aynı ayarlarla davet
         el.disabled = true;
-        onlineRovans(lm).then(ok => { if (ok) { toast(t('Rövanş daveti gönderildi — rakibin kabul edince maç açılır'), 'ok', { sure: 3000 }); S.lastMatch = null; go('online'); } else { el.disabled = false; toast(t('Rövanş gönderilemedi'), 'bad'); } })
+        onlineRovans(lm).then(ok => { if (ok) { toast(t('Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.'), 'ok', { sure: 3000 }); S.lastMatch = null; go('online'); } else { el.disabled = false; toast(t('Rövanş gönderilemedi'), 'bad'); } })
           .catch(err => { console.warn(err); el.disabled = false; toast(t('Rövanş gönderilemedi'), 'bad'); });
         break;
       }

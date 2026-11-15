@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"Wir spielen nebeneinander",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"Du kannst weiter warten, das Spiel pausieren und später fortsetzen oder es abbrechen. Ein abgebrochenes Spiel zählt in niemandes Statistik.",
 "Beklemeye devam":"Weiter warten",
 "Maça ara ver":"Spiel pausieren",
-"Maç iptal edildi":"Spiel abgebrochen"};
+"Maç iptal edildi":"Spiel abgebrochen",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} ist offline. Für ein Spiel nebeneinander muss die App geöffnet sein.",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"Revanche-Einladung gesendet. Das Spiel startet, sobald dein Gegner annimmt.",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"{0} hat euer Spiel nebeneinander gesendet. Es wartet auf deine Bestätigung.",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"Wähle unten Spieler aus; die Reihenfolge erscheint hier.",
+"Bilgisayara karşı oyna, seviyeni seç.":"Spiel gegen den Computer, wähle eine Stufe.",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"Einzel: höchstens {0} Spieler. Für {1} wähle Team.",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye konnte den Wurf nicht eintragen. Schließe zuerst das offene Fenster.",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Nebeneinander mit {0}: {1}. Gespielt auf seinem Gerät; danach zählt es in deinen Statistiken."};

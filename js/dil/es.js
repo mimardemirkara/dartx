@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"Jugamos lado a lado",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"Puedes seguir esperando, pausar la partida y volver más tarde, o cancelarla. Una partida cancelada no se añade a las estadísticas de nadie.",
 "Beklemeye devam":"Seguir esperando",
 "Maça ara ver":"Pausar la partida",
-"Maç iptal edildi":"Partida cancelada"};
+"Maç iptal edildi":"Partida cancelada",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} está desconectado. Debe abrir la app para jugar lado a lado.",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"Invitación a la revancha enviada. La partida se abre cuando tu rival acepte.",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"{0} envió vuestra partida lado a lado. Espera tu aprobación.",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"Elige jugadores abajo; el orden de juego aparece aquí.",
+"Bilgisayara karşı oyna, seviyeni seç.":"Juega contra el ordenador, elige un nivel.",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"Individual: máximo {0} jugadores. Para {1}, elige Equipos.",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye no pudo anotar el lanzamiento. Cierra primero la ventana abierta.",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"Lado a lado con {0}: {1}. Se juega en su dispositivo; al terminar cuenta en tus estadísticas."};

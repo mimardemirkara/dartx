@@ -1103,4 +1103,12 @@ export default {"Yan Yana Oynuyoruz":"対面でプレイ",
 "Beklemeye devam edebilir, maça ara verip sonra dönebilir ya da maçı iptal edebilirsin. İptal edilen maç kimsenin istatistiğine yazılmaz.":"待ち続けるか、マッチを中断して後で戻るか、キャンセルできます。キャンセルしたマッチは誰の統計にも記録されません。",
 "Beklemeye devam":"待ち続ける",
 "Maça ara ver":"マッチを中断",
-"Maç iptal edildi":"マッチをキャンセルしました"};
+"Maç iptal edildi":"マッチをキャンセルしました",
+"{0} çevrimdışı. Yan yana oynamak için uygulamayı açması gerekiyor.":"{0} さんはオフラインです。対面でプレイするにはアプリを開く必要があります。",
+"Rövanş daveti gönderildi. Rakibin kabul edince maç açılır.":"リベンジの招待を送りました。相手が承諾するとマッチが始まります。",
+"{0} yan yana maçınızı gönderdi. Onaylaman bekleniyor.":"{0} さんが対面マッチを送りました。あなたの承認を待っています。",
+"Aşağıdan oyuncu seç; oynama sırası burada görünür.":"下からプレイヤーを選んでください。投げる順番がここに表示されます。",
+"Bilgisayara karşı oyna, seviyeni seç.":"コンピューターと対戦。レベルを選んでください。",
+"Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.":"シングルは最大 {0} 人です。{1} 人ならチームを選んでください。",
+"X-Eye atışı yazılamadı. Önce açık pencereyi kapat.":"X-Eye がスローを記録できませんでした。先に開いている画面を閉じてください。",
+"{0} ile yan yana {1}. Maç onun cihazında oynanıyor, bitince istatistiğine yazılır.":"{0} さんと対面で {1}。相手の端末でプレイし、終了後あなたの統計に記録されます。"};
