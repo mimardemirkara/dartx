@@ -299,7 +299,9 @@ async function dinle() {
         profilAl(d.gonderen).then(() => {
           let ok = false; try { ok = macAl(d); } catch (hata_) { console.warn('maç al', hata_); }
           sil();
-          if (ok) bildir(t('{0} ile yan yana maçın istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`), { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', foto: (durum.profil[d.gonderen] || {}).foto, hedef: 'stats', sure: 5000 });
+          if (ok) { const yazi = t('{0} ile yan yana maçın istatistiklerine eklendi', `<b>${esc(d.gonderenAd || '')}</b>`);
+            bildir(yazi, { tur: 'tamam', renk: 'iyi', ad: d.gonderenAd || '', foto: (durum.profil[d.gonderen] || {}).foto, hedef: 'stats', sure: 5000 });
+            bildirimEkle(ben, { yazi, tur: 'tamam', ad: d.gonderenAd || '', hedef: 'stats' }); } // Demir 17.11: günler sonra açsa da zilin altında kalır
         });
         return;
       }
