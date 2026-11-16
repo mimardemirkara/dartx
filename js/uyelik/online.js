@@ -4,6 +4,7 @@
 // Firestore: profiller/{uid} (ad, foto, kod) · kodlar/{kod} → uid · arkadaslik/{uidA_uidB} · online/{id} · varlik/{uid} (çevrimiçi durumu; yalnız arkadaşlar okur)
 import { bulut } from './bulut.js';
 import * as H from './hesap.js';
+import { ikon } from '../icons.js';
 import { data, save, addPlayer, updatePlayer, setCurrent, araSil } from '../store.js';
 import * as E from '../engine.js';
 import { GAMES } from '../games/index.js';
@@ -494,6 +495,9 @@ async function profilAl(uid) {
   const { db, F } = await bulut();
   const s = await F.getDoc(F.doc(db, 'profiller', uid)).catch(() => null);
   durum.profil[uid] = s && s.exists() ? s.data() : { ad: '?' };
+  // Demir 17.11: arkadaşın fotoğrafı (ve değiştirdiyse yeni fotoğrafı) bu cihazdaki arkadaş kaydına da yazılır — Oyuncular listesinde görünsün
+  const pf = durum.profil[uid].foto, yo = s && s.exists() && uid !== benUid() && data().players.find(x => x.uid === uid && !x.silindi);
+  if (yo && pf && yo.foto !== pf) { updatePlayer(yo.id, { foto: pf }); if (C.S.view === 'players' || C.S.view === 'setup') C.render(); }
   tazele();
   return durum.profil[uid];
 }
@@ -837,7 +841,8 @@ export function onlineKartlari() {
   const sira = { acik: 0, macta: 1, kapali: 2 };
   const ark = A.filter(a => a.durum === 'kabul').sort((x, y) => (sira[varlikDurum(karsi(x)).tur] - sira[varlikDurum(karsi(y)).tur]) || pr(karsi(x)).ad.localeCompare(pr(karsi(y)).ad, 'tr'));
   const sat = (u, sag, alt = '', vd = null) => `<div class="ay-satir on-ark" data-ara="${esc(araAnahtar(pr(u)))}"><button type="button" class="on-kisi" data-act="on-profil" data-u="${u}"><span class="on-av-yer">${avatar(pr(u).ad, pr(u).foto)}${vd ? `<i class="on-nokta ${vd.tur}" title="${esc(vd.yazi)}"></i>` : ''}</span><span class="ay-ad">${esc(pr(u).ad)}${pr(u).seviye ? ' ' + seviyeRozet(pr(u).seviye, dilIki()) : ''}${alt ? `<small>${alt}</small>` : ''}</span></button><span class="on-tuslar">${sag}</span></div>`;
-  const arkSat = a => { const vd = varlikDurum(karsi(a)); return sat(karsi(a), kucuk('on-davet', t('Maça davet et'), `data-u="${karsi(a)}"`, 'primary'), `<span class="on-durum ${vd.tur}">${esc(vd.yazi)}</span>`, vd); };
+  // Demir 17.11: çevrimdışı arkadaşa davet gönderilemez — düğme pasif
+  const arkSat = a => { const vd = varlikDurum(karsi(a)); const kapali = vd.tur === 'kapali'; return sat(karsi(a), kucuk('on-davet', t('Maça davet et'), `data-u="${karsi(a)}"${kapali ? ` disabled aria-disabled="true" title="${esc(t('Çevrimdışı arkadaşa davet gönderilemez'))}"` : ''}`, 'primary'), `<span class="on-durum ${vd.tur}">${esc(vd.yazi)}</span>`, vd); };
   const arkListe = () => {
     if (!ark.length) return '';
     const acikO = ark.filter(a => varlikDurum(karsi(a)).tur !== 'kapali');
@@ -897,7 +902,10 @@ export async function onlineTikla(act, el) {
     case 'on-kabul': await is(() => istekKabul(el.dataset.id), t('Artık arkadaşsınız')); return true;
     case 'on-sil': await is(() => arkadaslikSil(el.dataset.id)); return true;
     case 'on-davet': {
-      const liste = ONLINE_OYUN.map(([v, ad]) => [v, ad || gt(GAMES[v], 'name')]);
+      if (varlikDurum(el.dataset.u).tur === 'kapali') return true;
+      // Demir 17.11: her oyunun yanında ana ekrandaki simgesi (301'de etiket 301)
+      const oyunIc = v => { const id = v.split(':')[0]; const sv = ikon(id); return `<span class="ac-oyun-ic">${v === 'x01:301' ? sv.replace('>501<', '>301<') : sv}</span>`; };
+      const liste = ONLINE_OYUN.map(([v, ad]) => [v, ad || gt(GAMES[v], 'name'), oyunIc(v)]);
       const v = await C.secim(el, t('Hangi oyun?'), liste, null); if (!v) return true;
       await is(() => davetEt(el.dataset.u, v), t('Davet gönderildi'));
       return true;

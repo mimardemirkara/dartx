@@ -2505,13 +2505,13 @@ if (location.hash === '#kamera') { history.replaceState(null, '', location.pathn
 uyelikKur({ S, render, go, toast, onayla, bilgi, header, kart, ikonKutu, AY, LUCIDE, vib, surum: SURUM,
   // giriş kartının altındaki tema ve dil düğmeleri (ArchX giriş ekranı gibi)
   altDugmeler: () => { const tm = data().settings.theme || 'koyu'; return `<button class="mc-dugme uy-alt-dugme" data-act="temadon" aria-label="${t('Tema')}">${tm === 'koyu' ? IC.ay : tm === 'acik' ? IC.gunes : IC.ekran}</button>${dilDugme().replace('class="mc-dugme mc-dil"', 'class="mc-dugme mc-dil uy-alt-dugme"')}`; },
-  secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l]) => ({ v, l, on: v === cur })), v => ok(v), { baslik })),
+  secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l, ic]) => ({ v, l, ic, on: v === cur })), v => ok(v), { baslik })), // Demir 17.11: 3. öğe simge
   oyunlar: () => GAME_LIST.map(g => { const n = gt(g, 'name'); return [n, n]; }) });
 // Oyuncunun profil fotoğrafı varsa her yerde avatar olarak görünür
 // Demir 15.11: aynı adlı iki oyuncu varsa (yerel Tuncay + arkadaş Tuncay) fotoğraf kimseye verilmez, karışmasın
 fotoBulKur(ad => { const k = String(ad || '').trim().toLocaleLowerCase('tr'); const ayni = data().players.filter(x => !x.silindi && x.name.toLocaleLowerCase('tr') === k); return ayni.length === 1 && ayni[0].foto ? ayni[0].foto : ''; });
 onlineKur({ S, render, go, toast, onayla, kart, vib, afterThrow, IC: { uye: ON.uye, lig: ON.lig },
-  secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l]) => ({ v, l, on: v === cur })), v => ok(v), { baslik })),
+  secim: (el, baslik, liste, cur) => new Promise(ok => acilirAc(el, () => liste.map(([v, l, ic]) => ({ v, l, ic, on: v === cur })), v => ok(v), { baslik })), // Demir 17.11: 3. öğe simge
   devam: id => { if (store.araDevam(id)) go('play'); },
   // Demir 12.11: rakip maçı bitirdi — şimdiki maçsa sonuç ekranı, değilse sessizce geçmişe
   macBitti: m => { store.finishCurrent(); S.lastMatch = m; E.clearUndo(); if (S.view === 'play') { S.modal = null; ses.oyun('mac'); setTimeout(konfeti, 120); go('end'); } else render(); } });

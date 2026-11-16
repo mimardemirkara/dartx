@@ -1116,4 +1116,5 @@ export default {"Yan Yana Oynuyoruz":"We spelen naast elkaar",
 "Siyah krom":"Zwart chroom",
 "Kor kırmızı":"Gloedrood",
 "Uygulamadaki okum":"Mijn pijl in de app",
-"Bu sensin; hesabınla zaten oyundasın":"Dat ben jij – je doet al mee met je account"};
+"Bu sensin; hesabınla zaten oyundasın":"Dat ben jij – je doet al mee met je account",
+"Çevrimdışı arkadaşa davet gönderilemez":"Een offline vriend kan niet worden uitgenodigd"};

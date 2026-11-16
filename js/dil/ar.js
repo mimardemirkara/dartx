@@ -1116,4 +1116,5 @@ export default {"Yan Yana Oynuyoruz":"نلعب جنبًا إلى جنب",
 "Siyah krom":"كروم أسود",
 "Kor kırmızı":"أحمر جمري",
 "Uygulamadaki okum":"سهمي في التطبيق",
-"Bu sensin; hesabınla zaten oyundasın":"هذا أنت — أنت مشارك بحسابك بالفعل"};
+"Bu sensin; hesabınla zaten oyundasın":"هذا أنت — أنت مشارك بحسابك بالفعل",
+"Çevrimdışı arkadaşa davet gönderilemez":"لا يمكن دعوة صديق غير متصل"};

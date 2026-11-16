@@ -1116,4 +1116,5 @@ export default {"Yan Yana Oynuyoruz":"対面でプレイ",
 "Siyah krom":"ブラッククローム",
 "Kor kırmızı":"エンバーレッド",
 "Uygulamadaki okum":"アプリ内の自分のダーツ",
-"Bu sensin; hesabınla zaten oyundasın":"これはあなたです。アカウントで参加済みです"};
+"Bu sensin; hesabınla zaten oyundasın":"これはあなたです。アカウントで参加済みです",
+"Çevrimdışı arkadaşa davet gönderilemez":"オフラインの友達は招待できません"};

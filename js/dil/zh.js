@@ -1116,4 +1116,5 @@ export default {"Yan Yana Oynuyoruz":"面对面对战",
 "Siyah krom":"黑铬",
 "Kor kırmızı":"炽红",
 "Uygulamadaki okum":"应用中的我的飞镖",
-"Bu sensin; hesabınla zaten oyundasın":"这是你——你已用账号加入"};
+"Bu sensin; hesabınla zaten oyundasın":"这是你——你已用账号加入",
+"Çevrimdışı arkadaşa davet gönderilemez":"无法邀请离线好友"};

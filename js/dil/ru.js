@@ -1116,4 +1116,5 @@ export default {"Yan Yana Oynuyoruz":"Играем рядом",
 "Siyah krom":"Чёрный хром",
 "Kor kırmızı":"Огненно-красный",
 "Uygulamadaki okum":"Мой дротик в приложении",
-"Bu sensin; hesabınla zaten oyundasın":"Это ты — ты уже в игре со своим аккаунтом"};
+"Bu sensin; hesabınla zaten oyundasın":"Это ты — ты уже в игре со своим аккаунтом",
+"Çevrimdışı arkadaşa davet gönderilemez":"Нельзя пригласить друга не в сети"};

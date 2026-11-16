@@ -1116,4 +1116,5 @@ export default {"Yan Yana Oynuyoruz":"On joue côte à côte",
 "Siyah krom":"Chrome noir",
 "Kor kırmızı":"Rouge braise",
 "Uygulamadaki okum":"Ma fléchette dans l’appli",
-"Bu sensin; hesabınla zaten oyundasın":"C’est toi : tu joues déjà avec ton compte"};
+"Bu sensin; hesabınla zaten oyundasın":"C’est toi : tu joues déjà avec ton compte",
+"Çevrimdışı arkadaşa davet gönderilemez":"Impossible d’inviter un ami hors ligne"};
