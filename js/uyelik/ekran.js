@@ -115,6 +115,7 @@ function kendiniGaranti() {
   const pr = u.profil; if (pr.oyuncuId == null && !pr.eslesmeAtlandi) return;
   const ben = u.user.uid, d = data();
   let o = d.players.find(p => p.id === pr.oyuncuId && !p.silindi) || d.players.find(p => p.uid === ben && !p.silindi);
+  if (!o && pr.ad) o = d.players.find(p => !p.uid && !p.bot && !p.silindi && p.name.toLocaleLowerCase('tr') === pr.ad.toLocaleLowerCase('tr'));
   if (!o) o = addPlayer(pr.ad || 'Ben');
   const yama = {}; if (o.uid !== ben) yama.uid = ben; if (pr.foto && o.foto !== pr.foto) yama.foto = pr.foto;
   if (Object.keys(yama).length) updatePlayer(o.id, yama);
@@ -131,6 +132,7 @@ function kendiniGaranti() {
     bagli++; return idDegistir(h, { [kayip[0]]: o.id });
   });
   if (bagli) save();
+  hesapTekille(); // Demir 17.11: hesap bağı kopmuş kendi kopyaların da toparlanır
   if (['home', 'players', 'setup', 'stats'].includes(C.S.view)) C.render();
 }
 /** Maç kaydında oyuncu kimliklerini değiştirir (taraflar, hamleler, el kayıtları) */
@@ -175,6 +177,19 @@ export function hesapTekille() {
     if (!kalan.foto) { const f = liste.find(p => p.foto); if (f) kalan.foto = f.foto; }
     degisti = true;
   }
+  // Demir 17.11 ("bir çok Demir eklemiş yine"): hesap bağı kopmuş kendi eski kopyaların (adı seninle aynı, hesapsız) —
+  // Demir 17.11 ("ben bağlıysam zaten kendi adımla oynarım"): giriş yaptıysan senin adın yalnız sana ait — adı seninle aynı,
+  // hesapsız her oyuncu sensin: maçları senin oyuncuna taşınır, kopya kalkar (yalnız ikisi aynı maçta oynamışsa dokunulmaz)
+  const benO = ben && d.players.find(p => p.uid === ben && !p.silindi);
+  const benAd = benO && String((H.uye().profil || {}).ad || benO.name).toLocaleLowerCase('tr');
+  if (benO) d.players.filter(p => !p.uid && !p.bot && !p.silindi && p.id !== benO.id && p.name.toLocaleLowerCase('tr') === benAd).forEach(k => {
+    const maclar = (d.history || []).filter(h => h.sides && h.sides.some(sd => (sd.members || []).includes(k.id)));
+    if (maclar.some(h => h.sides.some(sd => (sd.members || []).includes(benO.id)))) return; // ikisi aynı maçtaysa birleştirilmez
+    if (maclar.length) d.history = d.history.map(h => idDegistir(h, { [k.id]: benO.id }));
+    d.players = d.players.filter(p => p.id !== k.id);
+    d.silinenOyuncular = [...new Set([...(d.silinenOyuncular || []), k.id])].slice(-1000); // öteki cihazdan / buluttan geri gelmesin
+    degisti = true;
+  });
   if (degisti) save();
   return degisti;
 }
@@ -194,6 +209,10 @@ export function bulutBirlestir(y) {
     if (ids.has(p.id) || silOy.has(p.id)) return;
     const yerel = p.uid && d.players.find(x => x.uid === p.uid && !x.silindi);
     if (yerel) { esle[p.id] = yerel.id; return; }
+    // Demir 17.11: öteki cihazdan gelen, adı seninle aynı hesapsız kayıt (eski kendi oyuncun) yeni "Demir" açmaz
+    const benU = H.uye().user && H.uye().user.uid, benO = benU && d.players.find(x => x.uid === benU && !x.silindi);
+    const benAd = String((H.uye().profil || {}).ad || '').toLocaleLowerCase('tr');
+    if (!p.uid && !p.bot && benO && benAd && String(p.name || '').toLocaleLowerCase('tr') === benAd) { esle[p.id] = benO.id; return; }
     d.players.push(p); ids.add(p.id);
   });
   if (Object.keys(esle).length) y = { ...y, maclar: (y.maclar || []).map(h => idDegistir(h, esle)) };

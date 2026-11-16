@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"Wir spielen nebeneinander",
 "Buz mavisi":"Eisblau",
 "Siyah krom":"Schwarzchrom",
 "Kor kırmızı":"Glutrot",
-"Uygulamadaki okum":"Mein Dart in der App"};
+"Uygulamadaki okum":"Mein Dart in der App",
+"Bu sensin; hesabınla zaten oyundasın":"Das bist du – du bist mit deinem Konto schon dabei"};

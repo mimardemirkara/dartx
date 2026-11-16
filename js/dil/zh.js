@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"面对面对战",
 "Buz mavisi":"冰蓝",
 "Siyah krom":"黑铬",
 "Kor kırmızı":"炽红",
-"Uygulamadaki okum":"应用中的我的飞镖"};
+"Uygulamadaki okum":"应用中的我的飞镖",
+"Bu sensin; hesabınla zaten oyundasın":"这是你——你已用账号加入"};

@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"対面でプレイ",
 "Buz mavisi":"アイスブルー",
 "Siyah krom":"ブラッククローム",
 "Kor kırmızı":"エンバーレッド",
-"Uygulamadaki okum":"アプリ内の自分のダーツ"};
+"Uygulamadaki okum":"アプリ内の自分のダーツ",
+"Bu sensin; hesabınla zaten oyundasın":"これはあなたです。アカウントで参加済みです"};

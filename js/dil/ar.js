@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"نلعب جنبًا إلى جنب",
 "Buz mavisi":"أزرق جليدي",
 "Siyah krom":"كروم أسود",
 "Kor kırmızı":"أحمر جمري",
-"Uygulamadaki okum":"سهمي في التطبيق"};
+"Uygulamadaki okum":"سهمي في التطبيق",
+"Bu sensin; hesabınla zaten oyundasın":"هذا أنت — أنت مشارك بحسابك بالفعل"};

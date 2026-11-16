@@ -759,14 +759,14 @@ function viewSetup() {
   const sira = st.pids.map((id, i) => { const p = player(id); return `
     <div class="pchip on sira-satir" style="--pc:${p.color}" data-sira="${id}">
       <span class="sira-tut" aria-label="${t('Sürükle')}">${TUTAMAK}</span>
-      <span class="pc-av">${avatarIc(p.name, i + 1)}</span><span class="pc-ad">${esc(p.name)}${id === benId ? `<small class="pc-sen">${t('Sen')}</small>` : ''}</span>
+      <span class="pc-av">${oyuncuAv(p, i + 1)}</span><span class="pc-ad">${esc(p.name)}${id === benId ? `<small class="pc-sen">${t('Sen')}</small>` : ''}</span>
       ${takimModu ? `<button class="takim-rozet t-${st.takim[id].toLowerCase()}" data-act="takim" data-id="${id}" aria-label="${t('Takım ' + st.takim[id])}">${KALKAN(st.takim[id])}</button>` : ''}
       ${id === benId ? '' : `<button class="sira-cik" data-act="togglep" data-id="${id}" aria-label="${t('Sıradan çıkar')}">${CARPI}</button>`}
     </div>`; }).join('');
   const bekleyen = all.filter(p => !st.pids.includes(p.id));
   // Seçilmemişler de alt alta (Demir 08.11): dokununca sıranın sonuna eklenir
   const plist = bekleyen.map(p => `<button class="pchip sira-satir bekleyen" style="--pc:${p.color}" data-act="togglep" data-id="${p.id}">
-      <span class="sira-tut"></span><span class="pc-av">${avatarIc(p.name, esc(basHarf(p.name)))}</span><span class="pc-ad">${esc(p.name)}</span>
+      <span class="sira-tut"></span><span class="pc-av">${oyuncuAv(p, esc(basHarf(p.name)))}</span><span class="pc-ad">${esc(p.name)}</span>
       <span class="sira-cik sira-ekle" aria-hidden="true">${ARTI}</span></button>`).join('');
 
   const teamsOk = g.teams && st.pids.length >= 4;
@@ -934,6 +934,8 @@ const DOGRU_IC = '<svg class="ist-dogru" viewBox="0 0 24 24" fill="none" stroke=
 const ozelResim = adResim;
 const UNVAN = () => '';
 const avatarIc = (ad, yedek) => { if (botMu(ad)) return botAvatar('oz-av'); const r = ozelResim(ad); return r ? `<img class="oz-av" src="${r}" alt="">` : yedek; };
+// Demir 17.11: hesaba bağlı oyuncunun (sen ya da arkadaş) fotoğrafı oyun kurulumundaki sırada da görünür
+const oyuncuAv = (p, yedek) => (p && p.uid && p.foto && !botMu(p.name)) ? `<img class="oz-av" src="${p.foto}" alt="">` : avatarIc(p.name, yedek);
 
 // Atılmamış ok: DartX logosundaki dart (uç solda, kanat sağda)
 const OK_IC = '<svg class="ok-ic" viewBox="0 0 64 40" aria-hidden="true"><g transform="rotate(-24 32 20)"><path d="M4 20 L15 18.6 L15 21.4 Z" fill="#e8e2d6"/><rect x="15" y="16.2" width="17" height="7.6" rx="3.2" fill="#d9ad55"/><path d="M19 16.4v7.2M22 16.4v7.2M25 16.4v7.2M28 16.4v7.2" stroke="#7a5414" stroke-width="1.2"/><rect x="32" y="18.6" width="12" height="2.8" rx="1.2" fill="#b98a35"/><path d="M42 20 L60 7 L56 20 L60 33 Z" fill="#e04b3c"/><path d="M42 20 L60 7 L56 20 Z" fill="#f06a55"/></g></svg>'; // Demir 15.11: çapraz duran dart (sivri uç, altın gövde, kırmızı kanat)
@@ -2382,6 +2384,9 @@ app.addEventListener('submit', e => {
   if (act === 'addp') {
     if (!name) return;
     if (data().players.some(p => !p.uid && p.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'))) { /* Demir 15.11: hesaplı arkadaş adı yerel adı engellemez */ toast(t('Bu isim zaten var'), 'bad'); return; }
+    // Demir 17.11: giriş yaptıysan senin adın sana ait — ikinci bir "Demir" açılmaz, zaten sen varsın
+    const benI = benimOyuncum(), benP = benI && data().players.find(p => p.id === benI);
+    if (benP && benP.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr')) { toast(t('Bu sensin; hesabınla zaten oyundasın'), 'ok'); if (S.view === 'setup' && !S.setup.pids.includes(benI)) S.setup.pids.unshift(benI); const inp = app.querySelector('.addp input'); if (inp) inp.value = ''; render(); return; }
     const p = store.addPlayer(name);
     if (S.view === 'setup') S.setup.pids.push(p.id);
     render();

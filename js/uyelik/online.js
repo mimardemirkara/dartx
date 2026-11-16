@@ -465,6 +465,8 @@ function macAl(d) {
     if (yerel[k]) return yerel[k];
     const bilgi = (d.oyuncular || {})[k] || {}; let id;
     if (k === 'u:' + ben) id = kendiOyuncum();
+    // Demir 17.11: arkadaş seni kendi cihazında adınla eklediyse ("n:Demir") o sensin — yeni yerel Demir açılmaz
+    else if (!bilgi.bot && !(d.oyuncular || {})['u:' + ben] && (bilgi.ad || k.slice(2)).toLocaleLowerCase('tr') === String((H.uye().profil || {}).ad || '').toLocaleLowerCase('tr')) id = kendiOyuncum();
     else if (k.startsWith('u:')) { const u = k.slice(2); const pr = durum.profil[u] || {}; id = arkadasOyuncu(u, pr.ad || bilgi.ad, pr.foto); }
     // Demir 15.11: gönderen kendi cihazında hesabına bağlı değilken maç adla gelir ("n:Tuncay"); bu durumda yeni yerel
     // oyuncu açılmaz, gönderenin arkadaş kaydına yazılır (iki Tuncay olmasın)
@@ -619,6 +621,7 @@ function kendiOyuncum() {
   const p = H.uye().profil || {}; const ben = benUid();
   // Demir 15.11: kendi oyuncun da hesabına (uid) bağlı — telefon ve tabletteki kayıtlar eşitlemede tek oyuncuda birleşir
   let o = data().players.find(x => x.id === p.oyuncuId && !x.silindi) || data().players.find(x => ben && x.uid === ben && !x.silindi);
+  if (!o && p.ad) o = data().players.find(x => !x.uid && !x.bot && !x.silindi && x.name.toLocaleLowerCase('tr') === p.ad.toLocaleLowerCase('tr')); // Demir 17.11: yeni kopya açılmaz
   if (!o) o = addPlayer(p.ad || 'Ben');
   if (p.oyuncuId !== o.id) H.profilKaydet({ oyuncuId: o.id }).catch(() => {});
   const yama = {}; if (ben && o.uid !== ben) yama.uid = ben; if (p.foto && o.foto !== p.foto) yama.foto = p.foto;

@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"We spelen naast elkaar",
 "Buz mavisi":"IJsblauw",
 "Siyah krom":"Zwart chroom",
 "Kor kırmızı":"Gloedrood",
-"Uygulamadaki okum":"Mijn pijl in de app"};
+"Uygulamadaki okum":"Mijn pijl in de app",
+"Bu sensin; hesabınla zaten oyundasın":"Dat ben jij – je doet al mee met je account"};

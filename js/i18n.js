@@ -274,4 +274,5 @@ const EN = {
   "Siyah krom": "Black chrome",
   "Kor kırmızı": "Ember red",
   "Uygulamadaki okum": "My dart in the app",
+  "Bu sensin; hesabınla zaten oyundasın": "That's you — you're already in with your account",
 };

@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"Играем рядом",
 "Buz mavisi":"Ледяной синий",
 "Siyah krom":"Чёрный хром",
 "Kor kırmızı":"Огненно-красный",
-"Uygulamadaki okum":"Мой дротик в приложении"};
+"Uygulamadaki okum":"Мой дротик в приложении",
+"Bu sensin; hesabınla zaten oyundasın":"Это ты — ты уже в игре со своим аккаунтом"};

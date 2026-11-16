@@ -1115,4 +1115,5 @@ export default {"Yan Yana Oynuyoruz":"Jugamos lado a lado",
 "Buz mavisi":"Azul hielo",
 "Siyah krom":"Cromo negro",
 "Kor kırmızı":"Rojo brasa",
-"Uygulamadaki okum":"Mi dardo en la app"};
+"Uygulamadaki okum":"Mi dardo en la app",
+"Bu sensin; hesabınla zaten oyundasın":"Eres tú: ya estás dentro con tu cuenta"};
