@@ -3060,6 +3060,22 @@ body::before { height: calc(100lvh + env(safe-area-inset-top, 0px) + env(safe-ar
   100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + var(--g))) rotate(var(--r)); } }
 .acilis-halka s { background: radial-gradient(circle at 45% 45%, rgb(226 212 188 / .78), rgb(180 162 136 / .42) 42%, rgb(140 120 95 / 0) 72%); filter: blur(3px); }
 .acilis-halka u { background: #e4d2aa; }
+/* Demir 17.11: saplanma anında altın-beyaz parlama + tozun içinde süzülüp yanıp sönen altın pırıltılar */
+.acilis-halka em { position: absolute; left: 0; top: 0; width: var(--p); height: var(--p); margin: calc(var(--p) / -2) 0 0 calc(var(--p) / -2); border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 245 / .95), rgb(255 222 140 / .7) 22%, rgb(240 180 70 / .28) 45%, rgb(220 160 60 / 0) 70%);
+  mix-blend-mode: screen; opacity: 0; transform: scale(.1); animation: adAltinParla .6s cubic-bezier(.15,.8,.3,1) forwards; }
+@keyframes adAltinParla { 0% { opacity: 1; transform: scale(.1); } 30% { opacity: .95; } 100% { opacity: 0; transform: scale(1); } }
+.acilis-halka q { position: absolute; left: 0; top: 0; width: var(--w); height: var(--w); margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2); border-radius: 50%;
+  background: #fff3c4; box-shadow: 0 0 4px #ffd36a, 0 0 9px rgb(240 180 60 / .8); opacity: 0;
+  animation: adPiril var(--t) cubic-bezier(.2,.6,.4,1) var(--d) forwards; }
+.acilis-halka q::before, .acilis-halka q::after { content: ''; position: absolute; left: 50%; top: 50%; width: 360%; height: 1px; margin: -.5px 0 0 -180%;
+  background: linear-gradient(90deg, transparent, #ffe9a8, transparent); }
+.acilis-halka q::after { transform: rotate(90deg); }
+@keyframes adPiril {
+  0% { opacity: 0; transform: translate(0, 0) scale(.3); }
+  15% { opacity: 1; transform: translate(calc(var(--x) * .4), calc(var(--y) * .4)) scale(1.1); }
+  35% { opacity: .35; } 50% { opacity: 1; } 68% { opacity: .3; } 82% { opacity: .9; }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.5); } }
 .rozet-yakinda { z-index: 10; } /* cam parlaması (::before/::after) rozetin üstüne binmesin — BETA saydam görünüyordu */
 /* Ana ekranda Kamera: kamera ekranındaki saydam altın cam karonun aynısı (Demir 10.11) */
 .app-ico.kam-ana { overflow: visible; }

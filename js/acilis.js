@@ -40,11 +40,11 @@ const ZAMAN = { acilis: 1.2, kureSon: 1.9, akisSon: 3.6, logoGel: 3.3 };
 const ATOM = 0.45;
 
 const LOGO = { src: 'img/logo-dartx.webp', noktalar: 'img/logo-dartx-noktalar.json', olcek: 0.9 };
-// Uçan dart (Demir 09.11): vuruş anı (sn), uçuş süresi, logodaki dartın ucu ve açısı (logo görseli 1000×370)
-const DART = { vurus: 3.5, ucus: 0.42, uc: [86, 194], aci: 43.8 };
+// Uçan dart (Demir 09.11; 17.11 altın logo): vuruş anı (sn), uçuş süresi, logodaki dartın ucu ve açısı (logo görseli 1000×374)
+const DART = { vurus: 3.5, ucus: 0.42, uc: [88, 196], aci: 45.2 };
 // Uçan dart (Demir 09.11: "saplanan okla logodaki ok aynı değil"): logodaki dartın kendisi görselden kesildi
-// (img/acilis-dart.webp = logo görselinin 70,40 – 232,206 kırpığı); uç bu kırpıkta 15,152.5'te. Saplanınca piksel piksel aynı.
-const DART_IMG = { src: 'img/acilis-dart.webp', x0: 70, y0: 40, w: 162, h: 166 };
+// (img/acilis-dart.webp = logo görselinin 84,49 – 228,200 kırpığı); uç bu kırpıkta 4,147'de. Saplanınca piksel piksel aynı.
+const DART_IMG = { src: 'img/acilis-dart.webp', x0: 84, y0: 49, w: 144, h: 151 };
 
 export function acilisGoster(acik = true) {
   // Sistemde "hareketi azalt" açıksa atlanır (sitedeki gibi); ?acilis=1 ile yine de gösterilir (önizleme / deneme)
@@ -69,7 +69,7 @@ export function acilisGoster(acik = true) {
   const logoH = () => Math.min((canvas.width * 0.72) / oran, canvas.height * 0.44) * olcek(); // piksel (tuval)
   const logoBoy = () => { logoImg.style.height = `${logoH() / DPR}px`; };
 
-  // ── Dart atışı: logodaki dartın ucu (logo görselinde 86,194 / 1000×370), gövdesi sağ üste 43.8° ──
+  // ── Dart atışı: logodaki dartın ucu (logo görselinde 88,196 / 1000×374), gövdesi sağ üste 45.2° ──
   function dartAt() {
     if (A.cikis !== null || bitti) return;
     const r = logoImg.getBoundingClientRect(); if (!r.width) return;
@@ -102,14 +102,18 @@ export function acilisGoster(acik = true) {
       h.className = 'acilis-halka'; h.style.left = ux + 'px'; h.style.top = uy + 'px'; h.style.setProperty('--b', (r.height * 0.9) + 'px');
       const R = r.height, ra = (a, b) => a + Math.random() * (b - a);
       // Demir 10.11: toz duman — uçtan yayılıp sönen bulutlar (sola-aşağı, darta ters yön ağırlıklı) + düşen sisal kırıntıları
-      const duman = Array.from({ length: 10 }, () => { const a = ra(100, 300) * Math.PI / 180, u = ra(.12, .34) * R;
-        return `<s style="--x:${(Math.cos(a) * u).toFixed(1)}px;--y:${(Math.sin(a) * u * .7 - R * .05).toFixed(1)}px;--z:${ra(.24, .42) * R}px;--d:${ra(0, .12).toFixed(2)}s;--t:${ra(1.1, 1.7).toFixed(2)}s"></s>`; }).join('');
+      // Demir 17.11 ("toz işini abartsak"): daha çok, daha büyük, daha uzun asılı kalan toz + ilk anda altın parlama + süzülen altın pırıltılar
+      const duman = Array.from({ length: 22 }, () => { const a = ra(95, 320) * Math.PI / 180, u = ra(.16, .55) * R;
+        return `<s style="--x:${(Math.cos(a) * u).toFixed(1)}px;--y:${(Math.sin(a) * u * .7 - R * .08).toFixed(1)}px;--z:${ra(.34, .6) * R}px;--d:${ra(0, .18).toFixed(2)}s;--t:${ra(2, 2.6).toFixed(2)}s"></s>`; }).join('');
+      const piril = Array.from({ length: 20 }, () => { const a = ra(0, 360) * Math.PI / 180, u = ra(.1, .5) * R;
+        return `<q style="--x:${(Math.cos(a) * u).toFixed(1)}px;--y:${(Math.sin(a) * u * .6 - ra(.1, .35) * R).toFixed(1)}px;--w:${ra(2, 4.5).toFixed(1)}px;--d:${ra(.05, .45).toFixed(2)}s;--t:${ra(1.6, 2.6).toFixed(2)}s"></q>`; }).join('');
       const kirinti = Array.from({ length: 22 }, () => { const a = ra(120, 330) * Math.PI / 180, u = ra(.15, .45) * R;
         return `<u style="--x:${(Math.cos(a) * u).toFixed(1)}px;--y:${(-Math.abs(Math.sin(a)) * u * .6).toFixed(1)}px;--g:${(R * ra(.35, .6)).toFixed(1)}px;--r:${ra(-260, 260).toFixed(0)}deg;--w:${ra(1.2, 2.8).toFixed(1)}px;--d:${ra(0, .08).toFixed(2)}s"></u>`; }).join('');
-      h.innerHTML = '<i></i><i></i>' + duman + kirinti + Array.from({ length: 10 }, (_, i) => `<b style="--a:${i * 36 + Math.random() * 20}deg;--u:${(0.35 + Math.random() * 0.4) * r.height}px"></b>`).join('');
+      h.style.setProperty('--p', (R * 1.3) + 'px');
+      h.innerHTML = '<em></em><i></i><i></i>' + duman + piril + kirinti + Array.from({ length: 10 }, (_, i) => `<b style="--a:${i * 36 + Math.random() * 20}deg;--u:${(0.35 + Math.random() * 0.4) * r.height}px"></b>`).join('');
       kat.appendChild(h);
       logoImg.classList.add('sars');
-      setTimeout(() => h.remove(), 2000);
+      setTimeout(() => h.remove(), 3400);
       // logo tam netleşince uçan dart logodaki dartın içinde kaybolur
       setTimeout(() => d.classList.add('git'), 1300);
       setTimeout(() => { if (A.cikis === null) d.remove(); }, 1800); // çıkış başladıysa logoyla birlikte küçülerek gider
