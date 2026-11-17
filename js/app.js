@@ -1,7 +1,7 @@
 // DartX — arayüz
 import * as store from './store.js';
 import { DERLEME } from './derleme.js';
-import { botAt, botHedef, BOT_SEVIYE } from './bot.js';
+import { botAt, botHedef, BOT_SEVIYE, ortSapma } from './bot.js';
 import { data, player } from './store.js';
 import { GAMES, GAME_LIST, CATS } from './games/index.js';
 import * as E from './engine.js';
@@ -1176,8 +1176,23 @@ const BOT_SV_IC = {
   zor: LUCIDE('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>', 22, 2),
   usta: LUCIDE('<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>', 22, 2),
 };
+BOT_SV_IC.uyum = LUCIDE('<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>', 22, 2); // lucide gauge
 const BOT_IC = LUCIDE('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>', 22, 2);
 let botT = null, botEl = [];
+// Demir 17.11: "Denk" bot — rakip insanların X01 3 ok ortalaması (son 20 maç) ile bu maçtaki ortalamanın karışımı
+const denkOnbellek = {};
+function denkOrt(m, botId) {
+  const rakip = m.sides.flatMap(sd => sd.members).filter(id => id !== botId && !(player(id) || {}).bot);
+  if (!rakip.length) return 45;
+  const k = m.id + ':' + rakip.join(',');
+  if (denkOnbellek[k] == null) { const l = rakip.map(id => (playerStats(id, 20).x01 || {}).avg).filter(Number.isFinite); denkOnbellek[k] = l.length ? l.reduce((a, b) => a + b, 0) / l.length : 45; }
+  let ort = denkOnbellek[k];
+  if (m.gameId === 'x01') { // bu maçta en az 9 ok atıldıysa canlı ortalama da hesaba katılır
+    let pts = 0, nd = 0; (m.log || []).filter(t => rakip.includes(t.pid)).forEach(t => { pts += t.points || 0; nd += t.nd ?? (t.darts || []).length; });
+    if (nd >= 9) ort = (ort + pts / nd * 3) / 2;
+  }
+  return ort;
+}
 function botSirasi(m) { if (!m || m.done) return false; const p = player(E.currentPid(m)); return !!(p && p.bot); }
 function botKontrol() {
   clearTimeout(botT);
@@ -1190,7 +1205,9 @@ function botKontrol() {
     if (!m2 || m2 !== m || m2.done || S.view !== 'play' || S.modal) return;
     if (player(E.currentPid(m2)).id !== p.id) return;
     const gg = GAMES[m2.gameId];
-    const ok = botAt(botHedef(gg, m2, p.bot), p.bot);
+    let sv = p.bot, sapma = null;
+    if (p.bot === 'uyum') { const o = denkOrt(m2, p.id); sapma = ortSapma(o); sv = o < 35 ? 'kolay' : 'orta'; }
+    const ok = botAt(botHedef(gg, m2, sv), sv, sapma);
     if (gg.secenekler) { const sec = gg.secenekler(m2, m2.g, ok); if (sec) { const iyi = sec.find(x => !x.etkisiz && x.e && x.e.tur !== 'bos') || sec.find(x => !x.etkisiz) || sec[0]; ok.sec = iyi.v; } }
     S.sonOk = ok;
     if (ilk) botEl = [];
@@ -1379,7 +1396,7 @@ function viewPlayers() {
     ${list}
     <form class="addp" data-act="addp"><input name="name" placeholder="${t('Yeni oyuncu adı')}" maxlength="14" autocomplete="off"><button class="btn sm">${t('Ekle')}</button></form>
     <div class="bot-ekle glass"><div class="bot-bas">${BOT_IC}<b>DartBot</b><small>${t('Bilgisayara karşı oyna, seviyeni seç.')}</small></div>
-      <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv bot-${k}" data-act="botekle" data-v="${k}"><span class="bsv-ic">${BOT_SV_IC[k]}</span><span class="bsv-yazi"><b>${t(v.ad)}</b><small>${t('~{0} ort.', v.ort)}</small></span></button>`).join('')}</div></div>
+      <div class="bot-seviyeler">${Object.entries(BOT_SEVIYE).map(([k, v]) => `<button class="btn bot-sv bot-${k}" data-act="botekle" data-v="${k}"><span class="bsv-ic">${BOT_SV_IC[k]}</span><span class="bsv-yazi"><b>${t(v.ad)}</b><small>${v.uyum ? t('Senin seviyende') : t('~{0} ort.', v.ort)}</small></span></button>`).join('')}</div></div>
     ${arkHtml}
   </main>`;
 }
@@ -1395,6 +1412,70 @@ const IST_IC = {
   maclar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
 };
 const istBas = (ic, yazi) => `<h2 class="sec ist-bas"><span class="ist-bas-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IST_IC[ic]}</svg></span><span>${yazi}</span></h2>`;
+// ---- Maç tekrarı (Demir 17.11, Tungsten'deki gibi): maç tur tur, leg leg; Oynat ile turlar sırayla açılır
+const TEKRAR_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/></svg>';
+const OYNAT_IC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
+const DURAKLA_IC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+const BASA_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+function macTekrar(id) {
+  const m = (data().history || []).find(h => h.id === id); if (!m || !(m.log || []).length) { toast(t('Bu maçın tur kaydı yok'), 'bad'); return; }
+  const g = GAMES[m.gameId], x01 = m.gameId === 'x01';
+  const legler = [...new Set(m.log.map(tu => tu.leg))].sort((a, b) => a - b);
+  const legKazanan = Object.fromEntries((m.legLog || []).map(l => [l.leg, l.winner]));
+  let leg = legler[0], acik = Infinity, oynuyor = null;
+  const ad = i => E.sideName(m, i, player);
+  const pd = document.createElement('div'); pd.className = 'modal-bg tekrar-perde';
+  const ciz = () => {
+    const turlar = m.log.filter(tu => tu.leg === leg);
+    const turNo = [...new Set(turlar.map(tu => tu.round))].sort((a, b) => a - b);
+    const kalan = {}; m.sides.forEach((_, i) => { kalan[i] = x01 ? (m.opts.start || 501) : 0; });
+    let sira = 0;
+    const satirlar = turNo.map(r => {
+      const hucre = m.sides.map((_, i) => {
+        const tu = turlar.find(x => x.round === r && x.side === i); if (!tu) return '<td class="tk-bos"></td>';
+        sira++; const gizli = sira > acik;
+        if (x01) kalan[i] -= tu.points || 0; else kalan[i] += (tu.marks ?? tu.points ?? 0);
+        const oklar = (tu.darts || []).map(d => `<i>${esc(dartLabel(d) === 'Iska' ? t('Iska') : dartLabel(d))}</i>`).join('');
+        const deger = x01 ? (tu.bust ? 'BUST' : (tu.points || 0)) : (tu.marks != null ? tu.marks : (tu.points || 0));
+        return `<td class="${gizli ? 'tk-gizli' : ''} ${tu.bust ? 'tk-bust' : ''} ${tu.checkout ? 'tk-bitir' : ''} ${sira === acik ? 'tk-son' : ''}"><b>${deger}</b><span class="tk-ok">${oklar}</span>${x01 ? `<small>${tu.checkout ? t('Bitirdi') : t('Kalan {0}', kalan[i])}</small>` : ''}</td>`;
+      }).join('');
+      return `<tr><th>${r}</th>${hucre}</tr>`;
+    }).join('');
+    const toplam = turlar.length;
+    const kaz = legKazanan[leg];
+    pd.innerHTML = `<div class="modal glass tekrar-kart" role="dialog" aria-modal="true">
+      <div class="tekrar-bas"><span class="app-ico simge tekrar-ic">${ikon(m.gameId).replaceAll('dx' + m.gameId, 'dxtk' + m.gameId)}</span>
+        <div><h3>${t('Maç tekrarı')} · ${esc(gt(g, 'name'))}</h3><small>${new Date(m.started).toLocaleString(yerel(), { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</small></div>
+        <button type="button" class="tekrar-kapat" data-tk="kapat" aria-label="${t('Kapat')}">${CARPI}</button></div>
+      ${legler.length > 1 ? `<div class="ay-seg tekrar-legler">${legler.map(l => `<button type="button" class="${l === leg ? 'on' : ''}" data-tk="leg" data-v="${l}">${t('Leg {0}', l)}</button>`).join('')}</div>` : ''}
+      <div class="tekrar-tablo-yer"><table class="tekrar-tablo"><thead><tr><th>${t('Tur')}</th>${m.sides.map((_, i) => `<th class="${kaz === i ? 'tk-kazanan' : ''}">${esc(ad(i))}${kaz === i ? ' 🏆' : ''}</th>`).join('')}</tr></thead><tbody>${satirlar}</tbody></table></div>
+      <div class="tekrar-dugmeler"><button type="button" class="btn" data-tk="basa">${BASA_IC}<span>${t('Başa')}</span></button>
+        <button type="button" class="btn" data-tk="geri" ${acik <= 0 ? 'disabled' : ''}>‹</button>
+        <button type="button" class="btn primary" data-tk="oynat">${oynuyor ? DURAKLA_IC : OYNAT_IC}<span>${oynuyor ? t('Durdur') : t('Oynat')}</span></button>
+        <button type="button" class="btn" data-tk="ileri" ${acik >= toplam ? 'disabled' : ''}>›</button></div></div>`;
+    const son = pd.querySelector('.tk-son'); if (son) son.scrollIntoView({ block: 'nearest' });
+    return toplam;
+  };
+  const durdur = () => { clearInterval(oynuyor); oynuyor = null; };
+  const kapat = () => { durdur(); pd.classList.add('kapan'); setTimeout(() => pd.remove(), 200); };
+  ciz(); document.body.appendChild(pd); vib(6);
+  pd.addEventListener('click', e => {
+    if (e.target === pd) { kapat(); return; }
+    const b = e.target.closest('[data-tk]'); if (!b) return;
+    const toplam = m.log.filter(tu => tu.leg === leg).length;
+    const h = b.dataset.tk;
+    if (h === 'kapat') { kapat(); return; }
+    if (h === 'leg') { durdur(); leg = Number(b.dataset.v); acik = Infinity; }
+    if (h === 'basa') { durdur(); acik = 0; }
+    if (h === 'geri') { durdur(); acik = Math.max(0, Math.min(acik, toplam) - 1); }
+    if (h === 'ileri') { durdur(); acik = Math.min(toplam, acik + 1); }
+    if (h === 'oynat') {
+      if (oynuyor) durdur();
+      else { if (acik >= toplam) acik = 0; oynuyor = setInterval(() => { acik++; ses.tus && ses.tus(); ciz(); if (acik >= toplam) { durdur(); ciz(); } }, 900); }
+    }
+    ciz();
+  });
+}
 function viewStats() {
   const players = data().players;
   if (!players.length) return `<main class="page">${header(t('İstatistik'))}<p class="muted center">${t('Önce oyuncu ekle.')}</p></main>`;
@@ -1402,13 +1483,16 @@ function viewStats() {
   const insanlar = players.filter(p => !p.bot);
   if (!insanlar.length) return `<main class="page">${header(t('İstatistik'))}<p class="muted center">${t('Önce oyuncu ekle.')}</p></main>`;
   const pid = S.statPid && insanlar.some(p => p.id === S.statPid) ? S.statPid : insanlar[0].id;
-  const st = playerStats(pid);
+  const st = playerStats(pid, S.istSon || 0);
   // Demir 11.11: oyuncu çoğalınca da düzenli — tablette solda aranabilir liste, telefonda kayan avatar şeridi;
   // en çok oynayan üstte, DartBot'lar en altta ayrı grupta
   const ozet = players.map(p => { const s2 = playerStats(p.id); return { p, n: s2.played, w: s2.wins }; });
   const insan = ozet.filter(o => !o.p.bot).sort((a, b) => b.n - a.n || a.p.name.localeCompare(b.p.name, 'tr'));
+  // Demir 17.11: aynı adlı yerel oyuncu ile arkadaş karışmasın — Sen / Arkadaş / Yerel etiketi, arkadaşın fotoğrafı
+  const benU = (hesapUye().user || {}).uid;
+  const etiket = pl => pl.uid && pl.uid === benU ? `<i class="ist-etiket e-sen">${t('Sen')}</i>` : pl.uid ? `<i class="ist-etiket e-ark">${t('Arkadaş')}</i>` : `<i class="ist-etiket e-yerel">${t('Yerel')}</i>`;
   const satir = o => `<button class="ist-oy ${o.p.id === pid ? 'on' : ''}" style="--pc:${o.p.color}" data-act="statp" data-id="${o.p.id}" data-ad="${esc(o.p.name.toLocaleLowerCase('tr'))}">
-      <span class="pc-av">${avatarIc(o.p.name, esc(basHarf(o.p.name)))}</span><span class="ist-oy-ad"><b>${esc(o.p.name)}</b><small>${o.n ? t('{0} maç', o.n) + ' · ' + pct(o.w, o.n) : t('Maç yok')}</small></span></button>`;
+      <span class="pc-av">${oyuncuAv(o.p, esc(basHarf(o.p.name)))}</span><span class="ist-oy-ad"><b>${esc(o.p.name)}</b>${etiket(o.p)}<small>${o.n ? t('{0} maç', o.n) + ' · ' + pct(o.w, o.n) : t('Maç yok')}</small></span></button>`;
   const sel = `<aside class="ist-liste glass">
       <label class="ist-ara">${IC.ara}<input type="search" placeholder="${t('Oyuncu ara')}" data-ist-ara></label>
       <div class="ist-oylar">${insan.map(satir).join('')}
@@ -1426,19 +1510,20 @@ function viewStats() {
     const ts = m.ended || m.started, gun = gunAd(ts), w = m.winner >= 0 && m.sides[m.winner].members.includes(pid);
     const rakip = m.sides.map((sd, i) => ({ sd, i })).filter(x => !x.sd.members.includes(pid)).map(x => E.sideName(m, x.i, player));
     const baslik = gun !== sonGun ? `<div class="ist-gun">${esc(gun)}</div>` : ''; sonGun = gun;
-    return `${baslik}<div class="ist-mac"><span class="ist-sonuc ${m.winner === -1 ? 'b' : w ? 'w' : 'l'}">${m.winner === -1 ? '=' : t(w ? 'G' : 'M')}</span>
+    return `${baslik}<div class="ist-mac" data-act="mactekrar" data-id="${m.id}" role="button" tabindex="0" title="${t('Maçı tur tur izle')}"><span class="ist-sonuc ${m.winner === -1 ? 'b' : w ? 'w' : 'l'}">${m.winner === -1 ? '=' : t(w ? 'G' : 'M')}</span>
       <span class="app-ico simge ist-mac-ic">${ikon(m.gameId).replaceAll('dx' + m.gameId, 'dxist' + m.gameId)}</span>
       <span class="ist-mac-ad"><b>${esc(gt(GAMES[m.gameId], 'name'))}${dogrulanmis(m) ? `<span class="ist-dogru-yer" title="${t('Doğrulanmış maç')}" aria-label="${t('Doğrulanmış maç')}">${DOGRU_IC}</span>` : ''}</b><small>${rakip.length ? 'vs ' + esc(rakip.join(', ')) : t('Tek kişilik')}</small>${m.paylasan ? `<small class="ist-yy">${t('{0} cihazında oynandı', esc(m.paylasan.ad || ''))}${m.paylasan.onayli ? '' : ` · <button type="button" class="ist-yy-sil" data-act="yymacsil" data-id="${m.id}">${t('Sil')}</button>`}</small>` : ''}</span>
-      <time>${new Date(ts).toLocaleTimeString(yerel(), { hour: '2-digit', minute: '2-digit' })}</time></div>`;
+      <time>${new Date(ts).toLocaleTimeString(yerel(), { hour: '2-digit', minute: '2-digit' })}</time><span class="ist-tekrar-ic" aria-hidden="true">${TEKRAR_IC}</span></div>`;
   }).join('') + (st.tum.length > limit ? `<button class="btn sm ist-daha" data-act="istdaha">${t('Daha fazla göster')} (${st.tum.length - limit})</button>` : '');
   const recent = st.recent.map(m => {
     const w = m.winner >= 0 && m.sides[m.winner].members.includes(pid);
     return `<div class="hrow"><span class="${w ? 'w' : 'l'}">${m.winner === -1 ? '=' : t(w ? 'G' : 'M')}</span><b>${esc(gt(GAMES[m.gameId], 'name'))}</b><small>${new Date(m.started).toLocaleDateString(yerel())} · ${m.sides.map((_, i) => esc(E.sideName(m, i, player))).join(' vs ')}</small></div>`;
   }).join('');
   const sp = players.find(p => p.id === pid);
-  const kahraman = `<section class="ist-kahraman glass" style="--pc:${sp.color}"><span class="pc-av ist-buyuk-av">${avatarIc(sp.name, esc(basHarf(sp.name)))}</span>
-      <div><h2>${esc(sp.name)}</h2><small>${st.son ? t('Son oynama: {0}', gunAd(st.son)) : t('Henüz maç oynamadı')}</small></div></section>`;
+  const kahraman = `<section class="ist-kahraman glass" style="--pc:${sp.color}"><span class="pc-av ist-buyuk-av">${oyuncuAv(sp, esc(basHarf(sp.name)))}</span>
+      <div><h2>${esc(sp.name)} ${etiket(sp)}</h2><small>${st.son ? t('Son oynama: {0}', gunAd(st.son)) : t('Henüz maç oynamadı')}</small></div></section>`;
   return `<main class="page istatistik ist-yeni">${header(t('İstatistik'))}<div class="ist-duzen">${sel}<div class="ist-pano">${kahraman}
+    <div class="ist-son ay-seg" role="tablist" aria-label="${t('Maç aralığı')}">${[[0, 'Tümü'], [10, 'Son 10'], [50, 'Son 50'], [100, 'Son 100']].map(([v, l]) => `<button type="button" role="tab" class="${(S.istSon || 0) === v ? 'on' : ''}" aria-selected="${(S.istSon || 0) === v}" data-act="istson" data-v="${v}">${t(l)}</button>`).join('')}</div>
     <div class="tiles">${tile(st.played, 'Maç')}${tile(st.wins, 'Galibiyet')}${tile(pct(st.wins, st.played), 'Kazanma')}</div>
     ${x ? `${istBas('x01', 'X01')}<div class="tiles">
       ${tile(fmt1(x.avg), '3 ok ort.')}${tile(fmt1(x.first9), 'İlk 9 ort.')}${tile(Number.isFinite(x.checkout) ? yuzde(Math.round(x.checkout * 100)) : '–', t('Checkout ({0}/{1})', x.coHits, x.coAtt))}
@@ -2315,6 +2400,8 @@ app.addEventListener('click', e => {
     case 'pstats': go('stats', { statPid: el.dataset.id }); break;
     case 'statp': S.statPid = el.dataset.id; S.istLimit = 15; render(); break;
     case 'istdaha': S.istLimit = (S.istLimit || 15) + 30; render(); break;
+    case 'istson': S.istSon = Number(el.dataset.v) || 0; vib(6); render(); break; // Demir 17.11
+    case 'mactekrar': macTekrar(el.dataset.id); break; // Demir 17.11: maçı tur tur yeniden oynat
     case 'pedit': S.modal = { type: 'pedit', id: el.dataset.id }; render(); break;
     case 'pdel':
       { const id = el.dataset.id; onayla({ baslik: t('Oyuncu silinsin mi?'), metin: `${data().players.find(x => x.id === id)?.name || ''} — ${t('Geçmiş maçlarda "Silinmiş" olarak görünür.')}`, evet: t('Oyuncuyu sil'), tehlike: true })
@@ -2388,6 +2475,13 @@ app.addEventListener('submit', e => {
     // Demir 17.11: giriş yaptıysan senin adın sana ait — ikinci bir "Demir" açılmaz, zaten sen varsın
     const benI = benimOyuncum(), benP = benI && data().players.find(p => p.id === benI);
     if (benP && benP.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr')) { toast(t('Bu sensin; hesabınla zaten oyundasın'), 'ok'); if (S.view === 'setup' && !S.setup.pids.includes(benI)) S.setup.pids.unshift(benI); const inp = app.querySelector('.addp input'); if (inp) inp.value = ''; render(); return; }
+    // Demir 17.11: arkadaş listende aynı adda biri varsa önce kısa not — eklersen yine yerel kalır (birleştirilmez)
+    const ark = data().players.find(p => p.uid && p.uid !== benP?.uid && !p.silindi && p.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'));
+    if (ark) {
+      onayla({ simge: OY_IC.ark, baslik: t('{0} arkadaşın', esc(ark.name)), metin: t('Onunla istatistik tutmak için Yan Yana Oynuyoruz kutusundan ekle. Burada eklersen bu cihazda ayrı bir yerel oyuncu olur; maçları onun hesabına yazılmaz.'), evet: t('Yerel olarak ekle') })
+        .then(ok => { if (!ok) return; const yp = store.addPlayer(name); if (S.view === 'setup') S.setup.pids.push(yp.id); render(); });
+      return;
+    }
     const p = store.addPlayer(name);
     if (S.view === 'setup') S.setup.pids.push(p.id);
     render();

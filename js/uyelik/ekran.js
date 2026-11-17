@@ -122,7 +122,10 @@ function kendiniGaranti() {
   if (pr.oyuncuId !== o.id) H.profilKaydet({ oyuncuId: o.id }).catch(() => {});
   // Demir 15.11: kendi kopyalarını silerken eski maçların "Silinmiş" kaldı — silinmiş ve artık hiçbir yerde olmayan oyuncu,
   // içinde senin oyuncun bulunmayan maçlarda sana bağlanır (yalnız bu cihazda silindiği bilinen kimlikler; başka kimseye dokunulmaz)
-  const sil = new Set(d.silinenOyuncular || []), var_ = new Set(d.players.map(p => p.id)), arsiv = new Set((d.silinen || []).map(p => p.id));
+  // Demir 17.11: arşivdeki (Oyuncular'dan silinmiş) adı seninle aynı, başka hesaba bağlı olmayan kopya da senindir
+  const benAdK = String(pr.ad || o.name || '').toLocaleLowerCase('tr');
+  const arsivBen = (d.silinen || []).filter(p => (!p.uid || p.uid === ben) && String(p.name || '').toLocaleLowerCase('tr') === benAdK).map(p => p.id);
+  const sil = new Set([...(d.silinenOyuncular || []), ...arsivBen]), var_ = new Set(d.players.map(p => p.id)), arsiv = new Set((d.silinen || []).map(p => p.id).filter(id => !arsivBen.includes(id)));
   let bagli = 0;
   d.history = (d.history || []).map(h => {
     const uyeler = (h.sides || []).flatMap(sd => sd.members || []);

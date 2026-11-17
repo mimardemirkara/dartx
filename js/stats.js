@@ -4,8 +4,10 @@ import { GAMES } from './games/index.js';
 
 const won = (m, pid) => m.winner !== null && m.winner >= 0 && m.sides[m.winner].members.includes(pid);
 
-export function playerStats(pid) {
-  const hist = data().history.filter(m => m.done && m.sides.some(s => s.members.includes(pid)));
+export function playerStats(pid, son = 0) {
+  let hist = data().history.filter(m => m.done && m.sides.some(s => s.members.includes(pid)));
+  // Demir 17.11: "son 10 / 50 / 100 maç" süzgeci — en yeni maçlardan
+  if (son > 0) hist = hist.slice().sort((a, b) => (b.ended || b.started || 0) - (a.ended || a.started || 0)).slice(0, son);
   const res = {
     played: hist.length,
     wins: hist.filter(m => won(m, pid)).length,

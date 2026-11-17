@@ -4429,3 +4429,58 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .kurulum .field.ayar-satir { flex-wrap: wrap; row-gap: 8px; }
 .kurulum .field.ayar-satir > label { flex: 1 0 auto; overflow: visible; }
 .kurulum .field.ayar-satir > .chips, .kurulum .field.ayar-satir > .sayac { margin-left: auto; }
+
+/* Demir 17.11: DartBot "Denk" — 4 seviyenin altında tam genişlik */
+.bot-uyum { --bt: 157 110 245; grid-column: 1 / -1; }
+@media (max-width: 520px) { .bot-sv.bot-uyum { flex-direction: row; gap: 10px; } .bot-sv.bot-uyum .bsv-yazi { text-align: left; } }
+/* Demir 17.11: istatistik aralığı (Tümü / Son 10 / 50 / 100) */
+.ist-son { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 0 10px; }
+.ist-son button { white-space: nowrap; }
+.ist-mac[data-act="mactekrar"] { cursor: pointer; }
+.ist-mac[data-act="mactekrar"]:active { transform: scale(.99); }
+.ist-tekrar-ic { flex: none; width: 22px; height: 22px; color: var(--brand); opacity: .75; display: grid; place-items: center; margin-left: 6px; }
+.ist-tekrar-ic svg { width: 20px; height: 20px; }
+/* Maç tekrarı penceresi */
+.tekrar-perde { align-items: center; padding: 12px; }
+.tekrar-kart { max-width: 860px; width: 100%; border-radius: 26px; max-height: 88vh; display: flex; flex-direction: column; gap: 12px; padding: 18px; }
+.tekrar-bas { display: flex; align-items: center; gap: 12px; }
+.tekrar-bas h3 { margin: 0; font-size: 18px; }
+.tekrar-bas small { color: var(--mut); }
+.tekrar-bas > div { flex: 1; min-width: 0; }
+.tekrar-ic { width: 44px !important; max-width: 44px !important; flex: none; }
+.tekrar-kapat { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .1); color: var(--fg); display: grid; place-items: center; cursor: pointer; }
+.tekrar-kapat svg { width: 18px; height: 18px; }
+.tekrar-legler { display: flex; overflow-x: auto; }
+.tekrar-legler button { flex: none; }
+.tekrar-tablo-yer { overflow: auto; flex: 1; min-height: 120px; border-radius: 16px; background: rgb(0 0 0 / .18); }
+.tekrar-tablo { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tekrar-tablo th, .tekrar-tablo td { padding: 8px 10px; text-align: center; border-bottom: 1px solid rgb(255 255 255 / .07); }
+.tekrar-tablo thead th { position: sticky; top: 0; background: rgb(30 27 24 / .95); font-size: 14px; z-index: 1; }
+.tekrar-tablo thead th.tk-kazanan { color: var(--brand); }
+.tekrar-tablo tbody th { width: 44px; color: var(--mut); font-weight: 700; font-size: 13px; }
+.tekrar-tablo td b { display: block; font-size: 20px; }
+.tekrar-tablo td small { display: block; font-size: 11.5px; color: var(--mut); }
+.tk-ok { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin: 2px 0; }
+.tk-ok i { font-style: normal; font-size: 11.5px; font-weight: 700; padding: 1px 6px; border-radius: 99px; background: rgb(255 255 255 / .08); }
+.tk-gizli > * { visibility: hidden; }
+.tk-son { background: rgb(227 184 102 / .16); animation: tkBelir .35s ease-out; }
+@keyframes tkBelir { from { background: rgb(227 184 102 / .45); } }
+.tk-bust b { color: #e94b3c; }
+.tk-bitir b { color: #2fb36d; }
+.tekrar-dugmeler { display: flex; gap: 8px; justify-content: center; }
+.tekrar-dugmeler .btn { display: inline-flex; align-items: center; gap: 6px; min-width: 52px; justify-content: center; }
+.tekrar-dugmeler .btn svg { width: 18px !important; height: 18px !important; flex: none; }
+:root[data-tema="acik"] .tekrar-tablo-yer { background: rgb(255 255 255 / .45); }
+:root[data-tema="acik"] .tekrar-tablo thead th { background: rgb(246 239 226 / .97); }
+:root[data-tema="acik"] .tekrar-tablo th, :root[data-tema="acik"] .tekrar-tablo td { border-bottom-color: rgb(0 0 0 / .07); }
+:root[data-tema="acik"] .tk-ok i, :root[data-tema="acik"] .tekrar-kapat { background: rgb(0 0 0 / .07); }
+@media (min-width: 700px) { .tekrar-tablo td b { font-size: 24px; } .tk-ok i { font-size: 12.5px; } }
+
+/* Demir 17.11: istatistik listesinde Sen / Arkadaş / Yerel etiketi */
+.ist-etiket { justify-self: start; display: inline-block; font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .03em; line-height: 1; padding: 3px 7px; border-radius: 99px; margin: 2px 0 1px; vertical-align: middle; }
+.ist-etiket.e-sen { color: #2a1c08; background: linear-gradient(180deg, #f0d08a, #c99a45); }
+.ist-etiket.e-ark { color: #fff; background: #3d8bfd; }
+.ist-etiket.e-yerel { color: var(--mut); background: rgb(255 255 255 / .1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .18); }
+:root[data-tema="acik"] .ist-etiket.e-yerel { background: rgb(0 0 0 / .06); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .14); }
+.ist-kahraman h2 .ist-etiket { font-size: 12px; padding: 4px 9px; }
+@media (max-width: 700px) { .ist-oy .ist-etiket { justify-self: center; } }

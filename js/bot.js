@@ -9,7 +9,16 @@ export const BOT_SEVIYE = {
   orta: { ad: 'Orta', ort: 45, sapma: 25 },
   zor: { ad: 'Zor', ort: 70, sapma: 14 },
   usta: { ad: 'Usta', ort: 90, sapma: 9.5 },
+  // Demir 17.11: senin seviyende oynayan bot — rakiplerinin ortalamasına göre sapması her atışta ayarlanır
+  uyum: { ad: 'Denk', ort: null, sapma: 25, uyum: true },
 };
+/** 3 ok ortalamasından sapma (mm): seviye tablosu arasında doğrusal geçiş, uçlarda sınırlı */
+export function ortSapma(ort) {
+  const T = [[20, 60], [30, 42], [45, 25], [70, 14], [90, 9.5], [110, 6.5]];
+  const o = Math.max(T[0][0], Math.min(T[T.length - 1][0], Number(ort) || 45));
+  for (let i = 1; i < T.length; i++) if (o <= T[i][0]) { const [a, sa] = T[i - 1], [b, sb] = T[i]; return sa + (sb - sa) * (o - a) / (b - a); }
+  return T[T.length - 1][1];
+}
 
 // Tahtadaki sayı sırası (saat yönü, tepe 20) ve halka yarıçapları (mm, resmi ölçü)
 const TAHTA = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
@@ -41,8 +50,8 @@ function nokta(x, y) {
 }
 
 /** Hedefe nişan alıp seviyeye göre bir ok üret */
-export function botAt(hedef, seviye = 'orta') {
-  const s = (BOT_SEVIYE[seviye] || BOT_SEVIYE.orta).sapma;
+export function botAt(hedef, seviye = 'orta', sapma = null) {
+  const s = sapma || (BOT_SEVIYE[seviye] || BOT_SEVIYE.orta).sapma;
   if (!hedef || !hedef.n) hedef = { n: 20, m: 3 };
   const [x, y] = nisan(hedef.n, hedef.m || 1);
   return nokta(x + normal() * s, y + normal() * s);
