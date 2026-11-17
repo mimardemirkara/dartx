@@ -4411,3 +4411,21 @@ a.ay-satir { color: inherit; text-decoration: none; }
 .dx-acilir .ac-oyun-ic, .dx-acilir .ac-oyun-ic svg { display: block; width: 100%; height: 100%; }
 /* çevrimdışı arkadaşa davet düğmesi pasif */
 .on-btn[disabled] { opacity: .38; filter: grayscale(.7); cursor: not-allowed; pointer-events: none; box-shadow: none; }
+
+/* Demir 17.11: kurulumda çevrimdışı arkadaş soluk, seçilemez */
+.kur-ark.kapali { opacity: .5; filter: grayscale(.6); cursor: not-allowed; }
+.kur-ark.kapali .kur-ark-tik { display: none; }
+/* Demir 17.11: iPhone "Otomatik Doldur" kutuyu sarıya boyuyordu, şifre yanındaki giriş oku kayboluyordu —
+   doldurulan kutu kendi rengimizde kalır; giriş oku her zaman dolu altın */
+.uy-girdi-yer input:-webkit-autofill, .uy-girdi-yer input:-webkit-autofill:hover, .uy-girdi-yer input:-webkit-autofill:focus, .uy-girdi-yer input:autofill {
+  -webkit-text-fill-color: var(--fg); caret-color: var(--fg);
+  -webkit-box-shadow: 0 0 0 1000px #2a2621 inset !important; box-shadow: 0 0 0 1000px #2a2621 inset !important; transition: background-color 99999s ease-out 0s; }
+:root[data-tema="acik"] .uy-girdi-yer input:-webkit-autofill, :root[data-tema="acik"] .uy-girdi-yer input:-webkit-autofill:focus, :root[data-tema="acik"] .uy-girdi-yer input:autofill {
+  -webkit-text-fill-color: #2a2118; caret-color: #2a2118; -webkit-box-shadow: 0 0 0 1000px #f6efe2 inset !important; box-shadow: 0 0 0 1000px #f6efe2 inset !important; }
+.uy-ok, :root[data-tema="acik"] .uy-ok { background: linear-gradient(180deg, #f0d08a, #c99a45) !important; color: #2a1c08 !important; border: 0 !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / .35), inset 0 1px 0 rgb(255 255 255 / .5) !important; z-index: 2; }
+.uy-ok:hover, :root[data-tema="acik"] .uy-ok:hover { background: linear-gradient(180deg, #f6dc9e, #d4a752) !important; }
+/* Demir 17.11: telefonda ayar adı (Bitiş) seçeneklere sığmayınca kesilmez; seçenekler alt satıra geçer */
+.kurulum .field.ayar-satir { flex-wrap: wrap; row-gap: 8px; }
+.kurulum .field.ayar-satir > label { flex: 1 0 auto; overflow: visible; }
+.kurulum .field.ayar-satir > .chips, .kurulum .field.ayar-satir > .sayac { margin-left: auto; }

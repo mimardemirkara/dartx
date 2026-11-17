@@ -29,7 +29,7 @@ import { uye as hesapUye, dogrulandi as hesapDogrulandi, kurucuMu, bulutMacSil }
 import { uyelikKur, viewUye, hesapKarti, ilkAcilisSor, hesapDugme, hesapKaro, ekranSonra, girisEkrani, eylemBaslat, viewEylem } from './uyelik/ekran.js';
 import { fotoBulKur } from './util.js';
 import { hazirMi as uyelikHazir } from './uyelik/bulut.js';
-import { zilDugme, rakipDurumHtml, hesapOku, kurulumArkadaslar, kurulumDavet, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
+import { zilDugme, rakipDurumHtml, hesapOku, kurulumArkadaslar, kurulumDavet, arkCevrimici, onlineDestekli, yanYanaArkadaslar, arkadasOyuncuEkle, yanYanaSecili, yanYanaIste, yanYanaVazgec } from './uyelik/online.js';
 import { onlineKur, onlineKartlari, esitle as onlineEsitle, kilitli as onlineKilitli, geriAlinabilir as onlineGeriAl, acik as onlineAcik, araBildir as onlineAraBildir, onlineIptal, rovans as onlineRovans } from './uyelik/online.js';
 import { nasilListe, nasilSahne, nasilBaslat, nasilDurdur, nasilKontrol, demoVar, OK_DEFS, OK_CIZ } from './nasil.js';
 
@@ -812,7 +812,7 @@ function viewSetup() {
     ${onl ? '' : g.teams ? `<div class="field ayar-satir mod-satir"><label>${alanIkon('teams')}${t('Mod')}</label>${chips('teams', [['0', 'Tekli', TEK_IC], ['1', 'Takım (2 takım)', KURAL_IKON.kisiler]], teamsOn ? '1' : '0', 'teams')}${!teamsOk ? `<small class="muted">${t('Takım için en az 4 oyuncu seç')}</small>` : ''}${teamPrev}</div>` : ''}`}
     </section></div>
     <div class="kur-alt">
-    ${onl ? `<button class="btn primary big" data-act="kurdavet" ${st.onlineArk && onlineAcik() ? '' : 'disabled'}>${ikon('grp-online')}<span>${t('Arkadaşını davet et')}</span></button>${!st.onlineArk && onlineAcik() ? `<p class="muted center">${t('Davet etmek için bir arkadaşını seç')}</p>` : ''}` : `<button class="btn primary big" data-act="start" ${okCount ? '' : 'disabled'}>${t('Başla')}</button>`}
+    ${onl ? `<button class="btn primary big" data-act="kurdavet" ${st.onlineArk && onlineAcik() && arkCevrimici(st.onlineArk) ? '' : 'disabled'}>${ikon('grp-online')}<span>${t('Arkadaşını davet et')}</span></button>${!st.onlineArk && onlineAcik() ? `<p class="muted center">${t('Davet etmek için bir arkadaşını seç')}</p>` : ''}` : `<button class="btn primary big" data-act="start" ${okCount ? '' : 'disabled'}>${t('Başla')}</button>`}
     ${onl ? '' : !okCount ? `<p class="muted center">${n > sinir ? (g.teams && !teamsOn && g.maxTekli && n <= (g.max || 8) ? t('Tekli en fazla {0} oyuncu. {1} kişi için Takım seç.', sinir, n) : t('Bu oyun en fazla {0} oyuncuyla oynanır', sinir)) : g.min > 1 ? t('En az {0} oyuncu seç', g.min) : t('En az 1 oyuncu seç')}</p>` : ''}
     </div>
   </main>`;
@@ -1983,9 +1983,10 @@ app.addEventListener('click', e => {
       break;
     }
     case 'kurmod': S.setup.online = el.dataset.v === '1'; vib(6); render(); break;
-    case 'kurark': S.setup.onlineArk = S.setup.onlineArk === el.dataset.u ? null : el.dataset.u; vib(6); render(); break;
+    case 'kurark': if (!arkCevrimici(el.dataset.u)) { S.setup.onlineArk = null; toast(t('Çevrimdışı arkadaşa davet gönderilemez'), 'bad', { tur: { ic: 'kisi', a: 'a-sars', k: 'bad' } }); render(); break; } // Demir 17.11
+      S.setup.onlineArk = S.setup.onlineArk === el.dataset.u ? null : el.dataset.u; vib(6); render(); break;
     case 'kurdavet': {
-      if (!S.setup.onlineArk) break;
+      if (!S.setup.onlineArk || !arkCevrimici(S.setup.onlineArk)) break;
       const opts = { ...S.setup.opts };
       el.disabled = true;
       kurulumDavet(S.setup.onlineArk, S.gameId, opts).then(() => { el.disabled = false; }) // Demir 14.11: bekleme penceresi açılır
@@ -2491,8 +2492,9 @@ app.addEventListener('click', e => {
 const tekBasina = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true || new URLSearchParams(location.search).has('tek'); // ?tek=1: deneme
 if (tekBasina) kenarKaydirKur({
   // Demir 12.11: giriş formundayken soldan kaydırınca karşılama ekranına dönülür (geçmişte kaydı olmasa da)
-  geriVar: () => !S.modal && S.view !== 'play' && (gIdx > 0 || !!document.querySelector('[data-act="uy-karsila-geri"]')),
-  ileriVar: () => !S.modal && S.view !== 'play' && gIdx < gMax,
+  // Demir 17.11: ana ekran en baştaki sayfa — orada kenardan kaydırma çalışmaz (boş duvar kağıdı görünüp geri dönüyordu)
+  geriVar: () => !S.modal && S.view !== 'play' && S.view !== 'home' && (gIdx > 0 || !!document.querySelector('[data-act="uy-karsila-geri"]')),
+  ileriVar: () => !S.modal && S.view !== 'play' && S.view !== 'home' && gIdx < gMax,
   geri: () => { if (document.querySelector('[data-act="uy-karsila-geri"]')) { S.uyeKarsila = true; render(); return; } parmakGecis = true; history.back(); },
   ileri: () => { parmakGecis = true; history.forward(); },
   sayfa: () => app.querySelector('main.page, .page') || app.lastElementChild,

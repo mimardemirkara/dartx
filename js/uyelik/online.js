@@ -746,6 +746,8 @@ function uygula(d) {
 // ---- Oyun kurulum ekranı (Demir 11.11): "Bu cihazda | Online" — Online'da arkadaş seçilir, ayarlarla davet gider
 export const ONLINE_OYUNLAR = ['x01', 'turk', 'cricket', 'fullboard'];
 export const onlineDestekli = gameId => ONLINE_OYUNLAR.includes(gameId);
+/** Demir 17.11: arkadaş şu an çevrimiçi mi (maçta olsa da) */
+export const arkCevrimici = uid => !!uid && varlikDurum(uid).tur !== 'kapali';
 export function kurulumArkadaslar(secili) {
   const ben = benUid(); if (!ben) return '';
   const pr = u => durum.profil[u] || { ad: '…' };
@@ -754,8 +756,9 @@ export function kurulumArkadaslar(secili) {
     .sort((x, y) => (sira[varlikDurum(x).tur] - sira[varlikDurum(y).tur]) || pr(x).ad.localeCompare(pr(y).ad, 'tr'));
   if (!ark.length) return `<p class="muted sira-bos">${t('Henüz arkadaşın yok. Online ekranından kodla ya da QR ile arkadaş ekle.')}</p>
     <button type="button" class="btn sm kur-onl-git" data-act="tab" data-v="online">${t('Arkadaş ekle')}</button>`;
-  return `<div class="kur-ark-liste">${ark.map(u => { const vd = varlikDurum(u); const on = u === secili; return `
-    <button type="button" class="pchip sira-satir kur-ark ${on ? 'on' : ''}" data-act="kurark" data-u="${u}" aria-pressed="${on}">
+  // Demir 17.11: çevrimdışı arkadaşa davet gönderilemez — satırı soluk ve seçilemez
+  return `<div class="kur-ark-liste">${ark.map(u => { const vd = varlikDurum(u); const kapali = vd.tur === 'kapali'; const on = u === secili && !kapali; return `
+    <button type="button" class="pchip sira-satir kur-ark ${on ? 'on' : ''} ${kapali ? 'kapali' : ''}" data-act="kurark" data-u="${u}" aria-pressed="${on}" ${kapali ? `aria-disabled="true" title="${esc(t('Çevrimdışı arkadaşa davet gönderilemez'))}"` : ''}>
       <span class="on-av-yer">${avatar(pr(u).ad, pr(u).foto)}<i class="on-nokta ${vd.tur}"></i></span>
       <span class="pc-ad">${esc(pr(u).ad)}<small class="on-durum ${vd.tur}">${esc(vd.yazi)}</small></span>
       <span class="kur-ark-tik" aria-hidden="true">${on ? '✓' : ''}</span></button>`; }).join('')}</div>`;
